@@ -1,0 +1,420 @@
+{
+  "claims": {
+    "PROVED": [
+      "CFGL binds the four DCB payloads to their exact selector filenames.",
+      "XBL derives the first two selector fields from 0x01fc8000 and the final bit from platform type.",
+      "DCB section 16 is copied into qhs_shrm_mem at 0x09065100.",
+      "XBL installs embedded SHRM data and instruction blobs before using the DDR remapper.",
+      "The remapper selects a topology row and programs four qhs_llcc windows through /dev/icbcfg/boot.",
+      "The sole DAL chip record exposes register bases 0x09248080, 0x092c8080, 0x09348080 and 0x093c8080.",
+      "The separate live TrustZone ELF carries the same icbcfg device identity and four-base register record."
+    ],
+    "SUPPORTED": [
+      "The four qhs_llcc register windows implement system-PA region placement/remapping used during DDR bring-up."
+    ],
+    "UNKNOWN": [
+      "Which DCB was selected on the live handset until read-only SoC identity is captured.",
+      "Whether section 16 or SHRM implements final channel/bank/row hashing rather than only training/control.",
+      "Post-boot EL1 readability, writability, lock state and security-enforcement ordering of these registers.",
+      "Whether TrustZone invokes its matching icbcfg record or locks the register windows at runtime.",
+      "Any normal-RAM or protected-memory alias."
+    ]
+  },
+  "dcb_selector": {
+    "config": {
+      "cfgl": {
+        "entry_count": 6,
+        "file_offset": 12288,
+        "major": 1,
+        "minor": 1,
+        "payload_offset": 244
+      },
+      "entries": [
+        {
+          "dcb_sha256": "2c3604698f1241b7f9c62fead0704ed66a972976dc802acd57d367d45c1a5498",
+          "descriptor": {
+            "data_file_offset": 67484,
+            "data_size": 13316,
+            "descriptor_file_offset": 12344,
+            "index": 1,
+            "name": "/6003_0100_1_dcb.bin",
+            "relative_data_offset": 55196
+          },
+          "dsf_version": "0x00650000",
+          "name": "/6003_0100_1_dcb.bin",
+          "section16": {
+            "destination": "0x09065100",
+            "sha256": "e7f22bf3ac319018d716591ef2214639f613757fa5211371261ad30a5e6b5603",
+            "size": 568
+          },
+          "selector": {
+            "hardware_id": "0x6003",
+            "hardware_version": "0x0100",
+            "physical_platform": 1
+          },
+          "used_size": 11692
+        },
+        {
+          "dcb_sha256": "f1d20e0a93b50d3469934e6ccbc6ca60ba704c2bec45119d9af8222d761a4657",
+          "descriptor": {
+            "data_file_offset": 80800,
+            "data_size": 13316,
+            "descriptor_file_offset": 12384,
+            "index": 2,
+            "name": "/6003_0100_0_dcb.bin",
+            "relative_data_offset": 68512
+          },
+          "dsf_version": "0x00650000",
+          "name": "/6003_0100_0_dcb.bin",
+          "section16": {
+            "destination": "0x09065100",
+            "sha256": "a7c50f3d71b3332566fde905b446dabf736e1c83006d409925326b78a175f49b",
+            "size": 348
+          },
+          "selector": {
+            "hardware_id": "0x6003",
+            "hardware_version": "0x0100",
+            "physical_platform": 0
+          },
+          "used_size": 10596
+        },
+        {
+          "dcb_sha256": "34caf815065e5fe3e80483e5348a59caa9dc249faa72d97e6e44f818d17ef607",
+          "descriptor": {
+            "data_file_offset": 94116,
+            "data_size": 13316,
+            "descriptor_file_offset": 12424,
+            "index": 3,
+            "name": "/6003_0200_1_dcb.bin",
+            "relative_data_offset": 81828
+          },
+          "dsf_version": "0x00650000",
+          "name": "/6003_0200_1_dcb.bin",
+          "section16": {
+            "destination": "0x09065100",
+            "sha256": "cdacfa45183be71c13884ed60dd883a7f94ba5fd4fb9cc92899fac4eb0298dc0",
+            "size": 560
+          },
+          "selector": {
+            "hardware_id": "0x6003",
+            "hardware_version": "0x0200",
+            "physical_platform": 1
+          },
+          "used_size": 11820
+        },
+        {
+          "dcb_sha256": "4df51f213519a709de2f631e99d9df210db15c1ebc12d49d612af5ef21009443",
+          "descriptor": {
+            "data_file_offset": 107432,
+            "data_size": 13316,
+            "descriptor_file_offset": 12464,
+            "index": 4,
+            "name": "/6003_0200_0_dcb.bin",
+            "relative_data_offset": 95144
+          },
+          "dsf_version": "0x00650000",
+          "name": "/6003_0200_0_dcb.bin",
+          "section16": {
+            "destination": "0x09065100",
+            "sha256": "649ab9170dddb6ba68f1d65e9e53a85c13a7a9adffd673a3b096c5c856f9c748",
+            "size": 484
+          },
+          "selector": {
+            "hardware_id": "0x6003",
+            "hardware_version": "0x0200",
+            "physical_platform": 0
+          },
+          "used_size": 10928
+        }
+      ]
+    },
+    "format": "/%04X_%04X_%01X_dcb.bin",
+    "hardware_id_expression": "register[31:16]",
+    "hardware_register": "0x01fc8000",
+    "hardware_version_expression": "register[15:0] & 0xff00",
+    "physical_platform_expression": "1 when platform_type != 0xf; otherwise 0",
+    "xbl_code_anchors": {
+      "dcb_filename_and_load": "0x1489f97c",
+      "platform_selector": "0x14839cb4",
+      "soc_register_read_and_state_store": "0x14839d74"
+    }
+  },
+  "ddr_remapper": {
+    "entries": [
+      {
+        "channel_rank_mask": "0x1",
+        "index": 0,
+        "region0_base": "0x80000000",
+        "region1_base": "0x0",
+        "total_bytes": 2147483648,
+        "total_mib": 2048
+      },
+      {
+        "channel_rank_mask": "0x3",
+        "index": 1,
+        "region0_base": "0x80000000",
+        "region1_base": "0x100000000",
+        "total_bytes": 2147483648,
+        "total_mib": 2048
+      },
+      {
+        "channel_rank_mask": "0x1",
+        "index": 2,
+        "region0_base": "0x80000000",
+        "region1_base": "0x0",
+        "total_bytes": 3221225472,
+        "total_mib": 3072
+      },
+      {
+        "channel_rank_mask": "0x3",
+        "index": 3,
+        "region0_base": "0x80000000",
+        "region1_base": "0x100000000",
+        "total_bytes": 3221225472,
+        "total_mib": 3072
+      },
+      {
+        "channel_rank_mask": "0x1",
+        "index": 4,
+        "region0_base": "0x80000000",
+        "region1_base": "0x0",
+        "total_bytes": 4294967296,
+        "total_mib": 4096
+      },
+      {
+        "channel_rank_mask": "0x3",
+        "index": 5,
+        "region0_base": "0x80000000",
+        "region1_base": "0x100000000",
+        "total_bytes": 4294967296,
+        "total_mib": 4096
+      },
+      {
+        "channel_rank_mask": "0x1",
+        "index": 6,
+        "region0_base": "0x80000000",
+        "region1_base": "0x0",
+        "total_bytes": 6442450944,
+        "total_mib": 6144
+      },
+      {
+        "channel_rank_mask": "0x3",
+        "index": 7,
+        "region0_base": "0x80000000",
+        "region1_base": "0x140000000",
+        "total_bytes": 6442450944,
+        "total_mib": 6144
+      },
+      {
+        "channel_rank_mask": "0x1",
+        "index": 8,
+        "region0_base": "0x80000000",
+        "region1_base": "0x0",
+        "total_bytes": 8589934592,
+        "total_mib": 8192
+      },
+      {
+        "channel_rank_mask": "0x3",
+        "index": 9,
+        "region0_base": "0x80000000",
+        "region1_base": "0x180000000",
+        "total_bytes": 8589934592,
+        "total_mib": 8192
+      },
+      {
+        "channel_rank_mask": "0x3",
+        "index": 10,
+        "region0_base": "0x80000000",
+        "region1_base": "0x180000000",
+        "total_bytes": 10737418240,
+        "total_mib": 10240
+      },
+      {
+        "channel_rank_mask": "0x3",
+        "index": 11,
+        "region0_base": "0x80000000",
+        "region1_base": "0x200000000",
+        "total_bytes": 12884901888,
+        "total_mib": 12288
+      },
+      {
+        "channel_rank_mask": "0x3",
+        "index": 12,
+        "region0_base": "0x80000000",
+        "region1_base": "0xc00000000",
+        "total_bytes": 17179869184,
+        "total_mib": 16384
+      }
+    ],
+    "entry_size": 32,
+    "error_string_virtual_address": "0x14820840",
+    "function": "0x1483a6dc",
+    "icb_property": {
+      "dal_property_source": {
+        "device_count": 14,
+        "device_table": "0x14823fb8",
+        "property_binary": "0x148239a0",
+        "structure_pointer_table": "0x148235e0",
+        "virtual_address": "0x14821ff0"
+      },
+      "device": {
+        "djb2_hash": "0x8dfe53c3",
+        "entry_index": 4,
+        "entry_virtual_address": "0x14824058",
+        "path": "/dev/icbcfg/boot",
+        "path_virtual_address": "0x1481dd37",
+        "property_offset": "0x414"
+      },
+      "property": {
+        "name": "icbcfg_info",
+        "record_count": 1,
+        "record_pointer_table": "0x148769e8",
+        "root_virtual_address": "0x148769f0",
+        "structure_index": 6,
+        "structure_size_field": 8,
+        "type": "0x12"
+      },
+      "records": [
+        {
+          "auxiliary_table": "0x148763a8",
+          "channel_instance_count": 4,
+          "index": 0,
+          "interval_table": "0x14876958",
+          "layout1_max_touched_offset": "0x58",
+          "layout1_touched_offsets": [
+            "0x0",
+            "0x4",
+            "0x8",
+            "0xc",
+            "0x10",
+            "0x14",
+            "0x18",
+            "0x1c",
+            "0x20",
+            "0x24",
+            "0x28",
+            "0x2c",
+            "0x30",
+            "0x34",
+            "0x38",
+            "0x3c",
+            "0x40",
+            "0x44",
+            "0x48",
+            "0x4c",
+            "0x50",
+            "0x54",
+            "0x58"
+          ],
+          "mapping_slot_count": 6,
+          "register_base_table": "0x14876978",
+          "register_bases": [
+            {
+              "address": "0x09248080",
+              "qhs_llcc_window": "0x09240000",
+              "window_offset": "0x8080"
+            },
+            {
+              "address": "0x092c8080",
+              "qhs_llcc_window": "0x092c0000",
+              "window_offset": "0x8080"
+            },
+            {
+              "address": "0x09348080",
+              "qhs_llcc_window": "0x09340000",
+              "window_offset": "0x8080"
+            },
+            {
+              "address": "0x093c8080",
+              "qhs_llcc_window": "0x093c0000",
+              "window_offset": "0x8080"
+            }
+          ],
+          "register_layout": 1,
+          "selector": {
+            "chip_family_id": "0x56",
+            "optional_mask": "0x0",
+            "optional_mask_pointer": "0x0",
+            "optional_value": "0x0",
+            "version_policy_byte": 0,
+            "version_value": "0x0"
+          },
+          "table_entry_count": 36,
+          "virtual_address": "0x14876998"
+        }
+      ]
+    },
+    "icb_set_region_function": "0x14850694",
+    "table_virtual_address": "0x14874a38",
+    "trustzone_crosscheck": {
+      "channel_instance_count": 4,
+      "chip_family_id": "0x56",
+      "claim_boundary": "PROVED the separate TrustZone ELF carries the same icbcfg device identity and four-base record; UNKNOWN whether secure-world runtime invokes it or locks the registers",
+      "device_entry_virtual_address": "0x1c116f48",
+      "device_hash": "0x8dfe53c3",
+      "device_path": "/dev/icbcfg/boot",
+      "device_path_virtual_address": "0x1c114b89",
+      "mapping_slot_count": 6,
+      "property_offset": "0xeec",
+      "record_virtual_address": "0x1c13f658",
+      "register_base_table": "0x1c13f638",
+      "register_bases": [
+        "0x09248080",
+        "0x092c8080",
+        "0x09348080",
+        "0x093c8080"
+      ],
+      "register_layout": 1,
+      "table_entry_count": 36,
+      "version_value": "0x10000"
+    }
+  },
+  "inputs": {
+    "trustzone": {
+      "filename": "tz--sdd5.bin",
+      "sha256": "a5e6c574e18e2e576a25df6274b20bdb142386811dfda6383f86d7b1b3c102ab",
+      "size": 4194304
+    },
+    "xbl": {
+      "filename": "xbl--sdb1.bin",
+      "sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+      "size": 4194304
+    },
+    "xbl_config": {
+      "filename": "xbl_config--sdb2.bin",
+      "sha256": "0e9dfac1ddd0f9acc2cc899213e621490308f0cadf329814048edb7712e2484c",
+      "size": 4149248
+    }
+  },
+  "schema": "sdm855-xbl-memory-pipeline-inventory-v1",
+  "shrm": {
+    "blobs": [
+      {
+        "copy_function": "0x148aeb7c",
+        "first_destination": "0x09062100",
+        "name": "data",
+        "sha256": "e36ec8144e0d2280497ed167c41c86a94a3e25c74e380d7f75a5d0bc69d02564",
+        "size": "0x868",
+        "size_decimal": 2152,
+        "virtual_address": "0x148bb630"
+      },
+      {
+        "copy_function": "0x148aebfc",
+        "first_destination": "0x09068000",
+        "name": "instruction",
+        "sha256": "421824b417ab28e6c0d1802c05d7ce5422e93b116973ce7f039321fb5a01a1fd",
+        "size": "0x5ce0",
+        "size_decimal": 23776,
+        "virtual_address": "0x148bbe98"
+      }
+    ],
+    "clear_function": "0x148aedbc",
+    "csr_base": "0x09050000",
+    "instruction_set": "UNKNOWN",
+    "load_both_blobs_function": "0x148aeddc",
+    "memory_base": "0x09060000",
+    "mpu_base": "0x09102000",
+    "section16_destination": "0x09065100",
+    "section16_offset_in_shrm_memory": "0x5100"
+  }
+}

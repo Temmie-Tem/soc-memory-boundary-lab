@@ -6,9 +6,10 @@
 LLCC-to-EBI_CH0 path, a DDRSS configuration slave on CNOC, LLCC cache-slice
 registers, LLCC/DDR bandwidth monitors and AOP DDR performance messages.
 
-`UNKNOWN`: The exact IP name and register space that maps system PA bits to
-channel/rank/bank-group/bank/row/column. The Linux source contains no identified
-SM8150 implementation of that mapping.
+`PROVED`: Exact XBL has a four-instance qhs_llcc region-remapper register space.
+`UNKNOWN`: The exact later IP/fields that map system PA bits to channel/rank/
+bank-group/bank/row/column. The Linux source contains no identified SM8150
+implementation of that finer mapping.
 
 `SUPPORTED`: The decisive state is in memory-controller/PHY-coupled DDRSS logic
 initialized by XBL/DDR DSF/DCB before general RAM becomes usable. Exact live XBL
@@ -22,11 +23,11 @@ candidate is EL1-accessible.
 
 | Rank | Candidate | Who/when | Base and offset | Width | EL1 read/write | Reset/boot/lock/owner | Confidence |
 |---:|---|---|---|---|---|---|---|
-| 1 | XBL DSF/DCB final DDRSS decode write path | `PROVED`: XBL initializes/trains DDR before HLOS; decode subset `UNKNOWN` | live XBL/config offsets under analysis | likely 32-bit MMIO, exact `UNKNOWN` | static bytes acquired; live access `UNKNOWN` | boot values/lock owner `UNKNOWN` | Highest static-analysis value |
-| 2 | Four board DCB/config blocks in `xbl_config--sdb2` | `PROVED`: exact loader validates `0x3404`/DSF `0x650000` and consumes five sections | ELF entry `0x148d0000`; section 16 copied to `0x09065100` | structured data; final-map field identity `UNKNOWN` | host-readable; runtime mutation not proposed | selected DCB and SHRM lock behavior `UNKNOWN` | High |
-| 3 | CNOC DDRSS configuration endpoint `SLAVE_CNOC_DDRSS` | `PROVED`: endpoint exists; programmer `UNKNOWN` | endpoint-specific base/offset `UNKNOWN`; do not infer config-NOC aperture blindly | `UNKNOWN` | `UNKNOWN/UNKNOWN` | `UNKNOWN` | Medium: route proved, semantics absent |
-| 4 | LLCC core/broadcast and HN-facing selection state | Linux programs cache slices at LLCC probe | base `0x09200000`; known cache offsets `0x21000+8*n`, `0x21004+8*n`, `0x21f00`, `0x21f04`, status `0x3000c` | source uses 32-bit regmap | source-backed read plausible; Linux writes cache-slice fields | cache fields boot values source-derived; decode role `REFUTED` for those known offsets | Medium landmark, low final-transform confidence |
-| 5 | MCCC/AOP DDRSS control and LLCC-to-DDR BWMON | XBL maps MCCC; AOP manages DDR; counters observe traffic | MCCC `0x090b0000–0x090b0fff`; BWMON `0x090cd000–0x090cdfff`; PMU `0x090cc000–0x090cc2ff` | likely 32-bit, field semantics incomplete | source-backed reads plausible; mapping write not exposed | XBL classifies MCCC `NS_DEVICE`; post-boot lock/access `UNKNOWN` | Medium landmark, low transform-field confidence |
+| 1 | XBL ICB/qhs_llcc region remapper | `PROVED`: XBL programs it during DDR bring-up | bases `0x09248080`, `0x092c8080`, `0x09348080`, `0x093c8080`; offsets `0x00..0x58` | exact writer uses 32-bit MMIO | static writer proved; live EL1 read/write `UNKNOWN` | boot values/lock/owner after XBL `UNKNOWN` | Exact system-PA remap candidate; final DRAM-hash role `UNKNOWN` |
+| 2 | DCB section 16 + SHRM firmware path | `PROVED`: XBL selects DCB, copies section 16, installs SHRM blobs | `qhs_shrm_mem + 0x5100` (`0x09065100`) | structured data/firmware; semantics `UNKNOWN` | host-readable; runtime access `UNKNOWN` | selected DCB and SHRM lock behavior `UNKNOWN` | High remaining channel/bank decode value |
+| 3 | Four-channel MCCC/MC windows in XBL topology | XBL/SHRM DDR bring-up | `qhs_mccc`, `qhs_llcc`, `qhs_mc` bases enumerated in exact topology | likely 32-bit; exact fields `UNKNOWN` | `UNKNOWN/UNKNOWN` | `UNKNOWN` | High for finer decode, no field yet |
+| 4 | CNOC DDRSS configuration endpoint `SLAVE_CNOC_DDRSS` | `PROVED`: endpoint exists; programmer `UNKNOWN` | endpoint-specific base/offset `UNKNOWN`; do not infer config-NOC aperture blindly | `UNKNOWN` | `UNKNOWN/UNKNOWN` | `UNKNOWN` | Medium: route proved, semantics absent |
+| 5 | MCCC master/AOP and LLCC-to-DDR BWMON | XBL maps MCCC; AOP manages DDR; counters observe traffic | MCCC `0x090b0000–0x090b0fff`; BWMON `0x090cd000–0x090cdfff`; PMU `0x090cc000–0x090cc2ff` | likely 32-bit, field semantics incomplete | source-backed reads plausible; mapping write not exposed | XBL classifies MCCC `NS_DEVICE`; post-boot lock/access `UNKNOWN` | Medium landmark, low transform-field confidence |
 
 ### Negative candidate
 
@@ -42,6 +43,7 @@ interleave/swizzle/bank-swap/address-map terms found no SM8150-specific CPU
 PA-to-DRAM mapping program. Generic legacy BIMC interleave structures and WLAN
 descriptor swizzling are not evidence for this target.
 
-`PROVED`: XBL is a component that initializes DDR before Linux. `SUPPORTED`, not
-`PROVED`: it also programs the final PA-to-DRAM transform; the exact MMIO write
-chain must still be recovered.
+`PROVED`: XBL initializes DDR before Linux and programs a topology-dependent
+system-PA region remapper through exact qhs_llcc MMIO windows. `UNKNOWN`: whether
+this is the final PA-to-DRAM channel/bank/row transform or an earlier aperture
+map followed by finer MCCC/MC decode.

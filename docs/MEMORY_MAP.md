@@ -67,3 +67,21 @@ RKP can impose runtime permission changes independently of `no-map`.
 
 `PROVED`: live `MemTotal` was `5,504,940 kB`; this is a point-in-time software
 accounting observation, not proof of physical DRAM topology.
+
+## Boot-time SHRM and remapper landmarks
+
+Experiment 006 adds exact firmware-backed physical landmarks:
+
+| Range/address | Role | Evidence/status |
+|---|---|---|
+| `0x09050000` | `qhs_shrm_csr` | `PROVED` exact XBL topology. |
+| `0x09060000` | `qhs_shrm_mem` | `PROVED`; DCB section 16 lands at `0x09065100` (`+0x5100`). |
+| `0x09102000` | `qhs_shrm_mpu_cfg` | `PROVED` exact XBL topology; active policy `UNKNOWN`. |
+| `0x09248080–0x092480d8` | qhs_llcc remapper instance 0 | `PROVED` exact XBL ICB writer. |
+| `0x092c8080–0x092c80d8` | qhs_llcc remapper instance 1 | `PROVED` exact XBL ICB writer. |
+| `0x09348080–0x093480d8` | qhs_llcc remapper instance 2 | `PROVED` exact XBL ICB writer. |
+| `0x093c8080–0x093c80d8` | qhs_llcc remapper instance 3 | `PROVED` exact XBL ICB writer. |
+
+The ranges describe 32-bit registers at four-byte offsets, not a license to
+treat intervening or adjacent MMIO as discovered. Post-boot EL1 accessibility
+and lock state remain `UNKNOWN`.

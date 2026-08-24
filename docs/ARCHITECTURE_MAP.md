@@ -46,6 +46,24 @@ Experiment 004 hashes and `research/live-firmware-static-recon.md`.
 uncacheable `NS_DEVICE` during boot. This is a firmware-backed register landmark,
 not yet a final-decode register identification or proof of post-boot EL1 access.
 
+`PROVED`: Exact XBL's DDR remapper selects a row by channel/rank mask and total
+MiB, constructs two physical-region records, and sends them to
+`/dev/icbcfg/boot`. DAL property `icbcfg_info` resolves to four register bases:
+`0x09248080`, `0x092c8080`, `0x09348080`, and `0x093c8080`. Exact topology
+labels each containing window `qhs_llcc`; the layout-1 writer touches 32-bit
+offsets `0x00..0x58` in each instance. Evidence:
+`evidence/manifests/006-xbl-memory-pipeline-inventory.json` and
+`research/xbl-shrm-icbcfg-recon.md`.
+
+`SUPPORTED`: This four-instance block owns system-PA region placement/remapping
+during DDR bring-up. `UNKNOWN`: whether it also owns final channel/bank/row
+hashing, or whether that finer decode occurs later in SHRM/MCCC/MC logic.
+
+`PROVED`: The exact live TrustZone ELF contains the same `/dev/icbcfg/boot`
+device hash and the same four-base/six-slot layout record. `SUPPORTED`: secure
+firmware has configuration knowledge for this remapper. Runtime invocation,
+lock ownership and enforcement ordering remain `UNKNOWN`.
+
 `REFUTED`: Downstream `mc_virt-base = 0x09680000` is by itself an exact DDR
 controller-register identification. In this tree the `fab_mc_virt` fabric uses
 `bypass-qos-prg`, and upstream review describes `*_virt` register ranges as
@@ -103,10 +121,10 @@ Their precise enablement and ordering remain `UNKNOWN`.
 
 | Question | Current answer |
 |---|---|
-| Which block owns the final mapping? | `HYPOTHESIS`: DDRSS MC/PHY-coupled decode; exact block `UNKNOWN`. |
-| Who programs it? | `SUPPORTED`: XBL/DDR DSF/DCB initializes DDR; exact decode writer still `UNKNOWN`. AOP runtime DDR management is `PROVED`. |
-| At what stage? | XBL DDR initialization before HLOS is `PROVED`; exact transform write and later mutability remain `UNKNOWN`. |
+| Which block owns the final mapping? | `PROVED`: qhs_llcc ICB windows own boot region remapping. Final channel/bank/row decode owner remains `UNKNOWN`. |
+| Who programs it? | `PROVED`: XBL programs the region remapper through `icbcfg`; SHRM/MCCC/MC final-decode ownership remains `UNKNOWN`. AOP runtime DDR management is `PROVED`. |
+| At what stage? | Region-remap programming during XBL DDR initialization before HLOS is `PROVED`; later mutability remains `UNKNOWN`. |
 | Can EL1 observe it? | `UNKNOWN`; EL1 can observe topology, LLCC/BWMON landmarks and reserved ranges. |
-| Can EL1 modify it? | `UNKNOWN`; no relevant writable register has been identified. |
+| Can EL1 modify it? | `UNKNOWN`; XBL's writer is identified, but post-boot EL1 reachability/lock state is untested. |
 | Does EL2/EL3 lock it? | `UNKNOWN`. |
 | Is there a post-transform security check? | `UNKNOWN`. |

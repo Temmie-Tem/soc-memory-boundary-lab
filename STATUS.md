@@ -31,14 +31,24 @@ block-device nodes under `/dev`; partition data access was read-only.
   device-before/host/device-after SHA-256. Exact XBL owns DDR DSF/DCB training;
   exact AOP manages DDR runtime state; exact `hyp` supplies QHEE; exact `tz`
   names BIMC/MEMNOC/LLCC memory-protection units.
+- Experiment 006 binds all four DCBs to exact selector filenames, proves the
+  section-16 path into SHRM, recovers XBL's 13-row DDR remapper table, and
+  follows `icbcfg_info` to four `qhs_llcc + 0x8080` register windows:
+  `0x09248080`, `0x092c8080`, `0x09348080`, `0x093c8080`. Layout 1 touches
+  32-bit offsets `0x00..0x58` in each window.
+- The separate exact TrustZone ELF contains the same `/dev/icbcfg/boot` DAL
+  identity and four-base, six-slot layout record. Runtime invocation/locking is
+  still `UNKNOWN`.
 
 ## B. 현재 HYPOTHESIS
 
-- Final SM8150 PA-to-channel/rank/bank/row/column state resides in the subset of
-  XBL DSF/DCB-driven DDRSS controller logic not yet isolated from PHY training.
+- Final SM8150 PA-to-channel/rank/bank/row/column state extends beyond, or is
+  partly encoded by, the now-proved ICB/LLCC region remapper and the remaining
+  SHRM/MCCC/MC logic not yet isolated from PHY training.
 - Some channel/bank selection may be XOR-linear over address bits.
 - QHEE/TrustZone may own or lock relevant configuration, but no owner/lock
-  evidence exists yet.
+  evidence exists yet. TrustZone's duplicate `icbcfg` record makes this a
+  narrower, directly testable hypothesis.
 
 ## C. REFUTED
 
@@ -52,7 +62,9 @@ block-device nodes under `/dev`; partition data access was read-only.
 
 ## D. UNKNOWN
 
-- Exact final-transform block, MMIO base/offset, width and semantics.
+- Exact final channel/rank/bank/row/column transform fields. A system-PA region
+  remapper now has exact MMIO bases/offset range; its finer DRAM-decode role is
+  `UNKNOWN`.
 - Reset value, boot value, runtime readability/writability, lock state and owner.
 - Exact final-decode XBL/DCB programming call graph and register fields. The
   firmware bytes themselves are now `PROVED` available.
@@ -63,13 +75,15 @@ block-device nodes under `/dev`; partition data access was read-only.
 ## E. SDM855 physical→DRAM pipeline 후보
 
 ```text
-CPU VA -> ARM stage-1 -> system PA -> NoC/interconnect -> LLCC/HN-facing path
-       -> DDRSS MC address decode/interleave/hash -> PHY -> LPDDR4X coordinate
+CPU VA -> ARM stage-1 -> system PA -> NoC/interconnect
+       -> four qhs_llcc ICB region-remap windows
+       -> later MCCC/MC address decode/interleave/hash
+       -> PHY -> LPDDR4X coordinate
 ```
 
-The CPU/MMU, source-visible interconnect endpoints, LLCC and EBI direction are
-`PROVED`; precise HN/MC/PHY ordering and the transform location are
-`HYPOTHESIS/UNKNOWN`.
+The CPU/MMU, source-visible interconnect endpoints, LLCC/EBI direction and XBL's
+four-window region-remap programming are `PROVED`; the finer channel/bank/row
+decode and precise protection ordering remain `HYPOTHESIS/UNKNOWN`.
 
 ## F. protection pipeline 후보
 
@@ -83,15 +97,15 @@ position relative to final decode are `UNKNOWN`.
 
 ## G. 가장 가능성 높은 controller/register 후보 Top 5
 
-1. `SUPPORTED`: exact XBL DSF/DCB write path; firmware and training ownership
-   are proved, final-decode subset still `UNKNOWN`.
-2. `SUPPORTED`: populated `xbl_config--sdb2` ELF and repeated configuration
-   blocks. Four `0x3404` DCBs and XBL's section-consumption path to
-   `0x09065100` are `PROVED`; final-map field identity remains `UNKNOWN`.
-3. `PROVED endpoint / UNKNOWN semantics`: `SLAVE_CNOC_DDRSS` configuration path.
-4. `PROVED landmark / low transform confidence`: LLCC base `0x09200000`; known
-   `0x21000...` fields are cache-slice configuration, not proved decode fields.
-5. `PROVED landmarks / low transform-field confidence`: XBL MCCC
+1. `PROVED region remapper / UNKNOWN final hash`: four XBL-programmed
+   `qhs_llcc + 0x8080` windows at `0x09248080`, `0x092c8080`, `0x09348080`,
+   `0x093c8080`, using 32-bit offsets through `+0x58`.
+2. `PROVED transport / UNKNOWN semantics`: DCB section 16 copied to
+   `qhs_shrm_mem + 0x5100` and consumed alongside installed SHRM firmware.
+3. `PROVED landmarks / high remaining-decode value`: four-channel `qhs_mccc`,
+   `qhs_llcc`, and `qhs_mc` windows encoded in exact XBL topology.
+4. `PROVED endpoint / UNKNOWN semantics`: `SLAVE_CNOC_DDRSS` configuration path.
+5. `PROVED landmark / low final-hash confidence`: XBL MCCC master
    `0x090b0000`, AOP DDR manager, and LLCC-to-DDR BWMON `0x090cd000`.
 
 Full per-candidate fields are in `research/sm8150-memory-subsystem.md`.
@@ -130,17 +144,19 @@ not yet a structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-Determine the live-selected one of four DCBs, then trace DCB section 16 from the
-proved `0x09065100` destination through SHRM/DSF into controller writes. This is
-host-only and is now the shortest path to exact base/offset/lock candidates.
+Capture the fixed live SoC identity fields to select one DCB, then read only
+`+0x00..+0x58` from the four proved qhs_llcc remapper windows. Comparing the
+four boot-programmed maps is now the cheapest test of visibility and lock/access
+state; no write is needed. Fixed-address collectors for both steps are
+implemented and host-tested.
 
 ## N. 가장 위험한 아직 금지된 실험
 
-Writing an unidentified DDRSS decode/interleave/lock register and issuing a
-memory access while the new state is active. It can redirect ordinary traffic,
-corrupt arbitrary RAM or wedge memory irrecoverably for the boot. No such write
-is eligible without an exact register, one-core/cache-safe critical section,
-restore path, watchdog/recovery proof and a written gate.
+Writing the enable or map words in any proved `qhs_llcc + 0x8080` window while
+ordinary memory traffic is active. It can redirect the system-PA aperture,
+corrupt arbitrary RAM or wedge the boot. No write is eligible until boot values,
+field semantics, post-boot lock state, a one-core/cache-safe critical section,
+an exact restore path and watchdog/recovery behavior are established.
 
 ## O. 현재 취약점 가능성 평가
 
@@ -149,13 +165,16 @@ No numeric probability is justified.
 Evidence for the attack class being relevant:
 
 - SM8150 has distinct LLCC-to-EBI and DDRSS configuration paths.
+- Exact XBL programs a topology-dependent system-PA remapper in four qhs_llcc
+  instances before HLOS.
 - Qualcomm primary filings describe channel/bank XOR hashing as a design class.
 - Protection APIs name system physical ranges; they do not themselves reveal
   final decoded DRAM coordinates.
 
 Evidence against a presently usable bypass:
 
-- No EL1-readable or writable final-transform state has been identified.
+- No post-boot EL1 read or write of the proved remapper windows has yet been
+  demonstrated.
 - No SM8150 Linux code programming such a transform was found.
 - No normal-RAM physical-to-DRAM alias exists in evidence.
 - Secure ownership, boot-time locking, or a post-transform check could each

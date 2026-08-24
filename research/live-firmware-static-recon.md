@@ -55,11 +55,11 @@ nonempty header-indexed sections. Evidence:
 `0`, `1`, `2`, `15`, and `16`. It copies section 16 to destination address
 `0x09065100`, bounded to `0x0f00` bytes.
 
-`SUPPORTED`: `0x09065100` is SHRM-facing configuration memory: the exact XBL
-image separately contains SHRM CSR/memory/MPU topology and AOP-SHRM DDR command
-paths. `UNKNOWN`: whether any DCB section contains the final PA interleave/hash
-state, which of the four DCBs is selected on this unit, and whether SHRM turns
-that data into locked controller registers.
+`PROVED` by Experiment 006: `0x09065100` is `qhs_shrm_mem + 0x5100`, and XBL
+installs embedded SHRM data/instruction blobs during DDR bring-up. `UNKNOWN`:
+whether any DCB section contains the final PA interleave/hash state, which of the
+four DCBs is selected on this unit, and whether SHRM turns that data into locked
+controller registers.
 
 ## AOP
 
@@ -97,16 +97,19 @@ memory-protection blocks across BIMC/MEMNOC/LLCC. `UNKNOWN`: which are enabled,
 their precise pipeline order, register bases, and whether any performs a second
 check after final DRAM decode.
 
-## Immediate reverse-engineering target
+## Follow-up status
 
-The next host-only target is the exact XBL DCB path:
+Experiment 006 completed the first structural follow-up:
 
-1. determine which of the four proved DCBs is selected on this unit;
-2. trace section 16 from `0x09065100` through SHRM/DSF consumption and recover
-   controller writes;
-3. classify the remaining DCB sections into PHY training, frequency/clock control, and actual
-   channel/rank/bank/row/column decode;
-4. locate lock/readback operations and their execution stage;
-5. only then create a source-backed live MMIO read allowlist.
+1. all four DCBs are bound to exact selector names;
+2. section 16 is proved to land at `qhs_shrm_mem + 0x5100` alongside installed
+   SHRM firmware;
+3. XBL's DDR remapper table and `/dev/icbcfg/boot` property chain are recovered;
+4. the writer programs four qhs_llcc windows at `+0x8080`, offsets through
+   `+0x58`.
+
+The next live task is a fixed read-only SoC identity capture followed by an
+exact-width read allowlist for those four windows. Final channel/bank/row hash
+fields, locks and enforcement ordering remain `UNKNOWN`.
 
 Current bypass state remains `UNKNOWN / NO BYPASS OBSERVED`.

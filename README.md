@@ -28,6 +28,9 @@ DMA/IOMMU controls for a future normal-RAM proof are specified in
 Exact live `xbl/xbl_config/aop/devcfg/tz/hyp/abl` artifacts were acquired in
 Experiment 004. Raw bytes remain private; the first static reconstruction is in
 [research/live-firmware-static-recon.md](research/live-firmware-static-recon.md).
+Experiment 006 follows the exact DCB/SHRM path into the concrete four-instance
+ICB/LLCC remapper; see
+[research/xbl-shrm-icbcfg-recon.md](research/xbl-shrm-icbcfg-recon.md).
 
 Raw dumps, device identifiers, boot/firmware images, and full transcripts are
 kept below `evidence/private/` and ignored by Git. Redacted hash manifests are

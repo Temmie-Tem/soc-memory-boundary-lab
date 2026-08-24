@@ -6,10 +6,10 @@
 | 002 | Cold boots retain identical fixed carveouts. | DT `reg` values and structural `/proc/iomem` holes match across cold boot A/B. | Same kernel/runtime, hashes, compare dynamic counters separately. | `UNKNOWN`, not yet run. |
 | 003 | Stock-like and research boots advertise the same protected ranges. | Fixed ranges equal; differences are attributable to overlays/runtime. | Bind exact boot artifact; do not equate version string with image hash. | `UNKNOWN`. |
 | 004 | Exact live boot-firmware bytes can be acquired without partition writes. | Device pre-hash, host raw hash and device post-hash match for every allowlisted partition. | Live GPT/sysfs identity, `ro=1`, exact byte count, bounded size, fixed node names, cleanup inventory. | `PROVED`: nine artifacts, 26,779,648 bytes; all triple hashes match. |
-| 005 | Source-backed LLCC/BWMON/MCCC registers are readable from EL1. | Known ID/status/counter fields return plausible values without abort. | Read only exact documented widths; known-negative unmapped read in emulator/host only, never blind device scan. | `UNKNOWN`; adapter not yet executed. |
-| 006 | Final address mapping is programmed by XBL/DDR DSF/DCB. | XBL config consumption leads to topology-dependent MMIO writes. | Exact live firmware hashes and call-graph provenance; distinguish training/perf from map programming. | `SUPPORTED`: XBL DDR/DSF/DCB ownership proved; exact decode writes unknown. |
+| 005 | The exact XBL-programmed qhs_llcc remapper windows are readable post-boot from EL1. | Four control words, then 92 layout words, return stable 32-bit values without abort. | Fixed addresses only; default four-word smoke; explicit `--full`; no write value/retry/arbitrary address. | `UNKNOWN`; collector implemented and host-tested, live endpoint absent. |
+| 006 | Address-region mapping is programmed by XBL/DDR DSF/DCB/ICB. | XBL config consumption leads to topology-dependent MMIO writes. | Exact live firmware hashes and call-graph provenance; distinguish region remap from final channel/bank hash. | `PROVED`: four qhs_llcc remapper bases and `+0x00..+0x58` writer recovered; final DRAM hash role `UNKNOWN`. |
 | 007 | Normal-RAM bank/channel relationships fit a stable GF(2) model. | Timing clusters produce a cross-validated XOR matrix. | Fresh pages, pagemap/PA proof, randomized pairs, cache flush, frequency pinning, hold-out pairs. | `UNKNOWN`. |
-| 008 | A controlled transform state creates physical-to-DRAM alias. | `PA_A != PA_B` but writes through one are observed through the other after cache-neutral independent reads. | Prove distinct PTE/PAs; CPU and DMA controls; cache maintenance; reboot/state restoration; unchanged-state negative control. | `BLOCKED BY WRITE GATE`; no candidate register. |
+| 008 | A controlled transform state creates physical-to-DRAM alias. | `PA_A != PA_B` but writes through one are observed through the other after cache-neutral independent reads. | Prove distinct PTE/PAs; CPU and DMA controls; cache maintenance; reboot/state restoration; unchanged-state negative control. | `NOT ELIGIBLE`: region-remap candidates exist, but readback/lock state, safe restore and a normal-RAM alias hypothesis are not proved. |
 | 009 | A normal-RAM alias reaches a protected boundary. | Only after 008, a minimal non-secret marker/boundary test differs between normal and alias path. | No dump, exact ordering proof, secondary enforcement control. | `NOT ELIGIBLE`. |
 
 ## Experiment 001 metadata
@@ -65,3 +65,25 @@
 - DCB inventory tool SHA-256:
   `7ef54d9a6c7c82a7282b5beb6cafda4f9351afbdca8530097f66367ea33804a7`
 - Repetition count: 1 full capture, preceded by one 128 KiB `devcfg` transport smoke
+
+## Experiment 006 metadata
+
+- Inputs: exact Experiment 004 `xbl--sdb1`, `xbl_config--sdb2`, and `tz--sdd5`
+  artifacts, respectively SHA-256 `e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37`,
+  `0e9dfac1ddd0f9acc2cc899213e621490308f0cadf329814048edb7712e2484c`,
+  and `a5e6c574e18e2e576a25df6274b20bdb142386811dfda6383f86d7b1b3c102ab`
+- Exact action: host-only ELF/CFGL/DCB parsing, SHRM blob hashing, remapper-table
+  parsing and DAL structure-pointer traversal
+- Result: four exact qhs_llcc remapper bases, layout-1 offsets through `+0x58`,
+  plus a matching TrustZone record
+- Device command/write: none; live identity capture pending because no ACM
+  endpoint was present
+- Public manifest SHA-256:
+  `39469ac59ef0e3a2b9858b7435a4433def58d57407a4066da3854cfdd24409a5`
+- Static inventory tool SHA-256:
+  `be9aa3cbb477f47539ef7da1ba75b1785bdaefd5ebdb4fb56ea49fbe9440e6b7`
+- Read-only identity collector SHA-256:
+  `d2ca8e2f909d2ab00812e8311e03958680941a008bedbba2e8166945f261bff1`
+- Fixed ICB remapper collector SHA-256:
+  `19df323c2252316dddef08428d0fec209ac16bf25c4f6fc625172de6a655637c`
+- Host verification: 36 unit tests pass; regenerated manifest is byte-identical

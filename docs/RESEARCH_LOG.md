@@ -74,3 +74,35 @@
    `0x3404` DCBs at DSF `0x00650000`. XBL consumes five section indexes and
    copies section 16 to `0x09065100`; SHRM consumption and final-map semantics
    remain `UNKNOWN`.
+
+## 2026-08-25 — Experiment 006 XBL/SHRM/ICB remapper
+
+1. `PROVED`: Parsed the exact `CFGL` descriptor table and bound the four DCB
+   payloads to `6003_{0100,0200}_{0,1}` selector filenames.
+2. `PROVED`: Recovered the selector code. XBL reads `0x01fc8000`, splits its
+   hardware ID/version fields, masks version with `0xff00`, and derives the
+   final bit from physical versus RUMI platform type.
+3. `PROVED`: Identified `0x09060000` as `qhs_shrm_mem`; DCB section 16 lands at
+   `+0x5100`. Hashed the exact embedded SHRM data and instruction blobs and
+   traced their installation functions.
+4. `PROVED`: Function `0x1483a6dc` searches a 13-row `{mask,total MiB,base0,
+   base1}` DDR remapper table and calls `/dev/icbcfg/boot` for two regions.
+5. `PROVED`: Replayed the DAL property lookup from its exact binary structures.
+   The sole `icbcfg_info` record contains four qhs_llcc register instances at
+   `0x09248080`, `0x092c8080`, `0x09348080`, and `0x093c8080`.
+6. `PROVED`: Layout-1 writer `0x1484fbbc` uses 32-bit offsets `0x00..0x58` and
+   brackets programming by clearing/setting the enable bit at offset zero.
+7. `PROVED`: The separate exact TrustZone ELF contains the same DAL device hash,
+   six-slot layout and four register bases. Secure-world runtime use/locking is
+   `UNKNOWN`.
+8. `SUPPORTED`: This is a system-PA region remapper. Its relation to final
+   channel/bank/row hashing, post-boot access and protection ordering remains
+   `UNKNOWN`; no alias or bypass was observed.
+9. Implemented a reproducible static inventory, a fixed read-only SoC-identity
+   collector, and regression tests. The final full suite passed 36 tests.
+10. A live identity read was not attempted because `/dev/serial/by-id` and ACM
+    endpoints were absent when checked. No device command or device write was
+    issued during Experiment 006's current static phase.
+11. Implemented a second fixed read-only collector for Experiment 005. It has no
+    arbitrary-address option, defaults to four `+0x00` control reads, and only
+    expands to the exact 92 layout words with `--full`. It remains unexecuted.

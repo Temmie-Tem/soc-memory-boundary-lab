@@ -16,6 +16,12 @@ but the exact hardware block and register writes remain unobserved.
 `LLCC_BROADCAST_MPU`. This replaces a generic XPU hypothesis with concrete
 SM8150 firmware block names, but does not yet establish enablement or ordering.
 
+`PROVED`: The same TrustZone ELF also contains `/dev/icbcfg/boot` DAL identity
+and the exact four qhs_llcc remapper bases used by XBL. `SUPPORTED`: secure
+firmware has configuration knowledge for that region-remap block. `UNKNOWN`:
+whether secure-world invokes it, locks it, or merely links an unused platform
+record.
+
 `UNKNOWN`: XPU/MPU location along the SM8150 memory path.
 `UNKNOWN`: Whether it checks the system address before final DRAM decode, a
 decoded destination, or both. `UNKNOWN`: Which state is controlled by EL3 versus
