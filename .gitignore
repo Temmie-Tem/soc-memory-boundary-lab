@@ -1,0 +1,18 @@
+# Raw device output and redistributability-sensitive artifacts stay local.
+/evidence/private/**
+!/evidence/private/.gitkeep
+/evidence/**/*.bin
+/evidence/**/*.img
+/evidence/**/*.elf
+/evidence/**/*.mbn
+/evidence/**/*.raw
+/firmware/
+/vendor-artifacts/
+
+# Local execution residue.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+*.log
+*.tmp

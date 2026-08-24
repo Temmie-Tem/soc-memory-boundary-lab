@@ -1,0 +1,167 @@
+{
+  "completed_utc": "2026-08-24T18:31:00+00:00",
+  "experiment_id": "001-baseline-live-20260825-01",
+  "limitations": [
+    "Artifact hashes identify host-side candidates, not bytes read back from the live boot device.",
+    "DT reg decoding proves advertised ranges, not accessibility or enforcement ordering."
+  ],
+  "raw_snapshot_sha256": "977320c895c0098d6de5ff6bead3baf1cf654b203687a60f804078a4b1305a18",
+  "raw_snapshot_size": 28353,
+  "records": [
+    {
+      "command": "version",
+      "evidence_id": "version",
+      "payload_sha256": "816e84c0c429cffacc2fd6efbdd166bf53a59c5b5fcf39cc59bd9788eb3b329a",
+      "payload_size": 240,
+      "rc": 0,
+      "status": "ok"
+    },
+    {
+      "command": "cat /proc/version",
+      "evidence_id": "proc_version",
+      "payload_sha256": "708d48c2f5474f9ae5af840ef0e59d4d50fe181c4b379dba5f7cc56a3fc7587d",
+      "payload_size": 195,
+      "rc": 0,
+      "status": "ok"
+    },
+    {
+      "command": "cat /proc/cmdline",
+      "evidence_id": "proc_cmdline",
+      "payload_sha256": "3d240332176022480f5bc0717c9bcf6346a402b35447f1b2f3e0fd7410826c0a",
+      "payload_size": 2563,
+      "rc": 0,
+      "status": "ok"
+    },
+    {
+      "command": "cat /proc/iomem",
+      "evidence_id": "proc_iomem",
+      "payload_sha256": "f664b133a536ea13261596c6be96d8d6b64f99d1e97f28dfdaf24a592c647484",
+      "payload_size": 5806,
+      "rc": 0,
+      "status": "ok"
+    },
+    {
+      "command": "cat /proc/meminfo",
+      "evidence_id": "proc_meminfo",
+      "payload_sha256": "9c0bb2a708daf3b11647774c9274f8813caf6ca1c017ced91345a830c53c124f",
+      "payload_size": 1177,
+      "rc": 0,
+      "status": "ok"
+    },
+    {
+      "command": "cat /proc/partitions",
+      "evidence_id": "proc_partitions",
+      "payload_sha256": "6cf9a4a3cb40260944a045d7ed3fb7db4beeb228a6bb2bc2f4f3f4b9c6cc488b",
+      "payload_size": 2877,
+      "rc": 0,
+      "status": "ok"
+    },
+    {
+      "command": "ls /sys/firmware/devicetree/base/reserved-memory",
+      "evidence_id": "reserved_memory_listing",
+      "payload_sha256": "d93c2c4bcf6af8076217c2373e16c8ff697ca25ea7f483cabea75e833206c4f2",
+      "payload_size": 1337,
+      "rc": 0,
+      "status": "ok"
+    },
+    {
+      "command": "cat /sys/firmware/devicetree/base/reserved-memory/hyp_mem/reg",
+      "decoded_reg": {
+        "base": "0x85700000",
+        "cells": [
+          "0x00000000",
+          "0x85700000",
+          "0x00000000",
+          "0x00600000"
+        ],
+        "end_inclusive": "0x85cfffff",
+        "size": "0x600000"
+      },
+      "evidence_id": "dt_hyp_mem_reg",
+      "payload_sha256": "9eb2c6269bbd6a03781d7e72e73f4b973b43ee209eb4b35dacc8b8b06d69ff4a",
+      "payload_size": 16,
+      "rc": 0,
+      "status": "ok"
+    },
+    {
+      "command": "cat /sys/firmware/devicetree/base/reserved-memory/uh_heap_region/reg",
+      "decoded_reg": {
+        "base": "0xb0400000",
+        "cells": [
+          "0x00000000",
+          "0xb0400000",
+          "0x00000000",
+          "0x01400000"
+        ],
+        "end_inclusive": "0xb17fffff",
+        "size": "0x1400000"
+      },
+      "evidence_id": "dt_uh_heap_reg",
+      "payload_sha256": "2f1e2a60f23a5db57886bd60648d010b6d8d8010b1706a47152a7d5790880d53",
+      "payload_size": 16,
+      "rc": 0,
+      "status": "ok"
+    },
+    {
+      "command": "cat /sys/firmware/devicetree/base/reserved-memory/rkp_region@B0200000/reg",
+      "decoded_reg": {
+        "base": "0xb0200000",
+        "cells": [
+          "0x00000000",
+          "0xb0200000",
+          "0x00000000",
+          "0x00200000"
+        ],
+        "end_inclusive": "0xb03fffff",
+        "size": "0x200000"
+      },
+      "evidence_id": "dt_rkp_reg",
+      "payload_sha256": "7bd08b8a80e32c1cae7b35aa2a1b7de342b4a4c9357d79f11f19055ebf946d85",
+      "payload_size": 16,
+      "rc": 0,
+      "status": "ok"
+    },
+    {
+      "command": "cat /sys/firmware/devicetree/base/reserved-memory/tima_region@B0000000/reg",
+      "decoded_reg": {
+        "base": "0xb0000000",
+        "cells": [
+          "0x00000000",
+          "0xb0000000",
+          "0x00000000",
+          "0x00200000"
+        ],
+        "end_inclusive": "0xb01fffff",
+        "size": "0x200000"
+      },
+      "evidence_id": "dt_tima_reg",
+      "payload_sha256": "602989c14bda89c07f6cf809a8f0393373f7d8334dce6728d40632ee10420177",
+      "payload_size": 16,
+      "rc": 0,
+      "status": "ok"
+    },
+    {
+      "command": "cat /sys/firmware/devicetree/base/reserved-memory/qseecom_region/reg",
+      "decoded_reg": {
+        "base": "0xa6000000",
+        "cells": [
+          "0x00000000",
+          "0xa6000000",
+          "0x00000000",
+          "0x02400000"
+        ],
+        "end_inclusive": "0xa83fffff",
+        "size": "0x2400000"
+      },
+      "evidence_id": "dt_qseecom_reg",
+      "payload_sha256": "a5f26d5df0a1348702340bf6ade96f2a43b2cc2f28e6220e8f03a60e1f046417",
+      "payload_size": 16,
+      "rc": 0,
+      "status": "ok"
+    }
+  ],
+  "schema": "sdm855-memory-boundary-redacted-manifest-v1",
+  "soc": "SM8150",
+  "started_utc": "2026-08-24T18:31:00+00:00",
+  "target_model": "SM-A908N"
+}

@@ -1,0 +1,31 @@
+{
+  "artifact_sha256": {
+    "host_boot_image_candidate": "ca978551aabe4b39563abaf529ccf2522054952d8b2ad852e632d26da88168cb",
+    "host_extracted_kernel_candidate": "d97eb6c7291477000299fae1c4272105e95fe77df09631ae13099303510b5263",
+    "live_boot_image": "UNKNOWN",
+    "live_dtb": "UNKNOWN",
+    "raw_private_snapshot": "977320c895c0098d6de5ff6bead3baf1cf654b203687a60f804078a4b1305a18",
+    "redacted_manifest": "b616639b3afe8e43b74c4417fef02e54e2f8f549f0cdd85f466af20fa8cd8705",
+    "collector_at_capture": "e05fd1667c23888be743123f6b3791fbec8cbac24adcb4e296bc6b495f672084",
+    "collector_committed_eof_normalized": "aa6eaf9f2595dddb7e79ee4b6627dacdf95768a51ea3b2ca7b94475881f632b5"
+  },
+  "boot_image_identity_note": "Host artifacts are candidates associated with v2321; they are not a readback hash of the live boot chain.",
+  "collector_identity_note": "The committed collector differs from the capture-time file only by removal of an extra blank line at EOF.",
+  "dmesg_log_reference": "No dmesg was required or collected; per-command A90P1 transcripts are in the ignored raw private snapshot and their hashes are in the redacted manifest.",
+  "exact_action": "tools/a90_acm_snapshot.py fixed 12-command read-only allowlist via an operator-pinned loopback ACM bridge",
+  "experiment_id": "001-baseline-live-20260825-01",
+  "firmware_build": "A908NKSU5EWA3",
+  "kernel_build": "Linux 4.14.190-25818860-abA908NKSU5EWA3 aarch64",
+  "preconditions": [
+    "Owner-controlled SM-A908N selected by stable USB identity",
+    "Dedicated bridge resolved to the selected A90 ACM endpoint",
+    "A90P1 research runtime v2321 at command prompt",
+    "No MMIO, protected-memory, SCM, EL2, or EL3 access in the experiment"
+  ],
+  "repetition_count": 1,
+  "result": "All 12 frames returned rc=0 and status=ok; five binary DT reg properties decoded successfully.",
+  "soc": "SM8150",
+  "state": "PROVED",
+  "target_model": "SM-A908N",
+  "timestamp_kst": "2026-08-25T03:31:00+09:00"
+}
