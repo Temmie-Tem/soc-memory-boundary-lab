@@ -54,8 +54,14 @@ ca978551aabe4b39563abaf529ccf2522054952d8b2ad852e632d26da88168cb
 
 ## Next experiment
 
-Build a purpose-specific inline adapter at the already boot-proven stock-kernel
-hook site. Its entire control flow must be map one fixed window, read offset
-zero, unmap immediately, and publish one result, with no generic target or
-arbitrary address. Qualify a no-MMIO direct-call control image first. Do not
-reuse the generic REPL call primitive.
+A purpose-specific inline successor is now host-built at the already
+boot-proven stock-kernel hook site. Both variants have no generic target or
+arbitrary address and unmap before publishing a result:
+
+- control `dbbf81f2…`: fixed map → immediate unmap → `0xc071`, no MMIO load;
+- read `6fe92825…`: fixed map → one 32-bit load → immediate unmap → result.
+
+Each candidate and 212-byte body reproduced byte-identically three times. The
+control must pass one live invocation before the read image becomes eligible.
+See
+`evidence/manifests/007-inline-remapper-candidates-20260825-01.manifest.json`.

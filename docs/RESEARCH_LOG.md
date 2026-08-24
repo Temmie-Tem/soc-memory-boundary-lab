@@ -185,3 +185,12 @@
     narrow kernel adapter. `UNKNOWN`: whether a purpose-built kernel worker can
     map/read/unmap the same fixed window without the REPL callback-context
     watchdog.
+11. Host-only follow-up replaced the generic REPL with two 212-byte inline
+    bodies at the same stock-kernel hook. Both hardcode `0x09248080`, `0x5c`,
+    the protection value and direct call destinations; neither accepts an
+    address or target and neither contains an MMIO store.
+12. The control candidate `dbbf81f2…` performs map → immediate unmap → sentinel
+    without a bus load. The read candidate `6fe92825…` differs by one fixed
+    `ldr w20,[x19]`, then unmaps before printing. Candidate and body bytes for
+    both modes reproduced three times. Device action remains zero for this
+    preparation; the read candidate is not live-eligible before a control pass.

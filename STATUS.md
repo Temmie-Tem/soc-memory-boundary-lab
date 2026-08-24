@@ -54,6 +54,9 @@ Experiment 004 created and removed fixed temporary block-device nodes under
   return, and a `Non Secure Watchdog Bark` 3.027327 seconds later.
 - `msm_readl` was never invoked and no remapper value was read. The exact V2321
   rollback prefix SHA-256 is `ca978551…`; post-TWRP native health is pending.
+- A host-only inline successor now exists at the same stock-kernel hook site.
+  The no-MMIO control (`dbbf81f2…`) and one-load read (`6fe92825…`) candidates
+  each reproduced byte-identically three times; neither has run live.
 
 ## B. 현재 HYPOTHESIS
 
@@ -170,11 +173,11 @@ not yet a structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-Build a purpose-built inline adapter at the already boot-proven stock-kernel
-hook site: one fixed control flow maps one `0x5c` qhs_llcc window, reads offset
-zero, unmaps immediately, and publishes one result. It must contain no generic
-call target or arbitrary address. Qualify a no-MMIO direct-call control image
-first. No controller write is needed.
+After proving final V2321 native health, boot the pinned no-MMIO inline control
+candidate (`dbbf81f2…`) and invoke op 4 once. It maps the first fixed `0x5c`
+window, immediately unmaps it, and returns sentinel `0xc071`; it has no bus
+load, generic call target, arbitrary address, or retry. Only a clean control
+pass makes the one-load read candidate eligible.
 
 ## N. 가장 위험한 아직 금지된 실험
 

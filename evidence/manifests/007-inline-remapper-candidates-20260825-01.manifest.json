@@ -1,0 +1,61 @@
+{
+  "base_boot_sha256": "ca978551aabe4b39563abaf529ccf2522054952d8b2ad852e632d26da88168cb",
+  "builder_sha256": "ab72a1399459fa1924a7aa5b2bc73499bf690a8251103ab1ce95aa73158e2374",
+  "candidates": {
+    "control": {
+      "body_sha256": "0a094ef803e78c773bb548f12c4eb364da27b4b3681dc0d4b37edbf883cf30a7",
+      "boot_sha256": "dbbf81f26cd3d9d2d52d2a2dbe84575b759b45cea8946d02646bd4503ad08247",
+      "boot_size": 60882944,
+      "direct_bl_targets": [
+        "0xffffff80080a4094",
+        "0xffffff80080a4194",
+        "0xffffff800813d8cc"
+      ],
+      "mmio_loads": 0,
+      "operation": "fixed __ioremap then immediate __iounmap then 0xc071 sentinel",
+      "reproduction_count": 3
+    },
+    "read": {
+      "body_sha256": "730f420b219f9ad3ab7da5488f5b8dac3638099cc0007aad7dd31ddfb53982d6",
+      "boot_sha256": "6fe92825702f304a067fc716c3814a63b2f4e76198a054de4c666cad55a462ed",
+      "boot_size": 60882944,
+      "direct_bl_targets": [
+        "0xffffff80080a4094",
+        "0xffffff80080a4194",
+        "0xffffff800813d8cc"
+      ],
+      "mmio_loads": 1,
+      "operation": "fixed __ioremap then one ldr w20,[x19] then immediate __iounmap then result",
+      "reproduction_count": 3
+    }
+  },
+  "device_action": false,
+  "fixed_mapping": {
+    "physical_base": "0x09248080",
+    "prot_device_ngnre": "0x0068000000000707",
+    "size": 92
+  },
+  "hook": {
+    "entry_vaddr": "0xffffff80089273b4",
+    "handler": "kgsl_pwrctrl_force_no_nap_store",
+    "jopp_boundaries_preserved": true,
+    "patch_room": 212
+  },
+  "live_state": "NOT_RUN",
+  "next_gate": "Verify final V2321 native health, then boot and invoke the control candidate exactly once before considering the read candidate",
+  "probe_sha256": "11855f6dec6fe3d702618e3b3a3958d6fb7aa81f1278a2617a4adac2a5cc9fad",
+  "read_candidate_live_eligible": false,
+  "safety": {
+    "arbitrary_address_input": false,
+    "automatic_retries": false,
+    "control_has_mmio_load": false,
+    "generic_call_target": false,
+    "mmio_store_instruction": false,
+    "read_unmaps_before_result": true,
+    "runtime_address_input": false
+  },
+  "schema": "sdm855-a90-inline-remapper-candidate-set-v1",
+  "source_commit": "f44b34c8f44a9a01c99bb589644494c732a6c3fa",
+  "state": "HOST_READY_CONTROL_ONLY",
+  "target_model": "SM-A908N"
+}
