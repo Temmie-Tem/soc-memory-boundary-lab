@@ -83,12 +83,23 @@ Experiment 006 adds exact firmware-backed physical landmarks:
 |---|---|---|
 | `0x09050000` | `qhs_shrm_csr` | `PROVED` exact XBL topology. |
 | `0x09060000` | `qhs_shrm_mem` | `PROVED`; DCB section 16 lands at `0x09065100` (`+0x5100`). |
-| `0x09102000` | `qhs_shrm_mpu_cfg` | `PROVED` exact XBL topology; active policy `UNKNOWN`. |
+| `0x09102000` | `qhs_shrm_mpu_cfg` / TZ `DC_NOC_SHRM_MPU` | `PROVED` exact XBL topology and TZ registry; active policy `UNKNOWN`. |
 | `0x09248080–0x092480d8` | qhs_llcc remapper instance 0 | `PROVED` exact XBL ICB writer. |
+| `0x0924e000` | `BIMC_MPU0` configuration base | `PROVED` exact TZ primary registry; policy/coverage `UNKNOWN`. |
 | `0x092c8080–0x092c80d8` | qhs_llcc remapper instance 1 | `PROVED` exact XBL ICB writer. |
+| `0x092ce000` | `BIMC_MPU1` configuration base | `PROVED` exact TZ primary registry; policy/coverage `UNKNOWN`. |
 | `0x09348080–0x093480d8` | qhs_llcc remapper instance 2 | `PROVED` exact XBL ICB writer. |
+| `0x0934e000` | `BIMC_MPU2` configuration base | `PROVED` exact TZ primary registry; policy/coverage `UNKNOWN`. |
 | `0x093c8080–0x093c80d8` | qhs_llcc remapper instance 3 | `PROVED` exact XBL ICB writer. |
+| `0x093ce000` | `BIMC_MPU3` configuration base | `PROVED` exact TZ primary registry; policy/coverage `UNKNOWN`. |
+| `0x0964e000` | `LLCC_BROADCAST_MPU` configuration base | `PROVED` exact TZ primary registry. |
+| `0x096c0000` | `MEMNOC_MS_MPU` configuration base | `PROVED` exact TZ primary registry. |
 
 The ranges describe 32-bit registers at four-byte offsets, not a license to
 treat intervening or adjacent MMIO as discovered. Post-boot EL1 accessibility
 and lock state remain `UNKNOWN`.
+
+`PROVED` by Experiment 008: the exact 3072+3072 MiB rank topology selects
+remapper row 7, whose destination bases are `0x80000000` and `0x140000000`.
+The runtime source bases and interleave mask were not captured, so this does not
+yet yield numeric boot register contents.

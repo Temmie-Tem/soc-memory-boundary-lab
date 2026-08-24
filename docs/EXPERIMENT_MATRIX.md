@@ -9,9 +9,11 @@
 | 005 | The exact XBL-programmed qhs_llcc remapper windows are readable post-boot from EL1. | Four control words, then 92 layout words, return stable 32-bit values without abort. | Fixed addresses only; temporary fixed `1:1` node; default four-word smoke; explicit `--full`; unconditional cleanup; no MMIO write/retry/arbitrary address. | `REFUTED` for current-kernel `/dev/mem`: absent node then `ENXIO`; live config has `CONFIG_DEVMEM=n`. Hardware/kernel-adapter readability remains `UNKNOWN`. |
 | 006 | Address-region mapping is programmed by XBL/DDR DSF/DCB/ICB. | XBL config consumption leads to topology-dependent MMIO writes. | Exact live firmware hashes and call-graph provenance; distinguish region remap from final channel/bank hash. | `PROVED`: four qhs_llcc remapper bases and `+0x00..+0x58` writer recovered; final DRAM hash role `UNKNOWN`. |
 | 007 | A narrow kernel path can read the exact remapper windows post-boot. | Fixed map/read/unmap returns a stable 32-bit control word without reset. | Exact candidate/map hashes; one fixed base first; no MMIO write/retry/arbitrary address; retained reset log; verified rollback. | `REFUTED` for the generic REPL adapter: `__ioremap` returned, then a non-secure watchdog occurred before `msm_readl`. Purpose-built adapter readability remains `UNKNOWN`. |
-| 008 | Normal-RAM bank/channel relationships fit a stable GF(2) model. | Timing clusters produce a cross-validated XOR matrix. | Fresh pages, pagemap/PA proof, randomized pairs, cache flush, frequency pinning, hold-out pairs. | `UNKNOWN`. |
-| 009 | A controlled transform state creates physical-to-DRAM alias. | `PA_A != PA_B` but writes through one are observed through the other after cache-neutral independent reads. | Prove distinct PTE/PAs; CPU and DMA controls; cache maintenance; reboot/state restoration; unchanged-state negative control. | `NOT ELIGIBLE`: region-remap candidates exist, but readback/lock state, safe restore and a normal-RAM alias hypothesis are not proved. |
-| 010 | A normal-RAM alias reaches a protected boundary. | Only after 009, a minimal non-secret marker/boundary test differs between normal and alias path. | No dump, exact ordering proof, secondary enforcement control. | `NOT ELIGIBLE`. |
+| 008 | Exact retained boot evidence resolves the live DCB/remapper row and TZ protection adjacency. | One DCB and table row match; exact TZ registry binds same-instance MPU configuration bases. | Four SHA-256-pinned private inputs; consistent repeated boot values; structural ELF/registry validation; no device access. | `PROVED`: `/6003_0200_1_dcb.bin`, row 7, six 36-bit slots, and `BIMC_MPU0..3` at matching `qhs_llcc+0xe000`; runtime register words/coverage `UNKNOWN`. |
+| 009 | Static TZ/XBL/AOP consumers distinguish remapper security ownership from sub-aperture clock/fault gating. | Registry consumers, access policy, clock vote, or fault-response path names `+0x8080`/same window. | Host-only exact bytes; code/data xrefs; no MMIO retry or inferred register semantics. | `UNKNOWN`, next. |
+| 010 | Normal-RAM bank/channel relationships fit a stable GF(2) model. | Timing clusters produce a cross-validated XOR matrix. | Fresh pages, pagemap/PA proof, randomized pairs, cache flush, frequency pinning, hold-out pairs. | `UNKNOWN`. |
+| 011 | A controlled transform state creates physical-to-DRAM alias. | `PA_A != PA_B` but writes through one are observed through the other after cache-neutral independent reads. | Prove distinct PTE/PAs; CPU and DMA controls; cache maintenance; reboot/state restoration; unchanged-state negative control. | `NOT ELIGIBLE`: region-remap candidates exist, but readback/lock state, safe restore and a normal-RAM alias hypothesis are not proved. |
+| 012 | A normal-RAM alias reaches a protected boundary. | Only after 011, a minimal non-secret marker/boundary test differs between normal and alias path. | No dump, exact ordering proof, secondary enforcement control. | `NOT ELIGIBLE`. |
 
 ## Experiment 001 metadata
 
@@ -98,8 +100,9 @@
 - `REFUTED`: treating Linux `raw_id/raw_version` as XBL's direct
   `0x6003/{0x0100,0x0200}` filename fields; the attempted derivation is absent
   from exact CFGL
-- Physical-platform `_1` variant: `SUPPORTED` by live `MTP` plus XBL's
-  non-RUMI condition; exact DCB revision remains `UNKNOWN`
+- At Experiment 006 time, physical-platform `_1` was only `SUPPORTED` by live
+  `MTP` and the revision was `UNKNOWN`; Experiment 008 supersedes both with
+  retained XBL/CDT proof of `/6003_0200_1_dcb.bin`
 - Superseding live identity/config manifest SHA-256:
   `d4bea281c1533a162d7fa077a12cf0c780b8dcc175fc62b36631a1e29ff7f5d1`
 - Superseding private raw snapshot SHA-256:
@@ -177,3 +180,35 @@
   public derived manifest `007-inline-remapper-read-watchdog-20260825-01`
 - Final rollback: V2321 full-prefix readback match and native selftest
   `pass=11 warn=1 fail=0`; the fixed read is not eligible for repetition
+
+## Experiment 008 exact remapper-boundary metadata
+
+- Experiment ID: `008-remapper-boundary-inventory-20260825-01`
+- Target model / SoC: exact retained `SM-A908N` / `SM8150`
+- Firmware/build: XBL `BOOT.XF.3.0-00468-SM8150LZB-1`, exact Experiment 004
+  XBL/XBL-config/TZ partition hashes pinned by the tool
+- Kernel build/hash: no kernel executed in this host-only phase; retained log
+  input is exact Experiment 007 artifact SHA-256 `8701d073…`
+- Boot image / DTB / research-kernel hash: no new boot artifact; V2321 was
+  already restored and health-proved after Experiment 007; live DTB remains
+  `UNKNOWN`
+- Timestamp: `2026-08-25 07:10 KST`
+- Preconditions: exact four inputs present and matching pinned sizes/hashes;
+  no connected-device or MMIO precondition
+- Exact action: `python3 tools/sm8150_remapper_boundary_inventory.py --replace`
+- Result: exact DCB `/6003_0200_1_dcb.bin`; rank topology 3072+3072 MiB;
+  unique row 7; 36-bit layout-1 writer; four same-window BIMC MPU registry
+  records; numeric boot words and protection coverage remain `UNKNOWN`
+- Log reference: private retained last-kmsg SHA-256 `8701d073…`; seven
+  consistent chip/CDT observations and six consistent rank observations
+- Public manifest SHA-256:
+  `b4bb1082df278b57055f164d3da9c3a2f420ac9cc3d904ccb1ea24e78b9f3f9a`
+- Private derived record SHA-256:
+  `2154ee2af18d0e98b92f6658120cde89434433be8db8f592d026ad278b6660ff`
+- Tool SHA-256:
+  `f7369436326de88421e4c4e98c518bb5f59e9c5aa94a6f9b9311340da1a87bca`
+- Host verification: 66 unit tests pass; all public manifests parse; final
+  private/public outputs reproduce byte-identically
+- Repetition count: one final exact parser run; repeated boot values are counted
+  independently in the manifest
+- Device/MMIO/controller writes: none; device access: none

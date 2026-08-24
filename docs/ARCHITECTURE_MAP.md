@@ -55,6 +55,17 @@ offsets `0x00..0x58` in each instance. Evidence:
 `evidence/manifests/006-xbl-memory-pipeline-inventory.json` and
 `research/xbl-shrm-icbcfg-recon.md`.
 
+`PROVED` by Experiment 008: retained XBL records select exact DCB
+`/6003_0200_1_dcb.bin` and report two 3072-MiB ranks. Mask `0x3` and total
+6144 MiB uniquely choose remapper row 7, with destination bases `0x80000000`
+and `0x140000000`. The writer encodes six 36-bit ranges, split into low32/high4
+fields, brackets programming with disable/enable writes, and makes no distinct
+lock-register write inside its exact bounded function.
+
+`UNKNOWN`: numeric boot register words. XBL consumes runtime per-channel source
+bases and a rank-interleave mask not present in the retained firmware/log
+artifacts.
+
 `SUPPORTED`: This four-instance block owns system-PA region placement/remapping
 during DDR bring-up. `UNKNOWN`: whether it also owns final channel/bank/row
 hashing, or whether that finer decode occurs later in SHRM/MCCC/MC logic.
@@ -68,6 +79,18 @@ adapter but does not establish register readability or an XPU denial.
 device hash and the same four-base/six-slot layout record. `SUPPORTED`: secure
 firmware has configuration knowledge for this remapper. Runtime invocation,
 lock ownership and enforcement ordering remain `UNKNOWN`.
+
+`PROVED` by Experiment 008: primary TZ registry records bind `BIMC_MPU0..3` to
+`0x0924e000`, `0x092ce000`, `0x0934e000`, and `0x093ce000`. Thus each
+remapper at `qhs_llcc + 0x8080` has a named BIMC MPU configuration block in the
+same 64-KiB instance at `+0xe000`. `UNKNOWN`: whether it mediates the remapper
+configuration aperture, downstream traffic, or both.
+
+`SUPPORTED`: four successful retained boots register LLCC PMU and LLCC-to-DDR
+monitoring paths, disfavoring a broad whole-fabric-off explanation. Separate
+clock/power/security treatment of `+0x8080` remains `UNKNOWN`. The retained
+XPU diagnostic was encrypted or unparsed, so no decoded violation can be used
+either for or against an XPU-denial hypothesis.
 
 `REFUTED`: Downstream `mc_virt-base = 0x09680000` is by itself an exact DDR
 controller-register identification. In this tree the `fab_mc_virt` fabric uses
@@ -119,8 +142,9 @@ source callsite and two symbol maps contradict that claim.
 address and entry fall inside live `hyp_mem`, and its code/data identify the
 hypervisor, ownership and kernel-protection paths.
 
-`PROVED`: The live TrustZone image names BIMC, MEMNOC and LLCC-broadcast MPUs.
-Their precise enablement and ordering remain `UNKNOWN`.
+`PROVED`: The live TrustZone image binds BIMC, MEMNOC, LLCC-broadcast and SHRM
+MPU names to exact configuration bases. Their enablement, protected target
+ranges and ordering remain `UNKNOWN`.
 
 ## Answers required for a bypass determination
 
@@ -131,5 +155,5 @@ Their precise enablement and ordering remain `UNKNOWN`.
 | At what stage? | Region-remap programming during XBL DDR initialization before HLOS is `PROVED`; later mutability remains `UNKNOWN`. |
 | Can EL1 observe it? | Current userland `/dev/mem` route is `REFUTED` by live `CONFIG_DEVMEM=n`; the generic REPL adapter is `REFUTED`; a fixed inline no-load control passed, but its paired one-load candidate returned no value and ended in a retained non-secure watchdog. Register contents remain `UNKNOWN`. |
 | Can EL1 modify it? | `UNKNOWN`; XBL's writer is identified, but post-boot EL1 reachability/lock state is untested. |
-| Does EL2/EL3 lock it? | `UNKNOWN`. |
-| Is there a post-transform security check? | `UNKNOWN`. |
+| Does EL2/EL3 lock it? | `UNKNOWN`; no distinct lock write is present inside XBL's exact layout-1 commit, but later TZ/QHEE or hardware locking is unresolved. |
+| Is there a post-transform security check? | `UNKNOWN`; exact same-instance BIMC MPU bases materially narrow the candidate, but do not prove coverage or ordering. |

@@ -12,6 +12,7 @@ MMIO, SCM, EL2, EL3, or protected-memory write; it attempted one fixed 32-bit
 MMIO load.
 Experiment 004 created and removed fixed temporary block-device nodes under
 `/dev`; Experiment 005 created and removed one fixed temporary character node.
+Experiment 008 was entirely host-only and performed no device or MMIO access.
 
 ## A. 현재까지 PROVED
 
@@ -41,9 +42,23 @@ Experiment 004 created and removed fixed temporary block-device nodes under
   follows `icbcfg_info` to four `qhs_llcc + 0x8080` register windows:
   `0x09248080`, `0x092c8080`, `0x09348080`, `0x093c8080`. Layout 1 touches
   32-bit offsets `0x00..0x58` in each window.
+- Experiment 008 resolves the exact live selection from retained boot-firmware
+  evidence: `/6003_0200_1_dcb.bin`, two 3072-MiB ranks, mask `0x3`, and unique
+  remapper row 7 with destinations `0x80000000` and `0x140000000`.
+- Exact layout-1 code encodes six 36-bit ranges as low32/high4 fields, disables
+  the four instances before programming and enables them afterward. There is no
+  distinct lock-register write inside that exact bounded XBL function; later
+  firmware/hardware locking remains `UNKNOWN`.
 - The separate exact TrustZone ELF contains the same `/dev/icbcfg/boot` DAL
   identity and four-base, six-slot layout record. Runtime invocation/locking is
   still `UNKNOWN`.
+- TrustZone primary resource records bind `BIMC_MPU0..3` to exact IDs and
+  `0x0924e000`, `0x092ce000`, `0x0934e000`, `0x093ce000`: each is
+  `qhs_llcc + 0xe000` beside its remapper at `+0x8080`. This proves adjacency,
+  not policy coverage or an XPU denial.
+- Four successful retained boots register LLCC PMU and LLCC-to-DDR monitors.
+  The reset XPU diagnostic is encrypted or unparsed, so it supplies no decoded
+  violation and cannot exclude one.
 - Live host sysfs proves the A90 remained connected as `04e8:6861`/`A90-LNX`;
   only the Codex sandbox omitted its `/dev/ttyACM0` node. A pinned host bridge
   completed live identity/config and Experiment 005 observations.
@@ -72,9 +87,9 @@ Experiment 004 created and removed fixed temporary block-device nodes under
   partly encoded by, the now-proved ICB/LLCC region remapper and the remaining
   SHRM/MCCC/MC logic not yet isolated from PHY training.
 - Some channel/bank selection may be XOR-linear over address bits.
-- QHEE/TrustZone may own or lock relevant configuration, but no owner/lock
-  evidence exists yet. TrustZone's duplicate `icbcfg` record makes this a
-  narrower, directly testable hypothesis.
+- QHEE/TrustZone may own or lock relevant configuration. Exact same-instance
+  BIMC MPU bases and TrustZone's duplicate `icbcfg` record make this narrower,
+  but whether those MPUs cover `+0x8080` remains unproved.
 
 ## C. REFUTED
 
@@ -87,6 +102,10 @@ Experiment 004 created and removed fixed temporary block-device nodes under
   accessible/unprotected.”
 - “Linux `raw_id/raw_version` directly supply XBL's DCB filename fields.” Live
   values `165/3` do not match exact CFGL `0x6003/{0x0100,0x0200}`.
+- “The exact live DCB revision remains unknown.” Retained XBL/CDT records select
+  `/6003_0200_1_dcb.bin` without using Linux SMEM fields.
+- “XBL's special 12-GiB remap case applies to this boot.” Exact topology is
+  3072+3072 MiB and selects the ordinary 6-GiB row 7.
 - “The current kernel can read the remapper through `/dev/mem`.” Live config has
   `CONFIG_DEVMEM=n`; the fixed `1:1` node fails at open before MMIO.
 - “The generic REPL `__ioremap -> msm_readl -> __iounmap` sequence is a safe
@@ -99,11 +118,13 @@ Experiment 004 created and removed fixed temporary block-device nodes under
 - Exact final channel/rank/bank/row/column transform fields. A system-PA region
   remapper now has exact MMIO bases/offset range; its finer DRAM-decode role is
   `UNKNOWN`.
-- Reset value, boot value, runtime MMIO writability, lock state and owner. The
-  fixed read produced no value and a watchdog; whether that is an access
-  denial, an unpowered/unclocked path, or another fabric condition is unknown.
-- Exact final-decode XBL/DCB programming call graph and register fields. The
-  firmware bytes themselves are now `PROVED` available.
+- Numeric boot register values, runtime MMIO writability, lock state and owner.
+  Destination regions and rank sizes are known, but runtime per-channel source
+  bases and the interleave mask are missing. The fixed read produced no value
+  and a watchdog; access denial, sub-aperture gating and other fabric conditions
+  remain unresolved.
+- Exact finer channel/bank/row decode fields after the proved region-remapper
+  call graph.
 - Protection ordering and existence of a post-transform security check.
 - Any deterministic normal-RAM DRAM alias or protected-boundary consequence.
 - Live boot-image and live-DTB byte hashes.
@@ -133,16 +154,17 @@ position relative to final decode are `UNKNOWN`.
 
 ## G. 가장 가능성 높은 controller/register 후보 Top 5
 
-1. `PROVED region remapper / UNKNOWN final hash`: four XBL-programmed
+1. `PROVED selected region remapper / UNKNOWN final hash`: four XBL-programmed
    `qhs_llcc + 0x8080` windows at `0x09248080`, `0x092c8080`, `0x09348080`,
-   `0x093c8080`, using 32-bit offsets through `+0x58`.
-2. `PROVED transport / UNKNOWN semantics`: DCB section 16 copied to
+   `0x093c8080`, using 36-bit range fields through `+0x58`; row 7 is selected.
+2. `PROVED same-instance protection candidate / UNKNOWN coverage`:
+   `BIMC_MPU0..3` at each `qhs_llcc + 0xe000`.
+3. `PROVED selected transport / UNKNOWN semantics`: DCB section 16 copied to
    `qhs_shrm_mem + 0x5100` and consumed alongside installed SHRM firmware.
-3. `PROVED landmarks / high remaining-decode value`: four-channel `qhs_mccc`,
+4. `PROVED landmarks / high remaining-decode value`: four-channel `qhs_mccc`,
    `qhs_llcc`, and `qhs_mc` windows encoded in exact XBL topology.
-4. `PROVED endpoint / UNKNOWN semantics`: `SLAVE_CNOC_DDRSS` configuration path.
-5. `PROVED landmark / low final-hash confidence`: XBL MCCC master
-   `0x090b0000`, AOP DDR manager, and LLCC-to-DDR BWMON `0x090cd000`.
+5. `PROVED endpoint / UNKNOWN semantics`: `SLAVE_CNOC_DDRSS`, XBL MCCC master,
+   AOP DDR manager and operational LLCC-to-DDR monitors.
 
 Full per-candidate fields are in `research/sm8150-memory-subsystem.md`.
 
@@ -164,9 +186,10 @@ EL2 runtime R/W, DDR decode ownership and final protection ordering.
 
 ## J. EL3/TrustZone이 담당하는 것으로 보이는 부분
 
-`PROVED`: SCM MP is the kernel-facing boundary, and exact TrustZone bytes name
-BIMC_MPU0..3, MEMNOC_MS_MPU and LLCC_BROADCAST_MPU. `UNKNOWN`: which are enabled
-and whether any check is after final decode.
+`PROVED`: SCM MP is the kernel-facing boundary; exact TrustZone structures bind
+BIMC_MPU0..3, MEMNOC_MS_MPU, LLCC_BROADCAST_MPU and DC_NOC_SHRM_MPU to exact
+configuration bases. `UNKNOWN`: which are enabled, what ranges they cover, and
+whether any check is after final decode.
 
 ## K. AMD Skitter 공격과 구조적으로 같은 부분
 
@@ -184,11 +207,11 @@ not yet a structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-Do not repeat the same load. The cheapest discriminating next work is host-only
-and source-backed: identify the exact qhs_llcc clock/power/security-owner path
-and look for a TrustZone/XBL lock or fault-response field for `0x09248080`.
-That can separate secure denial from an unpowered/unclocked interconnect hang
-before any different live access is considered.
+Do not repeat the same load. Experiment 009 is host-only: follow consumers of
+the exact TrustZone resource records and recover qhs_llcc clock/fault-response
+ownership for the `+0x8080` sub-aperture. A direct code/data xref to an XPU
+policy, clock vote, or fault handler would distinguish the leading watchdog
+explanations before any different live access is considered.
 
 ## N. 가장 위험한 아직 금지된 실험
 
@@ -206,7 +229,7 @@ Evidence for the attack class being relevant:
 
 - SM8150 has distinct LLCC-to-EBI and DDRSS configuration paths.
 - Exact XBL programs a topology-dependent system-PA remapper in four qhs_llcc
-  instances before HLOS.
+  instances before HLOS; exact retained topology selects row 7.
 - Qualcomm primary filings describe channel/bank XOR hashing as a design class.
 - Protection APIs name system physical ranges; they do not themselves reveal
   final decoded DRAM coordinates.
@@ -228,8 +251,10 @@ Evidence against a presently usable bypass:
 - Secure ownership, boot-time locking, or a post-transform check could each
   independently make the AMD attack class fail.
 - Exact TrustZone firmware names multiple BIMC/MEMNOC/LLCC MPUs, increasing the
-  concrete evidence for additional enforcement layers.
+  concrete evidence for additional enforcement layers. Experiment 008 places
+  BIMC_MPU0..3 in the same qhs_llcc instances as the remappers.
 
-Critical unknowns are the exact transform state and owner, its post-boot lock/
-access state, firewall ordering, and deterministic alias behavior. The only
-defensible current conclusion is `UNKNOWN / NO BYPASS OBSERVED`.
+Critical unknowns are runtime source-base/interleave state, post-boot lock and
+sub-aperture access ownership, MPU coverage/order, the finer DRAM decode, and
+deterministic alias behavior. The only defensible current conclusion is
+`UNKNOWN / NO BYPASS OBSERVED`.

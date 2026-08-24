@@ -211,3 +211,50 @@
 17. `PROVED`: V2321 was restored with a full 60,882,944-byte readback match and
     final native version/selftest `pass=11 warn=1 fail=0`. The read was not
     repeated.
+
+## 2026-08-25 — Experiment 008 exact remapper/protection recombination
+
+1. Ran a host-only recombination over four exact pins: XBL `e73a07a0…`, XBL
+   config `0e9dfac1…`, TrustZone `a5e6c574…`, and retained last-kmsg
+   `8701d073…`. No device, MMIO, partition, firmware, or controller access was
+   performed.
+2. `PROVED`: all seven retained chip records agree on
+   `0x01fc8000 = 0x60030202`; all seven CDT records agree on platform ID `8`.
+   Exact XBL selector rules therefore choose `/6003_0200_1_dcb.bin`, replacing
+   the previous live-revision `UNKNOWN`.
+3. `PROVED`: selected DCB SHA-256 is `34caf815…`, used size `11820`, DSF
+   `0x00650000`; its 560-byte section 16 SHA-256 is `cdacfa45…` and its exact
+   copy destination remains `0x09065100`.
+4. `PROVED`: all six rank records agree on 3072+3072 MiB. Rank mask `0x3` and
+   total 6144 MiB uniquely select remapper table row 7, destination bases
+   `0x80000000` and `0x140000000`. The selector's 12-GiB special case is
+   `REFUTED_FOR_THIS_BOOT`.
+5. Pinned five exact XBL function ranges by hash. `PROVED`: layout 1 uses
+   six 36-bit range slots split across low32/high4 fields, clears/disables
+   control before programming, then installs bits `9:4` and enable bit 0.
+   Inside exact function `0x1484fbbc..0x1484fe74` there is no distinct lock
+   write; later firmware/hardware locking remains `UNKNOWN`.
+6. `PROVED`: XBL consumes per-channel rank sizes/source bases from runtime DDR
+   context and an interleave mask at config `+0xc8`. The retained evidence lacks
+   source bases and that mask, so numeric boot register values are explicitly
+   `UNKNOWN_DEPENDS_ON_RUNTIME_DDR_CONTEXT` rather than guessed.
+7. `PROVED`: unique TrustZone primary registry records bind `BIMC_MPU0..3` to
+   IDs `0x2e,0x2f,0x3f,0x40` and bases `0x0924e000`, `0x092ce000`,
+   `0x0934e000`, `0x093ce000`. Each is `qhs_llcc + 0xe000` beside its exact
+   remapper at `+0x8080`. `MEMNOC_MS_MPU`, `LLCC_BROADCAST_MPU`, and
+   `DC_NOC_SHRM_MPU` were also bound to exact bases.
+8. `PROVED`: exact TZ contains no byte-identical occurrence of any of the five
+   pinned XBL functions or their first 64 bytes. Semantic-equivalent secure code
+   and runtime invocation of TZ's duplicated `icbcfg` record remain `UNKNOWN`.
+9. Four successful retained boots register LLCC PMU and LLCC-to-DDR monitors,
+   disfavoring a whole-fabric-off explanation. The reset collector's XPU report
+   was explicitly encrypted or unparsed; absence of a decoded XPU violation is
+   not negative evidence.
+10. Implemented `tools/sm8150_remapper_boundary_inventory.py` and six focused
+    regression tests; the complete suite passes 66 tests. Regeneration is
+    byte-identical and every public manifest parses as JSON. Tool SHA-256
+    `f7369436326de88421e4c4e98c518bb5f59e9c5aa94a6f9b9311340da1a87bca`;
+    public manifest SHA-256
+    `b4bb1082df278b57055f164d3da9c3a2f420ac9cc3d904ccb1ea24e78b9f3f9a`;
+    ignored mode-0600 derived record SHA-256
+    `2154ee2af18d0e98b92f6658120cde89434433be8db8f592d026ad278b6660ff`.

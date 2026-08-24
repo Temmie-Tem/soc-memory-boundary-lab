@@ -11,6 +11,11 @@ registers, LLCC/DDR bandwidth monitors and AOP DDR performance messages.
 bank-group/bank/row/column. The Linux source contains no identified SM8150
 implementation of that finer mapping.
 
+`PROVED` by Experiment 008: exact retained XBL records resolve the live DCB to
+`/6003_0200_1_dcb.bin` and the topology to rank 0 = 3072 MiB, rank 1 =
+3072 MiB. Those inputs uniquely select remapper table row 7, with destination
+bases `0x80000000` and `0x140000000`.
+
 `SUPPORTED`: The decisive state is in memory-controller/PHY-coupled DDRSS logic
 initialized by XBL/DDR DSF/DCB before general RAM becomes usable. Exact live XBL
 proves DDR initialization, DCB loading and channel/rank training; the specific
@@ -23,11 +28,11 @@ candidate is EL1-accessible.
 
 | Rank | Candidate | Who/when | Base and offset | Width | EL1 read/write | Reset/boot/lock/owner | Confidence |
 |---:|---|---|---|---|---|---|---|
-| 1 | XBL ICB/qhs_llcc region remapper | `PROVED`: XBL programs it during DDR bring-up | bases `0x09248080`, `0x092c8080`, `0x09348080`, `0x093c8080`; offsets `0x00..0x58` | exact writer uses 32-bit MMIO | userland `/dev/mem` `REFUTED` (`CONFIG_DEVMEM=n`); generic REPL adapter `REFUTED`; fixed inline no-load control passed but the paired one-load read produced no value and a retained watchdog; write `UNKNOWN` | boot values/lock/owner and watchdog cause after XBL `UNKNOWN` | Exact system-PA remap candidate; final DRAM-hash role `UNKNOWN` |
-| 2 | DCB section 16 + SHRM firmware path | `PROVED`: XBL selects DCB, copies section 16, installs SHRM blobs | `qhs_shrm_mem + 0x5100` (`0x09065100`) | structured data/firmware; semantics `UNKNOWN` | host-readable; runtime access `UNKNOWN` | selected DCB and SHRM lock behavior `UNKNOWN` | High remaining channel/bank decode value |
-| 3 | Four-channel MCCC/MC windows in XBL topology | XBL/SHRM DDR bring-up | `qhs_mccc`, `qhs_llcc`, `qhs_mc` bases enumerated in exact topology | likely 32-bit; exact fields `UNKNOWN` | `UNKNOWN/UNKNOWN` | `UNKNOWN` | High for finer decode, no field yet |
-| 4 | CNOC DDRSS configuration endpoint `SLAVE_CNOC_DDRSS` | `PROVED`: endpoint exists; programmer `UNKNOWN` | endpoint-specific base/offset `UNKNOWN`; do not infer config-NOC aperture blindly | `UNKNOWN` | `UNKNOWN/UNKNOWN` | `UNKNOWN` | Medium: route proved, semantics absent |
-| 5 | MCCC master/AOP and LLCC-to-DDR BWMON | XBL maps MCCC; AOP manages DDR; counters observe traffic | MCCC `0x090b0000–0x090b0fff`; BWMON `0x090cd000–0x090cdfff`; PMU `0x090cc000–0x090cc2ff` | likely 32-bit, field semantics incomplete | source-backed reads plausible; mapping write not exposed | XBL classifies MCCC `NS_DEVICE`; post-boot lock/access `UNKNOWN` | Medium landmark, low transform-field confidence |
+| 1 | XBL ICB/qhs_llcc region remapper | `PROVED`: XBL programs it during DDR bring-up; exact row 7 selected | bases `0x09248080`, `0x092c8080`, `0x09348080`, `0x093c8080`; offsets `0x00..0x58` | exact writer uses 32-bit MMIO and 36-bit split address fields | userland `/dev/mem` `REFUTED` (`CONFIG_DEVMEM=n`); generic REPL adapter `REFUTED`; fixed inline no-load control passed but the paired one-load read produced no value and a retained watchdog; write `UNKNOWN` | destination bases known; numeric words/source bases/interleave mask/lock/owner `UNKNOWN` | Exact system-PA remap candidate; final DRAM-hash role `UNKNOWN` |
+| 2 | Same-instance BIMC MPU configuration | `PROVED`: exact TZ primary registry records | `qhs_llcc + 0xe000`: `0x0924e000`, `0x092ce000`, `0x0934e000`, `0x093ce000` | register semantics `UNKNOWN` | no live access attempted | enablement, self-aperture coverage, lock and ordering `UNKNOWN` | High for explaining access/security boundary; not proof of denial |
+| 3 | Selected DCB section 16 + SHRM firmware path | `PROVED`: `/6003_0200_1_dcb.bin`, 560-byte section 16, installed SHRM blobs | `qhs_shrm_mem + 0x5100` (`0x09065100`) | structured data/firmware; semantics `UNKNOWN` | host-readable; runtime access `UNKNOWN` | SHRM lock behavior `UNKNOWN` | High remaining channel/bank decode value |
+| 4 | Four-channel MCCC/MC windows in XBL topology | XBL/SHRM DDR bring-up | `qhs_mccc`, `qhs_llcc`, `qhs_mc` bases enumerated in exact topology | likely 32-bit; exact fields `UNKNOWN` | `UNKNOWN/UNKNOWN` | `UNKNOWN` | High for finer decode, no field yet |
+| 5 | CNOC DDRSS plus operational LLCC/DDR endpoints | `PROVED`: endpoint exists; retained boots register LLCC PMU/BWMON/latmon | DDRSS config address `UNKNOWN`; BWMON `0x090cd000–0x090cdfff`; PMU `0x090cc000–0x090cc2ff` | `UNKNOWN` for DDRSS config | monitor drivers work; remapper sub-aperture still `UNKNOWN` | whole-fabric-off explanation disfavored; separate gating possible | Medium for power/route discrimination |
 
 ### Negative candidate
 
@@ -47,3 +52,9 @@ descriptor swizzling are not evidence for this target.
 system-PA region remapper through exact qhs_llcc MMIO windows. `UNKNOWN`: whether
 this is the final PA-to-DRAM channel/bank/row transform or an earlier aperture
 map followed by finer MCCC/MC decode.
+
+`PROVED`: the exact layout-1 function first disables each instance, writes six
+36-bit slots, installs the active-slot mask, then enables each instance. No
+distinct lock write exists inside that bounded function. Exact numeric register
+words cannot be reconstructed without runtime per-channel source bases and the
+rank-interleave mask.

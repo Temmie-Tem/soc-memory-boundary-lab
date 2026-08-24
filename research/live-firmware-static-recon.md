@@ -56,10 +56,11 @@ nonempty header-indexed sections. Evidence:
 `0x09065100`, bounded to `0x0f00` bytes.
 
 `PROVED` by Experiment 006: `0x09065100` is `qhs_shrm_mem + 0x5100`, and XBL
-installs embedded SHRM data/instruction blobs during DDR bring-up. `UNKNOWN`:
-whether any DCB section contains the final PA interleave/hash state, which of the
-four DCBs is selected on this unit, and whether SHRM turns that data into locked
-controller registers.
+installs embedded SHRM data/instruction blobs during DDR bring-up. `PROVED` by
+Experiment 008: retained boot-firmware evidence selects
+`/6003_0200_1_dcb.bin`; its section 16 is 560 bytes and lands at the same
+destination. `UNKNOWN`: whether that section contains final PA
+interleave/hash state or whether SHRM turns it into locked controller registers.
 
 ## AOP
 
@@ -92,10 +93,15 @@ partition. This still does not grant arbitrary EL2 runtime memory access.
 `BIMC_MPU3`, `MEMNOC_MS_MPU`, and `LLCC_BROADCAST_MPU`, alongside LLCC and
 DDRSS error components.
 
+`PROVED` by Experiment 008: primary TrustZone registry records assign exact IDs
+and bases: `BIMC_MPU0..3` at `0x0924e000`, `0x092ce000`, `0x0934e000`,
+`0x093ce000`; `MEMNOC_MS_MPU` at `0x096c0000`; `LLCC_BROADCAST_MPU` at
+`0x0964e000`; and `DC_NOC_SHRM_MPU` at `0x09102000`.
+
 `SUPPORTED`: TrustZone contains configuration/diagnostic knowledge for multiple
 memory-protection blocks across BIMC/MEMNOC/LLCC. `UNKNOWN`: which are enabled,
-their precise pipeline order, register bases, and whether any performs a second
-check after final DRAM decode.
+their precise pipeline order, whether they cover configuration accesses, and
+whether any performs a second check after final DRAM decode.
 
 ## Follow-up status
 
@@ -108,10 +114,12 @@ Experiment 006 completed the first structural follow-up:
 4. the writer programs four qhs_llcc windows at `+0x8080`, offsets through
    `+0x58`.
 
-The fixed live identity capture is complete and refutes using Linux SMEM raw
-fields as the XBL DCB selector. The exact-width userland read path was also
-qualified: live `CONFIG_DEVMEM=n` causes minor `1:1` to return `ENXIO` before
-MMIO. A narrow kernel-space adapter is now required. Final channel/bank/row hash
-fields, locks and enforcement ordering remain `UNKNOWN`.
+The fixed live identity capture refuted using Linux SMEM raw fields as the XBL
+DCB selector. Experiment 008 instead resolved the selector from retained XBL
+logs and selected remapper row 7 for the exact 3072+3072 MiB rank topology.
+Experiment 007's purpose-built single MMIO load returned no value and ended in
+a retained watchdog, while its no-load control passed. Final channel/bank/row
+hash fields, numeric boot remapper words, locks and enforcement ordering remain
+`UNKNOWN`.
 
 Current bypass state remains `UNKNOWN / NO BYPASS OBSERVED`.

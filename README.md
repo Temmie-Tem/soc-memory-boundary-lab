@@ -17,6 +17,12 @@ was followed by a retained `Non Secure Watchdog Bark`. `SUPPORTED`, not
 readback and passed final native health. No DDR/controller, XPU, SMMU, SCM,
 EL2, EL3, or protected-memory write has been performed.
 
+Host-only Experiment 008 then resolved the exact live DCB and remapper row from
+the retained boot records, pinned the six-slot 36-bit XBL writer, and bound
+TrustZone `BIMC_MPU0..3` records to `qhs_llcc + 0xe000` beside each remapper at
+`+0x8080`. This narrows the ownership question but does not prove policy
+coverage, post-boot mutability, an alias, or a bypass.
+
 Claim vocabulary is deliberately closed:
 
 - `PROVED`: directly demonstrated by named source, artifact, or repeated result.
@@ -39,6 +45,8 @@ ICB/LLCC remapper; see
 Experiment 007 records both the retired generic path and the completed fixed
 inline control/read comparison; see
 [experiments/007-kernel-remapper-adapter/README.md](experiments/007-kernel-remapper-adapter/README.md).
+Experiment 008's exact evidence recombination is in
+[experiments/008-remapper-boundary/README.md](experiments/008-remapper-boundary/README.md).
 The exact A90 TWRP code-only System transition is documented in
 [docs/A90_TWRP_CODE_BOOT.md](docs/A90_TWRP_CODE_BOOT.md).
 

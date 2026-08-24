@@ -31,9 +31,13 @@ previously anonymous `0x3404`-byte ELF payloads to:
 4. code at `0x14839cb4` makes the last field `1` unless platform type is
    `0x0f`; the image's platform strings identify `0x0f` as RUMI.
 
-`UNKNOWN`: Whether this live handset used revision `0x0100` or `0x0200`.
-`SUPPORTED`: This live physical A90 uses the `_1` variant: sysfs reports `MTP`
-and exact XBL selects zero only for platform type `0x0f`/RUMI.
+`PROVED` by Experiment 008: the retained exact XBL log repeats
+`Chip Revision @ 0x01fc8000 = 0x60030202` seven times and platform ID `8`
+seven times. The records are internally consistent and select
+`/6003_0200_1_dcb.bin`. Its SHA-256 is
+`34caf815065e5fe3e80483e5348a59caa9dc249faa72d97e6e44f818d17ef607`;
+its 560-byte section 16 SHA-256 is
+`cdacfa45183be71c13884ed60dd883a7f94ba5fd4fb9cc92899fac4eb0298dc0`.
 
 `REFUTED`: Linux sysfs `raw_id/raw_version` can substitute for the XBL register
 fields. Live values are decimal `165/3`, producing no exact CFGL name, whereas
@@ -82,16 +86,17 @@ u64 region0_base
 u64 region1_base
 ```
 
-For the 6 GiB topology, the two rows are:
+For a 6 GiB topology, the two relevant rows are:
 
 ```text
 mask=0x1, total=0x1800 MiB, region0=0x80000000, region1=0
 mask=0x3, total=0x1800 MiB, region0=0x80000000, region1=0x140000000
 ```
 
-`SUPPORTED`: The A90's nominal 6 GiB configuration should select one of these
-rows. `/proc/meminfo` alone cannot prove the exact physical total or mask because
-reserved memory is excluded.
+`PROVED` by Experiment 008: the retained XBL log reports rank 0 = 3072 MiB and
+rank 1 = 3072 MiB six times with no conflicting value. Present-rank mask `0x3`
+and total 6144 MiB uniquely select row 7, with destinations `0x80000000` and
+`0x140000000`. This proof uses boot-firmware topology, not `/proc/meminfo`.
 
 For each of two regions, the function constructs a record containing current
 base, size and selected remap base, then calls `0x14850694` with property device
@@ -134,10 +139,23 @@ and register layout 1. Its register-base array at `0x14876978` contains:
 `0x09340000`, and `0x093c0000` windows `qhs_llcc`. Thus each remapper register
 instance is at `qhs_llcc + 0x8080` for one of four DDR/LLCC paths.
 
-`PROVED`: Layout-1 writer `0x1484fbbc` first clears the enable/control field at
-offset `0x00`, writes the generated six-slot map, then sets bit 0. Across a full
-configuration it touches 32-bit offsets `0x00, 0x04, ... 0x58` in every one of
-the four windows.
+`PROVED`: Layout-1 writer `0x1484fbbc` first writes
+`old_control & 0x3f0` at offset `0x00`, writes the generated six-slot map, places
+the active-slot mask in bits `9:4`, then writes `(control & 0x3f0) | 1`. Slot 0
+has an implicit zero start and an explicit 36-bit end. Slots 1 through 5 have
+explicit 36-bit start/end pairs, each split into low 32 bits and a masked high
+nibble. Across a full configuration it touches 32-bit offsets
+`0x00, 0x04, ... 0x58` in all four windows.
+
+`PROVED`, bounded to exact function bytes `0x1484fbbc..0x1484fe74`: no distinct
+lock-register write occurs there. `UNKNOWN`: a later firmware or hardware lock.
+
+`PROVED`: the remapper input producer copies per-channel rank sizes and source
+bases from runtime DDR context offsets `0x158/0x178` and `0x1a8/0x1e8`; a rank
+interleave mask is produced into config offset `0xc8`. The retained log proves
+rank totals and selected destination bases, but not the per-channel source
+bases or mask. Exact boot register words remain
+`UNKNOWN_DEPENDS_ON_RUNTIME_DDR_CONTEXT`.
 
 `SUPPORTED`: These registers implement system-physical address region
 placement/remapping during DDR bring-up. This follows from the exact remapper
@@ -172,6 +190,16 @@ for the same remapper windows. `UNKNOWN`: Whether TrustZone invokes this path on
 the A90 boot/runtime, whether it owns a lock, or whether the duplicated record
 is an unused linked configuration.
 
+`PROVED` by Experiment 008: separate primary TrustZone registry records bind
+`BIMC_MPU0..3` to IDs `0x2e,0x2f,0x3f,0x40` and bases
+`0x0924e000,0x092ce000,0x0934e000,0x093ce000`. Each is
+`qhs_llcc + 0xe000` in the same 64-KiB window whose remapper is at `+0x8080`.
+This does not prove that an MPU protects its own configuration aperture.
+
+`PROVED`: none of the five pinned XBL function bodies, nor their first 64 bytes,
+occurs byte-identically in exact TZ. `UNKNOWN`: semantic-equivalent secure code
+or runtime use of the duplicated DAL record.
+
 ## 6. Security consequence boundary
 
 This result materially narrows the pipeline, but it is not an alias or bypass:
@@ -195,17 +223,15 @@ DRAM location.
 four exact windows are now source-backed candidates. The stronger statement
 “the final DRAM hash is mutable from EL1” remains unsupported.
 
-## 7. Cheapest next measurements
+## 7. Successor status and cheapest next measurement
 
-1. Implement a narrow kernel-space `ioremap/readl` adapter for only the four
-   proved `0x5c`-byte windows. The current userland route is structurally absent:
-   live `/proc/config.gz` has `CONFIG_DEVMEM=n` and a fixed `1:1` node returns
-   `ENXIO` before MMIO.
-2. Compare all four read-only instances and reconstruct the six programmed
-   region slots.
-3. Recover the exact `0x01fc8000` hardware revision producer to select the live
-   DCB without misusing Linux SMEM raw fields.
-4. Correlate boot values with the 6 GiB remapper row and `/proc/iomem`, then
-   trace remaining SHRM/MCCC/MC channel/bank/row fields.
+Experiment 007 implemented a purpose-specific map/unmap control and paired
+single-load candidate. The control returned; the load returned no value and was
+followed by a retained non-secure watchdog. This supplies no register word and
+does not identify XPU, clock, power or ownership cause.
 
-No controller write is justified by the current evidence.
+Experiment 008 resolved the exact DCB, row and writer semantics and proved the
+same-window BIMC MPU configuration bases. The cheapest next measurement is
+host-only: trace consumers of those TrustZone registry records and qhs_llcc
+clock/fault-response ownership. Do not repeat the same live load without a new,
+discriminating prediction. No controller write is justified.

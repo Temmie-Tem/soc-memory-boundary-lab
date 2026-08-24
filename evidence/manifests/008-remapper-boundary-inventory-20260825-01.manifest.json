@@ -1,0 +1,586 @@
+{
+  "boot_evidence": {
+    "cdt": {
+      "all_occurrences_consistent": true,
+      "major_id": 1,
+      "minor_id": 0,
+      "occurrences": 7,
+      "platform_id": 8,
+      "subtype": 1,
+      "version": 3
+    },
+    "chip_revision": {
+      "all_occurrences_consistent": true,
+      "occurrences": 7,
+      "register": "0x01fc8000",
+      "value": "0x60030202"
+    },
+    "dcb_selector": {
+      "hardware_id": "0x6003",
+      "hardware_version": "0x0200",
+      "physical_platform": 1,
+      "physical_platform_rule": "1 because platform_id 0x8 != RUMI 0xf",
+      "selected_name": "/6003_0200_1_dcb.bin"
+    },
+    "dram_topology": {
+      "all_occurrences_consistent": true,
+      "occurrences": 6,
+      "present_rank_mask": "0x3",
+      "rank0_mib": 3072,
+      "rank1_mib": 3072,
+      "total_mib": 6144
+    },
+    "post_boot_fabric_evidence": {
+      "cpu0_llcc_ddr_latmon_registration_occurrences": 4,
+      "cpu4_llcc_ddr_latmon_registration_occurrences": 4,
+      "cpu_llcc_ddr_bwmon_registration_occurrences": 4,
+      "llcc_pmu_registration_occurrences": 4,
+      "non_secure_watchdog_string_occurrences": 2,
+      "xpu_fault_decoding_status": "UNKNOWN_ENCRYPTED_OR_UNPARSED",
+      "xpu_report_encrypted_or_unparsed": true,
+      "xpu_reporter_started": true
+    }
+  },
+  "claims": {
+    "HYPOTHESIS": [
+      "The post-boot +0x8080 watchdog may be caused by sub-aperture security ownership, clock gating, or a fabric fault response; these alternatives remain distinguishable only with further static evidence."
+    ],
+    "PROVED": [
+      "All inputs match the exact retained A90 artifact size and SHA-256 pins.",
+      "The retained XBL log consistently selects /6003_0200_1_dcb.bin.",
+      "The selected DCB and its 560-byte section 16 match exact hashes.",
+      "The retained 3072+3072 MiB topology uniquely selects remapper row 7.",
+      "XBL's exact layout-1 writer programs four 36-bit, six-slot windows through 32-bit MMIO fields.",
+      "The exact layout-1 writer contains no distinct lock-register write within its bounded function range.",
+      "TrustZone's primary XPU registry binds BIMC_MPU0..3 to qhs_llcc+0xe000 in the same four windows as remapper+0x8080.",
+      "The exact TrustZone image contains no byte-identical copy of the five pinned XBL functions or their first 64 bytes.",
+      "Successful retained boots register LLCC PMU and LLCC-to-DDR monitoring endpoints."
+    ],
+    "REFUTED": [
+      "The exact live DCB selector revision remains unknown.",
+      "XBL's special 12-GiB remap predicate applies to this 6-GiB boot."
+    ],
+    "SUPPORTED": [
+      "A whole-fabric power-off explanation is disfavored; the +0x8080 sub-aperture may still have separate power, clock, or security behavior.",
+      "TrustZone has explicit configuration knowledge of protection blocks in each remapper's qhs_llcc instance."
+    ],
+    "UNKNOWN": [
+      "Exact numeric boot values because runtime per-channel source bases and the interleave mask were not captured.",
+      "Whether BIMC_MPU0..3 protect the +0x8080 configuration aperture, downstream transactions, or both.",
+      "Whether TrustZone invokes the matching icbcfg record or programs a later lock.",
+      "Whether the fixed read watchdog was an access denial, clock/power condition, or another interconnect fault.",
+      "The retained TZ/XPU diagnostic payload is encrypted or unparsed, so absence of a decoded XPU violation is not exculpatory.",
+      "Protection ordering relative to final DRAM channel/bank/row decode.",
+      "Any normal-RAM physical-to-DRAM alias or protected-boundary bypass."
+    ]
+  },
+  "classification": "NO_BOUNDARY_BYPASS_OBSERVED_CLASS_UNKNOWN",
+  "device_access": false,
+  "firmware_bytes_emitted": false,
+  "inputs": {
+    "retained_boot_log": {
+      "filename": "007-inline-remapper-read-live-20260825-01.last_kmsg.bin",
+      "pin_verified": true,
+      "sha256": "8701d073e86728790c33f05dce21891ca3454f5b778d92285ce3b5bc33216b93",
+      "size": 2097136
+    },
+    "trustzone": {
+      "filename": "tz--sdd5.bin",
+      "pin_verified": true,
+      "sha256": "a5e6c574e18e2e576a25df6274b20bdb142386811dfda6383f86d7b1b3c102ab",
+      "size": 4194304
+    },
+    "xbl": {
+      "filename": "xbl--sdb1.bin",
+      "pin_verified": true,
+      "sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+      "size": 4194304
+    },
+    "xbl_config": {
+      "filename": "xbl_config--sdb2.bin",
+      "pin_verified": true,
+      "sha256": "0e9dfac1ddd0f9acc2cc899213e621490308f0cadf329814048edb7712e2484c",
+      "size": 4149248
+    }
+  },
+  "mmio_access": false,
+  "mode": "HOST_ONLY_READ_ONLY",
+  "private_record": {
+    "filename": "008-remapper-boundary-inventory-20260825-01.json",
+    "git_ignored": true,
+    "sha256": "2154ee2af18d0e98b92f6658120cde89434433be8db8f592d026ad278b6660ff",
+    "size": 18506
+  },
+  "runtime_ddr_dependencies": {
+    "numeric_boot_register_values": {
+      "do_not_guess": true,
+      "missing_inputs": [
+        "per-channel rank source bases",
+        "rank interleave mask"
+      ],
+      "status": "UNKNOWN_DEPENDS_ON_RUNTIME_DDR_CONTEXT"
+    },
+    "per_channel_runtime_context": {
+      "rank0_size_mib": "context + 0x158 + 4*i",
+      "rank0_source_base": "context + 0x1a8 + 8*i",
+      "rank1_size_mib": "context + 0x178 + 4*i",
+      "rank1_source_base": "context + 0x1e8 + 8*i"
+    },
+    "producer_function": "0x14839624",
+    "producer_output": {
+      "size": "0xd0",
+      "virtual_address": "0x1488bc98"
+    },
+    "rank_interleave_mask": {
+      "config_offset": "0xc8",
+      "producer": "function 0x148390f0"
+    },
+    "rank_merge_function": "0x14839710",
+    "rank_merge_output": {
+      "size": "0xc8",
+      "virtual_address": "0x1488bd68"
+    },
+    "region_arguments": [
+      {
+        "destination_base": "0x80000000",
+        "rank": 0,
+        "size_mib": 3072,
+        "source_base": "UNKNOWN_RUNTIME_CONTEXT_0x1a8"
+      },
+      {
+        "destination_base": "0x140000000",
+        "rank": 1,
+        "size_mib": 3072,
+        "source_base": "UNKNOWN_RUNTIME_CONTEXT_0x1e8"
+      }
+    ]
+  },
+  "same_qhs_llcc_bank_relationship": [
+    {
+      "bimc_mpu": {
+        "base": "0x0924e000",
+        "name": "BIMC_MPU0",
+        "resource_id": "0x2e",
+        "window_offset": "0xe000"
+      },
+      "config_aperture_delta": "0x5f80",
+      "instance": 0,
+      "qhs_llcc_window": "0x09240000",
+      "remapper": {
+        "base": "0x09248080",
+        "window_offset": "0x8080"
+      }
+    },
+    {
+      "bimc_mpu": {
+        "base": "0x092ce000",
+        "name": "BIMC_MPU1",
+        "resource_id": "0x2f",
+        "window_offset": "0xe000"
+      },
+      "config_aperture_delta": "0x5f80",
+      "instance": 1,
+      "qhs_llcc_window": "0x092c0000",
+      "remapper": {
+        "base": "0x092c8080",
+        "window_offset": "0x8080"
+      }
+    },
+    {
+      "bimc_mpu": {
+        "base": "0x0934e000",
+        "name": "BIMC_MPU2",
+        "resource_id": "0x3f",
+        "window_offset": "0xe000"
+      },
+      "config_aperture_delta": "0x5f80",
+      "instance": 2,
+      "qhs_llcc_window": "0x09340000",
+      "remapper": {
+        "base": "0x09348080",
+        "window_offset": "0x8080"
+      }
+    },
+    {
+      "bimc_mpu": {
+        "base": "0x093ce000",
+        "name": "BIMC_MPU3",
+        "resource_id": "0x40",
+        "window_offset": "0xe000"
+      },
+      "config_aperture_delta": "0x5f80",
+      "instance": 3,
+      "qhs_llcc_window": "0x093c0000",
+      "remapper": {
+        "base": "0x093c8080",
+        "window_offset": "0x8080"
+      }
+    }
+  ],
+  "schema": "sdm855-remapper-boundary-inventory-public-v1",
+  "selected_dcb": {
+    "dcb_sha256": "34caf815065e5fe3e80483e5348a59caa9dc249faa72d97e6e44f818d17ef607",
+    "descriptor": {
+      "data_file_offset": 94116,
+      "data_size": 13316,
+      "descriptor_file_offset": 12424,
+      "index": 3,
+      "name": "/6003_0200_1_dcb.bin",
+      "relative_data_offset": 81828
+    },
+    "dsf_version": "0x00650000",
+    "name": "/6003_0200_1_dcb.bin",
+    "section16": {
+      "destination": "0x09065100",
+      "sha256": "cdacfa45183be71c13884ed60dd883a7f94ba5fd4fb9cc92899fac4eb0298dc0",
+      "size": 560
+    },
+    "selector": {
+      "hardware_id": "0x6003",
+      "hardware_version": "0x0200",
+      "physical_platform": 1
+    },
+    "used_size": 11820
+  },
+  "selected_remapper_row": {
+    "channel_rank_mask": "0x3",
+    "index": 7,
+    "region0_base": "0x80000000",
+    "region1_base": "0x140000000",
+    "total_bytes": 6442450944,
+    "total_mib": 6144
+  },
+  "special_12g_case": {
+    "selected_boot_matches": false,
+    "status": "REFUTED_FOR_THIS_BOOT",
+    "xbl_predicate": "rank0_total_mib == 4096 AND rank1_total_mib == 8192 AND processing rank1"
+  },
+  "trustzone_xpu_registry": [
+    {
+      "base": "0x0924e000",
+      "name": "BIMC_MPU0",
+      "name_pointer_xref_file_offset": "0x157c90",
+      "name_virtual_address": "0x1c129f9c",
+      "record_format": "<uint64 id, uint64 base, uint64 name_pointer>",
+      "record_virtual_address": "0x1c157c80",
+      "resource_id": "0x2e"
+    },
+    {
+      "base": "0x092ce000",
+      "name": "BIMC_MPU1",
+      "name_pointer_xref_file_offset": "0x157ca8",
+      "name_virtual_address": "0x1c129fa6",
+      "record_format": "<uint64 id, uint64 base, uint64 name_pointer>",
+      "record_virtual_address": "0x1c157c98",
+      "resource_id": "0x2f"
+    },
+    {
+      "base": "0x0934e000",
+      "name": "BIMC_MPU2",
+      "name_pointer_xref_file_offset": "0x157d68",
+      "name_virtual_address": "0x1c12a015",
+      "record_format": "<uint64 id, uint64 base, uint64 name_pointer>",
+      "record_virtual_address": "0x1c157d58",
+      "resource_id": "0x3f"
+    },
+    {
+      "base": "0x093ce000",
+      "name": "BIMC_MPU3",
+      "name_pointer_xref_file_offset": "0x157dc8",
+      "name_virtual_address": "0x1c12a049",
+      "record_format": "<uint64 id, uint64 base, uint64 name_pointer>",
+      "record_virtual_address": "0x1c157db8",
+      "resource_id": "0x40"
+    },
+    {
+      "base": "0x096c0000",
+      "name": "MEMNOC_MS_MPU",
+      "name_pointer_xref_file_offset": "0x157d08",
+      "name_virtual_address": "0x1c129fda",
+      "record_format": "<uint64 id, uint64 base, uint64 name_pointer>",
+      "record_virtual_address": "0x1c157cf8",
+      "resource_id": "0x4b"
+    },
+    {
+      "base": "0x0964e000",
+      "name": "LLCC_BROADCAST_MPU",
+      "name_pointer_xref_file_offset": "0x157d38",
+      "name_virtual_address": "0x1c129ff6",
+      "record_format": "<uint64 id, uint64 base, uint64 name_pointer>",
+      "record_virtual_address": "0x1c157d28",
+      "resource_id": "0x3a"
+    },
+    {
+      "base": "0x09102000",
+      "name": "DC_NOC_SHRM_MPU",
+      "name_pointer_xref_file_offset": "0x157e40",
+      "name_virtual_address": "0x1c12a091",
+      "record_format": "<uint64 id, uint64 base, uint64 name_pointer>",
+      "record_virtual_address": "0x1c157e30",
+      "resource_id": "0x4d"
+    }
+  ],
+  "xbl_writer": {
+    "functions": {
+      "ddr_config_producer": {
+        "end_exclusive": "0x14839710",
+        "sha256": "bd0e6546c7337e3001b8b26e832df1a655641e264af17314983bb23e348b5420",
+        "size": 236,
+        "start": "0x14839624"
+      },
+      "ddr_config_rank_merge": {
+        "end_exclusive": "0x148397c8",
+        "sha256": "11412dae846752db8912fb03434362a822ccec59f5129339ab690623fcc3c09f",
+        "size": 184,
+        "start": "0x14839710"
+      },
+      "icb_set_region": {
+        "end_exclusive": "0x14850a7c",
+        "sha256": "d232cbf64098fb72c4d2e8cf7655ba6df5eaef0cf78127cb6a1f33a1df2413a1",
+        "size": 1000,
+        "start": "0x14850694"
+      },
+      "layout1_commit": {
+        "end_exclusive": "0x1484fe74",
+        "sha256": "9b3e6deecdddc5cc1fcb7d3ea77d9f7c32409944e1ec49f8f249d7f54aa0719d",
+        "size": 696,
+        "start": "0x1484fbbc"
+      },
+      "remapper_selector": {
+        "end_exclusive": "0x1483a928",
+        "sha256": "88eb21c83a091be7847539514240eb8381f323ef42d429c9c3d397d4c2ed82b5",
+        "size": 588,
+        "start": "0x1483a6dc"
+      }
+    },
+    "icb_device": "/dev/icbcfg/boot",
+    "icb_property": "icbcfg_info",
+    "layout": {
+      "encoded_address_width_bits": 36,
+      "instance_count": 4,
+      "layout_id": 1,
+      "lock_write_boundary": "PROVED only within 0x1484fbbc..0x1484fe74: no distinct lock-register write; later firmware or hardware lock UNKNOWN",
+      "register_access_width_bits": 32,
+      "registers": [
+        {
+          "fields": {
+            "active_slot_mask": "bits 9:4",
+            "enable": "bit 0"
+          },
+          "offset": "0x00",
+          "role": "control",
+          "width_bits": 32
+        },
+        {
+          "offset": "0x04",
+          "role": "slot0_end_low32",
+          "width_bits": 32
+        },
+        {
+          "implicit_slot_start": "0x0",
+          "offset": "0x08",
+          "role": "slot0_end_high4",
+          "stored_value_mask": "0x0000000f",
+          "width_bits": 32
+        },
+        {
+          "offset": "0x0c",
+          "role": "slot1_start_low32",
+          "width_bits": 32
+        },
+        {
+          "offset": "0x10",
+          "role": "slot1_start_high4",
+          "stored_value_mask": "0x0000000f",
+          "width_bits": 32
+        },
+        {
+          "offset": "0x14",
+          "role": "slot1_end_low32",
+          "width_bits": 32
+        },
+        {
+          "offset": "0x18",
+          "role": "slot1_end_high4",
+          "stored_value_mask": "0x0000000f",
+          "width_bits": 32
+        },
+        {
+          "offset": "0x1c",
+          "role": "slot2_start_low32",
+          "width_bits": 32
+        },
+        {
+          "offset": "0x20",
+          "role": "slot2_start_high4",
+          "stored_value_mask": "0x0000000f",
+          "width_bits": 32
+        },
+        {
+          "offset": "0x24",
+          "role": "slot2_end_low32",
+          "width_bits": 32
+        },
+        {
+          "offset": "0x28",
+          "role": "slot2_end_high4",
+          "stored_value_mask": "0x0000000f",
+          "width_bits": 32
+        },
+        {
+          "offset": "0x2c",
+          "role": "slot3_start_low32",
+          "width_bits": 32
+        },
+        {
+          "offset": "0x30",
+          "role": "slot3_start_high4",
+          "stored_value_mask": "0x0000000f",
+          "width_bits": 32
+        },
+        {
+          "offset": "0x34",
+          "role": "slot3_end_low32",
+          "width_bits": 32
+        },
+        {
+          "offset": "0x38",
+          "role": "slot3_end_high4",
+          "stored_value_mask": "0x0000000f",
+          "width_bits": 32
+        },
+        {
+          "offset": "0x3c",
+          "role": "slot4_start_low32",
+          "width_bits": 32
+        },
+        {
+          "offset": "0x40",
+          "role": "slot4_start_high4",
+          "stored_value_mask": "0x0000000f",
+          "width_bits": 32
+        },
+        {
+          "offset": "0x44",
+          "role": "slot4_end_low32",
+          "width_bits": 32
+        },
+        {
+          "offset": "0x48",
+          "role": "slot4_end_high4",
+          "stored_value_mask": "0x0000000f",
+          "width_bits": 32
+        },
+        {
+          "offset": "0x4c",
+          "role": "slot5_start_low32",
+          "width_bits": 32
+        },
+        {
+          "offset": "0x50",
+          "role": "slot5_start_high4",
+          "stored_value_mask": "0x0000000f",
+          "width_bits": 32
+        },
+        {
+          "offset": "0x54",
+          "role": "slot5_end_low32",
+          "width_bits": 32
+        },
+        {
+          "offset": "0x58",
+          "role": "slot5_end_high4",
+          "stored_value_mask": "0x0000000f",
+          "width_bits": 32
+        }
+      ],
+      "slot_count": 6,
+      "writer_order": [
+        "For each instance, read control +0x00 and write old_control & 0x3f0.",
+        "Write slot 0 end and slots 1..5 start/end as low32 plus high4.",
+        "Write active-slot mask into control bits 9:4.",
+        "For each instance, write (control & 0x3f0) | 1 to enable."
+      ]
+    },
+    "layout1_pinned_instruction_words": [
+      {
+        "address": "0x1484fbf4",
+        "word": "0xf86e590a"
+      },
+      {
+        "address": "0x1484fc00",
+        "word": "0x110005ce"
+      },
+      {
+        "address": "0x1484fc44",
+        "word": "0x120001a2"
+      },
+      {
+        "address": "0x1484fc50",
+        "word": "0x331c1402"
+      },
+      {
+        "address": "0x1484fc54",
+        "word": "0xb90001c2"
+      },
+      {
+        "address": "0x1484fc80",
+        "word": "0xb9000dc1"
+      },
+      {
+        "address": "0x1484fc9c",
+        "word": "0xb9001223"
+      },
+      {
+        "address": "0x1484fcc0",
+        "word": "0xb90005d1"
+      },
+      {
+        "address": "0x1484fcdc",
+        "word": "0xb9000a24"
+      },
+      {
+        "address": "0x1484fd18",
+        "word": "0x121c1585"
+      },
+      {
+        "address": "0x1484fd1c",
+        "word": "0x320000a6"
+      },
+      {
+        "address": "0x1484fd20",
+        "word": "0xb9000166"
+      }
+    ],
+    "trustzone_code_crosscheck": {
+      "claim_boundary": "PROVED no byte-identical XBL function body or 64-byte prefix in the exact TZ image; semantic equivalents and runtime invocation UNKNOWN",
+      "comparisons": {
+        "ddr_config_producer": {
+          "exact_first_64_bytes_occurrences_in_tz": 0,
+          "exact_full_body_occurrences_in_tz": 0,
+          "full_body_size": 236
+        },
+        "ddr_config_rank_merge": {
+          "exact_first_64_bytes_occurrences_in_tz": 0,
+          "exact_full_body_occurrences_in_tz": 0,
+          "full_body_size": 184
+        },
+        "icb_set_region": {
+          "exact_first_64_bytes_occurrences_in_tz": 0,
+          "exact_full_body_occurrences_in_tz": 0,
+          "full_body_size": 1000
+        },
+        "layout1_commit": {
+          "exact_first_64_bytes_occurrences_in_tz": 0,
+          "exact_full_body_occurrences_in_tz": 0,
+          "full_body_size": 696
+        },
+        "remapper_selector": {
+          "exact_first_64_bytes_occurrences_in_tz": 0,
+          "exact_full_body_occurrences_in_tz": 0,
+          "full_body_size": 588
+        }
+      }
+    }
+  }
+}
