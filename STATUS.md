@@ -6,7 +6,9 @@ Current class: `UNKNOWN — not enough evidence for A, B, C, D, or E`
 
 Device mutation: no partition, memory-controller, MMIO, SCM, EL2, EL3, or
 protected-memory write. Experiment 004 created and removed fixed temporary
-block-device nodes under `/dev`; partition data access was read-only.
+block-device nodes under `/dev`; Experiment 005 created and removed one fixed
+temporary character node. Partition/MMIO data access was read-only; the MMIO
+read never reached hardware because the live kernel lacks `CONFIG_DEVMEM`.
 
 ## A. 현재까지 PROVED
 
@@ -39,6 +41,12 @@ block-device nodes under `/dev`; partition data access was read-only.
 - The separate exact TrustZone ELF contains the same `/dev/icbcfg/boot` DAL
   identity and four-base, six-slot layout record. Runtime invocation/locking is
   still `UNKNOWN`.
+- Live host sysfs proves the A90 remained connected as `04e8:6861`/`A90-LNX`;
+  only the Codex sandbox omitted its `/dev/ttyACM0` node. A pinned host bridge
+  completed live identity/config and Experiment 005 observations.
+- Live `/proc/config.gz` proves `# CONFIG_DEVMEM is not set`. A fixed `1:1`
+  character node therefore opens with `ENXIO`; cleanup and final runtime health
+  (`pass=11 warn=1 fail=0`) were proved.
 
 ## B. 현재 HYPOTHESIS
 
@@ -59,6 +67,10 @@ block-device nodes under `/dev`; partition data access was read-only.
   registers.”
 - “RKP appearing in a broad `/proc/iomem` System RAM resource proves it is
   accessible/unprotected.”
+- “Linux `raw_id/raw_version` directly supply XBL's DCB filename fields.” Live
+  values `165/3` do not match exact CFGL `0x6003/{0x0100,0x0200}`.
+- “The current kernel can read the remapper through `/dev/mem`.” Live config has
+  `CONFIG_DEVMEM=n`; the fixed `1:1` node fails at open before MMIO.
 
 ## D. UNKNOWN
 
@@ -114,7 +126,8 @@ Full per-candidate fields are in `research/sm8150-memory-subsystem.md`.
 
 `PROVED`: `/proc/iomem`, `/proc/meminfo`, live DT reserved-memory, runtime/kernel
 identity, LLCC/BWMON resource landmarks, kernel SCM/UH interfaces and their
-source-visible PA inputs. `UNKNOWN`: final decode register values.
+source-visible PA inputs. `REFUTED`: current-kernel userland `/dev/mem` access.
+`UNKNOWN`: final decode register values and narrow kernel-adapter readability.
 
 ## I. EL2/QHEE가 담당하는 것으로 보이는 부분
 
@@ -144,11 +157,10 @@ not yet a structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-Capture the fixed live SoC identity fields to select one DCB, then read only
-`+0x00..+0x58` from the four proved qhs_llcc remapper windows. Comparing the
-four boot-programmed maps is now the cheapest test of visibility and lock/access
-state; no write is needed. Fixed-address collectors for both steps are
-implemented and host-tested.
+Implement a narrow kernel-space read-only adapter that `ioremap`s only the four
+proved `0x5c`-byte qhs_llcc windows and returns 32-bit snapshots. Live identity
+is captured, the Linux-SMEM DCB shortcut is refuted, and `/dev/mem` is
+structurally unavailable in the current kernel. No controller write is needed.
 
 ## N. 가장 위험한 아직 금지된 실험
 
@@ -175,6 +187,8 @@ Evidence against a presently usable bypass:
 
 - No post-boot EL1 read or write of the proved remapper windows has yet been
   demonstrated.
+- The live kernel has `CONFIG_DEVMEM=n`; both default and temporary-node
+  userland read paths stop before reaching MMIO.
 - No SM8150 Linux code programming such a transform was found.
 - No normal-RAM physical-to-DRAM alias exists in evidence.
 - Secure ownership, boot-time locking, or a post-transform check could each

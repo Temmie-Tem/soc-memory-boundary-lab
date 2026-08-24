@@ -29,9 +29,12 @@ Each is `qhs_llcc + 0x8080`; exact XBL touches 32-bit offsets through `+0x58`.
 The separate exact TrustZone ELF contains the same `/dev/icbcfg/boot` identity,
 six-slot layout and four register bases. This proves cross-world configuration
 knowledge, not that secure-world runtime writes or locks them.
-No device command or write was issued during this static phase. A live SoC
-identity read was prepared but could not run because no A90 ACM endpoint was
-present at the host when checked.
+No device command or write was issued during the static phase.
+
+The later live capture proved the A90 was connected; its ACM node was hidden
+only inside the Codex sandbox. Live platform is `MTP`, supporting the `_1` DCB
+variant. Linux SMEM `raw_id=165/raw_version=3` does not match any exact CFGL
+selector, refuting that shortcut for choosing `0100` versus `0200`.
 
 The next read-only tool is also prepared:
 
@@ -41,4 +44,6 @@ python3 tools/a90_icb_remapper_snapshot.py \
 ```
 
 It accepts no address and defaults to four control-word reads. Only an explicit
-`--full` expands to the exact 23 layout words per instance.
+`--full` expands to the exact 23 layout words per instance. Experiment 005 then
+proved the current kernel has `CONFIG_DEVMEM=n`; a kernel-space adapter is now
+required before actual register visibility can be tested.

@@ -55,6 +55,21 @@ class SnapshotParserTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "terminal"):
             snapshot.parse_last_frame(bad, "cat")
 
+    def test_error_frame_is_parsed_without_promoting_success(self) -> None:
+        raw = (
+            b"A90P1 BEGIN seq=10 cmd=run argc=5 flags=0x0\r\n"
+            b"run: pid=44, q/Ctrl-C cancels\r\n"
+            b"mmap: Operation not permitted\r\n"
+            b"[exit 1]\r\n"
+            b"[err] run rc=1 (2ms)\r\n"
+            b"A90P1 END seq=10 cmd=run rc=1 errno=0 duration_ms=2 "
+            b"flags=0x0 status=error\r\n"
+            b"a90:/# "
+        )
+        parsed = snapshot.parse_last_frame(raw, "run")
+        self.assertEqual(parsed.end["status"], "error")
+        self.assertIn(b"Operation not permitted", parsed.payload)
+
     def test_dt_reg_rejects_partial_cell(self) -> None:
         with self.assertRaises(ValueError):
             snapshot.parse_dt_reg(b"\x00\x01")

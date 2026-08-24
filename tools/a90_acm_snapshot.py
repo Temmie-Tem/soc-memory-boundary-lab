@@ -25,7 +25,9 @@ from typing import Sequence
 
 BEGIN_RE = re.compile(rb"(?:^|\r?\n)A90P1 BEGIN (?P<fields>[^\r\n]+)\r?\n")
 END_RE = re.compile(rb"(?:^|\r?\n)A90P1 END (?P<fields>[^\r\n]+)\r?\n")
-DONE_SUFFIX_RE = re.compile(rb"(?:^|\r?\n)\[done\] [^\r\n]*$")
+RESULT_SUFFIX_RE = re.compile(
+    rb"(?:^|\r?\n)\[(?:done|err|busy)\] [^\r\n]*$"
+)
 SAFE_ID_RE = re.compile(r"[a-z0-9][a-z0-9._-]{0,79}\Z")
 
 
@@ -128,12 +130,13 @@ def parse_last_frame(transcript: bytes, expected_command: str) -> Frame:
         raise ValueError("A90P1 END lacks rc/status")
 
     body = transcript[begin_match.end() : end_match.start()]
-    # cmd_cat adds one CRLF after the file. Removing the protocol's [done] line
-    # therefore also removes only that synthetic delimiter, never binary data.
-    done_match = DONE_SUFFIX_RE.search(body)
-    if done_match is None:
-        raise ValueError("A90P1 body lacks terminal [done] line")
-    payload = body[: done_match.start()]
+    # cmd_cat adds one CRLF after the file. Removing the protocol's terminal
+    # result line therefore also removes only that synthetic delimiter, never
+    # binary data. Error frames use [err] rather than [done].
+    result_match = RESULT_SUFFIX_RE.search(body)
+    if result_match is None:
+        raise ValueError("A90P1 body lacks terminal result line")
+    payload = body[: result_match.start()]
     return Frame(begin, end, payload, transcript)
 
 
@@ -154,14 +157,23 @@ def read_until_frame(sock: socket.socket, timeout: float) -> bytes:
     raise TimeoutError("timed out waiting for a complete A90P1 frame and prompt")
 
 
-def exchange(host: str, port: int, command: Command, timeout: float) -> Frame:
+def exchange(
+    host: str,
+    port: int,
+    command: Command,
+    timeout: float,
+    *,
+    allow_error: bool = False,
+) -> Frame:
     with socket.create_connection((host, port), timeout=min(timeout, 3.0)) as sock:
         sock.settimeout(0.2)
         # The leading newline only re-establishes the prompt; it has no command effect.
         sock.sendall(b"\n" + command.wire)
         transcript = read_until_frame(sock, timeout)
     frame = parse_last_frame(transcript, command.argv[0])
-    if int(frame.end["rc"], 0) != 0 or frame.end["status"] != "ok":
+    if not allow_error and (
+        int(frame.end["rc"], 0) != 0 or frame.end["status"] != "ok"
+    ):
         raise RuntimeError(
             f"read-only command {command.evidence_id} failed: "
             f"rc={frame.end['rc']} status={frame.end['status']}"

@@ -1,0 +1,50 @@
+{
+  "claim_boundary": "READ_FAILED before MMIO because character device 1:1 opened with ENXIO under live CONFIG_DEVMEM=n; this does not prove hardware immutability, XPU denial, or final DRAM channel/bank/row semantics",
+  "completed_utc": "2026-08-24T19:57:55+00:00",
+  "experiment_id": "005-icb-remapper-control-node-20260825-01",
+  "memory_or_mmio_writes": false,
+  "mode": "control-smoke",
+  "outcome": "READ_FAILED",
+  "raw_snapshot_sha256": "e1586aac230f400b6e66acaf68f5bff5b856203b1c2997163ba56fc0ba648515",
+  "raw_snapshot_size": 6711,
+  "read_failure": {
+    "address": "0x09248080",
+    "base": "0x09248080",
+    "evidence_id": "icb0_off_00",
+    "offset": "0x00",
+    "payload_sha256": "647924dbb7b72e874d863a2114d05b7ca761f6c0a63fc45648bb9963bfbef6ae",
+    "rc": 1,
+    "status": "error",
+    "width_bits": 32
+  },
+  "records": [
+    {
+      "address": "0x09248080",
+      "base": "0x09248080",
+      "evidence_id": "icb0_off_00",
+      "offset": "0x00",
+      "payload_sha256": "647924dbb7b72e874d863a2114d05b7ca761f6c0a63fc45648bb9963bfbef6ae",
+      "rc": 1,
+      "status": "error",
+      "width_bits": 32
+    }
+  ],
+  "register_read_attempt_count": 1,
+  "register_read_success_count": 0,
+  "runtime_version_payload_sha256": "816e84c0c429cffacc2fd6efbdd166bf53a59c5b5fcf39cc59bd9788eb3b329a",
+  "schema": "sdm855-a90-icb-remapper-readonly-manifest-v1",
+  "soc": "SM8150",
+  "source_manifest_sha256": "39469ac59ef0e3a2b9858b7435a4433def58d57407a4066da3854cfdd24409a5",
+  "started_utc": "2026-08-24T19:57:54+00:00",
+  "target_model": "SM-A908N",
+  "temporary_devfs_node": {
+    "absent_check_status": "ok",
+    "cleanup_status": "ok",
+    "create_status": "ok",
+    "major": 1,
+    "minor": 1,
+    "path": "/dev/sdm855_mblab_mem",
+    "preclean_status": "ok"
+  },
+  "temporary_devfs_node_mutation": true
+}

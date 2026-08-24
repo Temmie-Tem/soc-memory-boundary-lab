@@ -24,6 +24,13 @@ Redacted manifest:
 - `PROVED`: the live `hyp` partition is SHA-256
   `646f8fca08b0eff56b1d8415d81c3041a775c1871400dc57448cb5103405a8e1`;
   its ELF load/entry addresses fall inside the advertised `hyp_mem` range.
+- `PROVED`: live SoC sysfs reports ID `339`, revision `2.2`, platform `MTP`,
+  subtype `charm`, SMEM raw ID `165`, and raw version `3`.
+- `REFUTED`: using those Linux SMEM raw fields as XBL's DCB selector. They do
+  not match any exact `6003_{0100,0200}_{0,1}` CFGL entry.
+- `PROVED`: live `/proc/config.gz`, compressed SHA-256
+  `ff2543fee33573e8efe34110598e963d7ddc9c44fbbf5dc1256cd6edec0f8fde`,
+  contains `# CONFIG_DEVMEM is not set`.
 
 ## Fixed reserved ranges
 

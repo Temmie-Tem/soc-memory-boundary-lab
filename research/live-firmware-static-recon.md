@@ -108,8 +108,10 @@ Experiment 006 completed the first structural follow-up:
 4. the writer programs four qhs_llcc windows at `+0x8080`, offsets through
    `+0x58`.
 
-The next live task is a fixed read-only SoC identity capture followed by an
-exact-width read allowlist for those four windows. Final channel/bank/row hash
+The fixed live identity capture is complete and refutes using Linux SMEM raw
+fields as the XBL DCB selector. The exact-width userland read path was also
+qualified: live `CONFIG_DEVMEM=n` causes minor `1:1` to return `ENXIO` before
+MMIO. A narrow kernel-space adapter is now required. Final channel/bank/row hash
 fields, locks and enforcement ordering remain `UNKNOWN`.
 
 Current bypass state remains `UNKNOWN / NO BYPASS OBSERVED`.

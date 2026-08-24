@@ -1,0 +1,40 @@
+{
+  "claim_boundary": "READ_FAILED before MMIO because default /dev/mem was absent; this does not prove hardware immutability, XPU denial, or final DRAM channel/bank/row semantics",
+  "completed_utc": "2026-08-24T19:55:48+00:00",
+  "device_writes": false,
+  "experiment_id": "005-icb-remapper-control-20260825-01",
+  "mode": "control-smoke",
+  "outcome": "READ_FAILED",
+  "raw_snapshot_sha256": "544156afd5f8f854bbd4ede9762143898786428a80495e83399d8982ca4d1596",
+  "raw_snapshot_size": 3627,
+  "read_failure": {
+    "address": "0x09248080",
+    "base": "0x09248080",
+    "evidence_id": "icb0_off_00",
+    "offset": "0x00",
+    "payload_sha256": "41b4a20fc87214fbc66acff4523aa77248dd9ddbb7991aa373f980a2848f303e",
+    "rc": 1,
+    "status": "error",
+    "width_bits": 32
+  },
+  "records": [
+    {
+      "address": "0x09248080",
+      "base": "0x09248080",
+      "evidence_id": "icb0_off_00",
+      "offset": "0x00",
+      "payload_sha256": "41b4a20fc87214fbc66acff4523aa77248dd9ddbb7991aa373f980a2848f303e",
+      "rc": 1,
+      "status": "error",
+      "width_bits": 32
+    }
+  ],
+  "register_read_attempt_count": 1,
+  "register_read_success_count": 0,
+  "runtime_version_payload_sha256": "816e84c0c429cffacc2fd6efbdd166bf53a59c5b5fcf39cc59bd9788eb3b329a",
+  "schema": "sdm855-a90-icb-remapper-readonly-manifest-v1",
+  "soc": "SM8150",
+  "source_manifest_sha256": "39469ac59ef0e3a2b9858b7435a4433def58d57407a4066da3854cfdd24409a5",
+  "started_utc": "2026-08-24T19:55:48+00:00",
+  "target_model": "SM-A908N"
+}

@@ -6,7 +6,7 @@
 | 002 | Cold boots retain identical fixed carveouts. | DT `reg` values and structural `/proc/iomem` holes match across cold boot A/B. | Same kernel/runtime, hashes, compare dynamic counters separately. | `UNKNOWN`, not yet run. |
 | 003 | Stock-like and research boots advertise the same protected ranges. | Fixed ranges equal; differences are attributable to overlays/runtime. | Bind exact boot artifact; do not equate version string with image hash. | `UNKNOWN`. |
 | 004 | Exact live boot-firmware bytes can be acquired without partition writes. | Device pre-hash, host raw hash and device post-hash match for every allowlisted partition. | Live GPT/sysfs identity, `ro=1`, exact byte count, bounded size, fixed node names, cleanup inventory. | `PROVED`: nine artifacts, 26,779,648 bytes; all triple hashes match. |
-| 005 | The exact XBL-programmed qhs_llcc remapper windows are readable post-boot from EL1. | Four control words, then 92 layout words, return stable 32-bit values without abort. | Fixed addresses only; default four-word smoke; explicit `--full`; no write value/retry/arbitrary address. | `UNKNOWN`; collector implemented and host-tested, live endpoint absent. |
+| 005 | The exact XBL-programmed qhs_llcc remapper windows are readable post-boot from EL1. | Four control words, then 92 layout words, return stable 32-bit values without abort. | Fixed addresses only; temporary fixed `1:1` node; default four-word smoke; explicit `--full`; unconditional cleanup; no MMIO write/retry/arbitrary address. | `REFUTED` for current-kernel `/dev/mem`: absent node then `ENXIO`; live config has `CONFIG_DEVMEM=n`. Hardware/kernel-adapter readability remains `UNKNOWN`. |
 | 006 | Address-region mapping is programmed by XBL/DDR DSF/DCB/ICB. | XBL config consumption leads to topology-dependent MMIO writes. | Exact live firmware hashes and call-graph provenance; distinguish region remap from final channel/bank hash. | `PROVED`: four qhs_llcc remapper bases and `+0x00..+0x58` writer recovered; final DRAM hash role `UNKNOWN`. |
 | 007 | Normal-RAM bank/channel relationships fit a stable GF(2) model. | Timing clusters produce a cross-validated XOR matrix. | Fresh pages, pagemap/PA proof, randomized pairs, cache flush, frequency pinning, hold-out pairs. | `UNKNOWN`. |
 | 008 | A controlled transform state creates physical-to-DRAM alias. | `PA_A != PA_B` but writes through one are observed through the other after cache-neutral independent reads. | Prove distinct PTE/PAs; CPU and DMA controls; cache maintenance; reboot/state restoration; unchanged-state negative control. | `NOT ELIGIBLE`: region-remap candidates exist, but readback/lock state, safe restore and a normal-RAM alias hypothesis are not proved. |
@@ -76,14 +76,52 @@
   parsing and DAL structure-pointer traversal
 - Result: four exact qhs_llcc remapper bases, layout-1 offsets through `+0x58`,
   plus a matching TrustZone record
-- Device command/write: none; live identity capture pending because no ACM
-  endpoint was present
+- Static phase device command/write: none; subsequent live selector/config
+  capture is recorded below
 - Public manifest SHA-256:
   `39469ac59ef0e3a2b9858b7435a4433def58d57407a4066da3854cfdd24409a5`
 - Static inventory tool SHA-256:
   `be9aa3cbb477f47539ef7da1ba75b1785bdaefd5ebdb4fb56ea49fbe9440e6b7`
 - Read-only identity collector SHA-256:
-  `d2ca8e2f909d2ab00812e8311e03958680941a008bedbba2e8166945f261bff1`
+  `0b4f99ee1d79ebc586807d88a9bea00f6edcd8409e29c6fdbbe7c34c00ae4f99`
 - Fixed ICB remapper collector SHA-256:
-  `19df323c2252316dddef08428d0fec209ac16bf25c4f6fc625172de6a655637c`
-- Host verification: 36 unit tests pass; regenerated manifest is byte-identical
+  `4020d7e550589d50e466c009fd356f5f2ab16898e731d1fa07d69a2038bd0f1d`
+- A90 frame helper SHA-256:
+  `86a6c2f82cd7ac3b9f5885b1eafa727cc463ea8be2915b259a83f2036fab3402`
+- Host verification: 38 unit tests pass; regenerated static manifest is byte-identical
+
+## Experiment 006 live selector/config metadata
+
+- Live values: SoC ID `339`, revision `2.2`, Linux SMEM `raw_id=165`,
+  `raw_version=3`, platform `MTP`, subtype `charm`
+- `REFUTED`: treating Linux `raw_id/raw_version` as XBL's direct
+  `0x6003/{0x0100,0x0200}` filename fields; the attempted derivation is absent
+  from exact CFGL
+- Physical-platform `_1` variant: `SUPPORTED` by live `MTP` plus XBL's
+  non-RUMI condition; exact DCB revision remains `UNKNOWN`
+- Superseding live identity/config manifest SHA-256:
+  `d4bea281c1533a162d7fa077a12cf0c780b8dcc175fc62b36631a1e29ff7f5d1`
+- Superseding private raw snapshot SHA-256:
+  `1c4ebf17ec35ba33e36b988effe153a24e7fd9dd2498745b8597f3593dee86c1`
+
+## Experiment 005 live metadata
+
+- Exact target: host sysfs `04e8:6861`, product `A90-LNX`, interface
+  `A90 Linux ARM64`; target-pinned by-id bridge; other Samsung ACM untouched
+- First attempt: one 32-bit read at `0x09248080`; failed before MMIO because
+  `/dev/mem` was absent
+- Second attempt: temporary `/dev/sdm855_mblab_mem` character node `1:1` created;
+  the same read failed at open with `ENXIO`; node cleanup and absence proved
+- Memory/MMIO writes: none; temporary devfs-node mutation only
+- First public manifest SHA-256:
+  `2010907bb1d7e652352a526cda59069b08e7e40ad7a290bd0b6a48379ce069f6`
+- Node-backed public manifest SHA-256:
+  `35e96ea34bb2d2fea643edcd408710e44c6a936d7ef395859db119d0fa5d31e3`
+- Live config: gzip payload SHA-256
+  `ff2543fee33573e8efe34110598e963d7ddc9c44fbbf5dc1256cd6edec0f8fde`,
+  selected line `# CONFIG_DEVMEM is not set`
+- Exact board defconfig SHA-256:
+  `3d90a83d61a7a1873249642f7657c572e06f91a61bc3e5b737758f08ec765216`,
+  same `CONFIG_DEVMEM=n` result
+- Final health: runtime version payload unchanged; selftest
+  `pass=11 warn=1 fail=0`; bridge stopped

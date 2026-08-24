@@ -19,6 +19,9 @@ class A90SocIdentityTests(unittest.TestCase):
         self.assertEqual(result["physical_platform"], 1)
         self.assertEqual(result["hw_platform_id"], "0x8")
         self.assertEqual(result["dcb_filename_candidate"], "/6003_0200_1_dcb.bin")
+        self.assertEqual(
+            result["attempted_raw_field_derivation"], "/6003_0200_1_dcb.bin"
+        )
         self.assertTrue(result["present_in_exact_cfgl"])
         self.assertEqual(result["status"], "SUPPORTED")
 
@@ -34,12 +37,13 @@ class A90SocIdentityTests(unittest.TestCase):
                 {"raw_id": str(0x6003), "raw_version": str(0x0100), "hw_platform": "mystery"}
             )
 
-    def test_candidate_absent_from_cfgl_remains_unknown(self) -> None:
+    def test_candidate_absent_from_cfgl_refutes_raw_field_substitution(self) -> None:
         result = identity.derive_selector(
             {"raw_id": str(0x6004), "raw_version": str(0x0100), "hw_platform": "MTP"}
         )
         self.assertFalse(result["present_in_exact_cfgl"])
-        self.assertEqual(result["status"], "UNKNOWN")
+        self.assertIsNone(result["dcb_filename_candidate"])
+        self.assertEqual(result["status"], "REFUTED")
 
     def test_memtotal_parser_is_strict(self) -> None:
         self.assertEqual(

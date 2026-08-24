@@ -106,3 +106,39 @@
 11. Implemented a second fixed read-only collector for Experiment 005. It has no
     arbitrary-address option, defaults to four `+0x00` control reads, and only
     expands to the exact 92 layout words with `--full`. It remains unexecuted.
+
+## 2026-08-25 — Experiment 005 live read-route qualification
+
+1. `PROVED`: The handset was connected. Host sysfs exposed `ttyACM0` as
+   `04e8:6861`, manufacturer `A90-LNX`, product `A90 Linux ARM64`; host `/dev`
+   had the stable A90 by-id. The Codex sandbox alone omitted `/dev/ttyACM0` and
+   `/dev/bus/usb`.
+2. Started a host-side loopback bridge pinned to the exact A90 by-id and
+   `/dev/ttyACM0`. The separate `04e8:6860` Samsung Android ACM endpoint was not
+   selected.
+3. Live identity/config capture returned SoC ID `339`, revision `2.2`, SMEM
+   `raw_id=165`, `raw_version=3`, platform `MTP`, subtype `charm`, and unchanged
+   `MemTotal=5,504,940 kB`.
+4. `REFUTED`: Linux SMEM `raw_id/raw_version` directly encode XBL's DCB filename.
+   The attempted `/00A5_0000_1_dcb.bin` is absent from exact CFGL; live DCB
+   revision remains `UNKNOWN`.
+5. First remapper control smoke attempted only `0x09248080`, width 32. Toybox
+   stopped before MMIO because `/dev/mem` did not exist. Runtime version remained
+   healthy.
+6. Fixed the binary-safe A90P1 parser to preserve `[err]` frames rather than
+   requiring `[done]`, then deliberately repeated that first word once to bind
+   the exact error.
+7. Implemented a fixed temporary-node path. `/dev/sdm855_mblab_mem` character
+   device `1:1` was pre-cleaned, created, passed to `devmem -f`, removed in a
+   `finally` path, and proved absent afterward. Open returned `ENXIO` (`No such
+   device or address`) before MMIO.
+8. `PROVED`: Live `/proc/config.gz` (compressed SHA-256
+   `ff2543fee33573e8efe34110598e963d7ddc9c44fbbf5dc1256cd6edec0f8fde`)
+   contains `# CONFIG_DEVMEM is not set`; exact board defconfig independently
+   agrees. This explains the missing minor-1 backend.
+9. No partition, memory, or MMIO write occurred. Final runtime selftest was
+   `pass=11 warn=1 fail=0`, all temporary nodes were absent, and the bridge was
+   stopped.
+10. Current result is `REFUTED` only for the userland `/dev/mem` route. A narrow
+    kernel-space read adapter remains the cheapest test of actual register/XPU
+    accessibility.

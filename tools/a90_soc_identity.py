@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import base64
 import datetime as dt
+import gzip
 import hashlib
 import json
 import re
@@ -68,6 +69,7 @@ COMMANDS = (
         ("cat", "/sys/devices/soc0/platform_subtype"),
     ),
     Command("proc_meminfo", ("cat", "/proc/meminfo")),
+    Command("proc_config_gz", ("cat", "/proc/config.gz")),
 )
 
 
@@ -116,13 +118,16 @@ def derive_selector(values: dict[str, str]) -> dict[str, object]:
         "hardware_version": f"0x{hardware_version:04x}",
         "physical_platform": physical_platform,
         "hw_platform_id": f"0x{platform_id:x}",
-        "dcb_filename_candidate": filename,
+        "attempted_raw_field_derivation": filename,
+        "dcb_filename_candidate": filename if present_in_exact_cfgl else None,
         "present_in_exact_cfgl": present_in_exact_cfgl,
-        "status": "SUPPORTED" if present_in_exact_cfgl else "UNKNOWN",
+        "status": "SUPPORTED" if present_in_exact_cfgl else "REFUTED",
         "qualification": (
-            "The exact kernel exposes raw SoC fields from SMEM, while exact XBL "
-            "constructs the filename from 0x01fc8000 and platform type. A direct "
-            "source trace proving those producers are identical is still pending."
+            "The Linux SMEM raw fields happen to form an exact CFGL name; direct "
+            "producer identity with XBL 0x01fc8000 still requires a source trace."
+            if present_in_exact_cfgl
+            else "The Linux SMEM raw fields do not form any filename in the exact "
+            "CFGL table, refuting their use as a direct XBL-selector substitute."
         ),
     }
 
@@ -138,6 +143,7 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
     public_records: list[dict[str, object]] = []
     values: dict[str, str] = {}
     memtotal_kib: int | None = None
+    selected_kernel_config: list[str] = []
 
     for command in COMMANDS:
         frame = exchange(args.host, args.port, command, args.timeout)
@@ -175,6 +181,21 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
         elif command.evidence_id == "proc_meminfo":
             memtotal_kib = parse_memtotal_kib(frame.payload)
             public["memtotal_kib"] = memtotal_kib
+        elif command.evidence_id == "proc_config_gz":
+            config = gzip.decompress(frame.payload).decode("ascii", errors="strict")
+            prefixes = (
+                "CONFIG_DEVMEM=",
+                "# CONFIG_DEVMEM ",
+                "CONFIG_STRICT_DEVMEM=",
+                "# CONFIG_STRICT_DEVMEM ",
+                "CONFIG_IO_STRICT_DEVMEM=",
+                "# CONFIG_IO_STRICT_DEVMEM ",
+            )
+            selected_kernel_config = [
+                line for line in config.splitlines() if line.startswith(prefixes)
+            ]
+            public["uncompressed_size"] = len(config.encode("ascii"))
+            public["selected_config"] = selected_kernel_config
         public_records.append(public)
 
     selector = derive_selector(values)
@@ -195,6 +216,7 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
         "records": raw_records,
         "values": values,
         "memtotal_kib": memtotal_kib,
+        "selected_kernel_config": selected_kernel_config,
         "dcb_selector_candidate": selector,
     }
     raw_bytes = json_bytes(raw)
@@ -213,6 +235,9 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
         "claim_boundary": (
             "SUPPORTED live DCB selector candidate; direct identity between the "
             "SMEM raw fields and XBL's 0x01fc8000 read remains to be proved"
+            if selector["status"] == "SUPPORTED"
+            else "REFUTED use of Linux SMEM raw_id/raw_version as a direct "
+            "substitute for XBL's 0x01fc8000 DCB selector fields"
         ),
     }
 

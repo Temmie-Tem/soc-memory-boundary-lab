@@ -1,0 +1,108 @@
+{
+  "claim_boundary": "REFUTED use of Linux SMEM raw_id/raw_version as a direct substitute for XBL's 0x01fc8000 DCB selector fields",
+  "completed_utc": "2026-08-24T20:01:08+00:00",
+  "dcb_selector_candidate": {
+    "attempted_raw_field_derivation": "/00A5_0000_1_dcb.bin",
+    "dcb_filename_candidate": null,
+    "hardware_id": "0x00a5",
+    "hardware_version": "0x0000",
+    "hw_platform_id": "0x8",
+    "physical_platform": 1,
+    "present_in_exact_cfgl": false,
+    "qualification": "The Linux SMEM raw fields do not form any filename in the exact CFGL table, refuting their use as a direct XBL-selector substitute.",
+    "status": "REFUTED"
+  },
+  "device_writes": false,
+  "experiment_id": "006-live-selector-kconfig-20260825-02",
+  "raw_snapshot_sha256": "1c4ebf17ec35ba33e36b988effe153a24e7fd9dd2498745b8597f3593dee86c1",
+  "raw_snapshot_size": 65542,
+  "records": [
+    {
+      "command": "version",
+      "evidence_id": "version",
+      "payload_sha256": "816e84c0c429cffacc2fd6efbdd166bf53a59c5b5fcf39cc59bd9788eb3b329a",
+      "payload_size": 240,
+      "rc": 0,
+      "status": "ok"
+    },
+    {
+      "command": "cat /sys/devices/soc0/soc_id",
+      "evidence_id": "soc_id",
+      "payload_sha256": "80a8dad7e09fb6db82c36af9459415aa65b441e60cff539456268a2a1f9b0beb",
+      "payload_size": 4,
+      "rc": 0,
+      "status": "ok",
+      "value": "339"
+    },
+    {
+      "command": "cat /sys/devices/soc0/revision",
+      "evidence_id": "revision",
+      "payload_sha256": "5d43fc4b98938fad12641b4620e757b00d80de17a0715bf7ed816b33ac41df47",
+      "payload_size": 4,
+      "rc": 0,
+      "status": "ok",
+      "value": "2.2"
+    },
+    {
+      "command": "cat /sys/devices/soc0/raw_id",
+      "evidence_id": "raw_id",
+      "payload_sha256": "167918ace289465acd4dd6ab6587fe10bfe54bc475ad8074b049ac358f98f9e2",
+      "payload_size": 4,
+      "rc": 0,
+      "status": "ok",
+      "value": "165"
+    },
+    {
+      "command": "cat /sys/devices/soc0/raw_version",
+      "evidence_id": "raw_version",
+      "payload_sha256": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2",
+      "payload_size": 2,
+      "rc": 0,
+      "status": "ok",
+      "value": "3"
+    },
+    {
+      "command": "cat /sys/devices/soc0/hw_platform",
+      "evidence_id": "hw_platform",
+      "payload_sha256": "304bcb920c7df50d01920d8d578d59860996821aaeecaf4bc4699ec58d862505",
+      "payload_size": 4,
+      "rc": 0,
+      "status": "ok",
+      "value": "MTP"
+    },
+    {
+      "command": "cat /sys/devices/soc0/platform_subtype",
+      "evidence_id": "platform_subtype",
+      "payload_sha256": "a247315df7189ae2420b7465bee4dd3f26a6c8acb7ced7f6f4ae9b59a6caec57",
+      "payload_size": 6,
+      "rc": 0,
+      "status": "ok",
+      "value": "charm"
+    },
+    {
+      "command": "cat /proc/meminfo",
+      "evidence_id": "proc_meminfo",
+      "memtotal_kib": 5504940,
+      "payload_sha256": "2f1020645eddbcac2b3d7882ba705eec59b65caf2d1caf1dac2bf3cf86f67d19",
+      "payload_size": 1177,
+      "rc": 0,
+      "status": "ok"
+    },
+    {
+      "command": "cat /proc/config.gz",
+      "evidence_id": "proc_config_gz",
+      "payload_sha256": "ff2543fee33573e8efe34110598e963d7ddc9c44fbbf5dc1256cd6edec0f8fde",
+      "payload_size": 42126,
+      "rc": 0,
+      "selected_config": [
+        "# CONFIG_DEVMEM is not set"
+      ],
+      "status": "ok",
+      "uncompressed_size": 188380
+    }
+  ],
+  "schema": "sdm855-a90-soc-identity-readonly-manifest-v1",
+  "soc": "SM8150",
+  "started_utc": "2026-08-24T20:01:08+00:00",
+  "target_model": "SM-A908N"
+}

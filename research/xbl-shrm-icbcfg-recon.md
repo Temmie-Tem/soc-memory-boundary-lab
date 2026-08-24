@@ -32,8 +32,13 @@ previously anonymous `0x3404`-byte ELF payloads to:
    `0x0f`; the image's platform strings identify `0x0f` as RUMI.
 
 `UNKNOWN`: Whether this live handset used revision `0x0100` or `0x0200`.
-`SUPPORTED`: A physical A90 uses the `_1` variant; a fresh read-only
-`hw_platform` capture is still required to promote that unit-specific claim.
+`SUPPORTED`: This live physical A90 uses the `_1` variant: sysfs reports `MTP`
+and exact XBL selects zero only for platform type `0x0f`/RUMI.
+
+`REFUTED`: Linux sysfs `raw_id/raw_version` can substitute for the XBL register
+fields. Live values are decimal `165/3`, producing no exact CFGL name, whereas
+XBL requires `0x6003` and revision `0x0100` or `0x0200`. Revision selection must
+be recovered from XBL's `0x01fc8000` producer or equivalent boot evidence.
 
 ## 2. SHRM destination and firmware installation
 
@@ -192,12 +197,15 @@ four exact windows are now source-backed candidates. The stronger statement
 
 ## 7. Cheapest next measurements
 
-1. Capture live `raw_id`, `raw_version`, `hw_platform` and `/proc/meminfo` with
-   `tools/a90_soc_identity.py`; this requires only fixed sysfs reads.
-2. Read only `+0x00…+0x58` from the four proved windows with an exact-width,
-   abort-contained adapter; compare all four instances and reconstruct six
-   programmed region slots.
-3. Correlate those boot values with the 6 GiB remapper row and `/proc/iomem`.
-4. Trace the remaining SHRM/MCCC/MC writes for channel/bank/row hash fields.
+1. Implement a narrow kernel-space `ioremap/readl` adapter for only the four
+   proved `0x5c`-byte windows. The current userland route is structurally absent:
+   live `/proc/config.gz` has `CONFIG_DEVMEM=n` and a fixed `1:1` node returns
+   `ENXIO` before MMIO.
+2. Compare all four read-only instances and reconstruct the six programmed
+   region slots.
+3. Recover the exact `0x01fc8000` hardware revision producer to select the live
+   DCB without misusing Linux SMEM raw fields.
+4. Correlate boot values with the 6 GiB remapper row and `/proc/iomem`, then
+   trace remaining SHRM/MCCC/MC channel/bank/row fields.
 
 No controller write is justified by the current evidence.
