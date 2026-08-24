@@ -25,7 +25,7 @@ from typing import Sequence
 
 BEGIN_RE = re.compile(rb"(?:^|\r?\n)A90P1 BEGIN (?P<fields>[^\r\n]+)\r?\n")
 END_RE = re.compile(rb"(?:^|\r?\n)A90P1 END (?P<fields>[^\r\n]+)\r?\n")
-DONE_SUFFIX_RE = re.compile(rb"\r?\n\[done\] [^\r\n]*$")
+DONE_SUFFIX_RE = re.compile(rb"(?:^|\r?\n)\[done\] [^\r\n]*$")
 SAFE_ID_RE = re.compile(r"[a-z0-9][a-z0-9._-]{0,79}\Z")
 
 

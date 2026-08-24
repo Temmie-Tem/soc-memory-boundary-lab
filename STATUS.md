@@ -4,8 +4,9 @@ Current research state: `NO_BOUNDARY_BYPASS_OBSERVED`
 
 Current class: `UNKNOWN — not enough evidence for A, B, C, D, or E`
 
-Device mutation: no memory/controller/security write; one transient UI `hide`
-before formal collection; Experiment 001 itself was read-only.
+Device mutation: no partition, memory-controller, MMIO, SCM, EL2, EL3, or
+protected-memory write. Experiment 004 created and removed fixed temporary
+block-device nodes under `/dev`; partition data access was read-only.
 
 ## A. 현재까지 PROVED
 
@@ -26,11 +27,15 @@ before formal collection; Experiment 001 itself was read-only.
 - AMD's demonstrated primitive is a temporary Family 16h DRAM bank-map/
   swizzle/swap state change plus a controlled uncacheable access and GF(2)/Z3
   alias recovery; those details are AMD facts only.
+- Experiment 004 captured nine exact live boot-firmware artifacts with matching
+  device-before/host/device-after SHA-256. Exact XBL owns DDR DSF/DCB training;
+  exact AOP manages DDR runtime state; exact `hyp` supplies QHEE; exact `tz`
+  names BIMC/MEMNOC/LLCC memory-protection units.
 
 ## B. 현재 HYPOTHESIS
 
-- Final SM8150 PA-to-channel/rank/bank/row/column state resides in DDRSS
-  controller/PHY-coupled logic initialized by XBL/DDR training firmware.
+- Final SM8150 PA-to-channel/rank/bank/row/column state resides in the subset of
+  XBL DSF/DCB-driven DDRSS controller logic not yet isolated from PHY training.
 - Some channel/bank selection may be XOR-linear over address bits.
 - QHEE/TrustZone may own or lock relevant configuration, but no owner/lock
   evidence exists yet.
@@ -49,7 +54,8 @@ before formal collection; Experiment 001 itself was read-only.
 
 - Exact final-transform block, MMIO base/offset, width and semantics.
 - Reset value, boot value, runtime readability/writability, lock state and owner.
-- Exact XBL/AOP/DDR/QHEE firmware bytes and programming call graph.
+- Exact final-decode XBL/DCB programming call graph and register fields. The
+  firmware bytes themselves are now `PROVED` available.
 - Protection ordering and existence of a post-transform security check.
 - Any deterministic normal-RAM DRAM alias or protected-boundary consequence.
 - Live boot-image and live-DTB byte hashes.
@@ -77,16 +83,16 @@ position relative to final decode are `UNKNOWN`.
 
 ## G. 가장 가능성 높은 controller/register 후보 Top 5
 
-1. `HYPOTHESIS`: final DDRSS MC/PHY address-decode registers; exact address all
-   `UNKNOWN`.
-2. `HYPOTHESIS`: XBL/DDR firmware configuration table/write sequence; exact
-   firmware artifact missing.
+1. `SUPPORTED`: exact XBL DSF/DCB write path; firmware and training ownership
+   are proved, final-decode subset still `UNKNOWN`.
+2. `SUPPORTED`: populated `xbl_config--sdb2` ELF and repeated configuration
+   blocks. Four `0x3404` DCBs and XBL's section-consumption path to
+   `0x09065100` are `PROVED`; final-map field identity remains `UNKNOWN`.
 3. `PROVED endpoint / UNKNOWN semantics`: `SLAVE_CNOC_DDRSS` configuration path.
 4. `PROVED landmark / low transform confidence`: LLCC base `0x09200000`; known
    `0x21000...` fields are cache-slice configuration, not proved decode fields.
-5. `PROVED landmark / low transform confidence`: AOP DDRSS mailbox plus
-   LLCC-to-DDR BWMON `0x090cd000`; visible Linux semantics are performance/
-   counters, not address mapping.
+5. `PROVED landmarks / low transform-field confidence`: XBL MCCC
+   `0x090b0000`, AOP DDR manager, and LLCC-to-DDR BWMON `0x090cd000`.
 
 Full per-candidate fields are in `research/sm8150-memory-subsystem.md`.
 
@@ -98,16 +104,15 @@ source-visible PA inputs. `UNKNOWN`: final decode register values.
 
 ## I. EL2/QHEE가 담당하는 것으로 보이는 부분
 
-`PROVED`: UH/RKP has an EL1-to-SMC call path and advertised private/reserved
-ranges. `SUPPORTED`: RKP/QHEE enforces kernel page/ownership properties.
-`UNKNOWN`: exact private firmware/runtime bytes, arbitrary R/W, DDR decode
-ownership and final protection ordering.
+`PROVED`: UH/RKP has an EL1-to-SMC call path; exact `hyp` firmware loads into
+live `hyp_mem` and contains kernel/ownership protection. `UNKNOWN`: arbitrary
+EL2 runtime R/W, DDR decode ownership and final protection ordering.
 
 ## J. EL3/TrustZone이 담당하는 것으로 보이는 부분
 
-`PROVED`: SCM MP is the kernel-facing memory-assignment/secure-buffer boundary.
-`SUPPORTED`: secure world applies ownership/firewall policy. `UNKNOWN`: whether
-EL3 directly programs XPU and whether that check is before/after final decode.
+`PROVED`: SCM MP is the kernel-facing boundary, and exact TrustZone bytes name
+BIMC_MPU0..3, MEMNOC_MS_MPU and LLCC_BROADCAST_MPU. `UNKNOWN`: which are enabled
+and whether any check is after final decode.
 
 ## K. AMD Skitter 공격과 구조적으로 같은 부분
 
@@ -125,13 +130,9 @@ not yet a structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-Acquire and hash the exact `A908NKSU5EWA3` XBL/AOP/DDR/hyp artifacts from an
-already-owned firmware package, then perform host-only string/table/call-graph
-reconstruction. This has no device risk and can turn the highest-ranked
-candidate's base/offset/owner from `UNKNOWN` into a source-backed read target.
-
-In parallel, a second cold-boot run of Experiment 001 is the cheapest check of
-baseline stability, but it has less power to locate the transform.
+Determine the live-selected one of four DCBs, then trace DCB section 16 from the
+proved `0x09065100` destination through SHRM/DSF into controller writes. This is
+host-only and is now the shortest path to exact base/offset/lock candidates.
 
 ## N. 가장 위험한 아직 금지된 실험
 
@@ -159,6 +160,8 @@ Evidence against a presently usable bypass:
 - No normal-RAM physical-to-DRAM alias exists in evidence.
 - Secure ownership, boot-time locking, or a post-transform check could each
   independently make the AMD attack class fail.
+- Exact TrustZone firmware names multiple BIMC/MEMNOC/LLCC MPUs, increasing the
+  concrete evidence for additional enforcement layers.
 
 Critical unknowns are the exact transform state and owner, its post-boot lock/
 access state, firewall ordering, and deterministic alias behavior. The only

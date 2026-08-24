@@ -44,8 +44,33 @@
 
 ## Missing artifacts
 
-- `UNKNOWN`: Exact on-device XBL, AOP and DDR-training/configuration firmware
-  artifacts and hashes suitable for static analysis.
-- `UNKNOWN`: QHEE/hyp firmware bytes and provider provenance. The presence of a
-  `hyp` partition/range is not a firmware-content proof.
+- `REFUTED`: Exact on-device XBL/AOP/hyp/tz/config firmware is unavailable.
+  Experiment 004 captured nine exact live artifacts with triple hash agreement.
+- `PROVED`: QHEE/hyp firmware bytes and provider provenance are now bound to the
+  live `hyp` partition and live `hyp_mem` load range.
 - `UNKNOWN`: Live boot image and DTB byte hashes.
+
+## 2026-08-25 — Experiment 004 live firmware acquisition
+
+1. Rebound the exact A90 USB ACM endpoint and started a dedicated loopback-only
+   bridge. The other attached Samsung endpoint was untouched.
+2. Implemented a fixed-allowlist collector. It rejects arbitrary partition names,
+   requires GPT/sysfs identity, exact expected size and `ro=1`, and parses binary
+   frames by advertised byte count rather than delimiter search.
+3. One initial smoke stopped before block data access because the host parser did
+   not accept a successful zero-payload `mknodb` frame. The possible temporary
+   node was immediately removed and absence verified. The parser and unconditional
+   cleanup path were repaired and covered by a regression test.
+4. A 128 KiB `devcfg` smoke then passed with equal device-before, host and
+   device-after hashes and verified node cleanup.
+5. Full capture acquired nine artifacts totaling 26,779,648 bytes. All triple
+   hashes matched; five historical hashes also matched.
+6. Post-capture `/dev` contained no temporary node, native selftest reported
+   `fail=0`, and the bridge was stopped.
+7. First-pass static analysis proved XBL DDR/DSF/DCB ownership, exact AOP DDR
+   management, `hyp`-partition QHEE provenance, and concrete TrustZone names for
+   BIMC/MEMNOC/LLCC MPUs. No transform register or bypass was claimed.
+8. Exact loader disassembly and a reproducible DCB inventory proved four
+   `0x3404` DCBs at DSF `0x00650000`. XBL consumes five section indexes and
+   copies section 16 to `0x09065100`; SHRM consumption and final-map semantics
+   remain `UNKNOWN`.

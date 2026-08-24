@@ -38,6 +38,14 @@ expose address-map programming. Evidence:
 `drivers/soc/qcom/aop_ddrss_cmds.c:24-61` and
 `drivers/soc/qcom/aop_ddr_msgs.c:24-60`.
 
+`PROVED`: Exact live XBL owns DDR initialization/training and loads board-specific
+DCB data, while exact live AOP contains the runtime DDR manager. Evidence:
+Experiment 004 hashes and `research/live-firmware-static-recon.md`.
+
+`PROVED`: XBL maps `MCCC_MCCC_MSTR` at `0x090b0000–0x090b0fff` as an
+uncacheable `NS_DEVICE` during boot. This is a firmware-backed register landmark,
+not yet a final-decode register identification or proof of post-boot EL1 access.
+
 `REFUTED`: Downstream `mc_virt-base = 0x09680000` is by itself an exact DDR
 controller-register identification. In this tree the `fab_mc_virt` fabric uses
 `bypass-qos-prg`, and upstream review describes `*_virt` register ranges as
@@ -84,13 +92,20 @@ rebuild map
 `REFUTED`: The self-built kernel disabled all RKP/QHEE paths. The exact config,
 source callsite and two symbol maps contradict that claim.
 
+`PROVED`: The live `hyp` partition is the QHEE/hypervisor image: its ELF load
+address and entry fall inside live `hyp_mem`, and its code/data identify the
+hypervisor, ownership and kernel-protection paths.
+
+`PROVED`: The live TrustZone image names BIMC, MEMNOC and LLCC-broadcast MPUs.
+Their precise enablement and ordering remain `UNKNOWN`.
+
 ## Answers required for a bypass determination
 
 | Question | Current answer |
 |---|---|
 | Which block owns the final mapping? | `HYPOTHESIS`: DDRSS MC/PHY-coupled decode; exact block `UNKNOWN`. |
-| Who programs it? | `HYPOTHESIS`: XBL/DDR training firmware, possibly with privileged AOP participation; artifact proof absent. |
-| At what stage? | `HYPOTHESIS`: before Normal World uses general RAM; later performance control is proved, mapping control is not. |
+| Who programs it? | `SUPPORTED`: XBL/DDR DSF/DCB initializes DDR; exact decode writer still `UNKNOWN`. AOP runtime DDR management is `PROVED`. |
+| At what stage? | XBL DDR initialization before HLOS is `PROVED`; exact transform write and later mutability remain `UNKNOWN`. |
 | Can EL1 observe it? | `UNKNOWN`; EL1 can observe topology, LLCC/BWMON landmarks and reserved ranges. |
 | Can EL1 modify it? | `UNKNOWN`; no relevant writable register has been identified. |
 | Does EL2/EL3 lock it? | `UNKNOWN`. |

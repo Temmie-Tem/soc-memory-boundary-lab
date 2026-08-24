@@ -13,10 +13,13 @@
   resource view includes the RKP range inside System RAM.
 - `PROVED`: The exact rebuild and independently extracted stock kallsyms both
   retain kernel-to-hypervisor/SCM interfaces and RKP-related symbols.
+- `PROVED`: The live `hyp` partition was captured byte-for-byte. It is an
+  AArch64 ELF loading at `0x85700000`, entering at `0x85710000`, and identifies
+  `hyp.mbn`, memory ownership, SMMU virtualization and kernel asset protection.
+  Its exact SHA-256 is recorded in the Experiment 004 manifest.
 
 ## What is not proved
 
-- `UNKNOWN`: Firmware bytes supplying the QHEE/hyp runtime and their exact hash.
 - `UNKNOWN`: Arbitrary read/write of EL2 private runtime memory.
 - `UNKNOWN`: Whether RKP/XPU enforcement compares pre-transform or
   post-transform address signals.

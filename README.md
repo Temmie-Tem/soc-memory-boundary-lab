@@ -25,6 +25,10 @@ and [docs/EXPERIMENT_MATRIX.md](docs/EXPERIMENT_MATRIX.md). The cache/VA/PTE/
 DMA/IOMMU controls for a future normal-RAM proof are specified in
 [docs/NORMAL_RAM_ALIAS_DESIGN.md](docs/NORMAL_RAM_ALIAS_DESIGN.md).
 
+Exact live `xbl/xbl_config/aop/devcfg/tz/hyp/abl` artifacts were acquired in
+Experiment 004. Raw bytes remain private; the first static reconstruction is in
+[research/live-firmware-static-recon.md](research/live-firmware-static-recon.md).
+
 Raw dumps, device identifiers, boot/firmware images, and full transcripts are
 kept below `evidence/private/` and ignored by Git. Redacted hash manifests are
 kept in `evidence/manifests/`.

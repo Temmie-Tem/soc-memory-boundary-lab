@@ -20,6 +20,16 @@ def frame(command: str, payload: bytes, *, seq: int = 4) -> bytes:
 
 
 class SnapshotParserTests(unittest.TestCase):
+    def test_zero_length_success_payload(self) -> None:
+        raw = (
+            b"A90P1 BEGIN seq=9 cmd=mknodb argc=4 flags=0x0\r\n"
+            b"[done] mknodb (0ms)\r\n"
+            b"A90P1 END seq=9 cmd=mknodb rc=0 errno=0 duration_ms=0 "
+            b"flags=0x0 status=ok\r\n"
+        )
+        parsed = snapshot.parse_last_frame(raw, "mknodb")
+        self.assertEqual(parsed.payload, b"")
+
     def test_binary_payload_is_not_decoded(self) -> None:
         payload = bytes.fromhex("00000000b02000000000000000200000")
         parsed = snapshot.parse_last_frame(frame("cat", payload), "cat")

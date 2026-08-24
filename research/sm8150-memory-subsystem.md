@@ -10,10 +10,10 @@ registers, LLCC/DDR bandwidth monitors and AOP DDR performance messages.
 channel/rank/bank-group/bank/row/column. The Linux source contains no identified
 SM8150 implementation of that mapping.
 
-`HYPOTHESIS`: The decisive state is in memory-controller/PHY-coupled DDRSS logic
-initialized by XBL/DDR training firmware before general RAM becomes usable.
-Prediction: exact boot firmware contains topology-dependent table/register writes
-that are absent from the kernel.
+`SUPPORTED`: The decisive state is in memory-controller/PHY-coupled DDRSS logic
+initialized by XBL/DDR DSF/DCB before general RAM becomes usable. Exact live XBL
+proves DDR initialization, DCB loading and channel/rank training; the specific
+decode writes remain unidentified.
 
 ## Candidate block/register inventory
 
@@ -22,11 +22,11 @@ candidate is EL1-accessible.
 
 | Rank | Candidate | Who/when | Base and offset | Width | EL1 read/write | Reset/boot/lock/owner | Confidence |
 |---:|---|---|---|---|---|---|---|
-| 1 | Final DDRSS MC/PHY address decode: channel/rank/bank/row mapping state | `HYPOTHESIS`: XBL/DDR training before HLOS | `UNKNOWN` | `UNKNOWN` | `UNKNOWN/UNKNOWN` | all `UNKNOWN`; secure/boot owner plausible but unproved | High architectural relevance, low identification confidence |
-| 2 | XBL DDR configuration tables / generated register-write sequence | `HYPOTHESIS`: XBL or linked DDR firmware at boot | Firmware-relative address `UNKNOWN` | likely mixed, exact `UNKNOWN` | static read pending; runtime write owner `UNKNOWN` | artifact absent; lock state `UNKNOWN` | Highest next static-analysis value |
+| 1 | XBL DSF/DCB final DDRSS decode write path | `PROVED`: XBL initializes/trains DDR before HLOS; decode subset `UNKNOWN` | live XBL/config offsets under analysis | likely 32-bit MMIO, exact `UNKNOWN` | static bytes acquired; live access `UNKNOWN` | boot values/lock owner `UNKNOWN` | Highest static-analysis value |
+| 2 | Four board DCB/config blocks in `xbl_config--sdb2` | `PROVED`: exact loader validates `0x3404`/DSF `0x650000` and consumes five sections | ELF entry `0x148d0000`; section 16 copied to `0x09065100` | structured data; final-map field identity `UNKNOWN` | host-readable; runtime mutation not proposed | selected DCB and SHRM lock behavior `UNKNOWN` | High |
 | 3 | CNOC DDRSS configuration endpoint `SLAVE_CNOC_DDRSS` | `PROVED`: endpoint exists; programmer `UNKNOWN` | endpoint-specific base/offset `UNKNOWN`; do not infer config-NOC aperture blindly | `UNKNOWN` | `UNKNOWN/UNKNOWN` | `UNKNOWN` | Medium: route proved, semantics absent |
 | 4 | LLCC core/broadcast and HN-facing selection state | Linux programs cache slices at LLCC probe | base `0x09200000`; known cache offsets `0x21000+8*n`, `0x21004+8*n`, `0x21f00`, `0x21f04`, status `0x3000c` | source uses 32-bit regmap | source-backed read plausible; Linux writes cache-slice fields | cache fields boot values source-derived; decode role `REFUTED` for those known offsets | Medium landmark, low final-transform confidence |
-| 5 | AOP DDRSS control and LLCC-to-DDR BWMON | Linux sends AOP perf/frequency message; counters observe traffic | QMP mailbox indirect; BWMON `0x090cd000 + 0x1000`; PMU `0x090cc000 + 0x300` | driver-specific 32-bit fields | source-backed reads plausible; mapping write not exposed | not an address-map interface in inspected source | Low transform confidence; useful timing/control landmark |
+| 5 | MCCC/AOP DDRSS control and LLCC-to-DDR BWMON | XBL maps MCCC; AOP manages DDR; counters observe traffic | MCCC `0x090b0000–0x090b0fff`; BWMON `0x090cd000–0x090cdfff`; PMU `0x090cc000–0x090cc2ff` | likely 32-bit, field semantics incomplete | source-backed reads plausible; mapping write not exposed | XBL classifies MCCC `NS_DEVICE`; post-boot lock/access `UNKNOWN` | Medium landmark, low transform-field confidence |
 
 ### Negative candidate
 
@@ -42,6 +42,6 @@ interleave/swizzle/bank-swap/address-map terms found no SM8150-specific CPU
 PA-to-DRAM mapping program. Generic legacy BIMC interleave structures and WLAN
 descriptor swizzling are not evidence for this target.
 
-`SUPPORTED`, not `PROVED`: Linux is not the component that initially programs
-the final transform. Absence in inspected source can be defeated by inline
-firmware calls, undocumented drivers, or boot-programmed state.
+`PROVED`: XBL is a component that initializes DDR before Linux. `SUPPORTED`, not
+`PROVED`: it also programs the final PA-to-DRAM transform; the exact MMIO write
+chain must still be recovered.

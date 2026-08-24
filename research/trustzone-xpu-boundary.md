@@ -12,6 +12,10 @@ base-DTS value.
 response to SCM MP calls. This follows from the API purpose and call boundary,
 but the exact hardware block and register writes remain unobserved.
 
+`PROVED`: Exact live `tz` bytes name `BIMC_MPU0..3`, `MEMNOC_MS_MPU`, and
+`LLCC_BROADCAST_MPU`. This replaces a generic XPU hypothesis with concrete
+SM8150 firmware block names, but does not yet establish enablement or ordering.
+
 `UNKNOWN`: XPU/MPU location along the SM8150 memory path.
 `UNKNOWN`: Whether it checks the system address before final DRAM decode, a
 decoded destination, or both. `UNKNOWN`: Which state is controlled by EL3 versus

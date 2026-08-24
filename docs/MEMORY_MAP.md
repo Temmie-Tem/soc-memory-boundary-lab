@@ -21,6 +21,9 @@ Redacted manifest:
   but it was not read back from the running boot chain.
 - `UNKNOWN`: exact hash of the live flattened DT bytes. Live properties match
   several exact-source ranges, but equality is not inferred.
+- `PROVED`: the live `hyp` partition is SHA-256
+  `646f8fca08b0eff56b1d8415d81c3041a775c1871400dc57448cb5103405a8e1`;
+  its ELF load/entry addresses fall inside the advertised `hyp_mem` range.
 
 ## Fixed reserved ranges
 

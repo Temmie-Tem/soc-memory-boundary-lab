@@ -1,0 +1,760 @@
+{
+  "claim_boundary": "PROVED structural DCB blocks and XBL loader consumption; UNKNOWN semantic identity of each section and final address-map fields",
+  "dcb_header_size": 100,
+  "dcb_segment_count": 4,
+  "dcb_size": 13316,
+  "input_filename": "xbl_config--sdb2.bin",
+  "input_sha256": "0e9dfac1ddd0f9acc2cc899213e621490308f0cadf329814048edb7712e2484c",
+  "input_size": 4149248,
+  "records": [
+    {
+      "dcb": {
+        "crc_field": "0x881297cb",
+        "dsf_version": "0x00650000",
+        "nonempty_section_count": 18,
+        "sections": [
+          {
+            "data_offset": "0x64",
+            "header_offset": "0xc",
+            "index": 0,
+            "loader_consumption": {
+              "destination": "xbl_context+0x2b0",
+              "maximum_size": 1916
+            },
+            "sha256": "41b6d7158e2a54c8e06d584b8894964f32f6cdff7f6e79af2a36c8d4ff6c91a7",
+            "size": 1916
+          },
+          {
+            "data_offset": "0x7e0",
+            "header_offset": "0x10",
+            "index": 1,
+            "loader_consumption": {
+              "destination": "xbl_context+0x17b8",
+              "maximum_size": 988
+            },
+            "sha256": "bfd75103c4be95e7d98f9d9266b87254a21b0268897796865e42adf0bed5b32f",
+            "size": 985
+          },
+          {
+            "data_offset": "0xbbc",
+            "header_offset": "0x14",
+            "index": 2,
+            "loader_consumption": {
+              "destination": "xbl_context+0x1b94",
+              "maximum_size": 264
+            },
+            "sha256": "1634efe082f0094016c8b86483cdb8115cb88e20f1ae3677a468b557a91b7a26",
+            "size": 262
+          },
+          {
+            "data_offset": "0xcc4",
+            "header_offset": "0x18",
+            "index": 3,
+            "loader_consumption": null,
+            "sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7",
+            "size": 2
+          },
+          {
+            "data_offset": "0xcc8",
+            "header_offset": "0x1c",
+            "index": 4,
+            "loader_consumption": null,
+            "sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7",
+            "size": 2
+          },
+          {
+            "data_offset": "0xccc",
+            "header_offset": "0x20",
+            "index": 5,
+            "loader_consumption": null,
+            "sha256": "0599836c15770979c0f47f97b09ae1f58add60e5adae1d4daa418af31da17c53",
+            "size": 536
+          },
+          {
+            "data_offset": "0xee4",
+            "header_offset": "0x24",
+            "index": 6,
+            "loader_consumption": null,
+            "sha256": "2e1e82b929a154444918a283ec801bcd75249cd4b0639e80ab9037373a4931bd",
+            "size": 144
+          },
+          {
+            "data_offset": "0xf74",
+            "header_offset": "0x28",
+            "index": 7,
+            "loader_consumption": null,
+            "sha256": "1660703301f9c5ab69de7e94fa8335852219f293302deddf0ba1b671255d42f3",
+            "size": 184
+          },
+          {
+            "data_offset": "0x102c",
+            "header_offset": "0x2c",
+            "index": 8,
+            "loader_consumption": null,
+            "sha256": "e60910085e35430f049fec3a30a71ec94619802dee725ddba3354ab264ad80e7",
+            "size": 152
+          },
+          {
+            "data_offset": "0x10c4",
+            "header_offset": "0x30",
+            "index": 9,
+            "loader_consumption": null,
+            "sha256": "e4886893f5fb1f54f3d50b4171efd863915a2efa1507d17e84d963f2fdf1b2fa",
+            "size": 24
+          },
+          {
+            "data_offset": "0x10dc",
+            "header_offset": "0x34",
+            "index": 10,
+            "loader_consumption": null,
+            "sha256": "b112c26b0c2249ad5f4a09c4522f91164c51af84eb93e2918b1ef88b9eb39bd8",
+            "size": 1360
+          },
+          {
+            "data_offset": "0x162c",
+            "header_offset": "0x38",
+            "index": 11,
+            "loader_consumption": null,
+            "sha256": "df4b7521642a5939e3b7a644e23386ac82c53956ae0279fa9f0440441d62806e",
+            "size": 1224
+          },
+          {
+            "data_offset": "0x1af4",
+            "header_offset": "0x3c",
+            "index": 12,
+            "loader_consumption": null,
+            "sha256": "2b8770ec007743f82d1bb123251491c1398d28182252844ef7be15aa3d633cda",
+            "size": 744
+          },
+          {
+            "data_offset": "0x1ddc",
+            "header_offset": "0x40",
+            "index": 13,
+            "loader_consumption": null,
+            "sha256": "405a2e628b77cf4aba165f4e52ae1966a0f4b574c3bf3497b3d0ab7c171f9947",
+            "size": 1696
+          },
+          {
+            "data_offset": "0x247c",
+            "header_offset": "0x44",
+            "index": 14,
+            "loader_consumption": null,
+            "sha256": "cfc4c3676adf8b9387c0d8c8bbba1c792b3f28c324d44581069a98a1794e703c",
+            "size": 280
+          },
+          {
+            "data_offset": "0x2594",
+            "header_offset": "0x48",
+            "index": 15,
+            "loader_consumption": {
+              "destination": "xbl_context+0x1c9c",
+              "maximum_size": 512
+            },
+            "sha256": "632762e34300fd4ac0380b9b52423ae57f0173acb92bcf85f9388d98a0119ead",
+            "size": 480
+          },
+          {
+            "data_offset": "0x2774",
+            "header_offset": "0x4c",
+            "index": 16,
+            "loader_consumption": {
+              "destination": "0x09065100",
+              "maximum_size": 3840
+            },
+            "sha256": "e7f22bf3ac319018d716591ef2214639f613757fa5211371261ad30a5e6b5603",
+            "size": 568
+          },
+          {
+            "data_offset": "0x29ac",
+            "header_offset": "0x50",
+            "index": 17,
+            "loader_consumption": null,
+            "sha256": "5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef",
+            "size": 1024
+          }
+        ],
+        "sha256": "2c3604698f1241b7f9c62fead0704ed66a972976dc802acd57d367d45c1a5498",
+        "used_size": 11692
+      },
+      "elf_segment": {
+        "alignment": 1,
+        "file_offset": 67484,
+        "file_size": 13316,
+        "flags": 16777223,
+        "index": 4,
+        "memory_size": 13316,
+        "physical_address": 344840092,
+        "virtual_address": 344840092
+      }
+    },
+    {
+      "dcb": {
+        "crc_field": "0x179f8b68",
+        "dsf_version": "0x00650000",
+        "nonempty_section_count": 18,
+        "sections": [
+          {
+            "data_offset": "0x64",
+            "header_offset": "0xc",
+            "index": 0,
+            "loader_consumption": {
+              "destination": "xbl_context+0x2b0",
+              "maximum_size": 1916
+            },
+            "sha256": "0d5446e298f97080a71aa66bd5d71239e4cf7ae15218ec2b28578ca4b1d3e61e",
+            "size": 1865
+          },
+          {
+            "data_offset": "0x7b0",
+            "header_offset": "0x10",
+            "index": 1,
+            "loader_consumption": {
+              "destination": "xbl_context+0x17b8",
+              "maximum_size": 988
+            },
+            "sha256": "d86d414c19b78cf7d10272c7340274ce508608f89851bacd9d92cccc5c18a366",
+            "size": 985
+          },
+          {
+            "data_offset": "0xb8c",
+            "header_offset": "0x14",
+            "index": 2,
+            "loader_consumption": {
+              "destination": "xbl_context+0x1b94",
+              "maximum_size": 264
+            },
+            "sha256": "de2ac25497123d6693143e429f63ceea8641e191a2a3918ceb6af0d4af5eae9a",
+            "size": 232
+          },
+          {
+            "data_offset": "0xc74",
+            "header_offset": "0x18",
+            "index": 3,
+            "loader_consumption": null,
+            "sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7",
+            "size": 2
+          },
+          {
+            "data_offset": "0xc78",
+            "header_offset": "0x1c",
+            "index": 4,
+            "loader_consumption": null,
+            "sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7",
+            "size": 2
+          },
+          {
+            "data_offset": "0xc7c",
+            "header_offset": "0x20",
+            "index": 5,
+            "loader_consumption": null,
+            "sha256": "0651386b0bec1a39a2ef3a1d74c9d4e71d50ee533858e54a74d9c318058d31b4",
+            "size": 536
+          },
+          {
+            "data_offset": "0xe94",
+            "header_offset": "0x24",
+            "index": 6,
+            "loader_consumption": null,
+            "sha256": "2e1e82b929a154444918a283ec801bcd75249cd4b0639e80ab9037373a4931bd",
+            "size": 144
+          },
+          {
+            "data_offset": "0xf24",
+            "header_offset": "0x28",
+            "index": 7,
+            "loader_consumption": null,
+            "sha256": "841c86c49a94fe69ab6c3356e9377c08d0bb5300bba585d8754fa88b14fc6d7a",
+            "size": 176
+          },
+          {
+            "data_offset": "0xfd4",
+            "header_offset": "0x2c",
+            "index": 8,
+            "loader_consumption": null,
+            "sha256": "0f35488ab03cabe87421fc3d1fd01f3658bc9c23768d535dac61ec7573947912",
+            "size": 152
+          },
+          {
+            "data_offset": "0x106c",
+            "header_offset": "0x30",
+            "index": 9,
+            "loader_consumption": null,
+            "sha256": "e4886893f5fb1f54f3d50b4171efd863915a2efa1507d17e84d963f2fdf1b2fa",
+            "size": 24
+          },
+          {
+            "data_offset": "0x1084",
+            "header_offset": "0x34",
+            "index": 10,
+            "loader_consumption": null,
+            "sha256": "61b5a394087633c902700256a7b82109787f4c4c01eb2282d731782b484c46af",
+            "size": 1296
+          },
+          {
+            "data_offset": "0x1594",
+            "header_offset": "0x38",
+            "index": 11,
+            "loader_consumption": null,
+            "sha256": "b1fdf0ba3330ed3870bbff77ee9d02b2ccba94ef9bc64166ad5a39f9d4d8581b",
+            "size": 1088
+          },
+          {
+            "data_offset": "0x19d4",
+            "header_offset": "0x3c",
+            "index": 12,
+            "loader_consumption": null,
+            "sha256": "a4b417575df5514f0700cff61150527b8534176d8356d2c456289173977e1054",
+            "size": 368
+          },
+          {
+            "data_offset": "0x1b44",
+            "header_offset": "0x40",
+            "index": 13,
+            "loader_consumption": null,
+            "sha256": "0a86927e7937af7de7189460480aeb90bd58fc176b377a4be036b7892c158234",
+            "size": 1600
+          },
+          {
+            "data_offset": "0x2184",
+            "header_offset": "0x44",
+            "index": 14,
+            "loader_consumption": null,
+            "sha256": "c2f1e24058474e2a3b8a7feb6ca9e73ec6531455f3738294e3ad3de0c14ce031",
+            "size": 232
+          },
+          {
+            "data_offset": "0x226c",
+            "header_offset": "0x48",
+            "index": 15,
+            "loader_consumption": {
+              "destination": "xbl_context+0x1c9c",
+              "maximum_size": 512
+            },
+            "sha256": "5b284733e9fb94e389d2a02043973d4be09a2d970cfdaea9887075c04920d0da",
+            "size": 412
+          },
+          {
+            "data_offset": "0x2408",
+            "header_offset": "0x4c",
+            "index": 16,
+            "loader_consumption": {
+              "destination": "0x09065100",
+              "maximum_size": 3840
+            },
+            "sha256": "a7c50f3d71b3332566fde905b446dabf736e1c83006d409925326b78a175f49b",
+            "size": 348
+          },
+          {
+            "data_offset": "0x2564",
+            "header_offset": "0x50",
+            "index": 17,
+            "loader_consumption": null,
+            "sha256": "5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef",
+            "size": 1024
+          }
+        ],
+        "sha256": "f1d20e0a93b50d3469934e6ccbc6ca60ba704c2bec45119d9af8222d761a4657",
+        "used_size": 10596
+      },
+      "elf_segment": {
+        "alignment": 1,
+        "file_offset": 80800,
+        "file_size": 13316,
+        "flags": 16777223,
+        "index": 5,
+        "memory_size": 13316,
+        "physical_address": 344853408,
+        "virtual_address": 344853408
+      }
+    },
+    {
+      "dcb": {
+        "crc_field": "0xbe6724f5",
+        "dsf_version": "0x00650000",
+        "nonempty_section_count": 18,
+        "sections": [
+          {
+            "data_offset": "0x64",
+            "header_offset": "0xc",
+            "index": 0,
+            "loader_consumption": {
+              "destination": "xbl_context+0x2b0",
+              "maximum_size": 1916
+            },
+            "sha256": "f20842413f79e3a116d43365387f511d5e1f44bb1ee753786fe794136cf33be6",
+            "size": 1916
+          },
+          {
+            "data_offset": "0x7e0",
+            "header_offset": "0x10",
+            "index": 1,
+            "loader_consumption": {
+              "destination": "xbl_context+0x17b8",
+              "maximum_size": 988
+            },
+            "sha256": "9788755897946bd61f4b7cd73deaa12ade96ce322815e371fbc068e019d3dca2",
+            "size": 985
+          },
+          {
+            "data_offset": "0xbbc",
+            "header_offset": "0x14",
+            "index": 2,
+            "loader_consumption": {
+              "destination": "xbl_context+0x1b94",
+              "maximum_size": 264
+            },
+            "sha256": "b57eef5e03b2f9fded247b0b539220a52b77f2d68c44c4ea77b179949c9745b8",
+            "size": 262
+          },
+          {
+            "data_offset": "0xcc4",
+            "header_offset": "0x18",
+            "index": 3,
+            "loader_consumption": null,
+            "sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7",
+            "size": 2
+          },
+          {
+            "data_offset": "0xcc8",
+            "header_offset": "0x1c",
+            "index": 4,
+            "loader_consumption": null,
+            "sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7",
+            "size": 2
+          },
+          {
+            "data_offset": "0xccc",
+            "header_offset": "0x20",
+            "index": 5,
+            "loader_consumption": null,
+            "sha256": "0599836c15770979c0f47f97b09ae1f58add60e5adae1d4daa418af31da17c53",
+            "size": 536
+          },
+          {
+            "data_offset": "0xee4",
+            "header_offset": "0x24",
+            "index": 6,
+            "loader_consumption": null,
+            "sha256": "38567dab21d47c125d75f4f2c1e2ffb3fc3d05be3cb69f74b40e6ef67cf63ee9",
+            "size": 240
+          },
+          {
+            "data_offset": "0xfd4",
+            "header_offset": "0x28",
+            "index": 7,
+            "loader_consumption": null,
+            "sha256": "6b6f8292a461bd8b64b2b14836af25e62656433e0b94c9419449f6a686fd0681",
+            "size": 184
+          },
+          {
+            "data_offset": "0x108c",
+            "header_offset": "0x2c",
+            "index": 8,
+            "loader_consumption": null,
+            "sha256": "817db9da734efd547b6c264f56611193d0c6d58455fbb01f3fff1a37c3a2abc1",
+            "size": 168
+          },
+          {
+            "data_offset": "0x1134",
+            "header_offset": "0x30",
+            "index": 9,
+            "loader_consumption": null,
+            "sha256": "0f9f10d09618ab35bfb8ff2f9cc238a6c1398c37407498ff0de2671a1ac47a1c",
+            "size": 32
+          },
+          {
+            "data_offset": "0x1154",
+            "header_offset": "0x34",
+            "index": 10,
+            "loader_consumption": null,
+            "sha256": "004219f2a527f58baf68fe83397b0b53ee98485d8505823432bf06f89e8eb904",
+            "size": 1360
+          },
+          {
+            "data_offset": "0x16a4",
+            "header_offset": "0x38",
+            "index": 11,
+            "loader_consumption": null,
+            "sha256": "df4b7521642a5939e3b7a644e23386ac82c53956ae0279fa9f0440441d62806e",
+            "size": 1224
+          },
+          {
+            "data_offset": "0x1b6c",
+            "header_offset": "0x3c",
+            "index": 12,
+            "loader_consumption": null,
+            "sha256": "9e7ea75d94697ebc339e7e21f1103ebf3dc3df12a39a8fcd4468be754e1ae265",
+            "size": 736
+          },
+          {
+            "data_offset": "0x1e4c",
+            "header_offset": "0x40",
+            "index": 13,
+            "loader_consumption": null,
+            "sha256": "40806392c2a24a6738243ee56f600ca7cc69d09e941f7f8861ffa1e227f623e1",
+            "size": 1688
+          },
+          {
+            "data_offset": "0x24e4",
+            "header_offset": "0x44",
+            "index": 14,
+            "loader_consumption": null,
+            "sha256": "df9ca2dc9304557a2c5a464cbc34852331a0a5e87a13992dc47dda906d6d74e8",
+            "size": 312
+          },
+          {
+            "data_offset": "0x261c",
+            "header_offset": "0x48",
+            "index": 15,
+            "loader_consumption": {
+              "destination": "xbl_context+0x1c9c",
+              "maximum_size": 512
+            },
+            "sha256": "632762e34300fd4ac0380b9b52423ae57f0173acb92bcf85f9388d98a0119ead",
+            "size": 480
+          },
+          {
+            "data_offset": "0x27fc",
+            "header_offset": "0x4c",
+            "index": 16,
+            "loader_consumption": {
+              "destination": "0x09065100",
+              "maximum_size": 3840
+            },
+            "sha256": "cdacfa45183be71c13884ed60dd883a7f94ba5fd4fb9cc92899fac4eb0298dc0",
+            "size": 560
+          },
+          {
+            "data_offset": "0x2a2c",
+            "header_offset": "0x50",
+            "index": 17,
+            "loader_consumption": null,
+            "sha256": "5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef",
+            "size": 1024
+          }
+        ],
+        "sha256": "34caf815065e5fe3e80483e5348a59caa9dc249faa72d97e6e44f818d17ef607",
+        "used_size": 11820
+      },
+      "elf_segment": {
+        "alignment": 1,
+        "file_offset": 94116,
+        "file_size": 13316,
+        "flags": 16777223,
+        "index": 6,
+        "memory_size": 13316,
+        "physical_address": 344866724,
+        "virtual_address": 344866724
+      }
+    },
+    {
+      "dcb": {
+        "crc_field": "0x07953aba",
+        "dsf_version": "0x00650000",
+        "nonempty_section_count": 18,
+        "sections": [
+          {
+            "data_offset": "0x64",
+            "header_offset": "0xc",
+            "index": 0,
+            "loader_consumption": {
+              "destination": "xbl_context+0x2b0",
+              "maximum_size": 1916
+            },
+            "sha256": "fc45163dac94495923e34c1f26a6b34c906b6c3bec80467a72bb98384b82b40f",
+            "size": 1865
+          },
+          {
+            "data_offset": "0x7b0",
+            "header_offset": "0x10",
+            "index": 1,
+            "loader_consumption": {
+              "destination": "xbl_context+0x17b8",
+              "maximum_size": 988
+            },
+            "sha256": "d86d414c19b78cf7d10272c7340274ce508608f89851bacd9d92cccc5c18a366",
+            "size": 985
+          },
+          {
+            "data_offset": "0xb8c",
+            "header_offset": "0x14",
+            "index": 2,
+            "loader_consumption": {
+              "destination": "xbl_context+0x1b94",
+              "maximum_size": 264
+            },
+            "sha256": "d24cd77e8ec0dba8996dac6831d2fc284f6bb87e1e27e8220af99b0b3582a688",
+            "size": 232
+          },
+          {
+            "data_offset": "0xc74",
+            "header_offset": "0x18",
+            "index": 3,
+            "loader_consumption": null,
+            "sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7",
+            "size": 2
+          },
+          {
+            "data_offset": "0xc78",
+            "header_offset": "0x1c",
+            "index": 4,
+            "loader_consumption": null,
+            "sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7",
+            "size": 2
+          },
+          {
+            "data_offset": "0xc7c",
+            "header_offset": "0x20",
+            "index": 5,
+            "loader_consumption": null,
+            "sha256": "2bda5cae2a2ea83dfef958014ce0c13cef390d4bb770d66bdedc6c03cef3cb0a",
+            "size": 480
+          },
+          {
+            "data_offset": "0xe5c",
+            "header_offset": "0x24",
+            "index": 6,
+            "loader_consumption": null,
+            "sha256": "38567dab21d47c125d75f4f2c1e2ffb3fc3d05be3cb69f74b40e6ef67cf63ee9",
+            "size": 240
+          },
+          {
+            "data_offset": "0xf4c",
+            "header_offset": "0x28",
+            "index": 7,
+            "loader_consumption": null,
+            "sha256": "841c86c49a94fe69ab6c3356e9377c08d0bb5300bba585d8754fa88b14fc6d7a",
+            "size": 176
+          },
+          {
+            "data_offset": "0xffc",
+            "header_offset": "0x2c",
+            "index": 8,
+            "loader_consumption": null,
+            "sha256": "55053abbe1aa6de3f562c9ee7c329bbcd34f0c3ff0442a6c7fb23754746a6c19",
+            "size": 168
+          },
+          {
+            "data_offset": "0x10a4",
+            "header_offset": "0x30",
+            "index": 9,
+            "loader_consumption": null,
+            "sha256": "0f9f10d09618ab35bfb8ff2f9cc238a6c1398c37407498ff0de2671a1ac47a1c",
+            "size": 32
+          },
+          {
+            "data_offset": "0x10c4",
+            "header_offset": "0x34",
+            "index": 10,
+            "loader_consumption": null,
+            "sha256": "61b5a394087633c902700256a7b82109787f4c4c01eb2282d731782b484c46af",
+            "size": 1296
+          },
+          {
+            "data_offset": "0x15d4",
+            "header_offset": "0x38",
+            "index": 11,
+            "loader_consumption": null,
+            "sha256": "b1fdf0ba3330ed3870bbff77ee9d02b2ccba94ef9bc64166ad5a39f9d4d8581b",
+            "size": 1088
+          },
+          {
+            "data_offset": "0x1a14",
+            "header_offset": "0x3c",
+            "index": 12,
+            "loader_consumption": null,
+            "sha256": "8896d47acd637759eb0f89f716866a909bd3682ead6cce75f6a04a49c7c5208c",
+            "size": 360
+          },
+          {
+            "data_offset": "0x1b7c",
+            "header_offset": "0x40",
+            "index": 13,
+            "loader_consumption": null,
+            "sha256": "ece40779af6a29e85861b4872c6f8fdc193e926f1e11583a5fcc5a46cedf5fcb",
+            "size": 1696
+          },
+          {
+            "data_offset": "0x221c",
+            "header_offset": "0x44",
+            "index": 14,
+            "loader_consumption": null,
+            "sha256": "aee5f25139304089f7149d826ca824a6727d188287da8e314b854e9e71a74773",
+            "size": 240
+          },
+          {
+            "data_offset": "0x230c",
+            "header_offset": "0x48",
+            "index": 15,
+            "loader_consumption": {
+              "destination": "xbl_context+0x1c9c",
+              "maximum_size": 512
+            },
+            "sha256": "e3340471f32dc136d12aa3bfcd43616328d564020cd422575adc03ee7337fcc8",
+            "size": 448
+          },
+          {
+            "data_offset": "0x24cc",
+            "header_offset": "0x4c",
+            "index": 16,
+            "loader_consumption": {
+              "destination": "0x09065100",
+              "maximum_size": 3840
+            },
+            "sha256": "649ab9170dddb6ba68f1d65e9e53a85c13a7a9adffd673a3b096c5c856f9c748",
+            "size": 484
+          },
+          {
+            "data_offset": "0x26b0",
+            "header_offset": "0x50",
+            "index": 17,
+            "loader_consumption": null,
+            "sha256": "5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef",
+            "size": 1024
+          }
+        ],
+        "sha256": "4df51f213519a709de2f631e99d9df210db15c1ebc12d49d612af5ef21009443",
+        "used_size": 10928
+      },
+      "elf_segment": {
+        "alignment": 1,
+        "file_offset": 107432,
+        "file_size": 13316,
+        "flags": 16777223,
+        "index": 7,
+        "memory_size": 13316,
+        "physical_address": 344880040,
+        "virtual_address": 344880040
+      }
+    }
+  ],
+  "schema": "sdm855-xbl-config-dcb-inventory-v1",
+  "xbl_loader_evidence": {
+    "expected_size_decimal": 13316,
+    "expected_size_hex": "0x3404",
+    "loader_consumed_sections": {
+      "0": {
+        "destination": "xbl_context+0x2b0",
+        "maximum_size": 1916
+      },
+      "1": {
+        "destination": "xbl_context+0x17b8",
+        "maximum_size": 988
+      },
+      "2": {
+        "destination": "xbl_context+0x1b94",
+        "maximum_size": 264
+      },
+      "15": {
+        "destination": "xbl_context+0x1c9c",
+        "maximum_size": 512
+      },
+      "16": {
+        "destination": "0x09065100",
+        "maximum_size": 3840
+      }
+    },
+    "required_dsf_version": "0x00650000",
+    "shrm_copy_destination": "0x09065100"
+  }
+}

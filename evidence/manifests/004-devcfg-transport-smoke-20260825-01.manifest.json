@@ -1,0 +1,35 @@
+{
+  "capture_method": "sysfs-bound temporary block node; device sha256sum; A90P1 cat; device sha256sum",
+  "completed_utc": "2026-08-24T18:59:05+00:00",
+  "experiment_id": "004-devcfg-transport-smoke-20260825-01",
+  "kernel": "Linux 4.14.190-25818860-abA908NKSU5EWA3 aarch64",
+  "limitations": [
+    "Partition identity is live GPT/sysfs identity; active boot slot is not inferred.",
+    "Raw proprietary firmware remains private and is excluded from Git."
+  ],
+  "partition_writes": false,
+  "raw_artifacts_git_ignored": true,
+  "records": [
+    {
+      "artifact_id": "devcfg--sdd22",
+      "byte_size": 131072,
+      "device_sha256_after": "0399578253dd293dfc961c6a1077f660834df3ae5e1d65555f4225e327a03d14",
+      "device_sha256_before": "0399578253dd293dfc961c6a1077f660834df3ae5e1d65555f4225e327a03d14",
+      "devname": "sdd22",
+      "historical_match": true,
+      "historical_sha256_2026_06_02": "0399578253dd293dfc961c6a1077f660834df3ae5e1d65555f4225e327a03d14",
+      "logical_block_size": 4096,
+      "major": 259,
+      "minor": 24,
+      "partname": "devcfg",
+      "read_only": 1,
+      "sectors": 256,
+      "sha256": "0399578253dd293dfc961c6a1077f660834df3ae5e1d65555f4225e327a03d14"
+    }
+  ],
+  "runtime": "v2321-usb-clean-identity-rodata",
+  "schema": "sdm855-memory-boundary-live-firmware-capture-manifest-v1",
+  "soc": "SM8150",
+  "started_utc": "2026-08-24T18:59:04+00:00",
+  "target_model": "SM-A908N"
+}
