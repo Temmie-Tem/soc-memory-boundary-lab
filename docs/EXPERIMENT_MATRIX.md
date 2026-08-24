@@ -160,7 +160,7 @@
   `d89347a270e52519559a9ff12b44d46dabd8d5d8e87af28e9efe601370d22c54`
 - Rollback: TWRP boot-prefix size `60,882,944`, SHA-256
   `ca978551aabe4b39563abaf529ccf2522054952d8b2ad852e632d26da88168cb`;
-  final native runtime health pending operator Reboot → System
+  final native runtime health `pass=11 warn=1 fail=0`
 - Repetition count: one effective `__ioremap` call; it is not eligible for
   repetition through the generic REPL path
 - Host-only successor control: boot SHA-256 `dbbf81f26cd3d9d2d52d2a2dbe84575b759b45cea8946d02646bd4503ad08247`,
@@ -169,5 +169,11 @@
 - Host-only successor read: boot SHA-256 `6fe92825702f304a067fc716c3814a63b2f4e76198a054de4c666cad55a462ed`,
   body SHA-256 `730f420b219f9ad3ab7da5488f5b8dac3638099cc0007aad7dd31ddfb53982d6`;
   exactly one fixed 32-bit load and unmap before result
-- Both successors reproduced byte-identically three times; neither has run
-  live, and the read candidate remains ineligible until the control passes
+- Both successors reproduced byte-identically three times
+- Control live result: one invocation returned `0x0000c071`, post-health OK;
+  public manifest `007-inline-remapper-control-live-20260825-01`
+- Read live result: one invocation, no automatic retry, no returned value,
+  USB/ACM disconnect and retained `Non Secure Watchdog Bark` at 69.080426 s;
+  public derived manifest `007-inline-remapper-read-watchdog-20260825-01`
+- Final rollback: V2321 full-prefix readback match and native selftest
+  `pass=11 warn=1 fail=0`; the fixed read is not eligible for repetition

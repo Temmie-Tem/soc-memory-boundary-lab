@@ -1,0 +1,29 @@
+{
+  "arbitrary_address_input": false,
+  "automatic_retries": false,
+  "candidate_sha256": "dbbf81f26cd3d9d2d52d2a2dbe84575b759b45cea8946d02646bd4503ad08247",
+  "claim_boundary": "CONTROL_PASS proves only that the fixed inline map/unmap sequence returned safely without an MMIO load",
+  "completed_utc": "2026-08-24T21:23:33+00:00",
+  "driver_sha256": "98493464c7fb53bff122c8c3291c1a718837b8e2015ce33618dac204482f9f3b",
+  "error_type": null,
+  "experiment_id": "007-inline-remapper-control-live-20260825-01",
+  "failed_stage": null,
+  "generic_call_target": false,
+  "health_after": {
+    "selftest_payload_sha256": "30374917817d489b8685a3d653aa94ea31df8fd8cd35815acc0d27378f3e8059",
+    "selftest_status": "ok",
+    "version_status": "ok"
+  },
+  "memory_or_mmio_writes": false,
+  "mode": "control",
+  "op": 4,
+  "outcome": "CONTROL_PASS",
+  "panic_on_oops_restored": true,
+  "raw_snapshot_sha256": "581a52332c908905255cfe90125d7b17cec71c7e0f0b844a738bdc9dee47773f",
+  "raw_snapshot_size": 4095,
+  "schema": "sdm855-a90-inline-remapper-probe-manifest-v1",
+  "soc": "SM8150",
+  "started_utc": "2026-08-24T21:23:31+00:00",
+  "target_model": "SM-A908N",
+  "value": "0x0000c071"
+}

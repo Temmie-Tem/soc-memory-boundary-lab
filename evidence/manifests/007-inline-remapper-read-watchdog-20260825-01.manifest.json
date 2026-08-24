@@ -1,0 +1,53 @@
+{
+  "schema": "sdm855-a90-inline-remapper-read-watchdog-manifest-v1",
+  "experiment_id": "007-inline-remapper-read-live-20260825-01",
+  "target_model": "SM-A908N",
+  "soc": "SM8150",
+  "status": "FIXED_READ_FOLLOWED_BY_NON_SECURE_WATCHDOG",
+  "control": {
+    "candidate_sha256": "dbbf81f26cd3d9d2d52d2a2dbe84575b759b45cea8946d02646bd4503ad08247",
+    "body_sha256": "0a094ef803e78c773bb548f12c4eb364da27b4b3681dc0d4b37edbf883cf30a7",
+    "sequence": "fixed __ioremap; immediate __iounmap; return 0xc071; zero MMIO loads",
+    "outcome": "CONTROL_PASS",
+    "manifest_sha256": "c6ae9e411069d4ce198f73c48200799e190158650b88bb64696f3f62ab2af7cf"
+  },
+  "read": {
+    "candidate_sha256": "6fe92825702f304a067fc716c3814a63b2f4e76198a054de4c666cad55a462ed",
+    "body_sha256": "730f420b219f9ad3ab7da5488f5b8dac3638099cc0007aad7dd31ddfb53982d6",
+    "fixed_physical_base": "0x09248080",
+    "mapped_size": "0x5c",
+    "access": "one fixed 32-bit load as the first post-map bus access",
+    "operation_count": 1,
+    "automatic_retries": false,
+    "arbitrary_address_input": false,
+    "generic_call_target": false,
+    "memory_or_mmio_writes": false,
+    "value_observed": null,
+    "probe_outcome": "PROBE_FAILED",
+    "probe_manifest_sha256": "26ce16ca5590a1702fb346c5e045c310ddcce09d97754db1c69946f16fec68c3",
+    "raw_probe_sha256": "998ce0b24414cd3074309b2d0116a41cd9916432db8ddbd87b22cd12332477f9"
+  },
+  "reset_evidence": {
+    "retained_last_kmsg_sha256": "8701d073e86728790c33f05dce21891ca3454f5b778d92285ce3b5bc33216b93",
+    "retained_last_kmsg_size": 2097136,
+    "watchdog_bark_seconds": "69.080426",
+    "watchdog_last_pet_seconds": "58.080136",
+    "last_pet_to_bark_seconds": "11.000290",
+    "cpu_alive_mask_from_last_pet": "0x01",
+    "bootloader_upload_cause": "Non Secure Watchdog Bark",
+    "reset_type": "warm reset"
+  },
+  "rollback": {
+    "boot_image_sha256": "ca978551aabe4b39563abaf529ccf2522054952d8b2ad852e632d26da88168cb",
+    "boot_prefix_size": 60882944,
+    "write_count": 1,
+    "full_prefix_readback_match": true,
+    "rollback_receipt_sha256": "01d06de7a7be903c5b527fa5d3e4812ae632345f416574005aeccd8033afe7d0",
+    "final_health": "V2321_HEALTHY",
+    "final_health_manifest_sha256": "2c4253f413b7be39a33184a7e0b421aae39c5060c87619fc0c962426c4ff9774"
+  },
+  "proved": "The no-load control returned safely. The one-load candidate produced no value, disconnected the A90, and its retained log records a Non Secure Watchdog Bark followed by warm reset.",
+  "supported": "The fixed 32-bit MMIO load, rather than mapping alone, triggered the system-wide stall.",
+  "unknown": "Whether the stall is caused by a secure firewall response, missing power or clock state, an incorrect runtime base, or another interconnect condition.",
+  "claim_boundary": "This result does not prove register contents, EL1 immutability, XPU ownership, aliasing, or a protected-memory bypass."
+}

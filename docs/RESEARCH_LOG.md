@@ -151,8 +151,8 @@
    without modifying that repository and reproduced the pinned candidate
    `b846ae9f74d8ceb922bbcd854d78b6795ef833d61e38465d3cc474cb6f0dfb65`.
 2. `PROVED`: TWRP remote hash, boot write, and 60,882,944-byte prefix readback
-   all matched the candidate. Physical TWRP Reboot → System was required; CLI
-   reboot attempts retained Samsung's recovery-enter parameter.
+   all matched the candidate. At this point physical TWRP Reboot → System was
+   used because the CLI reboot attempt crashed/restarted Recovery.
 3. `PROVED`: Native version/health passed. The historical driver then passed
    two named static-image peeks and a verified `printk` sentinel call against
    the exact regenerated System.map.
@@ -179,12 +179,11 @@
    because prefix readback still matched the candidate. A corrected single
    remote command wrote V2321, and the full 60,882,944-byte readback matched
    `ca978551aabe4b39563abaf529ccf2522054952d8b2ad852e632d26da88168cb`.
-   The temporary remote image was removed. Final native health awaits physical
-   TWRP Reboot → System.
+   The temporary remote image was removed. Final native health was later
+   proved as version `0.9.285` and selftest `pass=11 warn=1 fail=0`.
 10. `REFUTED`: the generic REPL call sequence is a safe implementation of the
-    narrow kernel adapter. `UNKNOWN`: whether a purpose-built kernel worker can
-    map/read/unmap the same fixed window without the REPL callback-context
-    watchdog.
+    narrow kernel adapter. A later fixed inline comparison removed its generic
+    call-target and callback sequencing as alternative explanations.
 11. Host-only follow-up replaced the generic REPL with two 212-byte inline
     bodies at the same stock-kernel hook. Both hardcode `0x09248080`, `0x5c`,
     the protection value and direct call destinations; neither accepts an
@@ -192,5 +191,23 @@
 12. The control candidate `dbbf81f2…` performs map → immediate unmap → sentinel
     without a bus load. The read candidate `6fe92825…` differs by one fixed
     `ldr w20,[x19]`, then unmaps before printing. Candidate and body bytes for
-    both modes reproduced three times. Device action remains zero for this
-    preparation; the read candidate is not live-eligible before a control pass.
+    both modes reproduced three times.
+13. `PROVED`: the control candidate was flashed with full-prefix readback,
+    invoked once, returned `0x0000c071`, restored `panic_on_oops`, and retained
+    version/selftest health. This made the one-load candidate eligible.
+14. `PROVED`: Samsung TWRP 3.7.0_12-0 exposes the GUI reboot action through
+    `tw_reboot_arg` and `tw_gui_done`. Setting `tw_reboot_arg=system` and then
+    `tw_gui_done=1` through the FIFO exits the Recovery main loop and boots
+    native without touch input. Direct `twrp reboot` instead crashed and
+    restarted the Recovery process; raw reboot calls returned to Recovery.
+15. `PROVED`: the read candidate was flashed once with exact full-prefix
+    readback and invoked once with no automatic retry. It returned no value,
+    disconnected USB/ACM, and warm-reset into the same candidate.
+16. `PROVED`: retained `/proc/last_kmsg` SHA-256 `8701d073…` records watchdog
+    bark at 69.080426 s, last pet at 58.080136 s, CPU alive mask `0x01`, and
+    bootloader upload cause `Non Secure Watchdog Bark`. `SUPPORTED`: the fixed
+    32-bit load, rather than mapping alone, triggered the system-wide stall.
+    `UNKNOWN`: secure firewall, clock/power, runtime-base, or other fabric cause.
+17. `PROVED`: V2321 was restored with a full 60,882,944-byte readback match and
+    final native version/selftest `pass=11 warn=1 fail=0`. The read was not
+    repeated.

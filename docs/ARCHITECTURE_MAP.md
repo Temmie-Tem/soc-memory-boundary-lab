@@ -129,7 +129,7 @@ Their precise enablement and ordering remain `UNKNOWN`.
 | Which block owns the final mapping? | `PROVED`: qhs_llcc ICB windows own boot region remapping. Final channel/bank/row decode owner remains `UNKNOWN`. |
 | Who programs it? | `PROVED`: XBL programs the region remapper through `icbcfg`; SHRM/MCCC/MC final-decode ownership remains `UNKNOWN`. AOP runtime DDR management is `PROVED`. |
 | At what stage? | Region-remap programming during XBL DDR initialization before HLOS is `PROVED`; later mutability remains `UNKNOWN`. |
-| Can EL1 observe it? | Current userland `/dev/mem` route is `REFUTED` by live `CONFIG_DEVMEM=n`; the generic REPL mapping adapter is `REFUTED` as unsafe after a watchdog before `msm_readl`; a purpose-built kernel read remains `UNKNOWN`. |
+| Can EL1 observe it? | Current userland `/dev/mem` route is `REFUTED` by live `CONFIG_DEVMEM=n`; the generic REPL adapter is `REFUTED`; a fixed inline no-load control passed, but its paired one-load candidate returned no value and ended in a retained non-secure watchdog. Register contents remain `UNKNOWN`. |
 | Can EL1 modify it? | `UNKNOWN`; XBL's writer is identified, but post-boot EL1 reachability/lock state is untested. |
 | Does EL2/EL3 lock it? | `UNKNOWN`. |
 | Is there a post-transform security check? | `UNKNOWN`. |

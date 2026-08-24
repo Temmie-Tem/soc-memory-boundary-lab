@@ -8,12 +8,14 @@ by one protection layer but later transformed to a different protected DRAM
 destination. This repository does **not** assume the AMD Skitter Creek result
 applies to Qualcomm.
 
-Current phase: source reconstruction plus source-backed, read-only observation.
-Experiment 007 temporarily booted a fixed REPL candidate; its first
-`__ioremap` returned and then the device hit a non-secure watchdog before any
-MMIO read. V2321 was restored by verified boot-prefix readback. No
-DDR/controller, XPU, SMMU, SCM, EL2, EL3, or protected-memory write has been
-performed.
+Current phase: source reconstruction plus bounded, source-backed live
+observation. Experiment 007 first retired a generic REPL mapping path after a
+watchdog before its intended MMIO read. A fixed inline no-load control later
+passed; the paired candidate's single fixed 32-bit load produced no value and
+was followed by a retained `Non Secure Watchdog Bark`. `SUPPORTED`, not
+`PROVED`: the load caused the stall. V2321 was restored by verified boot-prefix
+readback and passed final native health. No DDR/controller, XPU, SMMU, SCM,
+EL2, EL3, or protected-memory write has been performed.
 
 Claim vocabulary is deliberately closed:
 
@@ -34,9 +36,11 @@ Experiment 004. Raw bytes remain private; the first static reconstruction is in
 Experiment 006 follows the exact DCB/SHRM path into the concrete four-instance
 ICB/LLCC remapper; see
 [research/xbl-shrm-icbcfg-recon.md](research/xbl-shrm-icbcfg-recon.md).
-Experiment 007 retires the generic-REPL mapping path and leaves a purpose-built
-kernel adapter as the next read-only test; see
+Experiment 007 records both the retired generic path and the completed fixed
+inline control/read comparison; see
 [experiments/007-kernel-remapper-adapter/README.md](experiments/007-kernel-remapper-adapter/README.md).
+The exact A90 TWRP code-only System transition is documented in
+[docs/A90_TWRP_CODE_BOOT.md](docs/A90_TWRP_CODE_BOOT.md).
 
 Raw dumps, device identifiers, boot/firmware images, and full transcripts are
 kept below `evidence/private/` and ignored by Git. Redacted hash manifests are

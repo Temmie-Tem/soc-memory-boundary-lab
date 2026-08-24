@@ -1,0 +1,18 @@
+{
+  "boot_prefix_sha256": "ca978551aabe4b39563abaf529ccf2522054952d8b2ad852e632d26da88168cb",
+  "boot_prefix_size": 60882944,
+  "captured_utc": "2026-08-24T21:20:18+00:00",
+  "experiment_id": "007-v2321-rollback-health-20260825-01",
+  "outcome": "V2321_HEALTHY",
+  "raw_snapshot_sha256": "a9a5d33fa7425018920357dd84099f03045e3cbf3fc10dca056ffef86a3c0d30",
+  "raw_snapshot_size": 1927,
+  "rollback_receipt_sha256": "6265c719758dc13b1197adb520314a0cc697e7b86af8acb51a483c939cb47ae5",
+  "schema": "sdm855-a90-rollback-health-manifest-v1",
+  "selftest_fail_zero": true,
+  "selftest_payload_sha256": "3b6e6af706b59fa67e1ed79b57367bca3ccee1e785085e5fd91ee4fa288e9e07",
+  "selftest_status": "ok",
+  "soc": "SM8150",
+  "target_model": "SM-A908N",
+  "version_payload_sha256": "816e84c0c429cffacc2fd6efbdd166bf53a59c5b5fcf39cc59bd9788eb3b329a",
+  "version_status": "ok"
+}

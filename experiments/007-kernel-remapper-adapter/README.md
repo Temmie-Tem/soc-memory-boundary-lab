@@ -1,6 +1,6 @@
 # Experiment 007 — Kernel Remapper Read Adapter
 
-State: `REFUTED GENERIC REPL ADAPTER / PURPOSE-BUILT ADAPTER UNKNOWN`.
+State: `REFUTED GENERIC REPL ADAPTER / FIXED READ WATCHDOG, NO VALUE`.
 
 ## Question
 
@@ -30,9 +30,8 @@ That live path is now disabled without an override.
 ## Claim boundary
 
 `PROVED`: the generic REPL callback-context mapping attempt is not a safe
-adapter on this target and boot. `UNKNOWN`: whether the physical range itself
-is readable from a purpose-built kernel worker. The watchdog is not evidence of
-an XPU rejection because the bus read never occurred.
+adapter on this target and boot. That first watchdog is not evidence of an XPU
+rejection because its intended bus read never occurred.
 
 ## Recovery
 
@@ -52,7 +51,7 @@ ca978551aabe4b39563abaf529ccf2522054952d8b2ad852e632d26da88168cb
 - Raw REPL, retained-log, candidate, map, flash, and rollback evidence remains
   private and Git-ignored.
 
-## Next experiment
+## Fixed inline comparison
 
 A purpose-specific inline successor is now host-built at the already
 boot-proven stock-kernel hook site. Both variants have no generic target or
@@ -62,6 +61,25 @@ arbitrary address and unmap before publishing a result:
 - read `6fe92825…`: fixed map → one 32-bit load → immediate unmap → result.
 
 Each candidate and 212-byte body reproduced byte-identically three times. The
-control must pass one live invocation before the read image becomes eligible.
-See
-`evidence/manifests/007-inline-remapper-candidates-20260825-01.manifest.json`.
+control ran once and returned `0xc071` with healthy post-state. The read then
+ran once, returned no value, disconnected USB/ACM, and retained a
+`Non Secure Watchdog Bark` at 69.080426 s after the last watchdog pet at
+58.080136 s. V2321 was restored and passed final health.
+
+`PROVED`: the paired outcomes and retained reset evidence. `SUPPORTED`: the
+single fixed load, rather than mapping alone, triggered the stall. `UNKNOWN`:
+whether the cause is secure access control, missing power/clock state, an
+incorrect runtime base, or another interconnect condition. Do not repeat the
+same live load without a new discriminating hypothesis.
+
+Evidence:
+
+- `evidence/manifests/007-inline-remapper-candidates-20260825-01.manifest.json`
+- `evidence/manifests/007-inline-remapper-control-live-20260825-01.manifest.json`
+- `evidence/manifests/007-inline-remapper-read-live-20260825-01.manifest.json`
+- `evidence/manifests/007-inline-remapper-read-watchdog-20260825-01.manifest.json`
+- `evidence/manifests/007-inline-remapper-read-rollback-health-20260825-01.manifest.json`
+
+The code-only TWRP System transition is implemented in
+`tools/a90_twrp_system_boot.py`; it invokes the GUI main-loop exit variables,
+not touch coordinates or the crashing `twrp reboot` command.

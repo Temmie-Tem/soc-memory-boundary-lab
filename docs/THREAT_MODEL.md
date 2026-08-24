@@ -35,9 +35,11 @@ DMA remap, or stale cache observation is not sufficient.
 - `PROVED`: The live research runtime provides EL1-mediated, owner-controlled
   read-only access to `/proc` and live DT properties. Evidence:
   `evidence/manifests/001-baseline-live-20260825-01.manifest.json`.
-- `SUPPORTED`: The existing research kernel infrastructure is suitable for a
-  later, source-backed MMIO read adapter.
-- `UNKNOWN`: EL1 read access to the final DDR address-map registers.
+- `PROVED`: A fixed inline map/unmap control returned safely, while its paired
+  one-load candidate returned no value and ended in a retained non-secure
+  watchdog reset.
+- `UNKNOWN`: EL1 read access to the final DDR address-map registers; the failed
+  load does not distinguish access control from clock/power or fabric state.
 - `UNKNOWN`: EL1 write access to those registers, their lock state, and their
   security owner.
 - `UNKNOWN`: Arbitrary read/write access to QHEE private runtime memory.

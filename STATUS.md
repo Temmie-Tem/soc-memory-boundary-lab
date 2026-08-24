@@ -4,9 +4,12 @@ Current research state: `NO_BOUNDARY_BYPASS_OBSERVED`
 
 Current class: `UNKNOWN — not enough evidence for A, B, C, D, or E`
 
-Device mutation: Experiment 007 temporarily wrote the exact boot-only REPL
-candidate and then restored V2321 with a verified 60,882,944-byte prefix. It
-made no memory-controller, MMIO, SCM, EL2, EL3, or protected-memory write.
+Device mutation: Experiment 007 temporarily wrote the exact boot-only REPL,
+fixed no-load control, and fixed one-load read candidates. Each transition was
+bounded to the boot partition and verified by a 60,882,944-byte readback.
+V2321 is restored and healthy. The experiment made no memory-controller,
+MMIO, SCM, EL2, EL3, or protected-memory write; it attempted one fixed 32-bit
+MMIO load.
 Experiment 004 created and removed fixed temporary block-device nodes under
 `/dev`; Experiment 005 created and removed one fixed temporary character node.
 
@@ -52,11 +55,16 @@ Experiment 004 created and removed fixed temporary block-device nodes under
   `__ioremap(0x09248080, 0x5c, PROT_DEVICE_nGnRE)` attempt after a fresh warm
   boot. Retained `/proc/last_kmsg` contains the slide result, the `__ioremap`
   return, and a `Non Secure Watchdog Bark` 3.027327 seconds later.
-- `msm_readl` was never invoked and no remapper value was read. The exact V2321
-  rollback prefix SHA-256 is `ca978551…`; post-TWRP native health is pending.
-- A host-only inline successor now exists at the same stock-kernel hook site.
-  The no-MMIO control (`dbbf81f2…`) and one-load read (`6fe92825…`) candidates
-  each reproduced byte-identically three times; neither has run live.
+- `msm_readl` was never invoked in the generic attempt and no remapper value
+  was read. The exact V2321 rollback prefix SHA-256 is `ca978551…`; native
+  version and selftest `pass=11 warn=1 fail=0` are `PROVED` after rollback.
+- The fixed inline no-load control (`dbbf81f2…`) returned sentinel `0xc071` and
+  preserved runtime health. Its paired one-load candidate (`6fe92825…`) then
+  ran once: no value returned, USB/ACM disconnected, and retained last-kmsg
+  records a bark at 69.080426 s, last pet at 58.080136 s, bootloader cause
+  `Non Secure Watchdog Bark`, and warm reset. `SUPPORTED`: the one fixed load,
+  rather than mapping alone, triggered the stall. The result does not identify
+  a firewall, XPU, clock/power, or ownership cause.
 
 ## B. 현재 HYPOTHESIS
 
@@ -91,8 +99,9 @@ Experiment 004 created and removed fixed temporary block-device nodes under
 - Exact final channel/rank/bank/row/column transform fields. A system-PA region
   remapper now has exact MMIO bases/offset range; its finer DRAM-decode role is
   `UNKNOWN`.
-- Reset value, boot value, runtime MMIO readability/writability, lock state and
-  owner. Experiment 007 mapped the first range but never executed the read.
+- Reset value, boot value, runtime MMIO writability, lock state and owner. The
+  fixed read produced no value and a watchdog; whether that is an access
+  denial, an unpowered/unclocked path, or another fabric condition is unknown.
 - Exact final-decode XBL/DCB programming call graph and register fields. The
   firmware bytes themselves are now `PROVED` available.
 - Protection ordering and existence of a post-transform security check.
@@ -142,8 +151,10 @@ Full per-candidate fields are in `research/sm8150-memory-subsystem.md`.
 `PROVED`: `/proc/iomem`, `/proc/meminfo`, live DT reserved-memory, runtime/kernel
 identity, LLCC/BWMON resource landmarks, kernel SCM/UH interfaces and their
 source-visible PA inputs. `REFUTED`: current-kernel userland `/dev/mem` access.
-`REFUTED`: the generic REPL call chain as a safe read adapter. `UNKNOWN`: final
-decode register values and a purpose-built kernel-adapter read.
+`REFUTED`: the generic REPL call chain as a safe read adapter. `PROVED`: a
+fixed inline map/unmap control can return safely; a paired one-load execution
+returned no value and ended in watchdog reset. Final decode register values
+remain `UNKNOWN`.
 
 ## I. EL2/QHEE가 담당하는 것으로 보이는 부분
 
@@ -173,11 +184,11 @@ not yet a structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-After proving final V2321 native health, boot the pinned no-MMIO inline control
-candidate (`dbbf81f2…`) and invoke op 4 once. It maps the first fixed `0x5c`
-window, immediately unmaps it, and returns sentinel `0xc071`; it has no bus
-load, generic call target, arbitrary address, or retry. Only a clean control
-pass makes the one-load read candidate eligible.
+Do not repeat the same load. The cheapest discriminating next work is host-only
+and source-backed: identify the exact qhs_llcc clock/power/security-owner path
+and look for a TrustZone/XBL lock or fault-response field for `0x09248080`.
+That can separate secure denial from an unpowered/unclocked interconnect hang
+before any different live access is considered.
 
 ## N. 가장 위험한 아직 금지된 실험
 
@@ -202,10 +213,14 @@ Evidence for the attack class being relevant:
 
 Evidence against a presently usable bypass:
 
-- No post-boot EL1 read or write of the proved remapper windows has yet been
-  demonstrated.
+- No remapper value has been obtained and no post-boot write has been
+  demonstrated. The only fixed read attempt ended in a watchdog reset.
 - The first generic-REPL `__ioremap` attempt returned but then caused a
   non-secure watchdog before any `msm_readl`, so that adapter path is retired.
+- The purpose-built no-load control passed, but its paired single-load candidate
+  produced no value and a second retained non-secure watchdog. This is evidence
+  against a presently usable EL1 observation primitive, not proof of a lock or
+  firewall.
 - The live kernel has `CONFIG_DEVMEM=n`; both default and temporary-node
   userland read paths stop before reaching MMIO.
 - No SM8150 Linux code programming such a transform was found.

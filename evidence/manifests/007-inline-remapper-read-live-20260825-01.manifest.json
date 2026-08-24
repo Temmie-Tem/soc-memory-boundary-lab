@@ -1,0 +1,27 @@
+{
+  "arbitrary_address_input": false,
+  "automatic_retries": false,
+  "candidate_sha256": "6fe92825702f304a067fc716c3814a63b2f4e76198a054de4c666cad55a462ed",
+  "claim_boundary": "The recorded result does not prove MMIO immutability, XPU ownership, aliasing, or a protection bypass",
+  "completed_utc": "2026-08-24T21:40:22+00:00",
+  "driver_sha256": "98493464c7fb53bff122c8c3291c1a718837b8e2015ce33618dac204482f9f3b",
+  "error_type": "ReplTransientNoiseError",
+  "experiment_id": "007-inline-remapper-read-live-20260825-01",
+  "failed_stage": "fixed-inline-op",
+  "generic_call_target": false,
+  "health_after": {
+    "error_type": "ConnectionResetError"
+  },
+  "memory_or_mmio_writes": false,
+  "mode": "read",
+  "op": 4,
+  "outcome": "PROBE_FAILED",
+  "panic_on_oops_restored": false,
+  "raw_snapshot_sha256": "998ce0b24414cd3074309b2d0116a41cd9916432db8ddbd87b22cd12332477f9",
+  "raw_snapshot_size": 2491,
+  "schema": "sdm855-a90-inline-remapper-probe-manifest-v1",
+  "soc": "SM8150",
+  "started_utc": "2026-08-24T21:40:06+00:00",
+  "target_model": "SM-A908N",
+  "value": null
+}
