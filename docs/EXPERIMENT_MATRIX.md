@@ -8,9 +8,10 @@
 | 004 | Exact live boot-firmware bytes can be acquired without partition writes. | Device pre-hash, host raw hash and device post-hash match for every allowlisted partition. | Live GPT/sysfs identity, `ro=1`, exact byte count, bounded size, fixed node names, cleanup inventory. | `PROVED`: nine artifacts, 26,779,648 bytes; all triple hashes match. |
 | 005 | The exact XBL-programmed qhs_llcc remapper windows are readable post-boot from EL1. | Four control words, then 92 layout words, return stable 32-bit values without abort. | Fixed addresses only; temporary fixed `1:1` node; default four-word smoke; explicit `--full`; unconditional cleanup; no MMIO write/retry/arbitrary address. | `REFUTED` for current-kernel `/dev/mem`: absent node then `ENXIO`; live config has `CONFIG_DEVMEM=n`. Hardware/kernel-adapter readability remains `UNKNOWN`. |
 | 006 | Address-region mapping is programmed by XBL/DDR DSF/DCB/ICB. | XBL config consumption leads to topology-dependent MMIO writes. | Exact live firmware hashes and call-graph provenance; distinguish region remap from final channel/bank hash. | `PROVED`: four qhs_llcc remapper bases and `+0x00..+0x58` writer recovered; final DRAM hash role `UNKNOWN`. |
-| 007 | Normal-RAM bank/channel relationships fit a stable GF(2) model. | Timing clusters produce a cross-validated XOR matrix. | Fresh pages, pagemap/PA proof, randomized pairs, cache flush, frequency pinning, hold-out pairs. | `UNKNOWN`. |
-| 008 | A controlled transform state creates physical-to-DRAM alias. | `PA_A != PA_B` but writes through one are observed through the other after cache-neutral independent reads. | Prove distinct PTE/PAs; CPU and DMA controls; cache maintenance; reboot/state restoration; unchanged-state negative control. | `NOT ELIGIBLE`: region-remap candidates exist, but readback/lock state, safe restore and a normal-RAM alias hypothesis are not proved. |
-| 009 | A normal-RAM alias reaches a protected boundary. | Only after 008, a minimal non-secret marker/boundary test differs between normal and alias path. | No dump, exact ordering proof, secondary enforcement control. | `NOT ELIGIBLE`. |
+| 007 | A narrow kernel path can read the exact remapper windows post-boot. | Fixed map/read/unmap returns a stable 32-bit control word without reset. | Exact candidate/map hashes; one fixed base first; no MMIO write/retry/arbitrary address; retained reset log; verified rollback. | `REFUTED` for the generic REPL adapter: `__ioremap` returned, then a non-secure watchdog occurred before `msm_readl`. Purpose-built adapter readability remains `UNKNOWN`. |
+| 008 | Normal-RAM bank/channel relationships fit a stable GF(2) model. | Timing clusters produce a cross-validated XOR matrix. | Fresh pages, pagemap/PA proof, randomized pairs, cache flush, frequency pinning, hold-out pairs. | `UNKNOWN`. |
+| 009 | A controlled transform state creates physical-to-DRAM alias. | `PA_A != PA_B` but writes through one are observed through the other after cache-neutral independent reads. | Prove distinct PTE/PAs; CPU and DMA controls; cache maintenance; reboot/state restoration; unchanged-state negative control. | `NOT ELIGIBLE`: region-remap candidates exist, but readback/lock state, safe restore and a normal-RAM alias hypothesis are not proved. |
+| 010 | A normal-RAM alias reaches a protected boundary. | Only after 009, a minimal non-secret marker/boundary test differs between normal and alias path. | No dump, exact ordering proof, secondary enforcement control. | `NOT ELIGIBLE`. |
 
 ## Experiment 001 metadata
 
@@ -125,3 +126,40 @@
   same `CONFIG_DEVMEM=n` result
 - Final health: runtime version payload unchanged; selftest
   `pass=11 warn=1 fail=0`; bridge stopped
+
+## Experiment 007 kernel-adapter metadata
+
+- Target: exact `SM-A908N` / `SM8150`; the separate attached `SM-S906N`
+  endpoint received no command
+- Candidate: historical live-proven REPL boot SHA-256
+  `b846ae9f74d8ceb922bbcd854d78b6795ef833d61e38465d3cc474cb6f0dfb65`
+- System.map SHA-256:
+  `9e6a1d6f322344e3d6fced7e6d29a254e1516cc5163bad8595388a9d0d02ec3a`
+- Preconditions: candidate boot prefix verified in TWRP; native health
+  `pass=11 warn=1 fail=0`; named REPL peek/call selftest passed; one fresh warm
+  boot before the effective attempt
+- Attempts 01 and 02: stopped at replay-safe slide-result capture noise; no map
+  or MMIO operation
+- Attempt 03: stopped at preflight `EBUSY`; no REPL or MMIO operation
+- Attempt 04 exact action: recover slide, invoke only
+  `__ioremap(0x09248080, 0x5c, 0x0068000000000707)`; intended next actions were
+  `msm_readl` and `__iounmap`
+- Result: retained log records the slide and `__ioremap` return, followed
+  3.027327 seconds later by `Non Secure Watchdog Bark`; `msm_readl` was never
+  invoked and zero register values were obtained
+- Call-safety audit: existing classifier returns `DENY` for `__ioremap`,
+  `__iounmap`, and `msm_readl`; the experiment wrapper incorrectly bypassed
+  that policy by calling the low-level session API directly
+- MMIO/memory writes: none; boot-partition writes were the exact candidate and
+  verified V2321 rollback only
+- Effective-attempt collector SHA-256:
+  `63130ace433f76acf79470219faf9023624d2e3a9d66fc24f9eebef3b81648b6`
+- Public watchdog manifest:
+  `evidence/manifests/007-kernel-remapper-watchdog-20260825-01.manifest.json`
+- Raw retained watchdog evidence SHA-256:
+  `d89347a270e52519559a9ff12b44d46dabd8d5d8e87af28e9efe601370d22c54`
+- Rollback: TWRP boot-prefix size `60,882,944`, SHA-256
+  `ca978551aabe4b39563abaf529ccf2522054952d8b2ad852e632d26da88168cb`;
+  final native runtime health pending operator Reboot → System
+- Repetition count: one effective `__ioremap` call; it is not eligible for
+  repetition through the generic REPL path

@@ -4,11 +4,11 @@ Current research state: `NO_BOUNDARY_BYPASS_OBSERVED`
 
 Current class: `UNKNOWN — not enough evidence for A, B, C, D, or E`
 
-Device mutation: no partition, memory-controller, MMIO, SCM, EL2, EL3, or
-protected-memory write. Experiment 004 created and removed fixed temporary
-block-device nodes under `/dev`; Experiment 005 created and removed one fixed
-temporary character node. Partition/MMIO data access was read-only; the MMIO
-read never reached hardware because the live kernel lacks `CONFIG_DEVMEM`.
+Device mutation: Experiment 007 temporarily wrote the exact boot-only REPL
+candidate and then restored V2321 with a verified 60,882,944-byte prefix. It
+made no memory-controller, MMIO, SCM, EL2, EL3, or protected-memory write.
+Experiment 004 created and removed fixed temporary block-device nodes under
+`/dev`; Experiment 005 created and removed one fixed temporary character node.
 
 ## A. 현재까지 PROVED
 
@@ -47,6 +47,13 @@ read never reached hardware because the live kernel lacks `CONFIG_DEVMEM`.
 - Live `/proc/config.gz` proves `# CONFIG_DEVMEM is not set`. A fixed `1:1`
   character node therefore opens with `ENXIO`; cleanup and final runtime health
   (`pass=11 warn=1 fail=0`) were proved.
+- Experiment 007 reproduced the exact historical REPL candidate
+  (`b846ae9f…`), proved its named peek/call selftest, and then ran one fixed
+  `__ioremap(0x09248080, 0x5c, PROT_DEVICE_nGnRE)` attempt after a fresh warm
+  boot. Retained `/proc/last_kmsg` contains the slide result, the `__ioremap`
+  return, and a `Non Secure Watchdog Bark` 3.027327 seconds later.
+- `msm_readl` was never invoked and no remapper value was read. The exact V2321
+  rollback prefix SHA-256 is `ca978551…`; post-TWRP native health is pending.
 
 ## B. 현재 HYPOTHESIS
 
@@ -71,13 +78,18 @@ read never reached hardware because the live kernel lacks `CONFIG_DEVMEM`.
   values `165/3` do not match exact CFGL `0x6003/{0x0100,0x0200}`.
 - “The current kernel can read the remapper through `/dev/mem`.” Live config has
   `CONFIG_DEVMEM=n`; the fixed `1:1` node fails at open before MMIO.
+- “The generic REPL `__ioremap -> msm_readl -> __iounmap` sequence is a safe
+  narrow kernel adapter.” The first verified `__ioremap` return was followed by
+  a non-secure watchdog before `msm_readl`; all three targets are also `DENY`
+  under the existing host call-safety classifier.
 
 ## D. UNKNOWN
 
 - Exact final channel/rank/bank/row/column transform fields. A system-PA region
   remapper now has exact MMIO bases/offset range; its finer DRAM-decode role is
   `UNKNOWN`.
-- Reset value, boot value, runtime readability/writability, lock state and owner.
+- Reset value, boot value, runtime MMIO readability/writability, lock state and
+  owner. Experiment 007 mapped the first range but never executed the read.
 - Exact final-decode XBL/DCB programming call graph and register fields. The
   firmware bytes themselves are now `PROVED` available.
 - Protection ordering and existence of a post-transform security check.
@@ -127,7 +139,8 @@ Full per-candidate fields are in `research/sm8150-memory-subsystem.md`.
 `PROVED`: `/proc/iomem`, `/proc/meminfo`, live DT reserved-memory, runtime/kernel
 identity, LLCC/BWMON resource landmarks, kernel SCM/UH interfaces and their
 source-visible PA inputs. `REFUTED`: current-kernel userland `/dev/mem` access.
-`UNKNOWN`: final decode register values and narrow kernel-adapter readability.
+`REFUTED`: the generic REPL call chain as a safe read adapter. `UNKNOWN`: final
+decode register values and a purpose-built kernel-adapter read.
 
 ## I. EL2/QHEE가 담당하는 것으로 보이는 부분
 
@@ -157,10 +170,11 @@ not yet a structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-Implement a narrow kernel-space read-only adapter that `ioremap`s only the four
-proved `0x5c`-byte qhs_llcc windows and returns 32-bit snapshots. Live identity
-is captured, the Linux-SMEM DCB shortcut is refuted, and `/dev/mem` is
-structurally unavailable in the current kernel. No controller write is needed.
+Build a purpose-built inline adapter at the already boot-proven stock-kernel
+hook site: one fixed control flow maps one `0x5c` qhs_llcc window, reads offset
+zero, unmaps immediately, and publishes one result. It must contain no generic
+call target or arbitrary address. Qualify a no-MMIO direct-call control image
+first. No controller write is needed.
 
 ## N. 가장 위험한 아직 금지된 실험
 
@@ -187,6 +201,8 @@ Evidence against a presently usable bypass:
 
 - No post-boot EL1 read or write of the proved remapper windows has yet been
   demonstrated.
+- The first generic-REPL `__ioremap` attempt returned but then caused a
+  non-secure watchdog before any `msm_readl`, so that adapter path is retired.
 - The live kernel has `CONFIG_DEVMEM=n`; both default and temporary-node
   userland read paths stop before reaching MMIO.
 - No SM8150 Linux code programming such a transform was found.

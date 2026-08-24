@@ -1,0 +1,29 @@
+{
+  "arbitrary_address_input": false,
+  "automatic_retries": false,
+  "candidate_sha256": "b846ae9f74d8ceb922bbcd854d78b6795ef833d61e38465d3cc474cb6f0dfb65",
+  "claim_boundary": "READ_FAILED at the recorded stage; it does not by itself prove hardware immutability, secure ownership, or post-transform protection",
+  "completed_utc": "2026-08-24T20:52:19+00:00",
+  "driver_sha256": "98493464c7fb53bff122c8c3291c1a718837b8e2015ce33618dac204482f9f3b",
+  "error_type": "RuntimeError",
+  "experiment_id": "007-kernel-remapper-control-repl-20260825-03",
+  "failed_stage": "preflight",
+  "health_after": {
+    "selftest_payload_sha256": "3b6e6af706b59fa67e1ed79b57367bca3ccee1e785085e5fd91ee4fa288e9e07",
+    "selftest_status": "ok",
+    "version_status": "ok"
+  },
+  "map_sha256": "9e6a1d6f322344e3d6fced7e6d29a254e1516cc5163bad8595388a9d0d02ec3a",
+  "memory_or_mmio_writes": false,
+  "outcome": "READ_FAILED",
+  "panic_on_oops_restored": false,
+  "raw_snapshot_sha256": "8993713b5ef27a96f7c22fbdc9889f84f9767c30fe694e46015d5750b67f9e78",
+  "raw_snapshot_size": 3882,
+  "read_success_count": 0,
+  "records": [],
+  "schema": "sdm855-a90-repl-mmio-readonly-manifest-v1",
+  "soc": "SM8150",
+  "started_utc": "2026-08-24T20:52:19+00:00",
+  "target_model": "SM-A908N",
+  "temporary_panic_on_oops_mutation": false
+}

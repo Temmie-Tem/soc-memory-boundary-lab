@@ -1,0 +1,54 @@
+{
+  "candidate_sha256": "b846ae9f74d8ceb922bbcd854d78b6795ef833d61e38465d3cc474cb6f0dfb65",
+  "capture_completed_utc": "2026-08-24T20:57:47+00:00",
+  "claim_boundary": "PROVED only that the verified __ioremap call returned before a Non Secure Watchdog Bark in the generic REPL callback context. msm_readl was never invoked, no register value was obtained, and this does not prove an MMIO/XPU denial, hardware immutability, aliasing, or a protection bypass.",
+  "collector_sha256_at_live_attempt": "63130ace433f76acf79470219faf9023624d2e3a9d66fc24f9eebef3b81648b6",
+  "current_disabled_collector_sha256": "a97466e173df88718d2cc8ca4edbee19a23699243f13840405b401d7d9734a3a",
+  "driver_sha256": "98493464c7fb53bff122c8c3291c1a718837b8e2015ce33618dac204482f9f3b",
+  "experiment_id": "007-kernel-remapper-watchdog-20260825-01",
+  "first_fixed_base": "0x09248080",
+  "ioremap_call": {
+    "length": "0x5c",
+    "return_observed_in_retained_log": true,
+    "symbol_link_vaddr": "0xffffff80080a4094",
+    "symbol_resolution": "verified export-recovery and map agreement"
+  },
+  "kernel_slide_observed": "0x110000",
+  "map_sha256": "9e6a1d6f322344e3d6fced7e6d29a254e1516cc5163bad8595388a9d0d02ec3a",
+  "memory_or_mmio_writes": false,
+  "msm_readl_invoked": false,
+  "outcome": "WATCHDOG_AFTER_IOREMAP_RETURN",
+  "raw_repl_snapshot": {
+    "sha256": "c44c2789f08980f424cd64b15d04497307d4e51c51c13096d05f08cadd82abb3",
+    "size": 3070
+  },
+  "register_read_success_count": 0,
+  "repl_call_safety_classifier": {
+    "evidence_sha256": "d565af79b0dcf0770a97cb00e36475596ab0d22594095cb20db3f42bd494f2c3",
+    "result": "DENY for __ioremap, __iounmap, and msm_readl",
+    "wrapper_bypassed_classifier": true
+  },
+  "rollback": {
+    "boot_prefix_sha256": "ca978551aabe4b39563abaf529ccf2522054952d8b2ad852e632d26da88168cb",
+    "boot_prefix_size": 60882944,
+    "receipt_sha256": "6265c719758dc13b1197adb520314a0cc697e7b86af8acb51a483c939cb47ae5",
+    "status": "VERIFIED_IN_TWRP"
+  },
+  "schema": "sdm855-a90-repl-watchdog-manifest-v1",
+  "soc": "SM8150",
+  "started_utc": "2026-08-24T20:52:37+00:00",
+  "target_model": "SM-A908N",
+  "timing_seconds": {
+    "ioremap_return": 75.653343,
+    "kernel_slide_return": 75.082095,
+    "watchdog_after_ioremap_return": 3.027327,
+    "watchdog_bark": 78.68067
+  },
+  "watchdog": {
+    "class": "Non Secure Watchdog Bark",
+    "retained_log_sha256": "d89347a270e52519559a9ff12b44d46dabd8d5d8e87af28e9efe601370d22c54",
+    "retained_log_stdout_sha256": "cc2ca34b8a7cfe58a3f638ccf6c1bc03adbdaa69fb24ea474049dd07e4e5be88",
+    "retained_log_size": 2359,
+    "source": "/proc/last_kmsg"
+  }
+}

@@ -9,7 +9,10 @@ destination. This repository does **not** assume the AMD Skitter Creek result
 applies to Qualcomm.
 
 Current phase: source reconstruction plus source-backed, read-only observation.
-No DDR/controller, XPU, SMMU, SCM, EL2, EL3, or protected-memory write has been
+Experiment 007 temporarily booted a fixed REPL candidate; its first
+`__ioremap` returned and then the device hit a non-secure watchdog before any
+MMIO read. V2321 was restored by verified boot-prefix readback. No
+DDR/controller, XPU, SMMU, SCM, EL2, EL3, or protected-memory write has been
 performed.
 
 Claim vocabulary is deliberately closed:
@@ -31,6 +34,9 @@ Experiment 004. Raw bytes remain private; the first static reconstruction is in
 Experiment 006 follows the exact DCB/SHRM path into the concrete four-instance
 ICB/LLCC remapper; see
 [research/xbl-shrm-icbcfg-recon.md](research/xbl-shrm-icbcfg-recon.md).
+Experiment 007 retires the generic-REPL mapping path and leaves a purpose-built
+kernel adapter as the next read-only test; see
+[experiments/007-kernel-remapper-adapter/README.md](experiments/007-kernel-remapper-adapter/README.md).
 
 Raw dumps, device identifiers, boot/firmware images, and full transcripts are
 kept below `evidence/private/` and ignored by Git. Redacted hash manifests are

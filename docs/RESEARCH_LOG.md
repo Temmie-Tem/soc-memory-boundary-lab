@@ -142,3 +142,46 @@
 10. Current result is `REFUTED` only for the userland `/dev/mem` route. A narrow
     kernel-space read adapter remains the cheapest test of actual register/XPU
     accessibility.
+
+## 2026-08-25 — Experiment 007 generic-REPL kernel adapter
+
+1. `PROVED`: The old repository's current builder did not reproduce the live
+   REPL image; it produced SHA-256 `1ba534…`. A provenance wrapper fetched the
+   exact source blobs from commit `f44b34c8f44a9a01c99bb589644494c732a6c3fa`
+   without modifying that repository and reproduced the pinned candidate
+   `b846ae9f74d8ceb922bbcd854d78b6795ef833d61e38465d3cc474cb6f0dfb65`.
+2. `PROVED`: TWRP remote hash, boot write, and 60,882,944-byte prefix readback
+   all matched the candidate. Physical TWRP Reboot → System was required; CLI
+   reboot attempts retained Samsung's recovery-enter parameter.
+3. `PROVED`: Native version/health passed. The historical driver then passed
+   two named static-image peeks and a verified `printk` sentinel call against
+   the exact regenerated System.map.
+4. Attempts 01 and 02 stopped at replay-safe slide-result capture before any
+   map. Attempt 01 reproduced the previously documented marker-window failure;
+   marker mode was removed. Attempt 02 showed the same no-result condition in
+   the default path. Attempt 03 stopped on a preflight auto-menu `EBUSY`; moving
+   `hide` before all preflight commands fixed that ordering defect.
+5. After one warm reboot, attempt 04 recovered slide `0x110000` and invoked the
+   fixed first call only:
+   `__ioremap(0x09248080, 0x5c, 0x0068000000000707)`.
+6. `PROVED`: `/proc/last_kmsg` contains an `A90R` slide record at 75.082095 s,
+   an `A90R` call-return record at 75.653343 s, and a `Non Secure Watchdog Bark`
+   at 78.680670 s. The delta from call return to bark is 3.027327 s.
+7. `PROVED`: `msm_readl` was never invoked, no remapper register value was
+   obtained, and no MMIO or memory write occurred. This result does not locate
+   an XPU denial and does not prove that the remapper itself is unreadable.
+8. Host classification after recovery returned `DENY` for `__ioremap`,
+   `__iounmap`, and `msm_readl`. The wrapper's JOPP/prefix checks verified
+   identity but incorrectly bypassed the existing deny-by-default call-safety
+   policy by using `ReplSession.call_runtime` directly. The live entry point is
+   now unconditionally disabled with no CLI override.
+9. `PROVED`: The first rollback shell form had no effect; this was detected
+   because prefix readback still matched the candidate. A corrected single
+   remote command wrote V2321, and the full 60,882,944-byte readback matched
+   `ca978551aabe4b39563abaf529ccf2522054952d8b2ad852e632d26da88168cb`.
+   The temporary remote image was removed. Final native health awaits physical
+   TWRP Reboot → System.
+10. `REFUTED`: the generic REPL call sequence is a safe implementation of the
+    narrow kernel adapter. `UNKNOWN`: whether a purpose-built kernel worker can
+    map/read/unmap the same fixed window without the REPL callback-context
+    watchdog.

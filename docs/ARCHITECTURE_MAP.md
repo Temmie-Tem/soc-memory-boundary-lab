@@ -59,6 +59,11 @@ offsets `0x00..0x58` in each instance. Evidence:
 during DDR bring-up. `UNKNOWN`: whether it also owns final channel/bank/row
 hashing, or whether that finer decode occurs later in SHRM/MCCC/MC logic.
 
+`PROVED`: Experiment 007's verified generic-REPL call to `__ioremap` returned a
+mapping for the first fixed range, then the device produced a non-secure
+watchdog before the intended `msm_readl`. This retires that callback-context
+adapter but does not establish register readability or an XPU denial.
+
 `PROVED`: The exact live TrustZone ELF contains the same `/dev/icbcfg/boot`
 device hash and the same four-base/six-slot layout record. `SUPPORTED`: secure
 firmware has configuration knowledge for this remapper. Runtime invocation,
@@ -124,7 +129,7 @@ Their precise enablement and ordering remain `UNKNOWN`.
 | Which block owns the final mapping? | `PROVED`: qhs_llcc ICB windows own boot region remapping. Final channel/bank/row decode owner remains `UNKNOWN`. |
 | Who programs it? | `PROVED`: XBL programs the region remapper through `icbcfg`; SHRM/MCCC/MC final-decode ownership remains `UNKNOWN`. AOP runtime DDR management is `PROVED`. |
 | At what stage? | Region-remap programming during XBL DDR initialization before HLOS is `PROVED`; later mutability remains `UNKNOWN`. |
-| Can EL1 observe it? | Current userland `/dev/mem` route is `REFUTED` by live `CONFIG_DEVMEM=n`; a narrow kernel-space read adapter remains `UNKNOWN`. |
+| Can EL1 observe it? | Current userland `/dev/mem` route is `REFUTED` by live `CONFIG_DEVMEM=n`; the generic REPL mapping adapter is `REFUTED` as unsafe after a watchdog before `msm_readl`; a purpose-built kernel read remains `UNKNOWN`. |
 | Can EL1 modify it? | `UNKNOWN`; XBL's writer is identified, but post-boot EL1 reachability/lock state is untested. |
 | Does EL2/EL3 lock it? | `UNKNOWN`. |
 | Is there a post-transform security check? | `UNKNOWN`. |
