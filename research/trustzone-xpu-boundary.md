@@ -34,6 +34,63 @@ Each `BIMC_MPU<n>` base is `qhs_llcc + 0xe000` in the same instance whose
 remapper starts at `qhs_llcc + 0x8080`. This is an exact same-window relation;
 it does not establish that the MPU protects its own configuration window.
 
+## Experiment 009 policy consumer and tested-page coverage
+
+`PROVED`: the full primary table has 48 records and is consumed by exact
+function `0x1c0fc890..0x1c0fca1c`. The function validates a resource ID,
+searches the table with stride `0x18`, retrieves its base/name, and reads
+capability registers from that base. The registry is therefore executable
+configuration metadata, not a set of unreferenced strings.
+
+`PROVED`: exact selector `0x1c0a2dfc..0x1c0a2ec4` chooses one of two embedded
+policy arrays. The `< 2` branch has 43 descriptors; the `>= 2` branch has 44.
+Both contain one `DC_NOC_BROADCAST_MPU` descriptor at `0x090e0000`, with 40
+32-byte MPU region records. Both contain the identical critical record:
+
+| Field | Exact value |
+|---|---:|
+| region index | `11` |
+| flags | `0x00000009` |
+| read VMID/access word | `0x80000000` |
+| write VMID/access word | `0x00000000` |
+| start | `0x09248000` |
+| end exclusive | `0x09249000` |
+
+`PROVED`: the fixed EL1 load PA `0x09248080` is inside that range under either
+selector result. The preliminary interpretation of the access word as `0x80`
+is `REFUTED`; its exact little-endian uint32 value is `0x80000000`.
+
+`PROVED`: exact conversion function `0x1c0aa51c..0x1c0aa7e4` consumes the
+32-byte record, selects TZ owner from flag bit 3, and produces standard VMID
+permission words `0/0` plus client-permission bytes `0x11/0x08`. Exact branch
+semantics and comparative XPU3 field definitions resolve this as:
+
+```text
+owner                         TZ
+TZ-owner permission           read + write
+MSA-class client permission   read only
+ordinary HLOS VMID            no read or write grant
+```
+
+The `0x80000000` read bit reaches the same client-permission slot that the exact
+routine uses for MSA-owner self-access. No low/standard VMID bit survives the
+conversion; comparative Qualcomm access-control definitions identify HLOS as
+VMID 3 (`0x8`), which is absent.
+
+`PROVED`: exact devcfg resolves `/ac/xpu:disable_xpu_ac` to uint32 `0`.
+`SUPPORTED`: the normal boot applies the policy. A final hardware register
+readback is still `UNKNOWN`, so static policy is not silently promoted to live
+register proof.
+
+`PROVED`: TZ's error-router table maps `DC_NOC_BROADCAST_MPU` to global status
+bank 0 bit 29; BIMC_MPU0..3 map to bits 25..28. The exact handler can classify
+configuration/client-port errors and report `APROTNS`, read/write, master/VMID,
+and matched resource-group fields.
+
+`PROVED`: neither embedded static policy array contains BIMC_MPU0..3. This
+means only that this particular static-list path does not initialize them.
+Their final state and initializer remain `UNKNOWN`.
+
 `PROVED`: The same TrustZone ELF also contains `/dev/icbcfg/boot` DAL identity
 and the exact four qhs_llcc remapper bases used by XBL. `SUPPORTED`: secure
 firmware has configuration knowledge for that region-remap block. `UNKNOWN`:
@@ -47,14 +104,18 @@ direct shared-code hypothesis but does not refute a semantic equivalent.
 
 `SUPPORTED`: retained successful boots registering LLCC PMU, LLCC-to-DDR BWMON
 and latency monitors disfavor a whole LLCC/DDR fabric power-off explanation.
-The `+0x8080` configuration sub-aperture may still have separate clock, power or
-security ownership.
+Combined with the exact tested-page policy, XPU/fabric denial is the leading
+watchdog explanation. The `+0x8080` sub-aperture may still have a separate
+clock/power condition, so that alternative is not `REFUTED`.
 
 `UNKNOWN`: the reset collector entered `print_xpu_info` but immediately stated
 that the TZ log was encrypted or not parsed. There is no decoded XPU violation,
 but that absence cannot be used as evidence against an XPU fault.
 
-`UNKNOWN`: XPU/MPU location along the SM8150 memory path.
+`PROVED`: `DC_NOC_BROADCAST_MPU` static policy covers the tested configuration
+PA with no HLOS grant. `SUPPORTED`: its enforcement prevented the EL1 load
+from completing. Its exact fabric placement and response mechanism remain
+`UNKNOWN`.
 `UNKNOWN`: Whether it checks the system address before final DRAM decode, a
 decoded destination, or both. `UNKNOWN`: Which state is controlled by EL3 versus
 QHEE/EL2. `UNKNOWN`: The lock and reset behavior of final mapping state.

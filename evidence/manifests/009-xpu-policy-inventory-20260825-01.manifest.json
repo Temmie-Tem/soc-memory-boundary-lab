@@ -1,0 +1,1996 @@
+{
+  "claims": {
+    "HYPOTHESIS": [
+      "The XPU denial or its downstream interconnect response caused the retained Non Secure Watchdog Bark after __ioremap returned."
+    ],
+    "PROVED": [
+      "The exact TZ registry is a 48-record table consumed by the pinned HAL lookup function.",
+      "Both exact TZ selector branches configure DC_NOC_BROADCAST_MPU with a 40-region table.",
+      "Both branches contain the identical TZ-owned region 11 covering 0x09248000-0x09249000, including the tested 0x09248080 address.",
+      "The exact MPU conversion path turns that record into zero standard VMID permission words and client-permission bytes 0x11/0x08.",
+      "That conversion grants the TZ owner read/write and the MSA-class client read-only, while the static record grants no HLOS VMID read or write permission.",
+      "The exact devcfg property /ac/xpu:disable_xpu_ac is uint32 value 0.",
+      "The exact TZ error router maps DC_NOC_BROADCAST_MPU, MEMNOC_MS_MPU, and all four BIMC_MPU instances to global XPU interrupt bits.",
+      "Neither embedded TZ static policy list contains BIMC_MPU0..3 descriptors."
+    ],
+    "REFUTED": [
+      "The tested address lies outside every exact TZ XPU policy region.",
+      "The critical raw access value is 0x80; it is actually little-endian uint32 0x80000000.",
+      "The critical static policy grants ordinary HLOS VMID access."
+    ],
+    "SUPPORTED": [
+      "The fixed EL1 load is strongly compatible with an active XPU/fabric access denial rather than a powered-off whole LLCC fabric.",
+      "The normal production boot path applies the embedded DC_NOC_BROADCAST_MPU policy; the exact devcfg does not request XPU disable and boot code calls the static-config loop."
+    ],
+    "UNKNOWN": [
+      "A post-boot hardware register readback proving the final programmed XPU state.",
+      "A decoded syndrome tying the retained watchdog specifically to DC_NOC_BROADCAST_MPU; Samsung's collector retained only an encrypted or unparsed TZ log.",
+      "Whether a separate clock or power condition contributed to the watchdog response.",
+      "Who initializes BIMC_MPU0..3 on this exact boot and what their final policies are.",
+      "Protection ordering relative to the final DRAM channel/bank/row transform.",
+      "Any normal-RAM physical-to-DRAM alias or protected-memory bypass."
+    ]
+  },
+  "classification": "CLASS_A_OR_B_SECURITY_POLICY_PRESENT_NO_BYPASS_OBSERVED",
+  "comparative_source": {
+    "claim_boundary": "The comparative source supplies names and field documentation only; all SM8150 address, branch, and policy claims are independently pinned to the exact A90 firmware bytes.",
+    "commit": "b5e5bb9ed6c92442fd502b3e726d7c8024dc0763",
+    "files": [
+      {
+        "path": "trustzone_images/core/securemsm/accesscontrol/api/AccessControlTz.h",
+        "relevance": "Defines the 32-byte tzbsp_mpu_rg_t layout, xPU3 owner flags, and AC_VM_HLOS=3.",
+        "sha256": "b31edbf4afd41d8d5d4faa0b62ab01f74b7fd149286ee0486b7bbe45bca6f724"
+      },
+      {
+        "path": "trustzone_images/core/kernel/xpu3/hal/inc/HALxpu3.h",
+        "relevance": "Defines the two-byte XPU3 client-permission bitfield and HAL_XPU2_CONFIG_SECURE=0.",
+        "sha256": "07291481f1b28c201ad3043692a53188ccc8dae476c207bea06eafd6c620b414"
+      },
+      {
+        "path": "trustzone_images/core/securemsm/accesscontrol/build/qsee/A53_64/KAJAANAA/src/components/xpu/v3/ACXpu.o",
+        "relevance": "Unstripped comparative object names the matching conversion routine tzbsp_mpu_partition_config.",
+        "sha256": "376ddb769505a29895b88f2af079e9ddf8c154faf087d0dcd2f851a840cd4fe0"
+      }
+    ],
+    "repository": "David112x/android-firmware-qti-sdm660",
+    "status": "COMPARATIVE_NOT_EXACT_SM8150_SOURCE"
+  },
+  "critical_policy_result": {
+    "covered_range": "0x09248000-0x09249000 (end exclusive)",
+    "exact_constructed_client_permission_bytes": [
+      "0x11",
+      "0x08"
+    ],
+    "hlos_granted_by_static_record": false,
+    "msa_class_read_only_grant": true,
+    "owner": "TZ",
+    "read_vmid": "0x80000000",
+    "resource": "DC_NOC_BROADCAST_MPU",
+    "resource_id": "0x3c",
+    "runtime_register_readback": "UNKNOWN",
+    "selector_branch_invariant": true,
+    "standard_multi_vmid_permission_words": [
+      "0x00000000",
+      "0x00000000"
+    ],
+    "tested_address_covered": true,
+    "write_vmid": "0x00000000",
+    "xpu_mmio_base": "0x090e0000"
+  },
+  "devcfg_xpu_control": {
+    "device_count": 40,
+    "device_entry_vaddr": "0x1c012fe8",
+    "device_hash": "0xf1076e4",
+    "device_index": 17,
+    "device_path": "/ac/xpu",
+    "device_path_vaddr": "0x1c0134ad",
+    "device_table_vaddr": "0x1c012d40",
+    "end_marker": "0xff00ff00",
+    "propbin_vaddr": "0x1c010c08",
+    "property_name": "disable_xpu_ac",
+    "property_offset": "0x1c34",
+    "property_type": 2,
+    "property_vaddr": "0x1c01283c",
+    "source_vaddr": "0x1c00d040",
+    "struct_table_vaddr": "0x1c0103f8",
+    "value": 0
+  },
+  "device_access": false,
+  "error_routing": {
+    "error_strings_verified": [
+      "HAL_XPU2_ERROR_F_CONFIG_PORT",
+      "HAL_XPU2_ERROR_F_CLIENT_PORT",
+      "HAL_XPU2_BUS_F_APROTNS",
+      "HAL_XPU2_BUS_F_AWRITE"
+    ],
+    "global_status_sources": [
+      {
+        "bank0": "0x01fc2000",
+        "bank1": "0x01fc2004",
+        "masks": [
+          "0xffffffff",
+          "0x0007ffff"
+        ]
+      },
+      {
+        "bank0": "0x01fc4000",
+        "bank1": "0x01fc4004",
+        "masks": [
+          "0xffffffff",
+          "0x0007ffff"
+        ]
+      }
+    ],
+    "parsed_bank_sizes": [
+      32,
+      16
+    ],
+    "relevant_routes": [
+      {
+        "name": "MEMNOC_MS_MPU",
+        "resource_id": "0x4b",
+        "status_bank": 0,
+        "status_bit": 20
+      },
+      {
+        "name": "BIMC_MPU0",
+        "resource_id": "0x2e",
+        "status_bank": 0,
+        "status_bit": 25
+      },
+      {
+        "name": "BIMC_MPU1",
+        "resource_id": "0x2f",
+        "status_bank": 0,
+        "status_bit": 26
+      },
+      {
+        "name": "BIMC_MPU2",
+        "resource_id": "0x3f",
+        "status_bank": 0,
+        "status_bit": 27
+      },
+      {
+        "name": "BIMC_MPU3",
+        "resource_id": "0x40",
+        "status_bank": 0,
+        "status_bit": 28
+      },
+      {
+        "name": "DC_NOC_BROADCAST_MPU",
+        "resource_id": "0x3c",
+        "status_bank": 0,
+        "status_bit": 29
+      },
+      {
+        "name": "DC_NOC_NON_BROADCAST_MPU",
+        "resource_id": "0x3d",
+        "status_bank": 0,
+        "status_bit": 31
+      },
+      {
+        "name": "DC_NOC_SHRM_MPU",
+        "resource_id": "0x4d",
+        "status_bank": 1,
+        "status_bit": 13
+      }
+    ],
+    "table_sha256": "4ca3884bf507df20699f6456405bd82430854fb816abaf9b31f173bd3c67ec48",
+    "table_vaddr": "0x1c155350"
+  },
+  "firmware_bytes_emitted": false,
+  "inputs": {
+    "devcfg": {
+      "filename": "devcfg--sdd22.bin",
+      "pin_verified": true,
+      "sha256": "0399578253dd293dfc961c6a1077f660834df3ae5e1d65555f4225e327a03d14",
+      "size": 131072
+    },
+    "retained_boot_log": {
+      "filename": "007-inline-remapper-read-live-20260825-01.last_kmsg.bin",
+      "pin_verified": true,
+      "sha256": "8701d073e86728790c33f05dce21891ca3454f5b778d92285ce3b5bc33216b93",
+      "size": 2097136
+    },
+    "trustzone": {
+      "filename": "tz--sdd5.bin",
+      "pin_verified": true,
+      "sha256": "a5e6c574e18e2e576a25df6274b20bdb142386811dfda6383f86d7b1b3c102ab",
+      "size": 4194304
+    }
+  },
+  "mmio_access": false,
+  "mode": "HOST_ONLY_READ_ONLY",
+  "policy_absence_boundary": {
+    "bimc_mpu_ids": [
+      "0x2e",
+      "0x2f",
+      "0x3f",
+      "0x40"
+    ],
+    "interpretation": "PROVED absent from these two TZ static policy lists only; initialization by XBL, another secure component, hardware defaults, or another path remains UNKNOWN.",
+    "present_in_either_embedded_policy_list": false
+  },
+  "policy_selector": {
+    "branch_invariant": "Both embedded selector branches contain the identical DC_NOC_BROADCAST_MPU region covering the tested address.",
+    "function": {
+      "end_exclusive": "0x1c0a2ec4",
+      "sha256": "1bb3cba7b5fbcfe7914c59918caa09c84368fd0d84a8214fe3eed12d6dc3b67b",
+      "size": 200,
+      "start": "0x1c0a2dfc"
+    },
+    "runtime_selector_result": "UNKNOWN_NOT_REQUIRED_FOR_CRITICAL_REGION"
+  },
+  "policy_tables": {
+    "selector_result_ge_2": {
+      "bimc_mpu_ids_present": [],
+      "count": 44,
+      "count_vaddr": "0x1c121930",
+      "critical_permission_decode": {
+        "client_permission_bytes": [
+          "0x11",
+          "0x08"
+        ],
+        "client_permission_fields": {
+          "nonsecure_client_ro_vector": 2,
+          "nonsecure_client_wo_vector": 0,
+          "secure_client_ro_vector": 1,
+          "secure_client_wo_vector": 1
+        },
+        "hal_config_type": 0,
+        "hlos_present_in_read_mask": false,
+        "hlos_present_in_write_mask": false,
+        "hlos_vmid_comparative_id": 3,
+        "hlos_vmid_mask": "0x00000008",
+        "multi_vmid_permission_words": [
+          "0x00000000",
+          "0x00000000"
+        ],
+        "owner": "TZ",
+        "read_bit31_maps_to_same_ro_slot_as_msa_owner": true,
+        "runtime_activation": "UNKNOWN_WITH_SUPPORTING_BOOT_EVIDENCE",
+        "standard_vmid_read_bits": "0x00000000",
+        "standard_vmid_write_bits": "0x00000000",
+        "static_policy_interpretation": "TZ-owned; TZ owner read/write; MSA-class read-only; no standard VMID permission and no HLOS VMID bit"
+      },
+      "critical_region": {
+        "end_exclusive": "0x09249000",
+        "flags": "0x9",
+        "index": 11,
+        "ordinal": 11,
+        "read_vmid": "0x80000000",
+        "size": 4096,
+        "start": "0x09248000",
+        "vaddr": "0x1c2f3ce0",
+        "write_vmid": "0x00000000"
+      },
+      "critical_region_raw_sha256": "0d17b4aae7bb4fc2bc61fb2585bf3aabbd178a7582dcca53c20ea0472f06141a",
+      "dc_noc_broadcast_mpu": {
+        "base": "0x090e0000",
+        "flags": "0x1",
+        "index": 34,
+        "name": "DC_NOC_BROADCAST_MPU",
+        "region_count": 40,
+        "region_vaddr": "0x1c2f3b80",
+        "resource_id": "0x3c",
+        "unmapped_read_vmid": "0x00000000",
+        "unmapped_write_vmid": "0x00000000",
+        "vaddr": "0x1c1217a0"
+      },
+      "descriptor_table_sha256": "52ad7661da013d680ac4937bce9c782d3b9260a756a330d0f2efc245d2e2097e",
+      "descriptors": [
+        {
+          "base": "0x01dc1000",
+          "flags": "0x1",
+          "index": 0,
+          "name": "CRYPTO0_BAM",
+          "region_count": 6,
+          "region_vaddr": "0x1c2ee3a0",
+          "resource_id": "0x1",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c121250"
+        },
+        {
+          "base": "0x02600000",
+          "flags": "0x0",
+          "index": 1,
+          "name": "SSC_BLSP_BAM",
+          "region_count": 49,
+          "region_vaddr": "0x1c120b00",
+          "resource_id": "0xc",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c121278"
+        },
+        {
+          "base": "0x0aec8000",
+          "flags": "0x1",
+          "index": 2,
+          "name": "MMSS",
+          "region_count": 8,
+          "region_vaddr": "0x1c2ee400",
+          "resource_id": "0x6",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c1212a0"
+        },
+        {
+          "base": "0x03000000",
+          "flags": "0x1",
+          "index": 3,
+          "name": "TLMM_XPU_WEST",
+          "region_count": 206,
+          "region_vaddr": "0x1c2ee480",
+          "resource_id": "0xf",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c1212c8"
+        },
+        {
+          "base": "0x010a0000",
+          "flags": "0x1",
+          "index": 4,
+          "name": "DCC",
+          "region_count": 16,
+          "region_vaddr": "0x1c2ef160",
+          "resource_id": "0x2",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c1212f0"
+        },
+        {
+          "base": "0x03c00000",
+          "flags": "0x1",
+          "index": 5,
+          "name": "TLMM_XPU_SOUTH",
+          "region_count": 206,
+          "region_vaddr": "0x1c2ef260",
+          "resource_id": "0x36",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c121318"
+        },
+        {
+          "base": "0x00c00000",
+          "flags": "0x1",
+          "index": 6,
+          "name": "BAM_BLSP3_DMA",
+          "region_count": 49,
+          "region_vaddr": "0x1c2eff40",
+          "resource_id": "0x4c",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c121340"
+        },
+        {
+          "base": "0x0078e000",
+          "flags": "0x1",
+          "index": 7,
+          "name": "SEC_CTRL_APU",
+          "region_count": 5,
+          "region_vaddr": "0x1c2f0250",
+          "resource_id": "0x1a",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c121368"
+        },
+        {
+          "base": "0x01890000",
+          "flags": "0x1",
+          "index": 8,
+          "name": "SP_SCSR",
+          "region_count": 16,
+          "region_vaddr": "0x1c2f02a0",
+          "resource_id": "0xb",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c121390"
+        },
+        {
+          "base": "0x00800000",
+          "flags": "0x1",
+          "index": 9,
+          "name": "BAM_BLSP1_DMA",
+          "region_count": 55,
+          "region_vaddr": "0x1c2f03a0",
+          "resource_id": "0x8",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c1213b8"
+        },
+        {
+          "base": "0x01d94000",
+          "flags": "0x1",
+          "index": 10,
+          "name": "UFS_ICE",
+          "region_count": 4,
+          "region_vaddr": "0x1c2f0710",
+          "resource_id": "0x10",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c1213e0"
+        },
+        {
+          "base": "0x03800000",
+          "flags": "0x1",
+          "index": 11,
+          "name": "TLMM_XPU_NORTH",
+          "region_count": 206,
+          "region_vaddr": "0x1c2f0750",
+          "resource_id": "0xe",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c121408"
+        },
+        {
+          "base": "0x00614000",
+          "flags": "0x1",
+          "index": 12,
+          "name": "RAMBLUR_PIMEM_APU",
+          "region_count": 1,
+          "region_vaddr": "0x1c2f1430",
+          "resource_id": "0x19",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c121430"
+        },
+        {
+          "base": "0x0ac60000",
+          "flags": "0x1",
+          "index": 13,
+          "name": "TITAN_SS_APU",
+          "region_count": 2,
+          "region_vaddr": "0x1c2f1440",
+          "resource_id": "0x38",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c121458"
+        },
+        {
+          "base": "0x00a00000",
+          "flags": "0x1",
+          "index": 14,
+          "name": "BAM_BLSP2_DMA",
+          "region_count": 49,
+          "region_vaddr": "0x1c2f1460",
+          "resource_id": "0x9",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c121480"
+        },
+        {
+          "base": "0x03400000",
+          "flags": "0x1",
+          "index": 15,
+          "name": "TLMM_XPU_EAST",
+          "region_count": 206,
+          "region_vaddr": "0x1c2f1770",
+          "resource_id": "0xd",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c1214a8"
+        },
+        {
+          "base": "0x0061a000",
+          "flags": "0x1",
+          "index": 16,
+          "name": "IMEM_APU",
+          "region_count": 1,
+          "region_vaddr": "0x1c2f2450",
+          "resource_id": "0x18",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c1214d0"
+        },
+        {
+          "base": "0x01e00000",
+          "flags": "0x0",
+          "index": 17,
+          "name": "IPA_0_GSI_TOP",
+          "region_count": 20,
+          "region_vaddr": "0x1c2f2460",
+          "resource_id": "0x3",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c1214f8"
+        },
+        {
+          "base": "0x01e00000",
+          "flags": "0x0",
+          "index": 18,
+          "name": "IPA_0_GSI_TOP",
+          "region_count": 21,
+          "region_vaddr": "0x1c2f25a0",
+          "resource_id": "0x3",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c121520"
+        },
+        {
+          "base": "0x01e00000",
+          "flags": "0x0",
+          "index": 19,
+          "name": "IPA_0_GSI_TOP",
+          "region_count": 21,
+          "region_vaddr": "0x1c2f26f0",
+          "resource_id": "0x3",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c121548"
+        },
+        {
+          "base": "0x0061c000",
+          "flags": "0x1",
+          "index": 20,
+          "name": "IMEM_MPU",
+          "region_count": 1,
+          "region_vaddr": "0x1c2f2840",
+          "resource_id": "0x27",
+          "unmapped_read_vmid": "0xf0ffffff",
+          "unmapped_write_vmid": "0xf0ffffff",
+          "vaddr": "0x1c121570"
+        },
+        {
+          "base": "0x01526000",
+          "flags": "0x1",
+          "index": 21,
+          "name": "CNOC_AOSS_MPU",
+          "region_count": 15,
+          "region_vaddr": "0x1c2f2860",
+          "resource_id": "0x39",
+          "unmapped_read_vmid": "0x40000000",
+          "unmapped_write_vmid": "0x40000000",
+          "vaddr": "0x1c121598"
+        },
+        {
+          "base": "0x0c290000",
+          "flags": "0x1",
+          "index": 22,
+          "name": "AOSS_MPU",
+          "region_count": 17,
+          "region_vaddr": "0x1c2f2a40",
+          "resource_id": "0x3e",
+          "unmapped_read_vmid": "0x00ffffff",
+          "unmapped_write_vmid": "0x00ffffff",
+          "vaddr": "0x1c1215c0"
+        },
+        {
+          "base": "0x0964e000",
+          "flags": "0x1",
+          "index": 23,
+          "name": "LLCC_BROADCAST_MPU",
+          "region_count": 25,
+          "region_vaddr": "0x1c2f2c60",
+          "resource_id": "0x3a",
+          "unmapped_read_vmid": "0xf0000000",
+          "unmapped_write_vmid": "0xf0000000",
+          "vaddr": "0x1c1215e8"
+        },
+        {
+          "base": "0x02bae000",
+          "flags": "0x0",
+          "index": 24,
+          "name": "SSC_SDC_MPU",
+          "region_count": 12,
+          "region_vaddr": "0x1c120e10",
+          "resource_id": "0x3b",
+          "unmapped_read_vmid": "0x40000000",
+          "unmapped_write_vmid": "0x40000000",
+          "vaddr": "0x1c121610"
+        },
+        {
+          "base": "0x0004a000",
+          "flags": "0x0",
+          "index": 25,
+          "name": "CFG_SSC",
+          "region_count": 10,
+          "region_vaddr": "0x1c120f90",
+          "resource_id": "0x2c",
+          "unmapped_read_vmid": "0x40000000",
+          "unmapped_write_vmid": "0x40000000",
+          "vaddr": "0x1c121638"
+        },
+        {
+          "base": "0x090b4000",
+          "flags": "0x1",
+          "index": 26,
+          "name": "DC_NOC_NON_BROADCAST_MPU",
+          "region_count": 16,
+          "region_vaddr": "0x1c2f2f80",
+          "resource_id": "0x3d",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c121660"
+        },
+        {
+          "base": "0x010bc000",
+          "flags": "0x1",
+          "index": 27,
+          "name": "QM_MPU_CFG",
+          "region_count": 4,
+          "region_vaddr": "0x1c2f3180",
+          "resource_id": "0x29",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c121688"
+        },
+        {
+          "base": "0x14400000",
+          "flags": "0x1",
+          "index": 28,
+          "name": "MSS_NAV_MPU",
+          "region_count": 8,
+          "region_vaddr": "0x1c2f3200",
+          "resource_id": "0x31",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c1216b0"
+        },
+        {
+          "base": "0x003fe000",
+          "flags": "0x1",
+          "index": 29,
+          "name": "BOOT_ROM",
+          "region_count": 3,
+          "region_vaddr": "0x1c2f3300",
+          "resource_id": "0x1e",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c1216d8"
+        },
+        {
+          "base": "0x09102000",
+          "flags": "0x1",
+          "index": 30,
+          "name": "DC_NOC_SHRM_MPU",
+          "region_count": 16,
+          "region_vaddr": "0x1c2f3360",
+          "resource_id": "0x4d",
+          "unmapped_read_vmid": "0x40000000",
+          "unmapped_write_vmid": "0x40000000",
+          "vaddr": "0x1c121700"
+        },
+        {
+          "base": "0x00616000",
+          "flags": "0x1",
+          "index": 31,
+          "name": "RAMBLUR_PIMEM_MPU",
+          "region_count": 8,
+          "region_vaddr": "0x1c2f3560",
+          "resource_id": "0x2a",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c121728"
+        },
+        {
+          "base": "0x14404000",
+          "flags": "0x1",
+          "index": 32,
+          "name": "ANOC2_MPU",
+          "region_count": 16,
+          "region_vaddr": "0x1c2f3660",
+          "resource_id": "0x1d",
+          "unmapped_read_vmid": "0x20000000",
+          "unmapped_write_vmid": "0x20000000",
+          "vaddr": "0x1c121750"
+        },
+        {
+          "base": "0x0c430000",
+          "flags": "0x1",
+          "index": 33,
+          "name": "PMIC_ARB",
+          "region_count": 25,
+          "region_vaddr": "0x1c2f3860",
+          "resource_id": "0x28",
+          "unmapped_read_vmid": "0x00ffffff",
+          "unmapped_write_vmid": "0x00ffffff",
+          "vaddr": "0x1c121778"
+        },
+        {
+          "base": "0x090e0000",
+          "flags": "0x1",
+          "index": 34,
+          "name": "DC_NOC_BROADCAST_MPU",
+          "region_count": 40,
+          "region_vaddr": "0x1c2f3b80",
+          "resource_id": "0x3c",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c1217a0"
+        },
+        {
+          "base": "0x096c0000",
+          "flags": "0x1",
+          "index": 35,
+          "name": "MEMNOC_MS_MPU",
+          "region_count": 16,
+          "region_vaddr": "0x1c2f4080",
+          "resource_id": "0x4b",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c1217c8"
+        },
+        {
+          "base": "0x01520000",
+          "flags": "0x1",
+          "index": 36,
+          "name": "CNOC_SNOC_MS_MPU",
+          "region_count": 23,
+          "region_vaddr": "0x1c2f4280",
+          "resource_id": "0x23",
+          "unmapped_read_vmid": "0x70000000",
+          "unmapped_write_vmid": "0x70000000",
+          "vaddr": "0x1c1217f0"
+        },
+        {
+          "base": "0x01524000",
+          "flags": "0x1",
+          "index": 37,
+          "name": "CNOC_SNOC_MPU",
+          "region_count": 20,
+          "region_vaddr": "0x1c2f4560",
+          "resource_id": "0x22",
+          "unmapped_read_vmid": "0x40000000",
+          "unmapped_write_vmid": "0x40000000",
+          "vaddr": "0x1c121818"
+        },
+        {
+          "base": "0x14402000",
+          "flags": "0x1",
+          "index": 38,
+          "name": "ANOC1_MPU",
+          "region_count": 8,
+          "region_vaddr": "0x1c2f47e0",
+          "resource_id": "0x1c",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c121840"
+        },
+        {
+          "base": "0x14406000",
+          "flags": "0x1",
+          "index": 39,
+          "name": "BOOT_IMEM_SS_MPU",
+          "region_count": 4,
+          "region_vaddr": "0x1c2f48e0",
+          "resource_id": "0x4e",
+          "unmapped_read_vmid": "0xf0000000",
+          "unmapped_write_vmid": "0xf0000000",
+          "vaddr": "0x1c121868"
+        },
+        {
+          "base": "0x02bac000",
+          "flags": "0x0",
+          "index": 40,
+          "name": "SSC_Q6_MPU",
+          "region_count": 12,
+          "region_vaddr": "0x1c1210d0",
+          "resource_id": "0x2d",
+          "unmapped_read_vmid": "0x40000000",
+          "unmapped_write_vmid": "0x40000000",
+          "vaddr": "0x1c121890"
+        },
+        {
+          "base": "0x002f0000",
+          "flags": "0x1",
+          "index": 41,
+          "name": "GCC_RPU",
+          "region_count": 186,
+          "region_vaddr": "0x1c2f4960",
+          "resource_id": "0x12",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c1218b8"
+        },
+        {
+          "base": "0x01f80000",
+          "flags": "0x1",
+          "index": 42,
+          "name": "TCSR_REGS",
+          "region_count": 32,
+          "region_vaddr": "0x1c2f5500",
+          "resource_id": "0x14",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c1218e0"
+        },
+        {
+          "base": "0x01f00000",
+          "flags": "0x1",
+          "index": 43,
+          "name": "TCSR_MUTEX",
+          "region_count": 62,
+          "region_vaddr": "0x1c2f5700",
+          "resource_id": "0x13",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c121908"
+        }
+      ],
+      "nearby_qhs_llcc_regions": [
+        {
+          "end_exclusive": "0x09245000",
+          "flags": "0x9",
+          "index": 8,
+          "ordinal": 8,
+          "read_vmid": "0x40000000",
+          "size": 20480,
+          "start": "0x09240000",
+          "vaddr": "0x1c2f3c80",
+          "write_vmid": "0x40000000"
+        },
+        {
+          "end_exclusive": "0x09249000",
+          "flags": "0x9",
+          "index": 11,
+          "ordinal": 11,
+          "read_vmid": "0x80000000",
+          "size": 4096,
+          "start": "0x09248000",
+          "vaddr": "0x1c2f3ce0",
+          "write_vmid": "0x00000000"
+        },
+        {
+          "end_exclusive": "0x0924c000",
+          "flags": "0x9",
+          "index": 12,
+          "ordinal": 12,
+          "read_vmid": "0x40000000",
+          "size": 12288,
+          "start": "0x09249000",
+          "vaddr": "0x1c2f3d00",
+          "write_vmid": "0x40000000"
+        },
+        {
+          "end_exclusive": "0x09250000",
+          "flags": "0x9",
+          "index": 13,
+          "ordinal": 13,
+          "read_vmid": "0xf0000000",
+          "size": 8192,
+          "start": "0x0924e000",
+          "vaddr": "0x1c2f3d20",
+          "write_vmid": "0xf0000000"
+        }
+      ],
+      "selector_predicate": "selector_result_byte >= 2",
+      "table_vaddr": "0x1c121250"
+    },
+    "selector_result_lt_2": {
+      "bimc_mpu_ids_present": [],
+      "count": 43,
+      "count_vaddr": "0x1c1227b8",
+      "critical_permission_decode": {
+        "client_permission_bytes": [
+          "0x11",
+          "0x08"
+        ],
+        "client_permission_fields": {
+          "nonsecure_client_ro_vector": 2,
+          "nonsecure_client_wo_vector": 0,
+          "secure_client_ro_vector": 1,
+          "secure_client_wo_vector": 1
+        },
+        "hal_config_type": 0,
+        "hlos_present_in_read_mask": false,
+        "hlos_present_in_write_mask": false,
+        "hlos_vmid_comparative_id": 3,
+        "hlos_vmid_mask": "0x00000008",
+        "multi_vmid_permission_words": [
+          "0x00000000",
+          "0x00000000"
+        ],
+        "owner": "TZ",
+        "read_bit31_maps_to_same_ro_slot_as_msa_owner": true,
+        "runtime_activation": "UNKNOWN_WITH_SUPPORTING_BOOT_EVIDENCE",
+        "standard_vmid_read_bits": "0x00000000",
+        "standard_vmid_write_bits": "0x00000000",
+        "static_policy_interpretation": "TZ-owned; TZ owner read/write; MSA-class read-only; no standard VMID permission and no HLOS VMID bit"
+      },
+      "critical_region": {
+        "end_exclusive": "0x09249000",
+        "flags": "0x9",
+        "index": 11,
+        "ordinal": 11,
+        "read_vmid": "0x80000000",
+        "size": 4096,
+        "start": "0x09248000",
+        "vaddr": "0x1c2fb1a0",
+        "write_vmid": "0x00000000"
+      },
+      "critical_region_raw_sha256": "0d17b4aae7bb4fc2bc61fb2585bf3aabbd178a7582dcca53c20ea0472f06141a",
+      "dc_noc_broadcast_mpu": {
+        "base": "0x090e0000",
+        "flags": "0x1",
+        "index": 33,
+        "name": "DC_NOC_BROADCAST_MPU",
+        "region_count": 40,
+        "region_vaddr": "0x1c2fb040",
+        "resource_id": "0x3c",
+        "unmapped_read_vmid": "0x00000000",
+        "unmapped_write_vmid": "0x00000000",
+        "vaddr": "0x1c122628"
+      },
+      "descriptor_table_sha256": "749d8be6a8258075a7d5805d21ff167e52a7ba8bf7b1d7773bcbd873091b56e3",
+      "descriptors": [
+        {
+          "base": "0x01dc1000",
+          "flags": "0x1",
+          "index": 0,
+          "name": "CRYPTO0_BAM",
+          "region_count": 6,
+          "region_vaddr": "0x1c2f5ae0",
+          "resource_id": "0x1",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c122100"
+        },
+        {
+          "base": "0x02600000",
+          "flags": "0x0",
+          "index": 1,
+          "name": "SSC_BLSP_BAM",
+          "region_count": 49,
+          "region_vaddr": "0x1c1219b0",
+          "resource_id": "0xc",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c122128"
+        },
+        {
+          "base": "0x01db4000",
+          "flags": "0x1",
+          "index": 2,
+          "name": "SDC1_SDCC_ICE",
+          "region_count": 4,
+          "region_vaddr": "0x1c2f5b40",
+          "resource_id": "0x37",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c122150"
+        },
+        {
+          "base": "0x03000000",
+          "flags": "0x1",
+          "index": 3,
+          "name": "TLMM_XPU_WEST",
+          "region_count": 206,
+          "region_vaddr": "0x1c2f5b80",
+          "resource_id": "0xf",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c122178"
+        },
+        {
+          "base": "0x010a0000",
+          "flags": "0x1",
+          "index": 4,
+          "name": "DCC",
+          "region_count": 16,
+          "region_vaddr": "0x1c2f6860",
+          "resource_id": "0x2",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c1221a0"
+        },
+        {
+          "base": "0x03c00000",
+          "flags": "0x1",
+          "index": 5,
+          "name": "TLMM_XPU_SOUTH",
+          "region_count": 206,
+          "region_vaddr": "0x1c2f6960",
+          "resource_id": "0x36",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c1221c8"
+        },
+        {
+          "base": "0x00c00000",
+          "flags": "0x1",
+          "index": 6,
+          "name": "BAM_BLSP3_DMA",
+          "region_count": 49,
+          "region_vaddr": "0x1c2f7640",
+          "resource_id": "0x4c",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c1221f0"
+        },
+        {
+          "base": "0x0078e000",
+          "flags": "0x1",
+          "index": 7,
+          "name": "SEC_CTRL_APU",
+          "region_count": 5,
+          "region_vaddr": "0x1c2f7950",
+          "resource_id": "0x1a",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c122218"
+        },
+        {
+          "base": "0x01890000",
+          "flags": "0x1",
+          "index": 8,
+          "name": "SP_SCSR",
+          "region_count": 16,
+          "region_vaddr": "0x1c2f79a0",
+          "resource_id": "0xb",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c122240"
+        },
+        {
+          "base": "0x00800000",
+          "flags": "0x1",
+          "index": 9,
+          "name": "BAM_BLSP1_DMA",
+          "region_count": 55,
+          "region_vaddr": "0x1c2f7aa0",
+          "resource_id": "0x8",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c122268"
+        },
+        {
+          "base": "0x01d94000",
+          "flags": "0x1",
+          "index": 10,
+          "name": "UFS_ICE",
+          "region_count": 4,
+          "region_vaddr": "0x1c2f7e10",
+          "resource_id": "0x10",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c122290"
+        },
+        {
+          "base": "0x0aec8000",
+          "flags": "0x1",
+          "index": 11,
+          "name": "MMSS",
+          "region_count": 8,
+          "region_vaddr": "0x1c2f7e50",
+          "resource_id": "0x6",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c1222b8"
+        },
+        {
+          "base": "0x03800000",
+          "flags": "0x1",
+          "index": 12,
+          "name": "TLMM_XPU_NORTH",
+          "region_count": 206,
+          "region_vaddr": "0x1c2f7ed0",
+          "resource_id": "0xe",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c1222e0"
+        },
+        {
+          "base": "0x00614000",
+          "flags": "0x1",
+          "index": 13,
+          "name": "RAMBLUR_PIMEM_APU",
+          "region_count": 1,
+          "region_vaddr": "0x1c2f8bb0",
+          "resource_id": "0x19",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c122308"
+        },
+        {
+          "base": "0x0ac60000",
+          "flags": "0x1",
+          "index": 14,
+          "name": "TITAN_SS_APU",
+          "region_count": 2,
+          "region_vaddr": "0x1c2f8bc0",
+          "resource_id": "0x38",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c122330"
+        },
+        {
+          "base": "0x00a00000",
+          "flags": "0x1",
+          "index": 15,
+          "name": "BAM_BLSP2_DMA",
+          "region_count": 49,
+          "region_vaddr": "0x1c2f8be0",
+          "resource_id": "0x9",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c122358"
+        },
+        {
+          "base": "0x03400000",
+          "flags": "0x1",
+          "index": 16,
+          "name": "TLMM_XPU_EAST",
+          "region_count": 206,
+          "region_vaddr": "0x1c2f8ef0",
+          "resource_id": "0xd",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c122380"
+        },
+        {
+          "base": "0x0061a000",
+          "flags": "0x1",
+          "index": 17,
+          "name": "IMEM_APU",
+          "region_count": 1,
+          "region_vaddr": "0x1c2f9bd0",
+          "resource_id": "0x18",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c1223a8"
+        },
+        {
+          "base": "0x01e00000",
+          "flags": "0x1",
+          "index": 18,
+          "name": "IPA_0_GSI_TOP",
+          "region_count": 20,
+          "region_vaddr": "0x1c2f9be0",
+          "resource_id": "0x3",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c1223d0"
+        },
+        {
+          "base": "0x0061c000",
+          "flags": "0x1",
+          "index": 19,
+          "name": "IMEM_MPU",
+          "region_count": 1,
+          "region_vaddr": "0x1c2f9d20",
+          "resource_id": "0x27",
+          "unmapped_read_vmid": "0xf0ffffff",
+          "unmapped_write_vmid": "0xf0ffffff",
+          "vaddr": "0x1c1223f8"
+        },
+        {
+          "base": "0x01526000",
+          "flags": "0x1",
+          "index": 20,
+          "name": "CNOC_AOSS_MPU",
+          "region_count": 14,
+          "region_vaddr": "0x1c2f9d40",
+          "resource_id": "0x39",
+          "unmapped_read_vmid": "0x40000000",
+          "unmapped_write_vmid": "0x40000000",
+          "vaddr": "0x1c122420"
+        },
+        {
+          "base": "0x0c290000",
+          "flags": "0x1",
+          "index": 21,
+          "name": "AOSS_MPU",
+          "region_count": 17,
+          "region_vaddr": "0x1c2f9f00",
+          "resource_id": "0x3e",
+          "unmapped_read_vmid": "0x00ffffff",
+          "unmapped_write_vmid": "0x00ffffff",
+          "vaddr": "0x1c122448"
+        },
+        {
+          "base": "0x0964e000",
+          "flags": "0x1",
+          "index": 22,
+          "name": "LLCC_BROADCAST_MPU",
+          "region_count": 25,
+          "region_vaddr": "0x1c2fa120",
+          "resource_id": "0x3a",
+          "unmapped_read_vmid": "0xf0000000",
+          "unmapped_write_vmid": "0xf0000000",
+          "vaddr": "0x1c122470"
+        },
+        {
+          "base": "0x02bae000",
+          "flags": "0x0",
+          "index": 23,
+          "name": "SSC_SDC_MPU",
+          "region_count": 12,
+          "region_vaddr": "0x1c121cc0",
+          "resource_id": "0x3b",
+          "unmapped_read_vmid": "0x40000000",
+          "unmapped_write_vmid": "0x40000000",
+          "vaddr": "0x1c122498"
+        },
+        {
+          "base": "0x0004a000",
+          "flags": "0x0",
+          "index": 24,
+          "name": "CFG_SSC",
+          "region_count": 10,
+          "region_vaddr": "0x1c121e40",
+          "resource_id": "0x2c",
+          "unmapped_read_vmid": "0x40000000",
+          "unmapped_write_vmid": "0x40000000",
+          "vaddr": "0x1c1224c0"
+        },
+        {
+          "base": "0x090b4000",
+          "flags": "0x1",
+          "index": 25,
+          "name": "DC_NOC_NON_BROADCAST_MPU",
+          "region_count": 16,
+          "region_vaddr": "0x1c2fa440",
+          "resource_id": "0x3d",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c1224e8"
+        },
+        {
+          "base": "0x010bc000",
+          "flags": "0x1",
+          "index": 26,
+          "name": "QM_MPU_CFG",
+          "region_count": 4,
+          "region_vaddr": "0x1c2fa640",
+          "resource_id": "0x29",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c122510"
+        },
+        {
+          "base": "0x14400000",
+          "flags": "0x1",
+          "index": 27,
+          "name": "MSS_NAV_MPU",
+          "region_count": 8,
+          "region_vaddr": "0x1c2fa6c0",
+          "resource_id": "0x31",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c122538"
+        },
+        {
+          "base": "0x003fe000",
+          "flags": "0x1",
+          "index": 28,
+          "name": "BOOT_ROM",
+          "region_count": 3,
+          "region_vaddr": "0x1c2fa7c0",
+          "resource_id": "0x1e",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c122560"
+        },
+        {
+          "base": "0x09102000",
+          "flags": "0x1",
+          "index": 29,
+          "name": "DC_NOC_SHRM_MPU",
+          "region_count": 16,
+          "region_vaddr": "0x1c2fa820",
+          "resource_id": "0x4d",
+          "unmapped_read_vmid": "0x40000000",
+          "unmapped_write_vmid": "0x40000000",
+          "vaddr": "0x1c122588"
+        },
+        {
+          "base": "0x00616000",
+          "flags": "0x1",
+          "index": 30,
+          "name": "RAMBLUR_PIMEM_MPU",
+          "region_count": 8,
+          "region_vaddr": "0x1c2faa20",
+          "resource_id": "0x2a",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c1225b0"
+        },
+        {
+          "base": "0x14404000",
+          "flags": "0x1",
+          "index": 31,
+          "name": "ANOC2_MPU",
+          "region_count": 16,
+          "region_vaddr": "0x1c2fab20",
+          "resource_id": "0x1d",
+          "unmapped_read_vmid": "0x20000000",
+          "unmapped_write_vmid": "0x20000000",
+          "vaddr": "0x1c1225d8"
+        },
+        {
+          "base": "0x0c430000",
+          "flags": "0x1",
+          "index": 32,
+          "name": "PMIC_ARB",
+          "region_count": 25,
+          "region_vaddr": "0x1c2fad20",
+          "resource_id": "0x28",
+          "unmapped_read_vmid": "0x00ffffff",
+          "unmapped_write_vmid": "0x00ffffff",
+          "vaddr": "0x1c122600"
+        },
+        {
+          "base": "0x090e0000",
+          "flags": "0x1",
+          "index": 33,
+          "name": "DC_NOC_BROADCAST_MPU",
+          "region_count": 40,
+          "region_vaddr": "0x1c2fb040",
+          "resource_id": "0x3c",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c122628"
+        },
+        {
+          "base": "0x096c0000",
+          "flags": "0x1",
+          "index": 34,
+          "name": "MEMNOC_MS_MPU",
+          "region_count": 16,
+          "region_vaddr": "0x1c2fb540",
+          "resource_id": "0x4b",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c122650"
+        },
+        {
+          "base": "0x01520000",
+          "flags": "0x1",
+          "index": 35,
+          "name": "CNOC_SNOC_MS_MPU",
+          "region_count": 22,
+          "region_vaddr": "0x1c2fb740",
+          "resource_id": "0x23",
+          "unmapped_read_vmid": "0x70000000",
+          "unmapped_write_vmid": "0x70000000",
+          "vaddr": "0x1c122678"
+        },
+        {
+          "base": "0x01524000",
+          "flags": "0x1",
+          "index": 36,
+          "name": "CNOC_SNOC_MPU",
+          "region_count": 20,
+          "region_vaddr": "0x1c2fba00",
+          "resource_id": "0x22",
+          "unmapped_read_vmid": "0x40000000",
+          "unmapped_write_vmid": "0x40000000",
+          "vaddr": "0x1c1226a0"
+        },
+        {
+          "base": "0x14402000",
+          "flags": "0x1",
+          "index": 37,
+          "name": "ANOC1_MPU",
+          "region_count": 8,
+          "region_vaddr": "0x1c2fbc80",
+          "resource_id": "0x1c",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c1226c8"
+        },
+        {
+          "base": "0x14406000",
+          "flags": "0x1",
+          "index": 38,
+          "name": "BOOT_IMEM_SS_MPU",
+          "region_count": 4,
+          "region_vaddr": "0x1c2fbd80",
+          "resource_id": "0x4e",
+          "unmapped_read_vmid": "0xf0000000",
+          "unmapped_write_vmid": "0xf0000000",
+          "vaddr": "0x1c1226f0"
+        },
+        {
+          "base": "0x02bac000",
+          "flags": "0x0",
+          "index": 39,
+          "name": "SSC_Q6_MPU",
+          "region_count": 12,
+          "region_vaddr": "0x1c121f80",
+          "resource_id": "0x2d",
+          "unmapped_read_vmid": "0x40000000",
+          "unmapped_write_vmid": "0x40000000",
+          "vaddr": "0x1c122718"
+        },
+        {
+          "base": "0x002f0000",
+          "flags": "0x1",
+          "index": 40,
+          "name": "GCC_RPU",
+          "region_count": 186,
+          "region_vaddr": "0x1c2fbe00",
+          "resource_id": "0x12",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c122740"
+        },
+        {
+          "base": "0x01f80000",
+          "flags": "0x1",
+          "index": 41,
+          "name": "TCSR_REGS",
+          "region_count": 32,
+          "region_vaddr": "0x1c2fc9a0",
+          "resource_id": "0x14",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c122768"
+        },
+        {
+          "base": "0x01f00000",
+          "flags": "0x1",
+          "index": 42,
+          "name": "TCSR_MUTEX",
+          "region_count": 62,
+          "region_vaddr": "0x1c2fcba0",
+          "resource_id": "0x13",
+          "unmapped_read_vmid": "0x00000000",
+          "unmapped_write_vmid": "0x00000000",
+          "vaddr": "0x1c122790"
+        }
+      ],
+      "nearby_qhs_llcc_regions": [
+        {
+          "end_exclusive": "0x09245000",
+          "flags": "0x9",
+          "index": 8,
+          "ordinal": 8,
+          "read_vmid": "0x40000000",
+          "size": 20480,
+          "start": "0x09240000",
+          "vaddr": "0x1c2fb140",
+          "write_vmid": "0x40000000"
+        },
+        {
+          "end_exclusive": "0x09249000",
+          "flags": "0x9",
+          "index": 11,
+          "ordinal": 11,
+          "read_vmid": "0x80000000",
+          "size": 4096,
+          "start": "0x09248000",
+          "vaddr": "0x1c2fb1a0",
+          "write_vmid": "0x00000000"
+        },
+        {
+          "end_exclusive": "0x0924c000",
+          "flags": "0x9",
+          "index": 12,
+          "ordinal": 12,
+          "read_vmid": "0x40000000",
+          "size": 12288,
+          "start": "0x09249000",
+          "vaddr": "0x1c2fb1c0",
+          "write_vmid": "0x40000000"
+        },
+        {
+          "end_exclusive": "0x09250000",
+          "flags": "0x9",
+          "index": 13,
+          "ordinal": 13,
+          "read_vmid": "0xf0000000",
+          "size": 8192,
+          "start": "0x0924e000",
+          "vaddr": "0x1c2fb1e0",
+          "write_vmid": "0xf0000000"
+        }
+      ],
+      "selector_predicate": "selector_result_byte < 2",
+      "table_vaddr": "0x1c122100"
+    }
+  },
+  "private_record": {
+    "filename": "009-xpu-policy-inventory-20260825-01.json",
+    "git_ignored": true,
+    "sha256": "d90d48f776907d23e29b593e3f9eb36c841c84a3ed663703fad018c4c69cff2c",
+    "size": 60371
+  },
+  "retained_boot_boundary": {
+    "decoded_xpu_syndrome": null,
+    "encrypted_or_unparsed_tz_log_occurrences": 3,
+    "non_secure_watchdog_occurrences": 2,
+    "xpu_reporter_start_occurrences": 1
+  },
+  "root_cause_assessment": {
+    "critical_unknowns": [
+      "Final runtime policy registers",
+      "Exact watchdog fault-response chain",
+      "Sub-aperture clock state"
+    ],
+    "current_status": "SUPPORTED_NOT_PROVED_CAUSAL",
+    "evidence_against_xpu_denial": [
+      "No decoded XPU syndrome and no post-boot XPU register readback"
+    ],
+    "evidence_for_xpu_denial": [
+      "Exact policy coverage of the tested address",
+      "TZ ownership with no HLOS grant",
+      "Exact boot static-config call path",
+      "disable_xpu_ac=0",
+      "Exact XPU error route for the protecting block",
+      "Successful __ioremap followed by watchdog before the load returned"
+    ]
+  },
+  "schema": "sdm855-xpu-policy-inventory-public-v1",
+  "tested_access": {
+    "observed_value": null,
+    "operation": "one fixed EL1 load after successful __ioremap",
+    "physical_address": "0x09248080",
+    "terminal_observation": "NON_SECURE_WATCHDOG_BEFORE_MSM_READL",
+    "width_bits": 32
+  },
+  "trustzone_code": {
+    "functions": {
+      "hal_config_resource_group_wrapper": {
+        "end_exclusive": "0x1c0faf5c",
+        "sha256": "17527d70ce365e75685a110d993b66f259ab5543630408de5da5146b09e91685",
+        "size": 180,
+        "start": "0x1c0faea8"
+      },
+      "mpu_partition_config": {
+        "end_exclusive": "0x1c0aa7e4",
+        "sha256": "72bc8b1c6cfcfba1d566e43ab37dfc03ed7568a50950f8b636f58319ed87da6f",
+        "size": 712,
+        "start": "0x1c0aa51c"
+      },
+      "policy_selector": {
+        "end_exclusive": "0x1c0a2ec4",
+        "sha256": "1bb3cba7b5fbcfe7914c59918caa09c84368fd0d84a8214fe3eed12d6dc3b67b",
+        "size": 200,
+        "start": "0x1c0a2dfc"
+      },
+      "static_config_loop": {
+        "end_exclusive": "0x1c0a9d5c",
+        "sha256": "9cd2e52d6efbd30a2c77332624b17a9c3da8e939419187cce90333a64861a3de",
+        "size": 224,
+        "start": "0x1c0a9c7c"
+      },
+      "xpu_registry_lookup": {
+        "end_exclusive": "0x1c0fca1c",
+        "sha256": "bc25e3d06839f7856b067f08a02057585805b4415d61b96b3f5023b27e27afda",
+        "size": 396,
+        "start": "0x1c0fc890"
+      }
+    },
+    "pinned_instruction_words": [
+      {
+        "address": "0x1c0a25a4",
+        "word": "0x94001db6"
+      },
+      {
+        "address": "0x1c0a9cd8",
+        "word": "0x97fffe43"
+      },
+      {
+        "address": "0x1c0aa58c",
+        "word": "0x29416297"
+      },
+      {
+        "address": "0x1c0aa5b8",
+        "word": "0xa9412688"
+      },
+      {
+        "address": "0x1c0aa67c",
+        "word": "0x37f80468"
+      },
+      {
+        "address": "0x1c0aa70c",
+        "word": "0x321c014a"
+      },
+      {
+        "address": "0x1c0aa6a0",
+        "word": "0x371805a8"
+      },
+      {
+        "address": "0x1c0aa760",
+        "word": "0x32000108"
+      },
+      {
+        "address": "0x1c0aa764",
+        "word": "0x321d0129"
+      },
+      {
+        "address": "0x1c0aa78c",
+        "word": "0x79400281"
+      },
+      {
+        "address": "0x1c0aa798",
+        "word": "0x940141c4"
+      }
+    ]
+  },
+  "trustzone_registry": {
+    "count": 48,
+    "count_vaddr": "0x1c157e60",
+    "record_size": 24,
+    "records": [
+      {
+        "base": "0x01dc1000",
+        "index": 0,
+        "name": "CRYPTO0_BAM",
+        "name_vaddr": "0x1c129e60",
+        "record_vaddr": "0x1c1579e0",
+        "resource_id": "0x1"
+      },
+      {
+        "base": "0x010a0000",
+        "index": 1,
+        "name": "DCC",
+        "name_vaddr": "0x1c129e6c",
+        "record_vaddr": "0x1c1579f8",
+        "resource_id": "0x2"
+      },
+      {
+        "base": "0x01e00000",
+        "index": 2,
+        "name": "IPA_0_GSI_TOP",
+        "name_vaddr": "0x1c129e70",
+        "record_vaddr": "0x1c157a10",
+        "resource_id": "0x3"
+      },
+      {
+        "base": "0x0aec8000",
+        "index": 3,
+        "name": "MMSS",
+        "name_vaddr": "0x1c129e7e",
+        "record_vaddr": "0x1c157a28",
+        "resource_id": "0x6"
+      },
+      {
+        "base": "0x00800000",
+        "index": 4,
+        "name": "BAM_BLSP1_DMA",
+        "name_vaddr": "0x1c129e83",
+        "record_vaddr": "0x1c157a40",
+        "resource_id": "0x8"
+      },
+      {
+        "base": "0x00a00000",
+        "index": 5,
+        "name": "BAM_BLSP2_DMA",
+        "name_vaddr": "0x1c129e91",
+        "record_vaddr": "0x1c157a58",
+        "resource_id": "0x9"
+      },
+      {
+        "base": "0x00c00000",
+        "index": 6,
+        "name": "BAM_BLSP3_DMA",
+        "name_vaddr": "0x1c129e9f",
+        "record_vaddr": "0x1c157a70",
+        "resource_id": "0x4c"
+      },
+      {
+        "base": "0x01890000",
+        "index": 7,
+        "name": "SP_SCSR",
+        "name_vaddr": "0x1c129ead",
+        "record_vaddr": "0x1c157a88",
+        "resource_id": "0xb"
+      },
+      {
+        "base": "0x02600000",
+        "index": 8,
+        "name": "SSC_BLSP_BAM",
+        "name_vaddr": "0x1c129eb5",
+        "record_vaddr": "0x1c157aa0",
+        "resource_id": "0xc"
+      },
+      {
+        "base": "0x03800000",
+        "index": 9,
+        "name": "TLMM_XPU_NORTH",
+        "name_vaddr": "0x1c129ec2",
+        "record_vaddr": "0x1c157ab8",
+        "resource_id": "0xe"
+      },
+      {
+        "base": "0x01d94000",
+        "index": 10,
+        "name": "UFS_ICE",
+        "name_vaddr": "0x1c129ed1",
+        "record_vaddr": "0x1c157ad0",
+        "resource_id": "0x10"
+      },
+      {
+        "base": "0x002f0000",
+        "index": 11,
+        "name": "GCC_RPU",
+        "name_vaddr": "0x1c129ed9",
+        "record_vaddr": "0x1c157ae8",
+        "resource_id": "0x12"
+      },
+      {
+        "base": "0x01f00000",
+        "index": 12,
+        "name": "TCSR_MUTEX",
+        "name_vaddr": "0x1c129ee1",
+        "record_vaddr": "0x1c157b00",
+        "resource_id": "0x13"
+      },
+      {
+        "base": "0x01f80000",
+        "index": 13,
+        "name": "TCSR_REGS",
+        "name_vaddr": "0x1c129eec",
+        "record_vaddr": "0x1c157b18",
+        "resource_id": "0x14"
+      },
+      {
+        "base": "0x0061a000",
+        "index": 14,
+        "name": "IMEM_APU",
+        "name_vaddr": "0x1c129ef6",
+        "record_vaddr": "0x1c157b30",
+        "resource_id": "0x18"
+      },
+      {
+        "base": "0x00614000",
+        "index": 15,
+        "name": "RAMBLUR_PIMEM_APU",
+        "name_vaddr": "0x1c129eff",
+        "record_vaddr": "0x1c157b48",
+        "resource_id": "0x19"
+      },
+      {
+        "base": "0x0078e000",
+        "index": 16,
+        "name": "SEC_CTRL_APU",
+        "name_vaddr": "0x1c129f11",
+        "record_vaddr": "0x1c157b60",
+        "resource_id": "0x1a"
+      },
+      {
+        "base": "0x14402000",
+        "index": 17,
+        "name": "ANOC1_MPU",
+        "name_vaddr": "0x1c129f1e",
+        "record_vaddr": "0x1c157b78",
+        "resource_id": "0x1c"
+      },
+      {
+        "base": "0x14404000",
+        "index": 18,
+        "name": "ANOC2_MPU",
+        "name_vaddr": "0x1c129f28",
+        "record_vaddr": "0x1c157b90",
+        "resource_id": "0x1d"
+      },
+      {
+        "base": "0x003fe000",
+        "index": 19,
+        "name": "BOOT_ROM",
+        "name_vaddr": "0x1c129f32",
+        "record_vaddr": "0x1c157ba8",
+        "resource_id": "0x1e"
+      },
+      {
+        "base": "0x01520000",
+        "index": 20,
+        "name": "CNOC_SNOC_MS_MPU",
+        "name_vaddr": "0x1c129f3b",
+        "record_vaddr": "0x1c157bc0",
+        "resource_id": "0x23"
+      },
+      {
+        "base": "0x01524000",
+        "index": 21,
+        "name": "CNOC_SNOC_MPU",
+        "name_vaddr": "0x1c129f4c",
+        "record_vaddr": "0x1c157bd8",
+        "resource_id": "0x22"
+      },
+      {
+        "base": "0x0061c000",
+        "index": 22,
+        "name": "IMEM_MPU",
+        "name_vaddr": "0x1c129f5a",
+        "record_vaddr": "0x1c157bf0",
+        "resource_id": "0x27"
+      },
+      {
+        "base": "0x0c430000",
+        "index": 23,
+        "name": "PMIC_ARB",
+        "name_vaddr": "0x1c129f63",
+        "record_vaddr": "0x1c157c08",
+        "resource_id": "0x28"
+      },
+      {
+        "base": "0x010bc000",
+        "index": 24,
+        "name": "QM_MPU_CFG",
+        "name_vaddr": "0x1c129f6c",
+        "record_vaddr": "0x1c157c20",
+        "resource_id": "0x29"
+      },
+      {
+        "base": "0x00616000",
+        "index": 25,
+        "name": "RAMBLUR_PIMEM_MPU",
+        "name_vaddr": "0x1c129f77",
+        "record_vaddr": "0x1c157c38",
+        "resource_id": "0x2a"
+      },
+      {
+        "base": "0x0004a000",
+        "index": 26,
+        "name": "CFG_SSC",
+        "name_vaddr": "0x1c129f89",
+        "record_vaddr": "0x1c157c50",
+        "resource_id": "0x2c"
+      },
+      {
+        "base": "0x02bac000",
+        "index": 27,
+        "name": "SSC_Q6_MPU",
+        "name_vaddr": "0x1c129f91",
+        "record_vaddr": "0x1c157c68",
+        "resource_id": "0x2d"
+      },
+      {
+        "base": "0x0924e000",
+        "index": 28,
+        "name": "BIMC_MPU0",
+        "name_vaddr": "0x1c129f9c",
+        "record_vaddr": "0x1c157c80",
+        "resource_id": "0x2e"
+      },
+      {
+        "base": "0x092ce000",
+        "index": 29,
+        "name": "BIMC_MPU1",
+        "name_vaddr": "0x1c129fa6",
+        "record_vaddr": "0x1c157c98",
+        "resource_id": "0x2f"
+      },
+      {
+        "base": "0x01db4000",
+        "index": 30,
+        "name": "SDC1_SDCC_ICE",
+        "name_vaddr": "0x1c129fb0",
+        "record_vaddr": "0x1c157cb0",
+        "resource_id": "0x37"
+      },
+      {
+        "base": "0x03c00000",
+        "index": 31,
+        "name": "TLMM_XPU_SOUTH",
+        "name_vaddr": "0x1c129fbe",
+        "record_vaddr": "0x1c157cc8",
+        "resource_id": "0x36"
+      },
+      {
+        "base": "0x0ac60000",
+        "index": 32,
+        "name": "TITAN_SS_APU",
+        "name_vaddr": "0x1c129fcd",
+        "record_vaddr": "0x1c157ce0",
+        "resource_id": "0x38"
+      },
+      {
+        "base": "0x096c0000",
+        "index": 33,
+        "name": "MEMNOC_MS_MPU",
+        "name_vaddr": "0x1c129fda",
+        "record_vaddr": "0x1c157cf8",
+        "resource_id": "0x4b"
+      },
+      {
+        "base": "0x01526000",
+        "index": 34,
+        "name": "CNOC_AOSS_MPU",
+        "name_vaddr": "0x1c129fe8",
+        "record_vaddr": "0x1c157d10",
+        "resource_id": "0x39"
+      },
+      {
+        "base": "0x0964e000",
+        "index": 35,
+        "name": "LLCC_BROADCAST_MPU",
+        "name_vaddr": "0x1c129ff6",
+        "record_vaddr": "0x1c157d28",
+        "resource_id": "0x3a"
+      },
+      {
+        "base": "0x02bae000",
+        "index": 36,
+        "name": "SSC_SDC_MPU",
+        "name_vaddr": "0x1c12a009",
+        "record_vaddr": "0x1c157d40",
+        "resource_id": "0x3b"
+      },
+      {
+        "base": "0x0934e000",
+        "index": 37,
+        "name": "BIMC_MPU2",
+        "name_vaddr": "0x1c12a015",
+        "record_vaddr": "0x1c157d58",
+        "resource_id": "0x3f"
+      },
+      {
+        "base": "0x14400000",
+        "index": 38,
+        "name": "MSS_NAV_MPU",
+        "name_vaddr": "0x1c12a01f",
+        "record_vaddr": "0x1c157d70",
+        "resource_id": "0x31"
+      },
+      {
+        "base": "0x090e0000",
+        "index": 39,
+        "name": "DC_NOC_BROADCAST_MPU",
+        "name_vaddr": "0x1c12a02b",
+        "record_vaddr": "0x1c157d88",
+        "resource_id": "0x3c"
+      },
+      {
+        "base": "0x0c290000",
+        "index": 40,
+        "name": "AOSS_MPU",
+        "name_vaddr": "0x1c12a040",
+        "record_vaddr": "0x1c157da0",
+        "resource_id": "0x3e"
+      },
+      {
+        "base": "0x093ce000",
+        "index": 41,
+        "name": "BIMC_MPU3",
+        "name_vaddr": "0x1c12a049",
+        "record_vaddr": "0x1c157db8",
+        "resource_id": "0x40"
+      },
+      {
+        "base": "0x090b4000",
+        "index": 42,
+        "name": "DC_NOC_NON_BROADCAST_MPU",
+        "name_vaddr": "0x1c12a053",
+        "record_vaddr": "0x1c157dd0",
+        "resource_id": "0x3d"
+      },
+      {
+        "base": "0x00626000",
+        "index": 43,
+        "name": "SPDM_APU",
+        "name_vaddr": "0x1c12a06c",
+        "record_vaddr": "0x1c157de8",
+        "resource_id": "0x1b"
+      },
+      {
+        "base": "0x03400000",
+        "index": 44,
+        "name": "TLMM_XPU_EAST",
+        "name_vaddr": "0x1c12a075",
+        "record_vaddr": "0x1c157e00",
+        "resource_id": "0xd"
+      },
+      {
+        "base": "0x03000000",
+        "index": 45,
+        "name": "TLMM_XPU_WEST",
+        "name_vaddr": "0x1c12a083",
+        "record_vaddr": "0x1c157e18",
+        "resource_id": "0xf"
+      },
+      {
+        "base": "0x09102000",
+        "index": 46,
+        "name": "DC_NOC_SHRM_MPU",
+        "name_vaddr": "0x1c12a091",
+        "record_vaddr": "0x1c157e30",
+        "resource_id": "0x4d"
+      },
+      {
+        "base": "0x14406000",
+        "index": 47,
+        "name": "BOOT_IMEM_SS_MPU",
+        "name_vaddr": "0x1c12a0a1",
+        "record_vaddr": "0x1c157e48",
+        "resource_id": "0x4e"
+      }
+    ],
+    "table_sha256": "8aac72287ba3691542e764a7ac9454ab2134cfdf4ef38164e8149b13c40b77fb",
+    "table_vaddr": "0x1c1579e0"
+  }
+}

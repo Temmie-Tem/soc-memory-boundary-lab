@@ -23,6 +23,13 @@ TrustZone `BIMC_MPU0..3` records to `qhs_llcc + 0xe000` beside each remapper at
 `+0x8080`. This narrows the ownership question but does not prove policy
 coverage, post-boot mutability, an alias, or a bypass.
 
+Host-only Experiment 009 now proves static policy coverage for the tested
+instance-0 page. Both exact TrustZone selector branches place `0x09248080` in
+enabled, TZ-owned `DC_NOC_BROADCAST_MPU` region 11; exact permission conversion
+grants no ordinary HLOS access, and exact devcfg has `disable_xpu_ac=0`.
+`SUPPORTED`, not causally `PROVED`: XPU/fabric denial explains the fixed-load
+watchdog. A decoded syndrome and final runtime policy readback are still absent.
+
 Claim vocabulary is deliberately closed:
 
 - `PROVED`: directly demonstrated by named source, artifact, or repeated result.
@@ -47,6 +54,8 @@ inline control/read comparison; see
 [experiments/007-kernel-remapper-adapter/README.md](experiments/007-kernel-remapper-adapter/README.md).
 Experiment 008's exact evidence recombination is in
 [experiments/008-remapper-boundary/README.md](experiments/008-remapper-boundary/README.md).
+Experiment 009's consumed XPU policy and permission reconstruction is in
+[experiments/009-xpu-policy/README.md](experiments/009-xpu-policy/README.md).
 The exact A90 TWRP code-only System transition is documented in
 [docs/A90_TWRP_CODE_BOOT.md](docs/A90_TWRP_CODE_BOOT.md).
 

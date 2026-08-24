@@ -73,7 +73,8 @@ hashing, or whether that finer decode occurs later in SHRM/MCCC/MC logic.
 `PROVED`: Experiment 007's verified generic-REPL call to `__ioremap` returned a
 mapping for the first fixed range, then the device produced a non-secure
 watchdog before the intended `msm_readl`. This retires that callback-context
-adapter but does not establish register readability or an XPU denial.
+adapter and establishes no register value. Experiment 009 separately makes an
+XPU denial `SUPPORTED`, not causally `PROVED`.
 
 `PROVED`: The exact live TrustZone ELF contains the same `/dev/icbcfg/boot`
 device hash and the same four-base/six-slot layout record. `SUPPORTED`: secure
@@ -85,6 +86,32 @@ lock ownership and enforcement ordering remain `UNKNOWN`.
 remapper at `qhs_llcc + 0x8080` has a named BIMC MPU configuration block in the
 same 64-KiB instance at `+0xe000`. `UNKNOWN`: whether it mediates the remapper
 configuration aperture, downstream traffic, or both.
+
+`PROVED` by Experiment 009: the primary TZ resource table has 48 records and is
+consumed by the pinned HAL lookup at `0x1c0fc890..0x1c0fca1c`. Both possible
+embedded policy lists contain a `DC_NOC_BROADCAST_MPU` descriptor at
+`0x090e0000` and the identical enabled/TZ-owned region 11:
+
+```text
+0x09248000 <= system PA < 0x09249000
+read_vmid  = 0x80000000
+write_vmid = 0x00000000
+```
+
+This includes the failed EL1 load at `0x09248080`. The exact MPU conversion
+routine produces zero standard VMID permission words and client-permission
+bytes `0x11/0x08`: TZ-owner read/write plus MSA-class read-only, with no HLOS
+VMID grant. Exact devcfg sets `/ac/xpu:disable_xpu_ac = 0`.
+
+`SUPPORTED`: the load was blocked by `DC_NOC_BROADCAST_MPU` or its downstream
+fabric response. `UNKNOWN`: final runtime XPU register readback and a decoded
+syndrome. The retained collector's encrypted/unparsed TZ payload prevents a
+causal `PROVED` label.
+
+`PROVED`: TZ's global XPU error map routes `DC_NOC_BROADCAST_MPU` to bank 0 bit
+29 and routes `BIMC_MPU0..3` to bits 25..28. `PROVED`: neither embedded static
+policy list directly contains BIMC_MPU0..3. `UNKNOWN`: whether XBL, another
+secure component, hardware defaults, or another TZ path initializes them.
 
 `SUPPORTED`: four successful retained boots register LLCC PMU and LLCC-to-DDR
 monitoring paths, disfavoring a broad whole-fabric-off explanation. Separate
@@ -110,10 +137,13 @@ Evidence: exact `drivers/soc/qcom/secure_buffer.c:227-269,279-385`, SHA-256
 `PROVED`: The kernel-side ownership API therefore names system physical ranges,
 not DRAM row/bank coordinates.
 
-`UNKNOWN`: Which secure-world hardware/firmware block enforces the assignment.
-`UNKNOWN`: Whether that check sees an address before or after final DDR address
-decoding. `UNKNOWN`: Whether a second XPU/MPU check exists after a mutable
-transform. None of these follow merely from the SCM call signature.
+`UNKNOWN`: Which secure-world hardware/firmware block enforces an SCM memory
+assignment. Separately, `PROVED`: `DC_NOC_BROADCAST_MPU` statically protects
+the tested remapper configuration PA. `UNKNOWN`: whether memory-ownership
+checks see an address before or after final DDR address decoding, and whether a
+second XPU/MPU check exists after a mutable transform. These ordering claims do
+not follow merely from the SCM call signature or from configuration-aperture
+coverage.
 
 `PROVED`: Exact source initializes RKP with physical/virtual kernel metadata and
 invokes `uh_call(UH_APP_RKP, RKP_START, ...)`; `uh_call` reaches `smc #0`.
@@ -142,9 +172,10 @@ source callsite and two symbol maps contradict that claim.
 address and entry fall inside live `hyp_mem`, and its code/data identify the
 hypervisor, ownership and kernel-protection paths.
 
-`PROVED`: The live TrustZone image binds BIMC, MEMNOC, LLCC-broadcast and SHRM
-MPU names to exact configuration bases. Their enablement, protected target
-ranges and ordering remain `UNKNOWN`.
+`PROVED`: The live TrustZone image consumes a registry binding BIMC, MEMNOC,
+LLCC-broadcast, DC_NOC and SHRM MPUs to exact configuration bases. Its static
+DC_NOC policy covers the tested PA and grants no HLOS access. BIMC-MPU final
+policies and all protection ordering relative to DRAM decode remain `UNKNOWN`.
 
 ## Answers required for a bypass determination
 
@@ -153,7 +184,7 @@ ranges and ordering remain `UNKNOWN`.
 | Which block owns the final mapping? | `PROVED`: qhs_llcc ICB windows own boot region remapping. Final channel/bank/row decode owner remains `UNKNOWN`. |
 | Who programs it? | `PROVED`: XBL programs the region remapper through `icbcfg`; SHRM/MCCC/MC final-decode ownership remains `UNKNOWN`. AOP runtime DDR management is `PROVED`. |
 | At what stage? | Region-remap programming during XBL DDR initialization before HLOS is `PROVED`; later mutability remains `UNKNOWN`. |
-| Can EL1 observe it? | Current userland `/dev/mem` route is `REFUTED` by live `CONFIG_DEVMEM=n`; the generic REPL adapter is `REFUTED`; a fixed inline no-load control passed, but its paired one-load candidate returned no value and ended in a retained non-secure watchdog. Register contents remain `UNKNOWN`. |
-| Can EL1 modify it? | `UNKNOWN`; XBL's writer is identified, but post-boot EL1 reachability/lock state is untested. |
-| Does EL2/EL3 lock it? | `UNKNOWN`; no distinct lock write is present inside XBL's exact layout-1 commit, but later TZ/QHEE or hardware locking is unresolved. |
-| Is there a post-transform security check? | `UNKNOWN`; exact same-instance BIMC MPU bases materially narrow the candidate, but do not prove coverage or ordering. |
+| Can EL1 observe it? | Register contents remain `UNKNOWN`. `/dev/mem` and generic REPL routes are `REFUTED`; the fixed load returned no value. `PROVED`: exact static DC_NOC policy covers that PA with no HLOS grant. `SUPPORTED`: XPU/fabric denial. |
+| Can EL1 modify it? | No mutation is proved. `SUPPORTED`: ordinary HLOS is blocked from the configuration page by active static policy; final runtime policy/lock readback is `UNKNOWN`. |
+| Does EL2/EL3 lock it? | `UNKNOWN`; no distinct lock write is present inside XBL's exact layout-1 commit. EL3/TZ owns the covering static region, but a later write-disable or hardware lock is unresolved. |
+| Is there a post-transform security check? | `UNKNOWN`; DC_NOC coverage proves a pre-access check for the configuration aperture, not the ordering of data-path checks after the remapper. BIMC MPU registry/error routes remain candidates. |

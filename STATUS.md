@@ -2,7 +2,8 @@
 
 Current research state: `NO_BOUNDARY_BYPASS_OBSERVED`
 
-Current class: `UNKNOWN — not enough evidence for A, B, C, D, or E`
+Current class: `A/B CANDIDATE — static access policy proved, runtime transform
+mutability and protection ordering still unresolved`
 
 Device mutation: Experiment 007 temporarily wrote the exact boot-only REPL,
 fixed no-load control, and fixed one-load read candidates. Each transition was
@@ -12,7 +13,8 @@ MMIO, SCM, EL2, EL3, or protected-memory write; it attempted one fixed 32-bit
 MMIO load.
 Experiment 004 created and removed fixed temporary block-device nodes under
 `/dev`; Experiment 005 created and removed one fixed temporary character node.
-Experiment 008 was entirely host-only and performed no device or MMIO access.
+Experiments 008 and 009 were entirely host-only and performed no device or
+MMIO access.
 
 ## A. 현재까지 PROVED
 
@@ -52,10 +54,20 @@ Experiment 008 was entirely host-only and performed no device or MMIO access.
 - The separate exact TrustZone ELF contains the same `/dev/icbcfg/boot` DAL
   identity and four-base, six-slot layout record. Runtime invocation/locking is
   still `UNKNOWN`.
-- TrustZone primary resource records bind `BIMC_MPU0..3` to exact IDs and
-  `0x0924e000`, `0x092ce000`, `0x0934e000`, `0x093ce000`: each is
-  `qhs_llcc + 0xe000` beside its remapper at `+0x8080`. This proves adjacency,
-  not policy coverage or an XPU denial.
+- Experiment 009 proves the primary TZ registry is a consumed 48-record table,
+  not string-only metadata. Both embedded policy-selector branches contain a
+  40-region `DC_NOC_BROADCAST_MPU` policy at `0x090e0000`.
+- In both branches, region 11 is enabled, TZ-owned, covers
+  `0x09248000–0x09248fff`, and therefore contains the tested PA
+  `0x09248080`. Its raw access words are `0x80000000/0x00000000`, not
+  `0x80/0x80`.
+- The pinned exact TZ conversion path produces zero standard VMID permission
+  words and client-permission bytes `0x11/0x08`: TZ-owner read/write plus
+  MSA-class read-only, with no ordinary HLOS VMID grant. Exact devcfg sets
+  `/ac/xpu:disable_xpu_ac = 0`.
+- The exact TZ error router assigns `DC_NOC_BROADCAST_MPU` to global status
+  bank 0 bit 29 and also assigns all four BIMC MPUs. `BIMC_MPU0..3` are absent
+  from both embedded static policy lists; their initializer remains `UNKNOWN`.
 - Four successful retained boots register LLCC PMU and LLCC-to-DDR monitors.
   The reset XPU diagnostic is encrypted or unparsed, so it supplies no decoded
   violation and cannot exclude one.
@@ -79,7 +91,10 @@ Experiment 008 was entirely host-only and performed no device or MMIO access.
   records a bark at 69.080426 s, last pet at 58.080136 s, bootloader cause
   `Non Secure Watchdog Bark`, and warm reset. `SUPPORTED`: the one fixed load,
   rather than mapping alone, triggered the stall. The result does not identify
-  a firewall, XPU, clock/power, or ownership cause.
+  a firewall, XPU, clock/power, or ownership cause by itself. Combined with
+  Experiment 009, an active `DC_NOC_BROADCAST_MPU` denial is now `SUPPORTED`,
+  not yet causally `PROVED` because no decoded syndrome or runtime register
+  readback exists.
 
 ## B. 현재 HYPOTHESIS
 
@@ -87,9 +102,9 @@ Experiment 008 was entirely host-only and performed no device or MMIO access.
   partly encoded by, the now-proved ICB/LLCC region remapper and the remaining
   SHRM/MCCC/MC logic not yet isolated from PHY training.
 - Some channel/bank selection may be XOR-linear over address bits.
-- QHEE/TrustZone may own or lock relevant configuration. Exact same-instance
-  BIMC MPU bases and TrustZone's duplicate `icbcfg` record make this narrower,
-  but whether those MPUs cover `+0x8080` remains unproved.
+- The retained watchdog may be the XPU denial's downstream fabric response.
+  Static policy coverage and lack of an HLOS grant support this; the encrypted
+  or unparsed TZ log prevents a causal syndrome match.
 
 ## C. REFUTED
 
@@ -112,17 +127,25 @@ Experiment 008 was entirely host-only and performed no device or MMIO access.
   narrow kernel adapter.” The first verified `__ioremap` return was followed by
   a non-secure watchdog before `msm_readl`; all three targets are also `DENY`
   under the existing host call-safety classifier.
+- “The tested `0x09248080` address lies outside the exact TrustZone XPU policy.”
+  Both selector branches cover it with the same `DC_NOC_BROADCAST_MPU` region.
+- “The critical policy word is `0x80`.” The exact little-endian uint32 field is
+  `0x80000000`.
+- “The critical static record grants ordinary HLOS access.” Its exact
+  conversion has no HLOS VMID bit and no standard VMID permission word.
 
 ## D. UNKNOWN
 
 - Exact final channel/rank/bank/row/column transform fields. A system-PA region
   remapper now has exact MMIO bases/offset range; its finer DRAM-decode role is
   `UNKNOWN`.
-- Numeric boot register values, runtime MMIO writability, lock state and owner.
+- Numeric boot remapper values, runtime MMIO writability, and lock state.
   Destination regions and rank sizes are known, but runtime per-channel source
-  bases and the interleave mask are missing. The fixed read produced no value
-  and a watchdog; access denial, sub-aperture gating and other fabric conditions
+  bases and the interleave mask are missing. Static TZ policy ownership is now
+  proved; its final hardware register state and the precise watchdog response
   remain unresolved.
+- Who initializes BIMC_MPU0..3 and their final policies. Their registry and
+  error routes exist, but neither embedded TZ static list contains them.
 - Exact finer channel/bank/row decode fields after the proved region-remapper
   call graph.
 - Protection ordering and existence of a post-transform security check.
@@ -147,24 +170,27 @@ decode and precise protection ordering remain `HYPOTHESIS/UNKNOWN`.
 ```text
 EL1 physical range + VMIDs/perms -> SCM MP call -> secure owner/firewall state
 RKP metadata -> UH call -> SMC -> QHEE/RKP enforcement
+EL1 access to qhs_llcc remapper -> DC_NOC_BROADCAST_MPU policy decision
 ```
 
-Kernel inputs/call boundaries are `PROVED`; exact enforcement hardware and its
-position relative to final decode are `UNKNOWN`.
+Kernel inputs/call boundaries and the static DC_NOC policy covering the tested
+configuration PA are `PROVED`; final runtime XPU registers and the protection
+position relative to DRAM decode remain `UNKNOWN`.
 
 ## G. 가장 가능성 높은 controller/register 후보 Top 5
 
 1. `PROVED selected region remapper / UNKNOWN final hash`: four XBL-programmed
    `qhs_llcc + 0x8080` windows at `0x09248080`, `0x092c8080`, `0x09348080`,
    `0x093c8080`, using 36-bit range fields through `+0x58`; row 7 is selected.
-2. `PROVED same-instance protection candidate / UNKNOWN coverage`:
-   `BIMC_MPU0..3` at each `qhs_llcc + 0xe000`.
-3. `PROVED selected transport / UNKNOWN semantics`: DCB section 16 copied to
+2. `PROVED static configuration-aperture policy / UNKNOWN final readback`:
+   `DC_NOC_BROADCAST_MPU` at `0x090e0000`, with TZ-owned region 11 covering
+   `0x09248000–0x09249000` and no HLOS grant.
+3. `PROVED registry/error-route candidate / UNKNOWN initializer`:
+   `BIMC_MPU0..3` at each `qhs_llcc + 0xe000`; absent from both TZ static lists.
+4. `PROVED selected transport / UNKNOWN semantics`: DCB section 16 copied to
    `qhs_shrm_mem + 0x5100` and consumed alongside installed SHRM firmware.
-4. `PROVED landmarks / high remaining-decode value`: four-channel `qhs_mccc`,
+5. `PROVED landmarks / high remaining-decode value`: four-channel `qhs_mccc`,
    `qhs_llcc`, and `qhs_mc` windows encoded in exact XBL topology.
-5. `PROVED endpoint / UNKNOWN semantics`: `SLAVE_CNOC_DDRSS`, XBL MCCC master,
-   AOP DDR manager and operational LLCC-to-DDR monitors.
 
 Full per-candidate fields are in `research/sm8150-memory-subsystem.md`.
 
@@ -175,8 +201,9 @@ identity, LLCC/BWMON resource landmarks, kernel SCM/UH interfaces and their
 source-visible PA inputs. `REFUTED`: current-kernel userland `/dev/mem` access.
 `REFUTED`: the generic REPL call chain as a safe read adapter. `PROVED`: a
 fixed inline map/unmap control can return safely; a paired one-load execution
-returned no value and ended in watchdog reset. Final decode register values
-remain `UNKNOWN`.
+returned no value and ended in watchdog reset. `PROVED`: its PA is in a
+TZ-owned static XPU region with no HLOS grant. `SUPPORTED`: XPU/fabric denial;
+final runtime policy and decode register values remain `UNKNOWN`.
 
 ## I. EL2/QHEE가 담당하는 것으로 보이는 부분
 
@@ -186,10 +213,12 @@ EL2 runtime R/W, DDR decode ownership and final protection ordering.
 
 ## J. EL3/TrustZone이 담당하는 것으로 보이는 부분
 
-`PROVED`: SCM MP is the kernel-facing boundary; exact TrustZone structures bind
-BIMC_MPU0..3, MEMNOC_MS_MPU, LLCC_BROADCAST_MPU and DC_NOC_SHRM_MPU to exact
-configuration bases. `UNKNOWN`: which are enabled, what ranges they cover, and
-whether any check is after final decode.
+`PROVED`: SCM MP is the kernel-facing boundary. Exact TrustZone consumes its
+48-entry XPU registry; both static-policy branches configure
+`DC_NOC_BROADCAST_MPU` region 11 over the tested remapper PA as TZ-owned with no
+HLOS grant, and exact devcfg does not disable XPU access control. `UNKNOWN`:
+final register readback, BIMC_MPU0..3 initialization, and whether any check is
+after final DRAM decode.
 
 ## K. AMD Skitter 공격과 구조적으로 같은 부분
 
@@ -207,11 +236,11 @@ not yet a structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-Do not repeat the same load. Experiment 009 is host-only: follow consumers of
-the exact TrustZone resource records and recover qhs_llcc clock/fault-response
-ownership for the `+0x8080` sub-aperture. A direct code/data xref to an XPU
-policy, clock vote, or fault handler would distinguish the leading watchdog
-explanations before any different live access is considered.
+Do not repeat the same load. Experiment 010 should remain host-only: identify
+the initializer and final-policy source for `BIMC_MPU0..3`, then order
+`DC_NOC_BROADCAST_MPU`, the four ICB remappers, and later MCCC/MC decode. A
+decoded ownership/ordering chain is cheaper and more discriminating than a
+second access to the already-covered page.
 
 ## N. 가장 위험한 아직 금지된 실험
 
@@ -251,10 +280,13 @@ Evidence against a presently usable bypass:
 - Secure ownership, boot-time locking, or a post-transform check could each
   independently make the AMD attack class fail.
 - Exact TrustZone firmware names multiple BIMC/MEMNOC/LLCC MPUs, increasing the
-  concrete evidence for additional enforcement layers. Experiment 008 places
-  BIMC_MPU0..3 in the same qhs_llcc instances as the remappers.
+  concrete evidence for additional enforcement layers. Experiment 009 proves
+  that both static-policy branches cover the tested remapper PA with a TZ-owned
+  DC_NOC region that grants no HLOS access.
+- Exact devcfg leaves XPU access control enabled (`disable_xpu_ac=0`), and the
+  boot path consumes the selected static policy table.
 
-Critical unknowns are runtime source-base/interleave state, post-boot lock and
-sub-aperture access ownership, MPU coverage/order, the finer DRAM decode, and
-deterministic alias behavior. The only defensible current conclusion is
-`UNKNOWN / NO BYPASS OBSERVED`.
+Critical unknowns are runtime source-base/interleave state, final XPU/remapper
+register readback, BIMC-MPU initialization, protection ordering, the finer DRAM
+decode, and deterministic alias behavior. The defensible current conclusion is
+`STATIC SECURITY POLICY PROVED / XPU CAUSE SUPPORTED / NO BYPASS OBSERVED`.

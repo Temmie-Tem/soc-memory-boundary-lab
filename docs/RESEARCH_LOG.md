@@ -258,3 +258,54 @@
     `b4bb1082df278b57055f164d3da9c3a2f420ac9cc3d904ccb1ea24e78b9f3f9a`;
     ignored mode-0600 derived record SHA-256
     `2154ee2af18d0e98b92f6658120cde89434433be8db8f592d026ad278b6660ff`.
+
+## 2026-08-25 — Experiment 009 exact TrustZone XPU policy
+
+1. Ran a host-only parser over exact TrustZone `a5e6c574…`, devcfg
+   `03995782…`, and retained last-kmsg `8701d073…`. No device, MMIO,
+   partition, controller, SCM, EL2, or EL3 access occurred.
+2. `PROVED`: TZ's primary XPU registry at `0x1c1579e0` contains 48 24-byte
+   `{id, base, name}` records. Pinned function
+   `0x1c0fc890..0x1c0fca1c` walks it with a `0x18` stride and reads the
+   selected hardware base, proving the table is consumed rather than
+   string-only.
+3. `PROVED`: selector function `0x1c0a2dfc..0x1c0a2ec4` returns either a
+   43-descriptor table at `0x1c122100` or a 44-descriptor table at
+   `0x1c121250`. Every descriptor ID/base matches the primary registry.
+4. `PROVED`: both tables contain `DC_NOC_BROADCAST_MPU` id `0x3c`, base
+   `0x090e0000`, with 40 MPU regions. In both, region 11 is identical:
+   flags `0x9`, read `0x80000000`, write `0`, start `0x09248000`, exclusive
+   end `0x09249000`. Thus the tested `0x09248080` load is inside the policy
+   regardless of selector result.
+5. `REFUTED`: the critical value is `0x80/0x80`. Raw little-endian bytes prove
+   `read_vmid=0x80000000`, `write_vmid=0`.
+6. Replayed and pinned exact MPU conversion function
+   `0x1c0aa51c..0x1c0aa7e4`. `PROVED`: flags bit 3 selects TZ owner; read bit
+   31 maps to the MSA-class read slot; standard VMID permission words are both
+   zero; final client bytes are `0x11/0x08`. The record grants TZ-owner
+   read/write and MSA-class read-only, but no ordinary HLOS VMID permission.
+7. Comparative Qualcomm SDM660 access-control headers and an unstripped
+   `ACXpu.o` at commit `b5e5bb9e…` supplied field/function names. They were
+   explicitly kept `COMPARATIVE_NOT_EXACT_SM8150_SOURCE`; exact A90 function
+   hashes, instructions, addresses, and data independently anchor every SM8150
+   conclusion.
+8. `PROVED`: exact devcfg's 40-entry DAL device table resolves `/ac/xpu` to
+   `disable_xpu_ac`, type uint32, value `0`, with valid end marker
+   `0xff00ff00`.
+9. `PROVED`: TZ's global XPU error map assigns MEMNOC_MS_MPU and all four BIMC
+   MPUs plus DC_NOC_BROADCAST/NON_BROADCAST and DC_NOC_SHRM to status bits.
+   The handler includes config/client-port, `APROTNS`, and write/read fields.
+10. `PROVED`: BIMC_MPU0..3 are absent from both embedded static policy lists.
+    `UNKNOWN`: another TZ path, XBL, another secure component, or hardware
+    defaults may initialize them; absence is not evidence of inactivity.
+11. `SUPPORTED`: an active DC_NOC XPU/fabric denial is now the leading cause of
+    the fixed load watchdog. `UNKNOWN`: the final programmed registers and a
+    decoded syndrome. The retained collector reports only an encrypted or
+    unparsed TZ log, so causality remains below `PROVED`.
+12. Implemented `tools/sm8150_xpu_policy_inventory.py` plus seven focused
+    tests. Public evidence is
+    `009-xpu-policy-inventory-20260825-01.manifest.json`; the path-bearing
+    mode-0600 record remains ignored. All 73 repository tests pass; all public
+    manifests parse; private/public regeneration is byte-identical. Tool,
+    public manifest, and private derived-record SHA-256 are respectively
+    `88b6cd2e…`, `f5c661af…`, and `d90d48f7…`. No live access was repeated.

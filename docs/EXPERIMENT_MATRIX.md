@@ -10,10 +10,11 @@
 | 006 | Address-region mapping is programmed by XBL/DDR DSF/DCB/ICB. | XBL config consumption leads to topology-dependent MMIO writes. | Exact live firmware hashes and call-graph provenance; distinguish region remap from final channel/bank hash. | `PROVED`: four qhs_llcc remapper bases and `+0x00..+0x58` writer recovered; final DRAM hash role `UNKNOWN`. |
 | 007 | A narrow kernel path can read the exact remapper windows post-boot. | Fixed map/read/unmap returns a stable 32-bit control word without reset. | Exact candidate/map hashes; one fixed base first; no MMIO write/retry/arbitrary address; retained reset log; verified rollback. | `REFUTED` for the generic REPL adapter: `__ioremap` returned, then a non-secure watchdog occurred before `msm_readl`. Purpose-built adapter readability remains `UNKNOWN`. |
 | 008 | Exact retained boot evidence resolves the live DCB/remapper row and TZ protection adjacency. | One DCB and table row match; exact TZ registry binds same-instance MPU configuration bases. | Four SHA-256-pinned private inputs; consistent repeated boot values; structural ELF/registry validation; no device access. | `PROVED`: `/6003_0200_1_dcb.bin`, row 7, six 36-bit slots, and `BIMC_MPU0..3` at matching `qhs_llcc+0xe000`; runtime register words/coverage `UNKNOWN`. |
-| 009 | Static TZ/XBL/AOP consumers distinguish remapper security ownership from sub-aperture clock/fault gating. | Registry consumers, access policy, clock vote, or fault-response path names `+0x8080`/same window. | Host-only exact bytes; code/data xrefs; no MMIO retry or inferred register semantics. | `UNKNOWN`, next. |
-| 010 | Normal-RAM bank/channel relationships fit a stable GF(2) model. | Timing clusters produce a cross-validated XOR matrix. | Fresh pages, pagemap/PA proof, randomized pairs, cache flush, frequency pinning, hold-out pairs. | `UNKNOWN`. |
-| 011 | A controlled transform state creates physical-to-DRAM alias. | `PA_A != PA_B` but writes through one are observed through the other after cache-neutral independent reads. | Prove distinct PTE/PAs; CPU and DMA controls; cache maintenance; reboot/state restoration; unchanged-state negative control. | `NOT ELIGIBLE`: region-remap candidates exist, but readback/lock state, safe restore and a normal-RAM alias hypothesis are not proved. |
-| 012 | A normal-RAM alias reaches a protected boundary. | Only after 011, a minimal non-secret marker/boundary test differs between normal and alias path. | No dump, exact ordering proof, secondary enforcement control. | `NOT ELIGIBLE`. |
+| 009 | Static TZ/XBL/AOP consumers distinguish remapper security ownership from sub-aperture clock/fault gating. | Registry consumers, access policy, clock vote, or fault-response path names `+0x8080`/same window. | Host-only exact bytes; code/data xrefs; no MMIO retry or inferred register semantics. | `PROVED` static coverage: both TZ policy branches place `0x09248080` in TZ-owned `DC_NOC_BROADCAST_MPU` region 11 with no HLOS grant; `SUPPORTED` XPU/fabric denial; causal syndrome/runtime readback `UNKNOWN`. |
+| 010 | Identify BIMC_MPU0..3 initialization and order DC_NOC policy, remapper, and later DRAM decode. | A secure boot path supplies BIMC policies and shows which address representation each enforcement point sees. | Host-only exact XBL/TZ/hyp/devcfg bytes; function/data provenance; no MMIO retry. | `UNKNOWN`, next. |
+| 011 | Normal-RAM bank/channel relationships fit a stable GF(2) model. | Timing clusters produce a cross-validated XOR matrix. | Fresh pages, pagemap/PA proof, randomized pairs, cache flush, frequency pinning, hold-out pairs. | `NOT ELIGIBLE`: protection/transform ordering and safe observation path remain unresolved. |
+| 012 | A controlled transform state creates physical-to-DRAM alias. | `PA_A != PA_B` but writes through one are observed through the other after cache-neutral independent reads. | Prove distinct PTE/PAs; CPU and DMA controls; cache maintenance; reboot/state restoration; unchanged-state negative control. | `NOT ELIGIBLE`: region-remap candidates exist, but readback/lock state, safe restore and a normal-RAM alias hypothesis are not proved. |
+| 013 | A normal-RAM alias reaches a protected boundary. | Only after 012, a minimal non-secret marker/boundary test differs between normal and alias path. | No dump, exact ordering proof, secondary enforcement control. | `NOT ELIGIBLE`. |
 
 ## Experiment 001 metadata
 
@@ -211,4 +212,38 @@
   private/public outputs reproduce byte-identically
 - Repetition count: one final exact parser run; repeated boot values are counted
   independently in the manifest
+- Device/MMIO/controller writes: none; device access: none
+
+## Experiment 009 exact XPU-policy metadata
+
+- Experiment ID: `009-xpu-policy-inventory-20260825-01`
+- Target model / SoC: exact retained `SM-A908N` / `SM8150`
+- Firmware/build: exact Experiment 004 TrustZone and devcfg partition hashes,
+  pinned by the tool
+- Kernel build/hash: no kernel executed in this host-only phase; retained log
+  input is exact Experiment 007 artifact SHA-256 `8701d073…`
+- Boot image / DTB / research-kernel hash: no new boot artifact or device
+  action; V2321 remains the last health-proved runtime; live DTB remains
+  `UNKNOWN`
+- Timestamp: `2026-08-25 07:43 KST`
+- Preconditions: exact TZ, devcfg, and last-kmsg inputs present and matching
+  pinned sizes/hashes; no connected-device or MMIO precondition
+- Exact action: `python3 tools/sm8150_xpu_policy_inventory.py --replace`
+- Result: consumed 48-entry registry; two policy branches with identical
+  `DC_NOC_BROADCAST_MPU` coverage of `0x09248080`; TZ owner, MSA-class
+  read-only, no HLOS grant; `disable_xpu_ac=0`; XPU denial `SUPPORTED`
+- Log reference: retained last-kmsg SHA-256 `8701d073…`; decoded XPU syndrome
+  absent because the collector reports encrypted/unparsed TZ log
+- Public manifest SHA-256:
+  `f5c661af73cd6b4a0d423ef44a59b11cba0e208ad178670ff2dabf097bf2e4e6`
+- Private derived record SHA-256:
+  `d90d48f776907d23e29b593e3f9eb36c841c84a3ed663703fad018c4c69cff2c`
+- Tool SHA-256:
+  `88b6cd2ee74ce3e3b50efd59ce64886f5bd66098b50636b766a6213d6361ae3e`
+- Focused-test SHA-256:
+  `dd17da25f1a99a6ba123e9cd252650bc8219dc1208e3c9d9732c78b6ab81896d`
+- Host verification: seven focused tests and all 73 repository tests pass; all
+  public manifests parse; final private/public outputs reproduce byte-identically
+- Repetition count: one final parser generation; the same live MMIO load was
+  not repeated
 - Device/MMIO/controller writes: none; device access: none
