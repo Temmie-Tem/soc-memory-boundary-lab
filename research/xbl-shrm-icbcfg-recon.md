@@ -66,9 +66,33 @@ be recovered from XBL's `0x01fc8000` producer or equivalent boot evidence.
 The copy routines are `0x148aeb7c` and `0x148aebfc`; `0x148aeddc` invokes both
 after `0x148aedbc` clears part of SHRM memory.
 
-`UNKNOWN`: The SHRM instruction-set encoding and the semantic layout of DCB
-section 16. The bytes prove a firmware/config transport path, not yet a final
-channel/bank/row hash.
+`PROVED` by Experiment 011: selected section 16 has header
+`{8, 0x230, 0x1b8, 0x8e8}` and parses exactly into two compact record sets of
+the form `{u8 base_count, u8 offset_count, u16 base_tokens[], u16
+offset_tokens[]}`. Base tokens numerically equal `physical_base >> 12` for
+exact SHRM topology targets including per-channel MCCC/MC, MCCC master, DDRSS,
+and SHRM CSR. `SUPPORTED`: they are 4-KiB page numbers in a register-access or
+configuration list.
+
+`UNKNOWN`: SHRM instruction encoding, offset-token scaling/flags, operation
+direction, set ordering, and whether any token controls final address decode.
+The structured match does not prove a writable channel/bank/row hash.
+
+## 2a. Exact XBL diagnostic coordinate model
+
+`PROVED` by Experiment 011: Quest DDR failure recorder `0x1492234c` calls
+reporter `0x149212c0`, whose exact format names rank/row/bank/channel/column.
+For the retained 6-GiB topology it derives boundary `0x140000000`, exactly the
+selected remapper row's rank-1 destination, and labels rank-relative bits as:
+
+```text
+row[31:16] bank[15:13] channel[10:9]
+column={bits[12:11],bits[8:1]} byte[0]
+```
+
+The mapping is bijective. `REFUTED`: this bounded diagnostic formula itself
+contains an XOR or physical alias. `UNKNOWN`: an additional transform hidden
+from the diagnostic.
 
 ## 3. DDR remapper table
 
@@ -209,7 +233,8 @@ XBL topology/rank discovery
   -> DDR remapper table
   -> ICB region records
   -> four qhs_llcc + 0x8080 register windows
-  -> later MCCC/MC/PHY decode still partly UNKNOWN
+  -> exact intended coordinate labels now recovered
+  -> additional MCCC/MC/PHY hardware decode still partly UNKNOWN
 ```
 
 `UNKNOWN`: Post-boot EL1 readability, writability and lock state.
@@ -231,7 +256,10 @@ followed by a retained non-secure watchdog. This supplies no register word and
 does not identify XPU, clock, power or ownership cause.
 
 Experiment 008 resolved the exact DCB, row and writer semantics and proved the
-same-window BIMC MPU configuration bases. The cheapest next measurement is
-host-only: trace consumers of those TrustZone registry records and qhs_llcc
-clock/fault-response ownership. Do not repeat the same live load without a new,
-discriminating prediction. No controller write is justified.
+same-window BIMC MPU configuration bases. Experiments 009/010 then resolved
+static coverage and secure initializer authority. Experiment 011 eliminates
+the XBL diagnostic formula itself as an alias source and exposes exact
+section-16 controller-token sets. The cheapest next measurement is host-only:
+recover the SHRM interpreter or an exact alternate consumer that defines token
+scaling and read/write semantics. Do not repeat the same live load without a
+new, discriminating prediction. No controller write is justified.

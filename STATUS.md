@@ -2,9 +2,10 @@
 
 Current research state: `NO_BOUNDARY_BYPASS_OBSERVED`
 
-Current class: `A/B CANDIDATE FOR KNOWN CONTROLLER APERTURES — static access
-policy and secure initializer paths proved; final DRAM transform, runtime
-register state, and protection ordering remain unresolved`
+Current class: `A/B CANDIDATE — static controller-aperture policy and secure
+initializer paths proved; exact XBL diagnostic mapping is bijective and
+non-aliasing; hidden hardware transform, runtime state, and protection ordering
+remain unresolved`
 
 Device mutation: Experiment 007 temporarily wrote the exact boot-only REPL,
 fixed no-load control, and fixed one-load read candidates. Each transition was
@@ -14,8 +15,8 @@ MMIO, SCM, EL2, EL3, or protected-memory write; it attempted one fixed 32-bit
 MMIO load.
 Experiment 004 created and removed fixed temporary block-device nodes under
 `/dev`; Experiment 005 created and removed one fixed temporary character node.
-Experiments 008, 009, and 010 were entirely host-only and performed no device,
-SMC, or MMIO access.
+Experiments 008, 009, 010, and 011 were entirely host-only and performed no
+device, SMC, or MMIO access.
 
 ## A. 현재까지 PROVED
 
@@ -48,6 +49,17 @@ SMC, or MMIO access.
 - Experiment 008 resolves the exact live selection from retained boot-firmware
   evidence: `/6003_0200_1_dcb.bin`, two 3072-MiB ranks, mask `0x3`, and unique
   remapper row 7 with destinations `0x80000000` and `0x140000000`.
+- Experiment 011 pins the real XBL Quest DDR failure recorder and its coordinate
+  reporter. For the retained 6-GiB topology it derives rank boundary
+  `0x140000000`, exactly row 7's rank-1 destination, then maps rank-relative PA
+  bits to row `[31:16]`, bank `[15:13]`, channel `[10:9]`, column
+  `[12:11]||[8:1]`, and byte `[0]`.
+- That diagnostic bit partition is complete, non-overlapping, and invertible.
+  Its exact bounded formula has no XOR and no PA-to-coordinate collision.
+- Selected DCB section 16 parses exactly into two compact base-token/offset-
+  token sets with 22 and 8 records. Base tokens numerically equal
+  `physical_base >> 12` for exact `qhm_shrm` MCCC, MC, MCCC-master, DDRSS, and
+  SHRM-CSR topology bindings.
 - Exact layout-1 code encodes six 36-bit ranges as low32/high4 fields, disables
   the four instances before programming and enables them afterward. There is no
   distinct lock-register write inside that exact bounded XBL function; later
@@ -116,10 +128,10 @@ SMC, or MMIO access.
 
 ## B. 현재 HYPOTHESIS
 
-- Final SM8150 PA-to-channel/rank/bank/row/column state extends beyond, or is
-  partly encoded by, the now-proved ICB/LLCC region remapper and the remaining
-  SHRM/MCCC/MC logic not yet isolated from PHY training.
-- Some channel/bank selection may be XOR-linear over address bits.
+- Final hardware PA-to-coordinate state may extend beyond the now-proved,
+  bijective XBL diagnostic formula through SHRM/MCCC/MC logic not yet decoded.
+- One or more section-16 MCCC/MC offset tokens may control a hidden XOR,
+  interleave, or swizzle not represented by the diagnostic formula.
 - The retained watchdog may be the XPU denial's downstream fabric response.
   Static policy coverage and lack of an HLOS grant support this; the encrypted
   or unparsed TZ log prevents a causal syndrome match.
@@ -160,12 +172,21 @@ SMC, or MMIO access.
   exact allowed-disable count is zero.
 - “The named RPM-region SMC unlocks an XPU in this exact TZ build.” The exact
   TZ handler for `0x0200030f` is a single `RET`.
+- “The exact XBL diagnostic coordinate formula itself contains an XOR/hash or
+  admits two physical addresses for one DRAM coordinate.” Its 32 input bits are
+  partitioned exactly once and the inverse reconstructs the PA.
+- “The `invert_row` string alone proves final PA-to-row transform state.” Its
+  two pinned users report and forward a local DDR-code flag outside the Quest
+  coordinate reporter.
+- “Section 16's raw offset tokens already prove register byte offsets, writes,
+  or mutable transform state.” SHRM token semantics remain undecoded.
 
 ## D. UNKNOWN
 
-- Exact final channel/rank/bank/row/column transform fields. A system-PA region
-  remapper now has exact MMIO bases/offset range; its finer DRAM-decode role is
-  `UNKNOWN`.
+- Whether hardware adds any transform beyond the exact XBL diagnostic
+  channel/rank/bank/row/column model.
+- SHRM instruction encoding and section-16 offset scaling, flags, operation
+  direction, execution-set meaning, runtime values, and lock state.
 - Numeric boot remapper values, runtime MMIO writability, and lock state.
   Destination regions and rank sizes are known, but runtime per-channel source
   bases and the interleave mask are missing. Static TZ policy ownership is now
@@ -174,8 +195,8 @@ SMC, or MMIO access.
 - Final boot/runtime `BIMC_MPU0..3` policy and control-register values. The TZ
   dynamic initializer is proved, but its runtime inputs, topology selector and
   post-programming readback are not.
-- Exact finer channel/bank/row decode fields after the proved region-remapper
-  call graph.
+- Exact hidden/final channel/bank/row decode state, if any, after the proved
+  region-remapper call graph.
 - Protection ordering and existence of a post-transform security check.
 - Any deterministic normal-RAM DRAM alias or protected-boundary consequence.
 - Live boot-image and live-DTB byte hashes.
@@ -185,13 +206,15 @@ SMC, or MMIO access.
 ```text
 CPU VA -> ARM stage-1 -> system PA -> NoC/interconnect
        -> four qhs_llcc ICB region-remap windows
-       -> later MCCC/MC address decode/interleave/hash
+       -> XBL intended rank/row/bank/channel/column model
+       -> possible additional SHRM/MCCC/MC hardware transform (UNKNOWN)
        -> PHY -> LPDDR4X coordinate
 ```
 
-The CPU/MMU, source-visible interconnect endpoints, LLCC/EBI direction and XBL's
-four-window region-remap programming are `PROVED`; the finer channel/bank/row
-decode and precise protection ordering remain `HYPOTHESIS/UNKNOWN`.
+The CPU/MMU, source-visible interconnect endpoints, LLCC/EBI direction, XBL's
+four-window region-remap programming, and diagnostic coordinate formula are
+`PROVED`; additional hardware decode and precise protection ordering remain
+`HYPOTHESIS/UNKNOWN`.
 
 ## F. protection pipeline 후보
 
@@ -208,19 +231,18 @@ position relative to DRAM decode remain `UNKNOWN`.
 
 ## G. 가장 가능성 높은 controller/register 후보 Top 5
 
-1. `PROVED selected region remapper / UNKNOWN final hash`: four XBL-programmed
-   `qhs_llcc + 0x8080` windows at `0x09248080`, `0x092c8080`, `0x09348080`,
-   `0x093c8080`, using 36-bit range fields through `+0x58`; row 7 is selected.
-2. `PROVED static configuration-aperture policy / UNKNOWN final readback`:
-   `DC_NOC_BROADCAST_MPU` at `0x090e0000`, with TZ-owned region 11 covering
-   `0x09248000–0x09249000` and no HLOS grant.
-3. `PROVED dynamic TZ policy path / UNKNOWN final readback`:
-   `BIMC_MPU0..3` at each `qhs_llcc + 0xe000`; absent from both static lists but
-   programmed by the TZ memory-lock topology fanout.
-4. `PROVED selected transport / UNKNOWN semantics`: DCB section 16 copied to
-   `qhs_shrm_mem + 0x5100` and consumed alongside installed SHRM firmware.
-5. `PROVED landmarks / high remaining-decode value`: four-channel `qhs_mccc`,
-   `qhs_llcc`, and `qhs_mc` windows encoded in exact XBL topology.
+1. `PROVED token match / HYPOTHESIS transform semantics`: per-channel MCCC at
+   `0x09250000`, `0x092d0000`, `0x09350000`, `0x093d0000`; section-16 token
+   sets contain `0x46` and `0x44..0x47`.
+2. `PROVED token families / HYPOTHESIS transform semantics`: per-channel MC
+   roots `0x09260000`, `0x092e0000`, `0x09360000`, `0x093e0000`; ten records
+   cover the root plus six matching non-root subpage families.
+3. `PROVED token match / UNKNOWN semantics`: MCCC master `0x090b0000`, with
+   compact tokens `0xa5` and `0x0,0xa0,0xa2..0xa8`.
+4. `PROVED token match / UNKNOWN semantics`: DDRSS regs `0x090c0000`, tokens
+   `0x16,0x17,0x2c`.
+5. `PROVED system-PA remapper / UNKNOWN final-hash role`: four
+   `qhs_llcc + 0x8080` windows with 36-bit fields through `+0x58`.
 
 Full per-candidate fields are in `research/sm8150-memory-subsystem.md`.
 
@@ -256,32 +278,36 @@ check is after final DRAM decode.
 ## K. AMD Skitter 공격과 구조적으로 같은 부분
 
 `SUPPORTED`: Both research questions contain system PA, a protection/ownership
-decision, a later DRAM coordinate mapping, possible XOR/interleave state, and the
+decision, a later DRAM coordinate mapping, possible controller state, and the
 need to distinguish cache/virtual aliases from actual physical-to-DRAM aliases.
 
 ## L. AMD와 구조적으로 다른 부분
 
 `PROVED`: AMD's exact Family 16h registers and PCI/MSR access method have no
-identified SM8150 equivalent. `SUPPORTED`: Qualcomm's LLCC/NoC/AOP/QHEE/SCM
+identified SM8150 equivalent. The recovered SM8150 XBL diagnostic formula is a
+direct bit partition with no XOR and no alias, unlike AMD's demonstrated
+mutable bank-map primitive. `SUPPORTED`: Qualcomm's LLCC/NoC/AOP/QHEE/SCM
 partitioning creates different owners and potential later enforcement layers.
-Mutability, lock state and ordering are still `UNKNOWN`, so this difference is
-not yet a structural impossibility proof.
+Hidden hardware state, mutability, lock state and ordering remain `UNKNOWN`, so
+this difference is not yet a complete structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-Do not repeat the same load. The next host-only phase should isolate the final
-MCCC/MC/SHRM physical-address-to-channel/bank/rank transform and determine
-whether the memory data path is checked before or after it. First mine exact
-XBL/SHRM/DSF code and topology-linked writes; only a source-backed, separately
-protected read-only endpoint would justify another live observation.
+Do not repeat the same load. The next host-only phase should recover the SHRM
+section-16 interpreter or an exact alternate consumer that proves token
+scaling, flag bits, operation direction, and execution-set ordering. Only then
+can a particular MCCC/MC register be tested against the recovered coordinate
+model or ordered relative to QHEE/TZ protection.
 
 ## N. 가장 위험한 아직 금지된 실험
 
-Writing the enable or map words in any proved `qhs_llcc + 0x8080` window while
-ordinary memory traffic is active. It can redirect the system-PA aperture,
-corrupt arbitrary RAM or wedge the boot. No write is eligible until boot values,
-field semantics, post-boot lock state, a one-core/cache-safe critical section,
-an exact restore path and watchdog/recovery behavior are established.
+Treating a section-16 offset token as a byte offset and writing the resulting
+MCCC/MC address. Scaling, flags, operation direction and values are all
+`UNKNOWN`, so this could target an unrelated live controller register. Writing
+the proved `qhs_llcc + 0x8080` map words while memory traffic is active is also
+high risk because it can redirect system PA. Neither is justified without exact
+semantics, boot values, a one-core/cache-safe critical section, restore path,
+and watchdog/recovery behavior.
 
 ## O. 현재 취약점 가능성 평가
 
@@ -310,6 +336,9 @@ Evidence against a presently usable bypass:
   userland read paths stop before reaching MMIO.
 - No SM8150 Linux code programming such a transform was found.
 - No normal-RAM physical-to-DRAM alias exists in evidence.
+- The exact XBL diagnostic coordinate formula is bijective, contains no XOR,
+  and cannot itself create an alias. Any analogue now requires hidden hardware
+  state not represented by that formula.
 - Exact QHEE ownership/stage-2/SMMU enforcement is separate from TZ's dynamic
   BIMC policy, adding a second boundary rather than exposing generic control.
 - Every known remapper/BIMC configuration aperture is covered in both static
@@ -325,8 +354,9 @@ Evidence against a presently usable bypass:
 - Exact devcfg leaves XPU access control enabled (`disable_xpu_ac=0`), and the
   boot path consumes the selected static policy table.
 
-Critical unknowns are runtime source-base/interleave state, final XPU/remapper
-register readback, dynamic BIMC policy inputs, protection ordering, the finer
-DRAM decode, and deterministic alias behavior. The defensible current
-conclusion is `SECURE CONTROLLER-APERTURE POLICY/INITIALIZER PROVED / FINAL
-TRANSFORM UNKNOWN / NO BYPASS OBSERVED`.
+Critical unknowns are SHRM token semantics, runtime source-base/interleave
+state, final XPU/remapper/MCCC/MC readback, dynamic BIMC policy inputs,
+protection ordering, any transform hidden from the diagnostic, and deterministic
+alias behavior. The defensible current conclusion is `SECURE CONTROLLER-
+APERTURE POLICY/INITIALIZER PROVED / XBL DIAGNOSTIC MAP NON-ALIASING / HIDDEN
+FINAL TRANSFORM UNKNOWN / NO BYPASS OBSERVED`.

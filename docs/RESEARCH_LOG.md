@@ -358,3 +358,41 @@
     record SHA-256 are `10b13456…`, `baeef82f…`, and `dc4a664b…`.
     Current result is `CLASS A/B CANDIDATE FOR KNOWN CONTROLLER APERTURES`, not
     a complete structural-block proof and not a security-boundary bypass.
+
+## 2026-08-25 — Experiment 011 exact XBL DRAM coordinate map
+
+1. Ran a host-only parser over exact XBL `e73a07a…`, XBL config `0e9dfac1…`,
+   and retained last-kmsg `8701d073…`. No device, SMC, MMIO, partition,
+   controller, EL2-runtime, or EL3-runtime access occurred.
+2. Pinned Quest DDR size accumulator `0x14921c74..0x14921d0c`, coordinate
+   reporter `0x149212c0..0x149213ec`, and real failure recorder
+   `0x1492234c..0x14922428`, plus every critical arithmetic instruction.
+3. `PROVED`: the retained 6-GiB value makes the diagnostic rank boundary
+   `0x80000000 + (6 << 29) = 0x140000000`, exactly remapper row 7's rank-1
+   destination.
+4. `PROVED`: rank-relative bits map as row `[31:16]`, bank `[15:13]`, channel
+   `[10:9]`, column `[12:11]||[8:1]`, byte `[0]`. The partition is complete,
+   non-overlapping and invertible. A 65,536-address control has no collision.
+   `REFUTED`: the bounded formula itself contains XOR or creates an alias.
+5. `SUPPORTED`: the formula is the intended PA-to-DRAM coordinate model because
+   the exact failure recorder uses it. `UNKNOWN`: silicon may apply additional
+   transform state omitted from that diagnostic.
+6. Parsed selected DCB section 16 header `{8,0x230,0x1b8,0x8e8}` and both
+   record sets exactly. Set 0 has 22 records/two padding records; set 1 has
+   eight records/one padding record.
+7. `PROVED`: section base tokens numerically equal `physical_base >> 12` for
+   exact `qhm_shrm` per-channel MCCC/MC, MCCC-master, DDRSS, and SHRM-CSR
+   bindings. `SUPPORTED`: they are page numbers in an SHRM register inventory.
+   Offset scaling, flags, read/write direction, set meaning, values and locks
+   remain `UNKNOWN`.
+8. `PROVED`: `invert_row: %d` has one string occurrence and two pinned users
+   that print and forward a local DDR-code flag outside the coordinate reporter.
+   `REFUTED`: the string alone proves a final PA-row transform.
+9. Implemented `tools/sm8150_dram_coordinate_inventory.py` and seven focused
+   tests. All 88 repository tests pass; all public manifests parse; three
+   private/public generations are byte-identical; modes are `0600/0644`.
+   Tool, focused-test, public-manifest and ignored private-record SHA-256 are
+   `15b2ffb9…`, `29d2358f…`, `93fbc870…`, and `90a50e31…`.
+10. Current result is `CLASS A/B CANDIDATE / NO ALIAS PRIMITIVE OBSERVED`.
+    The next cheapest step is static recovery of the SHRM section-16
+    interpreter, not another blocked EL1 controller read.

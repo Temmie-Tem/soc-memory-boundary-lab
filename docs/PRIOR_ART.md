@@ -67,14 +67,21 @@ basis and deliberately encodes no Qualcomm-specific bit assignment.
 
 ## Qualcomm-transfer hypotheses
 
-- `HYPOTHESIS`: SM8150 has a final channel/bank/rank transform in DDRSS/MC or
-  closely coupled logic. Prediction: boot firmware or a privileged runtime
-  component writes topology-dependent state before normal memory use.
-- `HYPOTHESIS`: At least part of that state uses XOR/hash logic. Prediction:
-  timing-derived address relationships fit a stable GF(2) model better than a
-  pure contiguous-bit model.
-- `UNKNOWN`: Exact block, MMIO base, offset, width, reset value, boot value,
-  lock bit, and owner.
+- `PROVED`: exact XBL's Quest DDR reporter models the retained target with a
+  direct, bijective rank-relative bit partition and no XOR. This proves the
+  firmware diagnostic model, not necessarily every silicon transform.
+- `HYPOTHESIS`: SM8150 has additional final transform state in MCCC/MC or
+  closely coupled logic that the diagnostic omits. Prediction: an exact
+  consumer or independent coordinate observation requires terms absent from
+  the recovered contiguous-bit model.
+- `HYPOTHESIS`: any such hidden state may use XOR/hash logic. Qualcomm patent
+  text remains design-class evidence only; the exact diagnostic is evidence
+  against assuming XOR without another observation.
+- `PROVED`: selected DCB section-16 base tokens numerically match exact
+  SHRM-visible MCCC/MC/MCCC-master/DDRSS pages. `SUPPORTED`: they are register-
+  inventory page numbers.
+- `UNKNOWN`: Offset-token scaling, operation direction, width, reset value,
+  boot value, lock bit, and whether any token is final-transform state.
 - `UNKNOWN`: Whether any relevant state remains writable from EL1 after boot.
 - `UNKNOWN`: Whether security enforcement occurs before or after the final
   transform, or is repeated after it.

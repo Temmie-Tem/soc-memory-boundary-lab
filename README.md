@@ -41,6 +41,15 @@ candidate evidence for the known controller apertures, not a proof that the
 overall AMD attack class is structurally impossible: the final DRAM transform
 and post-transform protection ordering remain `UNKNOWN`.
 
+Host-only Experiment 011 recovers an exact XBL Quest DDR diagnostic formula.
+For the retained 6-GiB topology its rank boundary is `0x140000000`, exactly
+the selected remapper row's rank-1 destination. Rank-relative PA bits map
+linearly and bijectively to row/bank/channel/column, with no XOR and no alias in
+that bounded formula. Selected DCB section 16 also parses into two exact token
+sets whose base tokens match SHRM-visible MCCC/MC/DDRSS pages. Hidden hardware
+transform state, token semantics, mutability, and protection ordering remain
+`UNKNOWN`; no alias or bypass has been observed.
+
 Claim vocabulary is deliberately closed:
 
 - `PROVED`: directly demonstrated by named source, artifact, or repeated result.
@@ -69,6 +78,9 @@ Experiment 009's consumed XPU policy and permission reconstruction is in
 [experiments/009-xpu-policy/README.md](experiments/009-xpu-policy/README.md).
 Experiment 010's QHEE/TZ authority split and dynamic BIMC initializer are in
 [experiments/010-xpu-initializer/README.md](experiments/010-xpu-initializer/README.md).
+Experiment 011's exact diagnostic coordinate formula and DCB/SHRM register-token
+inventory are in
+[experiments/011-dram-coordinate-map/README.md](experiments/011-dram-coordinate-map/README.md).
 The exact A90 TWRP code-only System transition is documented in
 [docs/A90_TWRP_CODE_BOOT.md](docs/A90_TWRP_CODE_BOOT.md).
 

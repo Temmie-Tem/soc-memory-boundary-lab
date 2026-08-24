@@ -62,6 +62,29 @@ and `0x140000000`. The writer encodes six 36-bit ranges, split into low32/high4
 fields, brackets programming with disable/enable writes, and makes no distinct
 lock-register write inside its exact bounded function.
 
+`PROVED` by Experiment 011: the exact XBL Quest DDR failure reporter computes
+its rank boundary as `0x80000000 + (ddr_size_gib << 29)`. Its preceding size
+accumulator obtains 6 GiB for the retained topology, so the diagnostic boundary
+is `0x140000000`, exactly row 7's rank-1 destination. Within a rank it labels:
+
+```text
+row=PAoff[31:16], bank=PAoff[15:13], channel=PAoff[10:9],
+column=PAoff[12:11]||PAoff[8:1], byte=PAoff[0]
+```
+
+The bit partition is complete, non-overlapping, and invertible. `REFUTED`: this
+bounded diagnostic formula itself contains an XOR/hash or admits two PAs for
+one coordinate. `SUPPORTED`: it is the intended hardware coordinate model
+because it is used by the actual DDR failure path. An additional silicon-only
+transform remains `UNKNOWN`.
+
+`PROVED`: selected DCB section 16 parses exactly into two base-token/offset-token
+sets. Its base tokens numerically equal `physical_base >> 12` for exact
+`qhm_shrm` MCCC, MC, MCCC-master, DDRSS, and SHRM-CSR topology targets.
+`SUPPORTED`: they are 4-KiB page numbers in an SHRM register-access/config
+inventory. Token scaling, operation direction, writer stage, runtime values,
+and final-decode semantics remain `UNKNOWN`.
+
 `UNKNOWN`: numeric boot register words. XBL consumes runtime per-channel source
 bases and a rank-interleave mask not present in the retained firmware/log
 artifacts.
@@ -208,10 +231,10 @@ all protection ordering relative to DRAM decode remain `UNKNOWN`.
 
 | Question | Current answer |
 |---|---|
-| Which block owns the final mapping? | `PROVED`: qhs_llcc ICB windows own boot region remapping. Final channel/bank/row decode owner remains `UNKNOWN`. |
-| Who programs it? | `PROVED`: XBL programs the region remapper through `icbcfg`; SHRM/MCCC/MC final-decode ownership remains `UNKNOWN`. AOP runtime DDR management is `PROVED`. |
+| Which block owns the final mapping? | `PROVED`: qhs_llcc ICB windows own boot region remapping and XBL exposes a bijective intended coordinate model. MCCC/MC/DDRSS token families are now exact candidates; final hardware decode owner remains `UNKNOWN`. |
+| Who programs it? | `PROVED`: XBL programs the region remapper through `icbcfg` and copies section 16 to SHRM. `SUPPORTED`: section 16 is an SHRM register-access/config inventory. Exact MCCC/MC operation direction and final-decode writer remain `UNKNOWN`. AOP runtime DDR management is `PROVED`. |
 | At what stage? | Region-remap programming during XBL DDR initialization before HLOS is `PROVED`; later mutability remains `UNKNOWN`. |
 | Can EL1 observe it? | Register contents remain `UNKNOWN`. `/dev/mem` and generic REPL routes are `REFUTED`; the fixed load returned no value. `PROVED`: both static branches cover all four remapper/BIMC apertures with no HLOS grant. `SUPPORTED`: XPU/fabric denial. |
 | Can EL1 modify it? | No mutation is proved. The exact HLOS-visible XPU-disable allowlist has zero entries, and all known configuration apertures have branch-invariant TZ-owned coverage. Final runtime policy/lock readback is `UNKNOWN`. |
 | Does EL2/EL3 lock it? | `PROVED`: QHEE applies ownership/stage-2/SMMU enforcement and TZ dynamically programs BIMC policies. `UNKNOWN`: final hardware write-disable bit and exact dispatcher/lock ordering. |
-| Is there a post-transform security check? | `UNKNOWN`; configuration-aperture coverage is not data-path ordering proof. Dynamic BIMC MPU policy makes a later check plausible but does not locate it relative to final channel/bank decode. |
+| Is there a post-transform security check? | `UNKNOWN`; the diagnostic coordinate formula and configuration-aperture coverage do not locate the data-path check. Dynamic BIMC MPU policy makes a later check plausible but does not place it relative to hidden/final decode. |

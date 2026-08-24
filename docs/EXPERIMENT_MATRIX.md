@@ -12,9 +12,10 @@
 | 008 | Exact retained boot evidence resolves the live DCB/remapper row and TZ protection adjacency. | One DCB and table row match; exact TZ registry binds same-instance MPU configuration bases. | Four SHA-256-pinned private inputs; consistent repeated boot values; structural ELF/registry validation; no device access. | `PROVED`: `/6003_0200_1_dcb.bin`, row 7, six 36-bit slots, and `BIMC_MPU0..3` at matching `qhs_llcc+0xe000`; runtime register words/coverage `UNKNOWN`. |
 | 009 | Static TZ/XBL/AOP consumers distinguish remapper security ownership from sub-aperture clock/fault gating. | Registry consumers, access policy, clock vote, or fault-response path names `+0x8080`/same window. | Host-only exact bytes; code/data xrefs; no MMIO retry or inferred register semantics. | `PROVED` static coverage: both TZ policy branches place `0x09248080` in TZ-owned `DC_NOC_BROADCAST_MPU` region 11 with no HLOS grant; `SUPPORTED` XPU/fabric denial; causal syndrome/runtime readback `UNKNOWN`. |
 | 010 | Identify BIMC_MPU0..3 initialization and separate QHEE ownership enforcement from TZ XPU control. | Exact secure paths supply BIMC policies; any HLOS XPU-control SMC has a bounded allowlist; all known controller apertures can be checked against both policy branches. | Host-only exact XBL/TZ/hyp/devcfg bytes; function/data/SMC-record pins; comparative names separated from exact claims; no device/SMC/MMIO access. | `PROVED`: QHEE `hyp_assign` uses local stage-2/SMMU AC; separate TZ fallback dynamically reconfigures BIMC_MPU0..3; XPU-disable allowlist count 0; all eight apertures have broad branch-invariant no-HLOS coverage. Final data-path ordering `UNKNOWN`; no bypass. |
-| 011 | Normal-RAM bank/channel relationships fit a stable GF(2) model. | Timing clusters produce a cross-validated XOR matrix. | Fresh pages, pagemap/PA proof, randomized pairs, cache flush, frequency pinning, hold-out pairs. | `NOT ELIGIBLE`: protection/transform ordering and safe observation path remain unresolved. |
-| 012 | A controlled transform state creates physical-to-DRAM alias. | `PA_A != PA_B` but writes through one are observed through the other after cache-neutral independent reads. | Prove distinct PTE/PAs; CPU and DMA controls; cache maintenance; reboot/state restoration; unchanged-state negative control. | `NOT ELIGIBLE`: region-remap candidates exist, but readback/lock state, safe restore and a normal-RAM alias hypothesis are not proved. |
-| 013 | A normal-RAM alias reaches a protected boundary. | Only after 012, a minimal non-secret marker/boundary test differs between normal and alias path. | No dump, exact ordering proof, secondary enforcement control. | `NOT ELIGIBLE`. |
+| 011 | Exact XBL exposes a PA-to-DRAM-coordinate model and selected DCB section 16 identifies candidate controller state. | A real DDR failure path computes rank/row/bank/channel/column; section tokens match SHRM-visible MCCC/MC pages. | Three exact SHA-256 pins, bounded function/word hashes, inverse-coordinate control, structural two-set parser, no device/SMC/MMIO. | `PROVED`: current formula is linear, complete, and bijective with no XOR/alias; section tokens match five controller families. Hidden hardware transform and token semantics `UNKNOWN`; no bypass. |
+| 012 | Normal-RAM bank/channel relationships fit a stable GF(2) model not already explained by the exact diagnostic formula. | Timing clusters require address terms absent from the XBL coordinate model and cross-validate on held-out pairs. | Fresh pages, PA proof, randomized pairs, cache control, frequency pinning, formula-derived negative/positive groups. | `NOT ELIGIBLE`: a safe independent DRAM-coordinate observation path remains unresolved. |
+| 013 | A controlled transform state creates physical-to-DRAM alias. | `PA_A != PA_B` but writes through one are observed through the other after cache-neutral independent reads. | Prove distinct PTE/PAs; CPU and DMA controls; cache maintenance; reboot/state restoration; unchanged-state negative control. | `NOT ELIGIBLE`: candidate tokens exist, but operation semantics, readback/lock state, safe restore, and an alias-producing state are not proved. |
+| 014 | A normal-RAM alias reaches a protected boundary. | Only after 013, a minimal non-secret marker/boundary test differs between normal and alias path. | No dump, exact ordering proof, secondary enforcement control. | `NOT ELIGIBLE`. |
 
 ## Experiment 001 metadata
 
@@ -278,6 +279,43 @@
 - Focused-test SHA-256:
   `c7d1fd557f0499673cbcdf0d7824f54ce002b28ac04a9946f2cb3551bb81ed33`
 - Host verification: eight focused tests and all 81 repository tests pass;
+  every public manifest parses; three consecutive private/public generations
+  are byte-identical; private mode `0600`, public mode `0644`
+- Repetition count: one final analysis result, regenerated three times only for
+  deterministic host verification
+- Device/SMC/MMIO/controller/partition writes: none; device access: none
+
+## Experiment 011 exact DRAM-coordinate metadata
+
+- Experiment ID: `011-dram-coordinate-inventory-20260825-01`
+- Target model / SoC: exact retained `SM-A908N` / `SM8150`
+- Firmware/build: exact Experiment 004 XBL and XBL-config partition hashes;
+  selected `/6003_0200_1_dcb.bin`, DSF `0x00650000`
+- Kernel build/hash: no kernel executed in this host-only phase; retained log
+  input is exact Experiment 007 artifact SHA-256 `8701d073…`
+- Boot image / DTB / research-kernel hash: no new boot artifact and no device
+  action; V2321 remains the last health-proved runtime; live DTB remains
+  `UNKNOWN`
+- Timestamp: `2026-08-25 08:41 KST`
+- Preconditions: all three exact inputs present and matching pinned sizes and
+  SHA-256; no connected-device, SMC, or MMIO precondition
+- Exact action:
+  `python3 tools/sm8150_dram_coordinate_inventory.py --replace`
+- Result: exact Quest reporter's rank boundary equals remapper row 7;
+  rank-relative coordinate formula is complete, bijective and contains no XOR;
+  section 16 supplies exact MCCC/MC/MCCC-master/DDRSS/SHRM-CSR token matches;
+  hidden hardware transform and token semantics remain `UNKNOWN`
+- Log reference: retained last-kmsg SHA-256 `8701d073…`; six consistent
+  3072+3072 MiB topology observations
+- Public manifest SHA-256:
+  `93fbc8702f90980b9c85cab983a7b8e23260394a9cb4ed7881188bc0435a0c5c`
+- Private derived record SHA-256:
+  `90a50e319050266c3a11128f917c90cc386f0eaaacfae32d253e2ed4fe923f21`
+- Tool SHA-256:
+  `15b2ffb9a74e8b8821148ea3f458a305fe05b99cfe81636bf1a515f9732cc495`
+- Focused-test SHA-256:
+  `29d2358f8982a86437c0ca791ca5e5d57452e67385a36f148caaa0ca1daf724f`
+- Host verification: seven focused tests and all 88 repository tests pass;
   every public manifest parses; three consecutive private/public generations
   are byte-identical; private mode `0600`, public mode `0644`
 - Repetition count: one final analysis result, regenerated three times only for

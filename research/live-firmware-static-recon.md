@@ -33,6 +33,12 @@ These strings and the adjacent executable segment prove that XBL owns initial
 DDR training/configuration. They do not prove that `invert_row` is the final
 system-PA hash or that any mapping state remains mutable after boot.
 
+`PROVED` by Experiment 011: `invert_row: %d` has one exact string occurrence
+and two pinned DDR-code users that print and forward a local flag. Neither is
+the separate Quest DDR coordinate reporter. `REFUTED`: this string alone
+proves final PA-to-row mapping state. Its deeper training/controller effect
+remains `UNKNOWN`.
+
 `PROVED`: XBL's embedded UEFI platform map contains:
 
 ```text
@@ -61,6 +67,19 @@ Experiment 008: retained boot-firmware evidence selects
 `/6003_0200_1_dcb.bin`; its section 16 is 560 bytes and lands at the same
 destination. `UNKNOWN`: whether that section contains final PA
 interleave/hash state or whether SHRM turns it into locked controller registers.
+
+`PROVED` by Experiment 011: the selected section parses exactly into two
+base-token/offset-token sets, and several base-token families numerically match
+`qhm_shrm` MCCC/MC/DDRSS physical bases shifted by 12. `SUPPORTED`: the base
+tokens are controller page numbers and the structure is an SHRM
+register-access/config inventory. Offset scaling, operation direction, values,
+and final-transform semantics remain `UNKNOWN`.
+
+`PROVED`: exact XBL's real Quest DDR error path labels rank-relative PA bits as
+row `[31:16]`, bank `[15:13]`, channel `[10:9]`, column
+`[12:11]||[8:1]`, and byte `[0]`. The formula is bijective and contains no XOR.
+`SUPPORTED`: it is the intended hardware coordinate model. An unreported
+silicon-only transform remains `UNKNOWN`.
 
 ## AOP
 
@@ -119,7 +138,8 @@ DCB selector. Experiment 008 instead resolved the selector from retained XBL
 logs and selected remapper row 7 for the exact 3072+3072 MiB rank topology.
 Experiment 007's purpose-built single MMIO load returned no value and ended in
 a retained watchdog, while its no-load control passed. Final channel/bank/row
-hash fields, numeric boot remapper words, locks and enforcement ordering remain
-`UNKNOWN`.
+hardware state, section-token semantics, numeric boot remapper words, locks and
+enforcement ordering remain `UNKNOWN`; the XBL diagnostic mapping itself is no
+longer unknown.
 
 Current bypass state remains `UNKNOWN / NO BYPASS OBSERVED`.
