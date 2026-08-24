@@ -2,8 +2,9 @@
 
 Current research state: `NO_BOUNDARY_BYPASS_OBSERVED`
 
-Current class: `A/B CANDIDATE — static access policy proved, runtime transform
-mutability and protection ordering still unresolved`
+Current class: `A/B CANDIDATE FOR KNOWN CONTROLLER APERTURES — static access
+policy and secure initializer paths proved; final DRAM transform, runtime
+register state, and protection ordering remain unresolved`
 
 Device mutation: Experiment 007 temporarily wrote the exact boot-only REPL,
 fixed no-load control, and fixed one-load read candidates. Each transition was
@@ -13,8 +14,8 @@ MMIO, SCM, EL2, EL3, or protected-memory write; it attempted one fixed 32-bit
 MMIO load.
 Experiment 004 created and removed fixed temporary block-device nodes under
 `/dev`; Experiment 005 created and removed one fixed temporary character node.
-Experiments 008 and 009 were entirely host-only and performed no device or
-MMIO access.
+Experiments 008, 009, and 010 were entirely host-only and performed no device,
+SMC, or MMIO access.
 
 ## A. 현재까지 PROVED
 
@@ -67,7 +68,24 @@ MMIO access.
   `/ac/xpu:disable_xpu_ac = 0`.
 - The exact TZ error router assigns `DC_NOC_BROADCAST_MPU` to global status
   bank 0 bit 29 and also assigns all four BIMC MPUs. `BIMC_MPU0..3` are absent
-  from both embedded static policy lists; their initializer remains `UNKNOWN`.
+  from both embedded static policy lists.
+- Experiment 010 proves that absence does not mean inactivity. The separate
+  exact TZ memory-assignment fallback reaches memory-lock, topology fanout and
+  dynamic `BIMC_MPU0..3` reconfiguration; some topologies also program
+  `LLCC_BROADCAST_MPU`.
+- Exact QHEE independently registers HLOS SMC `0x02000c16`. Its bounded
+  `hyp_assign` handler validates ownership and calls a local stage-2/SMMU
+  access-control wrapper; it does not directly call QHEE's generic TZ SMC
+  wrapper or the TZ BIMC functions.
+- Exact TZ registers XPU toggle SMC `0x02000c23`, but its disable path's
+  allowed-base count is zero. Its enable path restores only a registered XPU,
+  so this is not an arbitrary HLOS XPU-write or disable primitive.
+- Both exact TZ selector branches cover every known remapper and BIMC
+  configuration aperture with TZ-owned `MEMNOC_MS_MPU` region 0 and
+  `CNOC_SNOC_MS_MPU` region 5; neither record grants ordinary HLOS VMID access.
+- The boot master-MPU loop initializes `ANOC2_MPU`, `MSS_NAV_MPU`, and
+  `CNOC_AOSS_MPU`, not `BIMC_MPU0..3`. XBL's BIMC literals are in a TZ-branded
+  XPU diagnostic table and do not prove a main-XBL policy writer.
 - Four successful retained boots register LLCC PMU and LLCC-to-DDR monitors.
   The reset XPU diagnostic is encrypted or unparsed, so it supplies no decoded
   violation and cannot exclude one.
@@ -133,6 +151,15 @@ MMIO access.
   `0x80000000`.
 - “The critical static record grants ordinary HLOS access.” Its exact
   conversion has no HLOS VMID bit and no standard VMID permission word.
+- “`BIMC_MPU0..3` are unconfigured because they are absent from both static
+  policy lists.” Exact TZ memory-lock code configures them dynamically.
+- “Kernel `hyp_assign` directly programs TZ's BIMC XPU.” Exact QHEE intercept
+  instead uses its local ownership/stage-2/SMMU mapping path; TZ has a separate
+  same-ID fallback implementation.
+- “The HLOS-visible XPU toggle can disable a selected controller XPU.” Its
+  exact allowed-disable count is zero.
+- “The named RPM-region SMC unlocks an XPU in this exact TZ build.” The exact
+  TZ handler for `0x0200030f` is a single `RET`.
 
 ## D. UNKNOWN
 
@@ -144,8 +171,9 @@ MMIO access.
   bases and the interleave mask are missing. Static TZ policy ownership is now
   proved; its final hardware register state and the precise watchdog response
   remain unresolved.
-- Who initializes BIMC_MPU0..3 and their final policies. Their registry and
-  error routes exist, but neither embedded TZ static list contains them.
+- Final boot/runtime `BIMC_MPU0..3` policy and control-register values. The TZ
+  dynamic initializer is proved, but its runtime inputs, topology selector and
+  post-programming readback are not.
 - Exact finer channel/bank/row decode fields after the proved region-remapper
   call graph.
 - Protection ordering and existence of a post-transform security check.
@@ -168,7 +196,8 @@ decode and precise protection ordering remain `HYPOTHESIS/UNKNOWN`.
 ## F. protection pipeline 후보
 
 ```text
-EL1 physical range + VMIDs/perms -> SCM MP call -> secure owner/firewall state
+EL1 physical range + VMIDs/perms -> QHEE hyp_assign -> stage-2/SMMU ownership
+same SMC ID, separate TZ fallback -> memory lock -> dynamic BIMC MPU policy
 RKP metadata -> UH call -> SMC -> QHEE/RKP enforcement
 EL1 access to qhs_llcc remapper -> DC_NOC_BROADCAST_MPU policy decision
 ```
@@ -185,8 +214,9 @@ position relative to DRAM decode remain `UNKNOWN`.
 2. `PROVED static configuration-aperture policy / UNKNOWN final readback`:
    `DC_NOC_BROADCAST_MPU` at `0x090e0000`, with TZ-owned region 11 covering
    `0x09248000–0x09249000` and no HLOS grant.
-3. `PROVED registry/error-route candidate / UNKNOWN initializer`:
-   `BIMC_MPU0..3` at each `qhs_llcc + 0xe000`; absent from both TZ static lists.
+3. `PROVED dynamic TZ policy path / UNKNOWN final readback`:
+   `BIMC_MPU0..3` at each `qhs_llcc + 0xe000`; absent from both static lists but
+   programmed by the TZ memory-lock topology fanout.
 4. `PROVED selected transport / UNKNOWN semantics`: DCB section 16 copied to
    `qhs_shrm_mem + 0x5100` and consumed alongside installed SHRM firmware.
 5. `PROVED landmarks / high remaining-decode value`: four-channel `qhs_mccc`,
@@ -208,17 +238,20 @@ final runtime policy and decode register values remain `UNKNOWN`.
 ## I. EL2/QHEE가 담당하는 것으로 보이는 부분
 
 `PROVED`: UH/RKP has an EL1-to-SMC call path; exact `hyp` firmware loads into
-live `hyp_mem` and contains kernel/ownership protection. `UNKNOWN`: arbitrary
-EL2 runtime R/W, DDR decode ownership and final protection ordering.
+live `hyp_mem` and contains kernel/ownership protection. Exact QHEE intercepts
+SMC `0x02000c16` and enforces ownership with its local stage-2/SMMU access-
+control path, separate from TZ's BIMC implementation. `UNKNOWN`: arbitrary EL2
+runtime R/W, DDR decode ownership and final protection ordering.
 
 ## J. EL3/TrustZone이 담당하는 것으로 보이는 부분
 
 `PROVED`: SCM MP is the kernel-facing boundary. Exact TrustZone consumes its
 48-entry XPU registry; both static-policy branches configure
 `DC_NOC_BROADCAST_MPU` region 11 over the tested remapper PA as TZ-owned with no
-HLOS grant, and exact devcfg does not disable XPU access control. `UNKNOWN`:
-final register readback, BIMC_MPU0..3 initialization, and whether any check is
-after final DRAM decode.
+HLOS grant, and exact devcfg does not disable XPU access control. Its separate
+assignment fallback dynamically configures `BIMC_MPU0..3`; the XPU-disable SMC
+has a zero-entry allowlist. `UNKNOWN`: final register readback and whether any
+check is after final DRAM decode.
 
 ## K. AMD Skitter 공격과 구조적으로 같은 부분
 
@@ -236,11 +269,11 @@ not yet a structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-Do not repeat the same load. Experiment 010 should remain host-only: identify
-the initializer and final-policy source for `BIMC_MPU0..3`, then order
-`DC_NOC_BROADCAST_MPU`, the four ICB remappers, and later MCCC/MC decode. A
-decoded ownership/ordering chain is cheaper and more discriminating than a
-second access to the already-covered page.
+Do not repeat the same load. The next host-only phase should isolate the final
+MCCC/MC/SHRM physical-address-to-channel/bank/rank transform and determine
+whether the memory data path is checked before or after it. First mine exact
+XBL/SHRM/DSF code and topology-linked writes; only a source-backed, separately
+protected read-only endpoint would justify another live observation.
 
 ## N. 가장 위험한 아직 금지된 실험
 
@@ -277,16 +310,23 @@ Evidence against a presently usable bypass:
   userland read paths stop before reaching MMIO.
 - No SM8150 Linux code programming such a transform was found.
 - No normal-RAM physical-to-DRAM alias exists in evidence.
+- Exact QHEE ownership/stage-2/SMMU enforcement is separate from TZ's dynamic
+  BIMC policy, adding a second boundary rather than exposing generic control.
+- Every known remapper/BIMC configuration aperture is covered in both static
+  TZ policy branches, and the only identified HLOS-visible XPU toggle has a
+  zero-entry disable allowlist.
 - Secure ownership, boot-time locking, or a post-transform check could each
   independently make the AMD attack class fail.
 - Exact TrustZone firmware names multiple BIMC/MEMNOC/LLCC MPUs, increasing the
   concrete evidence for additional enforcement layers. Experiment 009 proves
-  that both static-policy branches cover the tested remapper PA with a TZ-owned
-  DC_NOC region that grants no HLOS access.
+  narrow DC_NOC coverage of the tested remapper PA; Experiment 010 proves
+  broad branch-invariant no-HLOS coverage for all known remapper/BIMC apertures
+  and a separate dynamic BIMC policy path.
 - Exact devcfg leaves XPU access control enabled (`disable_xpu_ac=0`), and the
   boot path consumes the selected static policy table.
 
 Critical unknowns are runtime source-base/interleave state, final XPU/remapper
-register readback, BIMC-MPU initialization, protection ordering, the finer DRAM
-decode, and deterministic alias behavior. The defensible current conclusion is
-`STATIC SECURITY POLICY PROVED / XPU CAUSE SUPPORTED / NO BYPASS OBSERVED`.
+register readback, dynamic BIMC policy inputs, protection ordering, the finer
+DRAM decode, and deterministic alias behavior. The defensible current
+conclusion is `SECURE CONTROLLER-APERTURE POLICY/INITIALIZER PROVED / FINAL
+TRANSFORM UNKNOWN / NO BYPASS OBSERVED`.

@@ -110,8 +110,33 @@ causal `PROVED` label.
 
 `PROVED`: TZ's global XPU error map routes `DC_NOC_BROADCAST_MPU` to bank 0 bit
 29 and routes `BIMC_MPU0..3` to bits 25..28. `PROVED`: neither embedded static
-policy list directly contains BIMC_MPU0..3. `UNKNOWN`: whether XBL, another
-secure component, hardware defaults, or another TZ path initializes them.
+policy list directly contains BIMC_MPU0..3.
+
+`PROVED` by Experiment 010: a separate TZ memory-assignment fallback supplies
+the missing dynamic initializer chain:
+
+```text
+SMC 0x02000c16 -> assignment core -> memory lock
+  -> BIMC topology fanout -> MPU reconfigure
+  -> BIMC_MPU0..3 (+ LLCC_BROADCAST_MPU on some topology branches)
+```
+
+This dynamic chain is distinct from exact QHEE's same-ID HLOS intercept.
+QHEE validates ownership and calls its local stage-2/SMMU access-control
+wrapper; that bounded handler neither directly calls the generic TZ SMC wrapper
+nor the TZ BIMC routines. `SUPPORTED`: the QHEE intercept is the production
+HLOS path; exact runtime dispatcher precedence remains below `PROVED`.
+
+`PROVED`: TZ SMC `0x02000c23` exposes an XPU toggle, but its disable allowlist
+count is exactly zero. The enable branch accepts only a base resolved through
+the registered-XPU table and invokes HAL restore. This is not an arbitrary EL1
+XPU writer or usable disable primitive.
+
+`PROVED`: both exact policy branches cover all four remapper addresses and all
+four BIMC configuration bases with TZ-owned `MEMNOC_MS_MPU` region 0
+(`0x00000000–0x10000000`) and `CNOC_SNOC_MS_MPU` region 5
+(`0x09000000–0x09800000`). Neither grants the ordinary HLOS VMID. Effective
+runtime denial is `SUPPORTED`; final hardware readback remains `UNKNOWN`.
 
 `SUPPORTED`: four successful retained boots register LLCC PMU and LLCC-to-DDR
 monitoring paths, disfavoring a broad whole-fabric-off explanation. Separate
@@ -137,13 +162,14 @@ Evidence: exact `drivers/soc/qcom/secure_buffer.c:227-269,279-385`, SHA-256
 `PROVED`: The kernel-side ownership API therefore names system physical ranges,
 not DRAM row/bank coordinates.
 
-`UNKNOWN`: Which secure-world hardware/firmware block enforces an SCM memory
-assignment. Separately, `PROVED`: `DC_NOC_BROADCAST_MPU` statically protects
-the tested remapper configuration PA. `UNKNOWN`: whether memory-ownership
-checks see an address before or after final DDR address decoding, and whether a
-second XPU/MPU check exists after a mutable transform. These ordering claims do
-not follow merely from the SCM call signature or from configuration-aperture
-coverage.
+`PROVED`: exact QHEE's HLOS `hyp_assign` intercept enforces ownership through
+its local access-control/stage-2/SMMU mapping path. `PROVED`: exact TZ has a
+separate same-ID fallback whose memory-lock path programs dynamic BIMC MPU
+policy. Separately, `PROVED`: `DC_NOC_BROADCAST_MPU` statically protects the
+tested remapper configuration PA. `UNKNOWN`: whether memory data-path checks
+see an address before or after final DDR address decoding, and whether a second
+XPU/MPU check exists after a mutable transform. These ordering claims do not
+follow from the SCM call signature or from configuration-aperture coverage.
 
 `PROVED`: Exact source initializes RKP with physical/virtual kernel metadata and
 invokes `uh_call(UH_APP_RKP, RKP_START, ...)`; `uh_call` reaches `smc #0`.
@@ -174,8 +200,9 @@ hypervisor, ownership and kernel-protection paths.
 
 `PROVED`: The live TrustZone image consumes a registry binding BIMC, MEMNOC,
 LLCC-broadcast, DC_NOC and SHRM MPUs to exact configuration bases. Its static
-DC_NOC policy covers the tested PA and grants no HLOS access. BIMC-MPU final
-policies and all protection ordering relative to DRAM decode remain `UNKNOWN`.
+DC_NOC policy covers the tested PA and grants no HLOS access; its dynamic
+memory-lock path reconfigures BIMC_MPU0..3. BIMC-MPU final runtime values and
+all protection ordering relative to DRAM decode remain `UNKNOWN`.
 
 ## Answers required for a bypass determination
 
@@ -184,7 +211,7 @@ policies and all protection ordering relative to DRAM decode remain `UNKNOWN`.
 | Which block owns the final mapping? | `PROVED`: qhs_llcc ICB windows own boot region remapping. Final channel/bank/row decode owner remains `UNKNOWN`. |
 | Who programs it? | `PROVED`: XBL programs the region remapper through `icbcfg`; SHRM/MCCC/MC final-decode ownership remains `UNKNOWN`. AOP runtime DDR management is `PROVED`. |
 | At what stage? | Region-remap programming during XBL DDR initialization before HLOS is `PROVED`; later mutability remains `UNKNOWN`. |
-| Can EL1 observe it? | Register contents remain `UNKNOWN`. `/dev/mem` and generic REPL routes are `REFUTED`; the fixed load returned no value. `PROVED`: exact static DC_NOC policy covers that PA with no HLOS grant. `SUPPORTED`: XPU/fabric denial. |
-| Can EL1 modify it? | No mutation is proved. `SUPPORTED`: ordinary HLOS is blocked from the configuration page by active static policy; final runtime policy/lock readback is `UNKNOWN`. |
-| Does EL2/EL3 lock it? | `UNKNOWN`; no distinct lock write is present inside XBL's exact layout-1 commit. EL3/TZ owns the covering static region, but a later write-disable or hardware lock is unresolved. |
-| Is there a post-transform security check? | `UNKNOWN`; DC_NOC coverage proves a pre-access check for the configuration aperture, not the ordering of data-path checks after the remapper. BIMC MPU registry/error routes remain candidates. |
+| Can EL1 observe it? | Register contents remain `UNKNOWN`. `/dev/mem` and generic REPL routes are `REFUTED`; the fixed load returned no value. `PROVED`: both static branches cover all four remapper/BIMC apertures with no HLOS grant. `SUPPORTED`: XPU/fabric denial. |
+| Can EL1 modify it? | No mutation is proved. The exact HLOS-visible XPU-disable allowlist has zero entries, and all known configuration apertures have branch-invariant TZ-owned coverage. Final runtime policy/lock readback is `UNKNOWN`. |
+| Does EL2/EL3 lock it? | `PROVED`: QHEE applies ownership/stage-2/SMMU enforcement and TZ dynamically programs BIMC policies. `UNKNOWN`: final hardware write-disable bit and exact dispatcher/lock ordering. |
+| Is there a post-transform security check? | `UNKNOWN`; configuration-aperture coverage is not data-path ordering proof. Dynamic BIMC MPU policy makes a later check plausible but does not locate it relative to final channel/bank decode. |

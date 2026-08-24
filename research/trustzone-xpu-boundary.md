@@ -8,9 +8,10 @@ locking uses SCM MP services as well.
 `0xa6000000–0xa83fffff`; exact live evidence takes precedence over the generic
 base-DTS value.
 
-`SUPPORTED`: A secure-world component configures ownership/firewall state in
-response to SCM MP calls. This follows from the API purpose and call boundary,
-but the exact hardware block and register writes remain unobserved.
+`PROVED` with Experiment 010's boundary: QHEE's HLOS memory-assignment path
+updates its local ownership/stage-2/SMMU state, while a separate TZ same-ID
+fallback reaches dynamic BIMC MPU policy. Their production dispatch ordering
+and final hardware register values remain `SUPPORTED/UNKNOWN` respectively.
 
 `PROVED`: Exact live `tz` bytes name `BIMC_MPU0..3`, `MEMNOC_MS_MPU`, and
 `LLCC_BROADCAST_MPU`. This replaces a generic XPU hypothesis with concrete
@@ -89,7 +90,59 @@ and matched resource-group fields.
 
 `PROVED`: neither embedded static policy array contains BIMC_MPU0..3. This
 means only that this particular static-list path does not initialize them.
-Their final state and initializer remain `UNKNOWN`.
+Their final state remains `UNKNOWN`; Experiment 010 resolves their initializer.
+
+## Experiment 010 dynamic initializer and control boundary
+
+`PROVED`: exact TZ separately registers SMC `0x02000c16` at handler
+`0x1c0a6de4`. Its assignment core calls `0x1c0ab624`, whose internal lock path
+tail-calls `0x1c0a9d5c`, topology fanout `0x1c0a9e14`, and reconfigure routine
+`0x1c0a9f44`.
+
+`PROVED`: the topology fanout emits exact registered IDs `0x2e`, `0x2f`,
+`0x3f`, and `0x40` (`BIMC_MPU0..3`), plus `0x3a`
+(`LLCC_BROADCAST_MPU`) on some branches. This is the positive dynamic
+initializer evidence missing from Experiment 009. IDs `0x51..0x54` occur in
+one code branch but are absent from the exact primary registry; their meaning
+and runtime execution are `UNKNOWN`.
+
+`PROVED`: this TZ chain is not the exact QHEE HLOS `hyp_assign` implementation.
+QHEE independently registers the same SMC ID and uses a local
+ownership/stage-2/SMMU access-control mapper. `SUPPORTED`: normal HLOS requests
+are intercepted there before the separate TZ fallback.
+
+`PROVED`: exact TZ exposes XPU toggle SMC `0x02000c23`, but the disable branch
+requires membership in an exact allowed-base array whose count at
+`0x1c122a90` is zero. The enable branch resolves a supplied base to an existing
+registry ID and invokes HAL restore. It does not supply arbitrary MMIO data or
+an HLOS XPU-disable primitive.
+
+`PROVED`: exact QHEE contains no literal `0x02000c23`, and exact TZ contains no
+literal `0x02000c24` (`TZ_MPU_LOCK_HLOS_REGION`). This is bounded literal/table
+evidence, not a claim that constructed or semantically different SMCs are
+impossible.
+
+`PROVED`: both embedded static-policy branches cover all eight known
+remapper/BIMC configuration addresses through the same two records:
+
+| Resource | Region | Range | Access words | Result |
+|---|---:|---|---|---|
+| `MEMNOC_MS_MPU` | 0 | `0x00000000–0x10000000` | `0x80000000/0x80000000` | TZ owner, no HLOS VMID |
+| `CNOC_SNOC_MS_MPU` | 5 | `0x09000000–0x09800000` | `0xf0000000/0xf0000000` | TZ owner, no HLOS VMID |
+
+Instance 0 additionally has `DC_NOC_BROADCAST_MPU` region 11 over its remapper
+and region 13 over `BIMC_MPU0`. The broad two-policy result, unlike region 11,
+is invariant across all four instances.
+
+`SUPPORTED`: these policies are the direct reason EL1 cannot use the known
+configuration apertures. Final hardware register readback is `UNKNOWN`.
+
+`SUPPORTED`: exact static config starts from `0x0001c800` without requesting
+the comparative secure-config-write-disable field, consistent with secure-
+world dynamic updates. `PROVED`: exact XPU3 init only null-checks its second
+configuration argument, and restore/reset preserve control mask `0x2` while
+changing enable state. `UNKNOWN`: the final boot/runtime value of that
+preserved hardware bit.
 
 `PROVED`: The same TrustZone ELF also contains `/dev/icbcfg/boot` DAL identity
 and the exact four qhs_llcc remapper bases used by XBL. `SUPPORTED`: secure
@@ -118,7 +171,10 @@ from completing. Its exact fabric placement and response mechanism remain
 `UNKNOWN`.
 `UNKNOWN`: Whether it checks the system address before final DRAM decode, a
 decoded destination, or both. `UNKNOWN`: Which state is controlled by EL3 versus
-QHEE/EL2. `UNKNOWN`: The lock and reset behavior of final mapping state.
+QHEE/EL2 is now partly resolved — QHEE owns the independent stage-2/SMMU
+assignment layer and TZ owns the dynamic BIMC policy path — but their ordering
+relative to final DRAM decode remains `UNKNOWN`. Final lock/reset state also
+remains `UNKNOWN`.
 
 No protected-memory read or write has been attempted. A future boundary test is
 ineligible until a deterministic normal-RAM physical-to-DRAM alias and ordering

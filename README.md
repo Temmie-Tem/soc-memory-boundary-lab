@@ -30,6 +30,17 @@ grants no ordinary HLOS access, and exact devcfg has `disable_xpu_ac=0`.
 `SUPPORTED`, not causally `PROVED`: XPU/fabric denial explains the fixed-load
 watchdog. A decoded syndrome and final runtime policy readback are still absent.
 
+Host-only Experiment 010 now resolves the missing initializer boundary.
+QHEE's exact `hyp_assign` intercept enforces ownership through its local
+stage-2/SMMU access-control path, while a separate same-ID TrustZone fallback
+reaches dynamic `BIMC_MPU0..3` reconfiguration. The HLOS-visible XPU toggle
+cannot disable any XPU because its exact allowed-disable count is zero. Both TZ
+policy branches also cover all four remapper and BIMC configuration apertures
+with broad TZ-owned records containing no HLOS grant. This is strong Class A/B
+candidate evidence for the known controller apertures, not a proof that the
+overall AMD attack class is structurally impossible: the final DRAM transform
+and post-transform protection ordering remain `UNKNOWN`.
+
 Claim vocabulary is deliberately closed:
 
 - `PROVED`: directly demonstrated by named source, artifact, or repeated result.
@@ -56,6 +67,8 @@ Experiment 008's exact evidence recombination is in
 [experiments/008-remapper-boundary/README.md](experiments/008-remapper-boundary/README.md).
 Experiment 009's consumed XPU policy and permission reconstruction is in
 [experiments/009-xpu-policy/README.md](experiments/009-xpu-policy/README.md).
+Experiment 010's QHEE/TZ authority split and dynamic BIMC initializer are in
+[experiments/010-xpu-initializer/README.md](experiments/010-xpu-initializer/README.md).
 The exact A90 TWRP code-only System transition is documented in
 [docs/A90_TWRP_CODE_BOOT.md](docs/A90_TWRP_CODE_BOOT.md).
 

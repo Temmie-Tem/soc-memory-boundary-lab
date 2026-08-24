@@ -86,23 +86,26 @@ Experiment 006 adds exact firmware-backed physical landmarks:
 | `0x090e0000` | TZ `DC_NOC_BROADCAST_MPU` configuration base | `PROVED` exact consumed registry and both static-policy descriptors. |
 | `0x090b4000` | TZ `DC_NOC_NON_BROADCAST_MPU` configuration base | `PROVED` exact registry, both static lists, and error route. |
 | `0x09102000` | `qhs_shrm_mpu_cfg` / TZ `DC_NOC_SHRM_MPU` | `PROVED` exact XBL topology, registry, both static lists, and error route. |
+| `0x00000000–0x0fffffff` | `MEMNOC_MS_MPU` region 0 | `PROVED` in both TZ branches: enabled/TZ-owned, covers all eight known remapper/BIMC configuration addresses, no HLOS VMID grant. |
+| `0x09000000–0x097fffff` | `CNOC_SNOC_MS_MPU` region 5 | `PROVED` in both TZ branches: enabled/TZ-owned, independently covers all eight known addresses, no HLOS VMID grant. |
 | `0x09248000–0x09248fff` | `DC_NOC_BROADCAST_MPU` region 11 | `PROVED` in both TZ selector branches: enabled, TZ-owned, MSA-class read-only, no HLOS grant. |
 | `0x09248080–0x092480d8` | qhs_llcc remapper instance 0 | `PROVED` exact XBL ICB writer and inside TZ policy region 11; one fixed EL1 load returned no value and ended in watchdog. |
-| `0x0924e000` | `BIMC_MPU0` configuration base | `PROVED` exact TZ primary registry/error route; absent from both embedded static lists, final policy `UNKNOWN`. |
-| `0x092c8080–0x092c80d8` | qhs_llcc remapper instance 1 | `PROVED` exact XBL ICB writer. |
-| `0x092ce000` | `BIMC_MPU1` configuration base | `PROVED` exact TZ primary registry/error route; absent from both embedded static lists, final policy `UNKNOWN`. |
-| `0x09348080–0x093480d8` | qhs_llcc remapper instance 2 | `PROVED` exact XBL ICB writer. |
-| `0x0934e000` | `BIMC_MPU2` configuration base | `PROVED` exact TZ primary registry/error route; absent from both embedded static lists, final policy `UNKNOWN`. |
-| `0x093c8080–0x093c80d8` | qhs_llcc remapper instance 3 | `PROVED` exact XBL ICB writer. |
-| `0x093ce000` | `BIMC_MPU3` configuration base | `PROVED` exact TZ primary registry/error route; absent from both embedded static lists, final policy `UNKNOWN`. |
+| `0x0924e000` | `BIMC_MPU0` configuration base | `PROVED` exact registry/error route and TZ dynamic topology target; also inside broad branch-invariant no-HLOS policies. Final runtime value `UNKNOWN`. |
+| `0x092c8080–0x092c80d8` | qhs_llcc remapper instance 1 | `PROVED` exact XBL writer and broad branch-invariant TZ-owned/no-HLOS coverage. |
+| `0x092ce000` | `BIMC_MPU1` configuration base | `PROVED` exact registry/error route and TZ dynamic topology target; broad no-HLOS coverage. Final runtime value `UNKNOWN`. |
+| `0x09348080–0x093480d8` | qhs_llcc remapper instance 2 | `PROVED` exact XBL writer and broad branch-invariant TZ-owned/no-HLOS coverage. |
+| `0x0934e000` | `BIMC_MPU2` configuration base | `PROVED` exact registry/error route and TZ dynamic topology target; broad no-HLOS coverage. Final runtime value `UNKNOWN`. |
+| `0x093c8080–0x093c80d8` | qhs_llcc remapper instance 3 | `PROVED` exact XBL writer and broad branch-invariant TZ-owned/no-HLOS coverage. |
+| `0x093ce000` | `BIMC_MPU3` configuration base | `PROVED` exact registry/error route and TZ dynamic topology target; broad no-HLOS coverage. Final runtime value `UNKNOWN`. |
 | `0x0964e000` | `LLCC_BROADCAST_MPU` configuration base | `PROVED` exact registry and both static lists. |
 | `0x096c0000` | `MEMNOC_MS_MPU` configuration base | `PROVED` exact registry, both static lists, and error route. |
 
 The ranges describe 32-bit registers at four-byte offsets, not a license to
-treat intervening or adjacent MMIO as discovered. For the tested instance-0
-page, static HLOS permission is `PROVED` absent and an active denial is
-`SUPPORTED`; final post-boot policy-register readback and lock state remain
-`UNKNOWN`. The other three remapper pages are not inferred to share region 11.
+treat intervening or adjacent MMIO as discovered. Instance 0 alone has the
+narrow region-11 proof, but Experiment 010 independently proves that both broad
+policies cover every listed remapper/BIMC address under either selector branch.
+Static HLOS permission is `PROVED` absent and an active denial is `SUPPORTED`;
+final post-boot policy-register readback and lock state remain `UNKNOWN`.
 
 `PROVED` by Experiment 008: the exact 3072+3072 MiB rank topology selects
 remapper row 7, whose destination bases are `0x80000000` and `0x140000000`.

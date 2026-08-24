@@ -1,0 +1,1225 @@
+{
+  "claims": {
+    "HYPOTHESIS": [
+      "The final DRAM channel/bank/rank transform, if configurable, is owned by a block downstream of the currently identified apertures."
+    ],
+    "PROVED": [
+      "Exact QHEE registers SMC 0x02000c16 at 0x85723b90 and routes it to a local AC mapping wrapper without directly calling QHEE's generic TZ SMC wrapper.",
+      "Exact TZ separately registers SMC 0x02000c16 and its assignment/lock chain reaches dynamic BIMC MPU reconfiguration.",
+      "Exact TZ dynamic topology code emits registered resources BIMC_MPU0..3 and, in some cases, LLCC_BROADCAST_MPU.",
+      "The exact HLOS-visible XPU toggle SMC has a zero-entry disable whitelist; its enable path restores only a registered XPU.",
+      "Both embedded TZ static-policy branches cover all four remapper and BIMC configuration apertures with TZ-owned MEMNOC_MS_MPU and CNOC_SNOC_MS_MPU records that contain no HLOS VMID grant.",
+      "The boot master-MPU loop initializes CNOC_AOSS_MPU, ANOC2_MPU, and MSS_NAV_MPU, not BIMC_MPU0..3.",
+      "The exact TZ RPM-online handler is a single RET and the exact app-region notification handler does not directly call BIMC/XPU code."
+    ],
+    "REFUTED": [
+      "BIMC_MPU0..3 are unconfigured merely because they are absent from the two static TZ policy arrays.",
+      "The QHEE hyp_assign handler itself is a direct TZ BIMC/XPU programming primitive.",
+      "The named RPM-region QHEE/TZ service mutates an XPU in this exact A90 TZ build.",
+      "SMC 0x02000c23 provides HLOS a usable XPU-disable primitive on this exact build.",
+      "Literal BIMC addresses in the XBL file alone prove that main XBL code programs their policy."
+    ],
+    "SUPPORTED": [
+      "On the production A90 path QHEE's same-ID intercept handles HLOS hyp_assign before the separate TZ fallback implementation.",
+      "The controller apertures are effectively inaccessible to EL1 under the embedded production policy; exact runtime register readback is still absent.",
+      "The inspected static-config construction does not request the comparative secure-config-write-disable field, consistent with later secure-world lock/unlock operations."
+    ],
+    "UNKNOWN": [
+      "Final post-boot BIMC/XPU control and region-register values.",
+      "The runtime topology selector and whether unresolved IDs 0x51-0x54 execute on this target.",
+      "The exact final physical-address-to-DRAM channel/bank/rank/row transform owner and ordering.",
+      "Whether a second protection check occurs after the final DRAM transform.",
+      "Any physical-to-DRAM alias or protected-memory isolation bypass."
+    ]
+  },
+  "classification": "CLASS_A_OR_B_CANDIDATE_CONTROLLER_APERTURES_ONLY_NO_BYPASS",
+  "code_pins": {
+    "qhee_hyp_functions": {
+      "ac_map_memory_range_wrapper": {
+        "end_exclusive": "0x857358a8",
+        "sha256": "7f5eee7d9bb6bc0376eee8399ae8ef39b481a3b35a53ab93ec4479b0002692af",
+        "size": 140,
+        "start": "0x8573581c"
+      },
+      "app_region_intercept": {
+        "end_exclusive": "0x857165bc",
+        "sha256": "46930a5f2b8b0beaf2fb1d8b812cc7ff30216567be53b7d10c748c8f14e4133a",
+        "size": 628,
+        "start": "0x85716348"
+      },
+      "hyp_assign": {
+        "end_exclusive": "0x85724084",
+        "sha256": "2e5cb0c9f9204d29cc62b27d61cd24c348cb4951f380d94ed65f01647be5a5b6",
+        "size": 1268,
+        "start": "0x85723b90"
+      },
+      "rpm_region_share_handler": {
+        "end_exclusive": "0x85716348",
+        "sha256": "8af323a1c2ec9cd0a21954691157b374c39201dffcf2a71cc9a46f2cc7f6075c",
+        "size": 392,
+        "start": "0x857161c0"
+      }
+    },
+    "qhee_hyp_instruction_words": [
+      {
+        "address": "0x85716200",
+        "word": "0x940007c0"
+      },
+      {
+        "address": "0x85716230",
+        "word": "0x940007b4"
+      },
+      {
+        "address": "0x8571653c",
+        "word": "0x528020a0"
+      },
+      {
+        "address": "0x85716540",
+        "word": "0x72a64000"
+      },
+      {
+        "address": "0x8571655c",
+        "word": "0x940006e9"
+      },
+      {
+        "address": "0x8572403c",
+        "word": "0x940045f8"
+      }
+    ],
+    "trustzone_functions": {
+      "allowed_disable_getter": {
+        "end_exclusive": "0x1c0a264c",
+        "sha256": "f3d5e26eefd2ca779c1bbc14023fa5fc1660c34fa109f4e1cb07c40759aa329c",
+        "size": 28,
+        "start": "0x1c0a2630"
+      },
+      "bimc_topology_fanout": {
+        "end_exclusive": "0x1c0a9f44",
+        "sha256": "8fdcac4e42a4517c8b9e9e726880c60d9d61f5a0f74683f6aaec73f3abfd5ddc",
+        "size": 304,
+        "start": "0x1c0a9e14"
+      },
+      "hal_init_wrapper": {
+        "end_exclusive": "0x1c0fa8b0",
+        "sha256": "c1c1747024c172ec146db65d47b8310cd37aea6f2c543e0055381382d18bcd78",
+        "size": 220,
+        "start": "0x1c0fa7d4"
+      },
+      "hyp_assign_fallback_handler": {
+        "end_exclusive": "0x1c0a76fc",
+        "sha256": "9670da741791d1a8309a0111411b8adf8a122681165c7714c7148764ccb509b7",
+        "size": 2328,
+        "start": "0x1c0a6de4"
+      },
+      "master_mpu_boot_calls": {
+        "end_exclusive": "0x1c0a4148",
+        "sha256": "44be68f41d513f066e020b45e8e271d860100af1f441c1ad66d435cdd27eafea",
+        "size": 80,
+        "start": "0x1c0a40f8"
+      },
+      "master_mpu_init": {
+        "end_exclusive": "0x1c0ad0fc",
+        "sha256": "82d76ae020a83bfc857d1e7d6d4fde29ab9cd596e93e2a47187e857208fe684d",
+        "size": 652,
+        "start": "0x1c0ace70"
+      },
+      "mpu_lock_area": {
+        "end_exclusive": "0x1c0a9e14",
+        "sha256": "a5e001a759c4497ea0500f22f660cdccac16d1a48319684678caa081e37b23e0",
+        "size": 184,
+        "start": "0x1c0a9d5c"
+      },
+      "mpu_lock_memory": {
+        "end_exclusive": "0x1c0ab6c8",
+        "sha256": "f0f120559d8439034be03c69357fb2e1db386d2e082d67463b252f6301ac837a",
+        "size": 164,
+        "start": "0x1c0ab624"
+      },
+      "mpu_lock_memory_internal": {
+        "end_exclusive": "0x1c0ab718",
+        "sha256": "06ac4f40e157bd5f5e13c68ba179e396b24c0ea51fd795205f2607cc67a87583",
+        "size": 80,
+        "start": "0x1c0ab6c8"
+      },
+      "mpu_reconfigure": {
+        "end_exclusive": "0x1c0aa0b4",
+        "sha256": "1836348473626257ad0df6f4bbc71cef9552e20405b13971bd0e8a239dc30110",
+        "size": 368,
+        "start": "0x1c0a9f44"
+      },
+      "mpu_unlock_area": {
+        "end_exclusive": "0x1c0aa168",
+        "sha256": "b59319058d1da89e569db420d816eb43b6c768d5de61dba1dec7837eb4bb8ffa",
+        "size": 180,
+        "start": "0x1c0aa0b4"
+      },
+      "qsee_app_region_handler": {
+        "end_exclusive": "0x1c0c3138",
+        "sha256": "241abf288059ea0e3c64fb5e99def7a1c6522607fae27f7967d94b50d558639c",
+        "size": 64,
+        "start": "0x1c0c30f8"
+      },
+      "rpm_online_dump_noop": {
+        "end_exclusive": "0x1c050ba0",
+        "sha256": "110f46b5b35c069160560c6ad6786f647dd44e8760a52a46fc22dbbcd7630b91",
+        "size": 4,
+        "start": "0x1c050b9c"
+      },
+      "static_config_head": {
+        "end_exclusive": "0x1c0a9640",
+        "sha256": "98df542b9ed8a457e1856f918065aedf54cf7c66ff76e2960ece239642dfa908",
+        "size": 92,
+        "start": "0x1c0a95e4"
+      },
+      "tz_assignment_core": {
+        "end_exclusive": "0x1c0a61cc",
+        "sha256": "f665a344e099eac64b352747229a910f6aec56cee8aefbd0d8036098b3c982b1",
+        "size": 3176,
+        "start": "0x1c0a5564"
+      },
+      "xpu3_init": {
+        "end_exclusive": "0x1c0fb980",
+        "sha256": "001a616ce5ef1dd92a35427f8b310dc92370efd8baaffde924b6e484e33290f4",
+        "size": 244,
+        "start": "0x1c0fb88c"
+      },
+      "xpu3_reset": {
+        "end_exclusive": "0x1c0fbcb8",
+        "sha256": "2b62550545b91f66ff046b3f0f33e04d296eff9343ffa240bbe7ba91edd86762",
+        "size": 104,
+        "start": "0x1c0fbc50"
+      },
+      "xpu3_restore": {
+        "end_exclusive": "0x1c0fbc50",
+        "sha256": "6e7a1b6c25cfa45eeefddf24ef81841395538e7ef8c438931214cce04300c0de",
+        "size": 120,
+        "start": "0x1c0fbbd8"
+      },
+      "xpu_base_to_id": {
+        "end_exclusive": "0x1c0a9bc8",
+        "sha256": "0f62978f7ef8395501440eb3b4211f68c9612440309a965ceb7f656722c9d681",
+        "size": 160,
+        "start": "0x1c0a9b28"
+      },
+      "xpu_toggle_handler": {
+        "end_exclusive": "0x1c0a9b28",
+        "sha256": "687992fb5fe4a057e3d2205c0df1faf7fa857fed8e65fe1575e0af7359190f24",
+        "size": 228,
+        "start": "0x1c0a9a44"
+      }
+    },
+    "trustzone_instruction_words": [
+      {
+        "address": "0x1c0a7594",
+        "word": "0x97fff7f4"
+      },
+      {
+        "address": "0x1c0a60f4",
+        "word": "0x9400154c"
+      },
+      {
+        "address": "0x1c0ab6a4",
+        "word": "0x94000009"
+      },
+      {
+        "address": "0x1c0ab704",
+        "word": "0x17fff996"
+      },
+      {
+        "address": "0x1c0a9e60",
+        "word": "0x528005c0"
+      },
+      {
+        "address": "0x1c0a9e8c",
+        "word": "0x528005e0"
+      },
+      {
+        "address": "0x1c0a9e98",
+        "word": "0x320017e0"
+      },
+      {
+        "address": "0x1c0a9ea4",
+        "word": "0x321a03e0"
+      },
+      {
+        "address": "0x1c0a9abc",
+        "word": "0x97ffe2dd"
+      },
+      {
+        "address": "0x1c0a960c",
+        "word": "0x52990017"
+      },
+      {
+        "address": "0x1c0a9610",
+        "word": "0x72a00037"
+      },
+      {
+        "address": "0x1c0fbbe4",
+        "word": "0x121f0129"
+      },
+      {
+        "address": "0x1c0fbbe8",
+        "word": "0x32000129"
+      },
+      {
+        "address": "0x1c0fbc74",
+        "word": "0x121f0129"
+      }
+    ]
+  },
+  "comparative_source": {
+    "claim_boundary": "Comparative material supplies names and field documentation only; all SM8150 addresses, instruction words, tables, and SMC records are independently pinned to exact A90 firmware bytes.",
+    "commit": "b5e5bb9ed6c92442fd502b3e726d7c8024dc0763",
+    "files": [
+      {
+        "path": "trustzone_images/core/securemsm/accesscontrol/api/AccessControlHyp.h",
+        "relevance": "Documents ACMapMemoryRange as a hypervisor page-table mapping API.",
+        "sha256": "4e39a89cd27d2aef446eb76e04061c0af3bd80c2430b36bbf07f888cafdc66c9"
+      },
+      {
+        "path": "trustzone_images/core/securemsm/accesscontrol/api/AccessControlTz.h",
+        "relevance": "Documents TZ MPU lock APIs and access-control record layouts.",
+        "sha256": "b31edbf4afd41d8d5d4faa0b62ab01f74b7fd149286ee0486b7bbe45bca6f724"
+      },
+      {
+        "path": "trustzone_images/core/securemsm/trustzone/qsee/include/tz_syscall_pub.h",
+        "relevance": "Names SMC 0x02000c23 and 0x02000c24 and their parameters.",
+        "sha256": "4ec06500c274e64fc09ccbfb93e5de34a2d06b7971df05fda5787de061b8512f"
+      },
+      {
+        "path": "trustzone_images/core/kernel/xpu3/hal/inc/HALxpu3.h",
+        "relevance": "Documents XPU3 control and secure-config-write-disable fields.",
+        "sha256": "07291481f1b28c201ad3043692a53188ccc8dae476c207bea06eafd6c620b414"
+      },
+      {
+        "path": "trustzone_images/core/securemsm/accesscontrol/build/qsee/A53_64/KAJAANAA/src/components/xpu/v3/ACXpu.o",
+        "relevance": "Unstripped comparative object supplies matching TZ XPU function names.",
+        "sha256": "376ddb769505a29895b88f2af079e9ddf8c154faf087d0dcd2f851a840cd4fe0"
+      }
+    ],
+    "repository": "David112x/android-firmware-qti-sdm660",
+    "status": "COMPARATIVE_NOT_EXACT_SM8150_SOURCE"
+  },
+  "controller_aperture_policy": {
+    "branch_invariant_broad_coverage": true,
+    "broad_protectors": [
+      "MEMNOC_MS_MPU",
+      "CNOC_SNOC_MS_MPU"
+    ],
+    "instances": [
+      {
+        "bimc_mpu": "0x0924e000",
+        "bimc_resource_id": "0x2e",
+        "instance": 0,
+        "remapper": "0x09248080"
+      },
+      {
+        "bimc_mpu": "0x092ce000",
+        "bimc_resource_id": "0x2f",
+        "instance": 1,
+        "remapper": "0x092c8080"
+      },
+      {
+        "bimc_mpu": "0x0934e000",
+        "bimc_resource_id": "0x3f",
+        "instance": 2,
+        "remapper": "0x09348080"
+      },
+      {
+        "bimc_mpu": "0x093ce000",
+        "bimc_resource_id": "0x40",
+        "instance": 3,
+        "remapper": "0x093c8080"
+      }
+    ],
+    "runtime_register_readback": "UNKNOWN",
+    "selector_branches": {
+      "selector_result_ge_2": {
+        "addresses": [
+          {
+            "address": "0x09248080",
+            "hits": [
+              {
+                "end_exclusive": "0x09249000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0x80000000",
+                "region_index": 11,
+                "resource": "DC_NOC_BROADCAST_MPU",
+                "resource_id": "0x3c",
+                "start": "0x09248000",
+                "write_vmid": "0x00000000"
+              },
+              {
+                "end_exclusive": "0x10000000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0x80000000",
+                "region_index": 0,
+                "resource": "MEMNOC_MS_MPU",
+                "resource_id": "0x4b",
+                "start": "0x00000000",
+                "write_vmid": "0x80000000"
+              },
+              {
+                "end_exclusive": "0x09800000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0xf0000000",
+                "region_index": 5,
+                "resource": "CNOC_SNOC_MS_MPU",
+                "resource_id": "0x23",
+                "start": "0x09000000",
+                "write_vmid": "0xf0000000"
+              }
+            ]
+          },
+          {
+            "address": "0x0924e000",
+            "hits": [
+              {
+                "end_exclusive": "0x09250000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0xf0000000",
+                "region_index": 13,
+                "resource": "DC_NOC_BROADCAST_MPU",
+                "resource_id": "0x3c",
+                "start": "0x0924e000",
+                "write_vmid": "0xf0000000"
+              },
+              {
+                "end_exclusive": "0x10000000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0x80000000",
+                "region_index": 0,
+                "resource": "MEMNOC_MS_MPU",
+                "resource_id": "0x4b",
+                "start": "0x00000000",
+                "write_vmid": "0x80000000"
+              },
+              {
+                "end_exclusive": "0x09800000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0xf0000000",
+                "region_index": 5,
+                "resource": "CNOC_SNOC_MS_MPU",
+                "resource_id": "0x23",
+                "start": "0x09000000",
+                "write_vmid": "0xf0000000"
+              }
+            ]
+          },
+          {
+            "address": "0x092c8080",
+            "hits": [
+              {
+                "end_exclusive": "0x10000000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0x80000000",
+                "region_index": 0,
+                "resource": "MEMNOC_MS_MPU",
+                "resource_id": "0x4b",
+                "start": "0x00000000",
+                "write_vmid": "0x80000000"
+              },
+              {
+                "end_exclusive": "0x09800000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0xf0000000",
+                "region_index": 5,
+                "resource": "CNOC_SNOC_MS_MPU",
+                "resource_id": "0x23",
+                "start": "0x09000000",
+                "write_vmid": "0xf0000000"
+              }
+            ]
+          },
+          {
+            "address": "0x092ce000",
+            "hits": [
+              {
+                "end_exclusive": "0x10000000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0x80000000",
+                "region_index": 0,
+                "resource": "MEMNOC_MS_MPU",
+                "resource_id": "0x4b",
+                "start": "0x00000000",
+                "write_vmid": "0x80000000"
+              },
+              {
+                "end_exclusive": "0x09800000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0xf0000000",
+                "region_index": 5,
+                "resource": "CNOC_SNOC_MS_MPU",
+                "resource_id": "0x23",
+                "start": "0x09000000",
+                "write_vmid": "0xf0000000"
+              }
+            ]
+          },
+          {
+            "address": "0x09348080",
+            "hits": [
+              {
+                "end_exclusive": "0x10000000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0x80000000",
+                "region_index": 0,
+                "resource": "MEMNOC_MS_MPU",
+                "resource_id": "0x4b",
+                "start": "0x00000000",
+                "write_vmid": "0x80000000"
+              },
+              {
+                "end_exclusive": "0x09800000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0xf0000000",
+                "region_index": 5,
+                "resource": "CNOC_SNOC_MS_MPU",
+                "resource_id": "0x23",
+                "start": "0x09000000",
+                "write_vmid": "0xf0000000"
+              }
+            ]
+          },
+          {
+            "address": "0x0934e000",
+            "hits": [
+              {
+                "end_exclusive": "0x10000000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0x80000000",
+                "region_index": 0,
+                "resource": "MEMNOC_MS_MPU",
+                "resource_id": "0x4b",
+                "start": "0x00000000",
+                "write_vmid": "0x80000000"
+              },
+              {
+                "end_exclusive": "0x09800000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0xf0000000",
+                "region_index": 5,
+                "resource": "CNOC_SNOC_MS_MPU",
+                "resource_id": "0x23",
+                "start": "0x09000000",
+                "write_vmid": "0xf0000000"
+              }
+            ]
+          },
+          {
+            "address": "0x093c8080",
+            "hits": [
+              {
+                "end_exclusive": "0x10000000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0x80000000",
+                "region_index": 0,
+                "resource": "MEMNOC_MS_MPU",
+                "resource_id": "0x4b",
+                "start": "0x00000000",
+                "write_vmid": "0x80000000"
+              },
+              {
+                "end_exclusive": "0x09800000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0xf0000000",
+                "region_index": 5,
+                "resource": "CNOC_SNOC_MS_MPU",
+                "resource_id": "0x23",
+                "start": "0x09000000",
+                "write_vmid": "0xf0000000"
+              }
+            ]
+          },
+          {
+            "address": "0x093ce000",
+            "hits": [
+              {
+                "end_exclusive": "0x10000000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0x80000000",
+                "region_index": 0,
+                "resource": "MEMNOC_MS_MPU",
+                "resource_id": "0x4b",
+                "start": "0x00000000",
+                "write_vmid": "0x80000000"
+              },
+              {
+                "end_exclusive": "0x09800000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0xf0000000",
+                "region_index": 5,
+                "resource": "CNOC_SNOC_MS_MPU",
+                "resource_id": "0x23",
+                "start": "0x09000000",
+                "write_vmid": "0xf0000000"
+              }
+            ]
+          }
+        ],
+        "selector_predicate": "selector_result_byte >= 2"
+      },
+      "selector_result_lt_2": {
+        "addresses": [
+          {
+            "address": "0x09248080",
+            "hits": [
+              {
+                "end_exclusive": "0x09249000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0x80000000",
+                "region_index": 11,
+                "resource": "DC_NOC_BROADCAST_MPU",
+                "resource_id": "0x3c",
+                "start": "0x09248000",
+                "write_vmid": "0x00000000"
+              },
+              {
+                "end_exclusive": "0x10000000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0x80000000",
+                "region_index": 0,
+                "resource": "MEMNOC_MS_MPU",
+                "resource_id": "0x4b",
+                "start": "0x00000000",
+                "write_vmid": "0x80000000"
+              },
+              {
+                "end_exclusive": "0x09800000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0xf0000000",
+                "region_index": 5,
+                "resource": "CNOC_SNOC_MS_MPU",
+                "resource_id": "0x23",
+                "start": "0x09000000",
+                "write_vmid": "0xf0000000"
+              }
+            ]
+          },
+          {
+            "address": "0x0924e000",
+            "hits": [
+              {
+                "end_exclusive": "0x09250000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0xf0000000",
+                "region_index": 13,
+                "resource": "DC_NOC_BROADCAST_MPU",
+                "resource_id": "0x3c",
+                "start": "0x0924e000",
+                "write_vmid": "0xf0000000"
+              },
+              {
+                "end_exclusive": "0x10000000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0x80000000",
+                "region_index": 0,
+                "resource": "MEMNOC_MS_MPU",
+                "resource_id": "0x4b",
+                "start": "0x00000000",
+                "write_vmid": "0x80000000"
+              },
+              {
+                "end_exclusive": "0x09800000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0xf0000000",
+                "region_index": 5,
+                "resource": "CNOC_SNOC_MS_MPU",
+                "resource_id": "0x23",
+                "start": "0x09000000",
+                "write_vmid": "0xf0000000"
+              }
+            ]
+          },
+          {
+            "address": "0x092c8080",
+            "hits": [
+              {
+                "end_exclusive": "0x10000000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0x80000000",
+                "region_index": 0,
+                "resource": "MEMNOC_MS_MPU",
+                "resource_id": "0x4b",
+                "start": "0x00000000",
+                "write_vmid": "0x80000000"
+              },
+              {
+                "end_exclusive": "0x09800000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0xf0000000",
+                "region_index": 5,
+                "resource": "CNOC_SNOC_MS_MPU",
+                "resource_id": "0x23",
+                "start": "0x09000000",
+                "write_vmid": "0xf0000000"
+              }
+            ]
+          },
+          {
+            "address": "0x092ce000",
+            "hits": [
+              {
+                "end_exclusive": "0x10000000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0x80000000",
+                "region_index": 0,
+                "resource": "MEMNOC_MS_MPU",
+                "resource_id": "0x4b",
+                "start": "0x00000000",
+                "write_vmid": "0x80000000"
+              },
+              {
+                "end_exclusive": "0x09800000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0xf0000000",
+                "region_index": 5,
+                "resource": "CNOC_SNOC_MS_MPU",
+                "resource_id": "0x23",
+                "start": "0x09000000",
+                "write_vmid": "0xf0000000"
+              }
+            ]
+          },
+          {
+            "address": "0x09348080",
+            "hits": [
+              {
+                "end_exclusive": "0x10000000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0x80000000",
+                "region_index": 0,
+                "resource": "MEMNOC_MS_MPU",
+                "resource_id": "0x4b",
+                "start": "0x00000000",
+                "write_vmid": "0x80000000"
+              },
+              {
+                "end_exclusive": "0x09800000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0xf0000000",
+                "region_index": 5,
+                "resource": "CNOC_SNOC_MS_MPU",
+                "resource_id": "0x23",
+                "start": "0x09000000",
+                "write_vmid": "0xf0000000"
+              }
+            ]
+          },
+          {
+            "address": "0x0934e000",
+            "hits": [
+              {
+                "end_exclusive": "0x10000000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0x80000000",
+                "region_index": 0,
+                "resource": "MEMNOC_MS_MPU",
+                "resource_id": "0x4b",
+                "start": "0x00000000",
+                "write_vmid": "0x80000000"
+              },
+              {
+                "end_exclusive": "0x09800000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0xf0000000",
+                "region_index": 5,
+                "resource": "CNOC_SNOC_MS_MPU",
+                "resource_id": "0x23",
+                "start": "0x09000000",
+                "write_vmid": "0xf0000000"
+              }
+            ]
+          },
+          {
+            "address": "0x093c8080",
+            "hits": [
+              {
+                "end_exclusive": "0x10000000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0x80000000",
+                "region_index": 0,
+                "resource": "MEMNOC_MS_MPU",
+                "resource_id": "0x4b",
+                "start": "0x00000000",
+                "write_vmid": "0x80000000"
+              },
+              {
+                "end_exclusive": "0x09800000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0xf0000000",
+                "region_index": 5,
+                "resource": "CNOC_SNOC_MS_MPU",
+                "resource_id": "0x23",
+                "start": "0x09000000",
+                "write_vmid": "0xf0000000"
+              }
+            ]
+          },
+          {
+            "address": "0x093ce000",
+            "hits": [
+              {
+                "end_exclusive": "0x10000000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0x80000000",
+                "region_index": 0,
+                "resource": "MEMNOC_MS_MPU",
+                "resource_id": "0x4b",
+                "start": "0x00000000",
+                "write_vmid": "0x80000000"
+              },
+              {
+                "end_exclusive": "0x09800000",
+                "flags": "0x9",
+                "hlos_read": false,
+                "hlos_write": false,
+                "owner": "TZ",
+                "read_vmid": "0xf0000000",
+                "region_index": 5,
+                "resource": "CNOC_SNOC_MS_MPU",
+                "resource_id": "0x23",
+                "start": "0x09000000",
+                "write_vmid": "0xf0000000"
+              }
+            ]
+          }
+        ],
+        "selector_predicate": "selector_result_byte < 2"
+      }
+    },
+    "static_hlos_grant": false
+  },
+  "devcfg_xpu_control": {
+    "device_path": "/ac/xpu",
+    "property_name": "disable_xpu_ac",
+    "property_vaddr": "0x1c01283c",
+    "value": 0
+  },
+  "device_access": false,
+  "dynamic_bimc_policy": {
+    "known_fanout_resources": [
+      {
+        "base": "0x0924e000",
+        "name": "BIMC_MPU0",
+        "resource_id": "0x2e"
+      },
+      {
+        "base": "0x092ce000",
+        "name": "BIMC_MPU1",
+        "resource_id": "0x2f"
+      },
+      {
+        "base": "0x0934e000",
+        "name": "BIMC_MPU2",
+        "resource_id": "0x3f"
+      },
+      {
+        "base": "0x093ce000",
+        "name": "BIMC_MPU3",
+        "resource_id": "0x40"
+      },
+      {
+        "base": "0x0964e000",
+        "name": "LLCC_BROADCAST_MPU",
+        "resource_id": "0x3a"
+      }
+    ],
+    "result": "BIMC_MPU0..3 absence from static policy arrays does not mean unconfigured; the exact TZ memory-lock path programs them dynamically.",
+    "runtime_topology_selector": "UNKNOWN",
+    "topology_jump_table_vaddr": "0x1c122b40",
+    "topology_jump_targets": [
+      "0x1c0a9f28",
+      "0x1c0a9e40",
+      "0x1c0a9e6c",
+      "0x1c0a9e54",
+      "0x1c0a9e74",
+      "0x1c0a9eac"
+    ],
+    "unresolved_emitted_ids": [
+      "0x51",
+      "0x52",
+      "0x53",
+      "0x54"
+    ],
+    "unresolved_ids_registered_in_exact_primary_registry": false
+  },
+  "exact_syscall_records": {
+    "qhee_hyp": {
+      "hyp_assign": {
+        "file_offset": "0x61ec0",
+        "flags": "0x80000000",
+        "handler": "0x85723b90",
+        "param_id": "0x1117",
+        "raw_sha256": "6cffd31980fa9de7193628b763707f57e45574ad8f08b9c22ca3b6d5656857fe",
+        "record_vaddr": "0x8575fc80",
+        "reserved": 0,
+        "smc_id": "0x02000c16"
+      },
+      "qsee_app_region_notification": {
+        "file_offset": "0x61d58",
+        "flags": "0x00000000",
+        "handler": "0x85716348",
+        "param_id": "0x22",
+        "raw_sha256": "26c449e056d112f1d30968cc70575387d9d4cc32a8eb1569baf1bf99c60d0d7e",
+        "record_vaddr": "0x8575fb18",
+        "reserved": 0,
+        "smc_id": "0x32000105"
+      },
+      "rpm_online_dump": {
+        "file_offset": "0x61d70",
+        "flags": "0x00000000",
+        "handler": "0x857161c0",
+        "param_id": "0x1",
+        "raw_sha256": "0905028f5b7bd2486693971af353f85d7f404a8620f24809ba5c32163b90a85f",
+        "record_vaddr": "0x8575fb30",
+        "reserved": 0,
+        "smc_id": "0x0200030f"
+      }
+    },
+    "record_layout": "<u32 reserved, u32 smc_id, u32 param_id, u32 flags, u64 handler>",
+    "record_size": 24,
+    "trustzone": {
+      "enable_toggle_xpu": {
+        "flags": "0x00000000",
+        "handler": "0x1c0a9a44",
+        "param_id": "0x2",
+        "raw_sha256": "2d3c3e35510856a1d3b3bac7046fa626d39a627299b6f07fc20afed4764b3b76",
+        "record_vaddr": "0x1c12a7c8",
+        "reserved": 0,
+        "smc_id": "0x02000c23"
+      },
+      "hyp_assign_fallback": {
+        "flags": "0x00000001",
+        "handler": "0x1c0a6de4",
+        "param_id": "0x1117",
+        "raw_sha256": "6ced4b3fb4a99188eeb4287d8f3266be2b9a709755d0fbe318682f71a7647036",
+        "record_vaddr": "0x1c12aaf8",
+        "reserved": 0,
+        "smc_id": "0x02000c16"
+      },
+      "qsee_app_region_notification": {
+        "flags": "0x00000013",
+        "handler": "0x1c0c30f8",
+        "param_id": "0x22",
+        "raw_sha256": "55a00e36a4db1d1e2fb916f7a688af5cbb26ad50a0b3c4ef2dfa4357effeb9b9",
+        "record_vaddr": "0x1c12aca8",
+        "reserved": 0,
+        "smc_id": "0x32000105"
+      },
+      "rpm_online_dump": {
+        "flags": "0x00000000",
+        "handler": "0x1c050b9c",
+        "param_id": "0x1",
+        "raw_sha256": "73d80187bd0b98a9de1abf16f7dec88ddf5d7cefbcd1b9394ffdcca3b2d45afd",
+        "record_vaddr": "0x1c12a990",
+        "reserved": 0,
+        "smc_id": "0x0200030f"
+      },
+      "security_allows_dump": {
+        "flags": "0x00000001",
+        "handler": "0x1c054734",
+        "param_id": "0x0",
+        "raw_sha256": "8713c9ebcc95fb16c96ee3308a73ec8f1fee9df2bc40c4a2340fcb89757ed0cb",
+        "record_vaddr": "0x1c12b140",
+        "reserved": 0,
+        "smc_id": "0x02000310"
+      }
+    }
+  },
+  "firmware_bytes_emitted": false,
+  "inputs": {
+    "devcfg": {
+      "filename": "devcfg--sdd22.bin",
+      "pin_verified": true,
+      "sha256": "0399578253dd293dfc961c6a1077f660834df3ae5e1d65555f4225e327a03d14",
+      "size": 131072
+    },
+    "hyp": {
+      "filename": "hyp--sdd33.bin",
+      "pin_verified": true,
+      "sha256": "646f8fca08b0eff56b1d8415d81c3041a775c1871400dc57448cb5103405a8e1",
+      "size": 1048576
+    },
+    "trustzone": {
+      "filename": "tz--sdd5.bin",
+      "pin_verified": true,
+      "sha256": "a5e6c574e18e2e576a25df6274b20bdb142386811dfda6383f86d7b1b3c102ab",
+      "size": 4194304
+    },
+    "xbl": {
+      "filename": "xbl--sdb1.bin",
+      "pin_verified": true,
+      "sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+      "size": 4194304
+    }
+  },
+  "master_mpu_boot_initialization": {
+    "bimc_mpu_initialized_by_this_loop": false,
+    "boot_function": "0x1c0a40f8",
+    "initializer": "0x1c0ace70",
+    "selectors": [
+      {
+        "record_vaddr": "0x1c155700",
+        "resource_id": "0x39",
+        "resource_name": "CNOC_AOSS_MPU",
+        "selector": "0x1d"
+      },
+      {
+        "record_vaddr": "0x1c155400",
+        "resource_id": "0x1d",
+        "resource_name": "ANOC2_MPU",
+        "selector": "0x1e"
+      },
+      {
+        "record_vaddr": "0x1c155580",
+        "resource_id": "0x31",
+        "resource_name": "MSS_NAV_MPU",
+        "selector": "0x23"
+      }
+    ]
+  },
+  "mmio_access": false,
+  "mode": "HOST_ONLY_READ_ONLY",
+  "named_qhee_tz_services": {
+    "qsee_app_region_notification": {
+      "direct_bimc_xpu_call": false,
+      "qhee_handler": "0x85716348",
+      "tz_direct_call_targets": [
+        "0x1c0c54e8",
+        "0x1c03aa8c"
+      ],
+      "tz_handler": "0x1c0c30f8",
+      "tz_smc_id": "0x32000105"
+    },
+    "rpm_region_share": {
+      "exact_tz_handler_is_single_ret_noop": true,
+      "exact_tz_rpm_handler": "0x1c050b9c",
+      "generic_xpu_mutation_primitive": false,
+      "qhee_handler": "0x857161c0",
+      "tz_smc_ids": [
+        "0x02000310",
+        "0x0200030f"
+      ]
+    }
+  },
+  "private_record": {
+    "filename": "010-xpu-initializer-inventory-20260825-01.json",
+    "git_ignored": true,
+    "sha256": "dc4a664b2d9a01982b37684a4e63dd8e5183f41f6fbec191a1169d8ee418133a",
+    "size": 41865
+  },
+  "qhee_assignment_boundary": {
+    "direct_calls_generic_tz_smc_wrapper": false,
+    "direct_calls_local_wrapper": true,
+    "hyp_assign_handler": "0x85723b90",
+    "interpretation": "The exact QHEE intercept enforces ownership and maps through its local stage-2/SMMU access-control path; this handler is not a direct BIMC XPU writer.",
+    "local_ac_map_memory_range_wrapper": "0x8573581c"
+  },
+  "schema": "sdm855-xpu-initializer-inventory-public-v1",
+  "secure_config_lock_boundary": {
+    "comparative_secure_config_write_disable_mask_requested_initially": false,
+    "conclusion": "The inspected TZ caller is consistent with secure-world dynamic mutability, but the final boot/runtime hardware lock bit is not proved.",
+    "reset_preserves_control_mask": "0x00000002",
+    "restore_preserves_control_mask": "0x00000002",
+    "runtime_control_register_readback": "UNKNOWN",
+    "static_config_initial_word": "0x0001c800",
+    "xpu3_init_dereferences_second_config_argument": false
+  },
+  "smc_access": false,
+  "trustzone_assignment_boundary": {
+    "assignment_core": "0x1c0a5564",
+    "dynamic_bimc_reconfigure_reached": true,
+    "handler": "0x1c0a6de4",
+    "interpretation": "The exact TZ fallback is a separate enforcement implementation whose memory-lock path reaches dynamic BIMC/LLCC MPU policy.",
+    "mpu_lock_area": "0x1c0a9d5c",
+    "mpu_lock_memory": "0x1c0ab624",
+    "same_smc_id_fallback_registered": true
+  },
+  "vulnerability_assessment": {
+    "critical_unknowns": [
+      "Runtime register readback",
+      "Final DRAM transform block",
+      "Post-transform protection ordering"
+    ],
+    "current_result": "NO_SECURITY_BOUNDARY_BYPASS_OBSERVED",
+    "evidence_against": [
+      "All known remapper/BIMC configuration apertures are covered by two branch-invariant TZ-owned policies.",
+      "The only identified HLOS-visible XPU toggle cannot disable any XPU because its exact whitelist count is zero.",
+      "QHEE hyp_assign adds an independent ownership/stage-2/SMMU enforcement layer."
+    ],
+    "evidence_for": [
+      "Secure world dynamically programs BIMC MPU resources during memory ownership changes.",
+      "A physical-to-DRAM transform remains unidentified and could be downstream."
+    ]
+  },
+  "xbl_boundary": {
+    "bimc_records": [
+      {
+        "base": "0x0924e000",
+        "file_offset": "0x2d9660",
+        "raw_sha256": "785e599af0e923b6cd25a6a4608a3a701b586f3b362a48e78a6c9dbc94186051",
+        "resource_id": "0x2e"
+      },
+      {
+        "base": "0x092ce000",
+        "file_offset": "0x2d9670",
+        "raw_sha256": "3f4b321581fa28f81c941bf85c4af2c1f884df876e59adf69c2aff0e7d32d693",
+        "resource_id": "0x2f"
+      },
+      {
+        "base": "0x0934e000",
+        "file_offset": "0x2d96f0",
+        "raw_sha256": "1154e17baa8c88ca3d627107cf9d91c91434827c55350c26088c6894afbe2eea",
+        "resource_id": "0x3f"
+      },
+      {
+        "base": "0x093ce000",
+        "file_offset": "0x2d9730",
+        "raw_sha256": "fc86ed670325fad3b1f28921517f72c3fbbea633c5897126cf15074c23ab69a1",
+        "resource_id": "0x40"
+      }
+    ],
+    "interpretation": "The BIMC base literals are records in a TZ-branded XPU diagnostic region. Their presence is not evidence that the main XBL program writes BIMC policy registers.",
+    "main_xbl_bimc_policy_writer": "NOT_PROVED",
+    "markers": {
+      "embedded_tz_image_version": {
+        "all_file_offsets": [
+          "0x2d9300"
+        ],
+        "expected_file_offset": "0x2d9300",
+        "occurrence_count": 1
+      },
+      "xpu_version": {
+        "all_file_offsets": [
+          "0x2d78a0"
+        ],
+        "expected_file_offset": "0x2d78a0",
+        "occurrence_count": 1
+      },
+      "xpu_violation_reporter": {
+        "all_file_offsets": [
+          "0x330bd0"
+        ],
+        "expected_file_offset": "0x330bd0",
+        "occurrence_count": 1
+      }
+    }
+  },
+  "xpu_toggle_boundary": {
+    "arbitrary_mmio_writer": false,
+    "disable_path_accepts_any_base": false,
+    "disable_whitelist_count": 0,
+    "disable_whitelist_count_vaddr": "0x1c122a90",
+    "enable_path": "registered-base lookup followed by HAL restore",
+    "literal_present_in_hyp": false,
+    "registered_in_tz": true,
+    "smc_id": "0x02000c23",
+    "tz_mpu_lock_hlos_region_smc_literal_present": false
+  }
+}

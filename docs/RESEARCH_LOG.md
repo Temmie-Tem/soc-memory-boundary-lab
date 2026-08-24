@@ -309,3 +309,52 @@
     manifests parse; private/public regeneration is byte-identical. Tool,
     public manifest, and private derived-record SHA-256 are respectively
     `88b6cd2e…`, `f5c661af…`, and `d90d48f7…`. No live access was repeated.
+
+## 2026-08-25 — Experiment 010 QHEE/TZ initializer authority
+
+1. Ran a host-only parser over exact XBL `e73a07a…`, TrustZone `a5e6c574…`,
+   QHEE/hyp `646f8fca…`, and devcfg `03995782…`. No device, SMC, MMIO,
+   partition, controller, EL2-runtime, or EL3-runtime access occurred.
+2. Corrected the syscall-table model to exact 24-byte
+   `{u32 reserved, u32 smc_id, u32 param_id, u32 flags, u64 handler}` records.
+   `REFUTED`: treating an adjacent parameter/flag word as a handler pointer.
+3. `PROVED`: exact QHEE registers HLOS SMC `0x02000c16` at `0x85723b90`.
+   Its bounded handler validates buffer/VM/ownership/alignment state and calls
+   local wrapper `0x8573581c`, structurally matching comparative
+   `ACMapMemoryRange` and QHEE stage-2/SMMU access control. It does not directly
+   call generic TZ wrapper `0x85718100`.
+4. `PROVED`: exact TZ separately registers the same ID at `0x1c0a6de4`.
+   Pinned direct branches reach assignment core `0x1c0a5564`, memory lock
+   `0x1c0ab624`, internal lock `0x1c0ab6c8`, lock area `0x1c0a9d5c`, topology
+   fanout `0x1c0a9e14`, and reconfigure `0x1c0a9f44`.
+5. `PROVED`: topology code emits registered IDs `0x2e`, `0x2f`, `0x3f`, and
+   `0x40` (`BIMC_MPU0..3`) and sometimes `0x3a`
+   (`LLCC_BROADCAST_MPU`). `REFUTED`: static-list absence implies BIMC MPUs are
+   unconfigured. Unregistered emitted IDs `0x51..0x54` remain `UNKNOWN`.
+6. `PROVED`: exact TZ registers toggle SMC `0x02000c23`; its enable path
+   restores a registry-resolved XPU and its disable path searches an allowed
+   list whose exact count at `0x1c122a90` is zero. No arbitrary HLOS XPU
+   disable/write primitive was obtained.
+7. `PROVED`: QHEE's named RPM-region path calls two fixed TZ services, but the
+   exact TZ `0x0200030f` handler is a single `RET`. Its app-region handler calls
+   two QSEE region/list helpers and no reconstructed BIMC/XPU function directly.
+8. `PROVED`: both embedded TZ policy branches cover every known remapper and
+   BIMC configuration address with TZ-owned `MEMNOC_MS_MPU` region 0 and
+   `CNOC_SNOC_MS_MPU` region 5. Both records contain no ordinary HLOS VMID
+   permission. Instance 0 additionally has narrow DC_NOC regions 11 and 13.
+9. `PROVED`: boot master-MPU selectors initialize `ANOC2_MPU`, `MSS_NAV_MPU`,
+   and `CNOC_AOSS_MPU`, not BIMC. XBL BIMC literals reside in a TZ-branded XPU
+   diagnostic table; `REFUTED`: literals alone prove main-XBL policy writes.
+10. `SUPPORTED`: static config does not request the comparative secure-config-
+    write-disable field, consistent with secure-world dynamic updates.
+    `PROVED`: exact XPU3 restore/reset preserve control mask `0x2`.
+    `UNKNOWN`: the final hardware bit and runtime policy registers.
+11. QHEE/EL2 evidence is therefore material: it proves an independent
+    ownership/stage-2/SMMU layer and prevents conflating `hyp_assign` with TZ
+    BIMC control. Arbitrary EL2 private-memory R/W remains `UNKNOWN`.
+12. Implemented `tools/sm8150_xpu_initializer_inventory.py` and eight focused
+    tests. All 81 repository tests pass; public JSON parses; three generations
+    are byte-identical. Tool, public manifest, and ignored mode-0600 private
+    record SHA-256 are `10b13456…`, `baeef82f…`, and `dc4a664b…`.
+    Current result is `CLASS A/B CANDIDATE FOR KNOWN CONTROLLER APERTURES`, not
+    a complete structural-block proof and not a security-boundary bypass.

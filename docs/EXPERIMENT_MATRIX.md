@@ -11,7 +11,7 @@
 | 007 | A narrow kernel path can read the exact remapper windows post-boot. | Fixed map/read/unmap returns a stable 32-bit control word without reset. | Exact candidate/map hashes; one fixed base first; no MMIO write/retry/arbitrary address; retained reset log; verified rollback. | `REFUTED` for the generic REPL adapter: `__ioremap` returned, then a non-secure watchdog occurred before `msm_readl`. Purpose-built adapter readability remains `UNKNOWN`. |
 | 008 | Exact retained boot evidence resolves the live DCB/remapper row and TZ protection adjacency. | One DCB and table row match; exact TZ registry binds same-instance MPU configuration bases. | Four SHA-256-pinned private inputs; consistent repeated boot values; structural ELF/registry validation; no device access. | `PROVED`: `/6003_0200_1_dcb.bin`, row 7, six 36-bit slots, and `BIMC_MPU0..3` at matching `qhs_llcc+0xe000`; runtime register words/coverage `UNKNOWN`. |
 | 009 | Static TZ/XBL/AOP consumers distinguish remapper security ownership from sub-aperture clock/fault gating. | Registry consumers, access policy, clock vote, or fault-response path names `+0x8080`/same window. | Host-only exact bytes; code/data xrefs; no MMIO retry or inferred register semantics. | `PROVED` static coverage: both TZ policy branches place `0x09248080` in TZ-owned `DC_NOC_BROADCAST_MPU` region 11 with no HLOS grant; `SUPPORTED` XPU/fabric denial; causal syndrome/runtime readback `UNKNOWN`. |
-| 010 | Identify BIMC_MPU0..3 initialization and order DC_NOC policy, remapper, and later DRAM decode. | A secure boot path supplies BIMC policies and shows which address representation each enforcement point sees. | Host-only exact XBL/TZ/hyp/devcfg bytes; function/data provenance; no MMIO retry. | `UNKNOWN`, next. |
+| 010 | Identify BIMC_MPU0..3 initialization and separate QHEE ownership enforcement from TZ XPU control. | Exact secure paths supply BIMC policies; any HLOS XPU-control SMC has a bounded allowlist; all known controller apertures can be checked against both policy branches. | Host-only exact XBL/TZ/hyp/devcfg bytes; function/data/SMC-record pins; comparative names separated from exact claims; no device/SMC/MMIO access. | `PROVED`: QHEE `hyp_assign` uses local stage-2/SMMU AC; separate TZ fallback dynamically reconfigures BIMC_MPU0..3; XPU-disable allowlist count 0; all eight apertures have broad branch-invariant no-HLOS coverage. Final data-path ordering `UNKNOWN`; no bypass. |
 | 011 | Normal-RAM bank/channel relationships fit a stable GF(2) model. | Timing clusters produce a cross-validated XOR matrix. | Fresh pages, pagemap/PA proof, randomized pairs, cache flush, frequency pinning, hold-out pairs. | `NOT ELIGIBLE`: protection/transform ordering and safe observation path remain unresolved. |
 | 012 | A controlled transform state creates physical-to-DRAM alias. | `PA_A != PA_B` but writes through one are observed through the other after cache-neutral independent reads. | Prove distinct PTE/PAs; CPU and DMA controls; cache maintenance; reboot/state restoration; unchanged-state negative control. | `NOT ELIGIBLE`: region-remap candidates exist, but readback/lock state, safe restore and a normal-RAM alias hypothesis are not proved. |
 | 013 | A normal-RAM alias reaches a protected boundary. | Only after 012, a minimal non-secret marker/boundary test differs between normal and alias path. | No dump, exact ordering proof, secondary enforcement control. | `NOT ELIGIBLE`. |
@@ -247,3 +247,39 @@
 - Repetition count: one final parser generation; the same live MMIO load was
   not repeated
 - Device/MMIO/controller writes: none; device access: none
+
+## Experiment 010 exact XPU-initializer metadata
+
+- Experiment ID: `010-xpu-initializer-inventory-20260825-01`
+- Target model / SoC: exact retained `SM-A908N` / `SM8150`
+- Firmware/build: exact Experiment 004 XBL, TrustZone, QHEE/hyp, and devcfg
+  partition hashes pinned by the tool; no substituted generation or target
+- Kernel build/hash: no kernel executed in this host-only phase
+- Boot image / DTB / research-kernel hash: no new boot artifact and no device
+  action; V2321 remains the last health-proved runtime; live DTB remains
+  `UNKNOWN`
+- Timestamp: `2026-08-25 08:18 KST`
+- Preconditions: all four exact inputs present and matching pinned sizes and
+  SHA-256; no connected-device, SMC, or MMIO precondition
+- Exact action:
+  `python3 tools/sm8150_xpu_initializer_inventory.py --replace`
+- Result: exact QHEE `hyp_assign` uses local stage-2/SMMU access control;
+  separate TZ same-ID fallback reaches dynamic `BIMC_MPU0..3` policy; XPU
+  disable allowlist count is zero; all eight known controller apertures have
+  branch-invariant broad TZ-owned/no-HLOS static coverage
+- Log reference: none; this phase consumed only exact firmware images and did
+  not infer runtime values from a device log
+- Public manifest SHA-256:
+  `baeef82f8f0fad7c7e897e3c373dacd129b7f2ed22d78c075a94141ee36c1ce2`
+- Private derived record SHA-256:
+  `dc4a664b2d9a01982b37684a4e63dd8e5183f41f6fbec191a1169d8ee418133a`
+- Tool SHA-256:
+  `10b134568213973ef6a69a57a0c384442f27fb8011f008cb23a60ecfd7939005`
+- Focused-test SHA-256:
+  `c7d1fd557f0499673cbcdf0d7824f54ce002b28ac04a9946f2cb3551bb81ed33`
+- Host verification: eight focused tests and all 81 repository tests pass;
+  every public manifest parses; three consecutive private/public generations
+  are byte-identical; private mode `0600`, public mode `0644`
+- Repetition count: one final analysis result, regenerated three times only for
+  deterministic host verification
+- Device/SMC/MMIO/controller/partition writes: none; device access: none

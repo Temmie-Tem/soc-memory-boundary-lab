@@ -28,9 +28,9 @@ candidate is EL1-accessible.
 
 | Rank | Candidate | Who/when | Base and offset | Width | EL1 read/write | Reset/boot/lock/owner | Confidence |
 |---:|---|---|---|---|---|---|---|
-| 1 | XBL ICB/qhs_llcc region remapper | `PROVED`: XBL programs it during DDR bring-up; exact row 7 selected | bases `0x09248080`, `0x092c8080`, `0x09348080`, `0x093c8080`; offsets `0x00..0x58` | exact writer uses 32-bit MMIO and 36-bit split address fields | userland `/dev/mem` `REFUTED`; generic REPL adapter `REFUTED`; fixed instance-0 load returned no value and watchdog; write `UNKNOWN` | destination bases known; numeric words/source bases/interleave mask/lock `UNKNOWN`; tested page static owner `TZ` | Exact system-PA remap candidate; final DRAM-hash role `UNKNOWN` |
+| 1 | XBL ICB/qhs_llcc region remapper | `PROVED`: XBL programs it during DDR bring-up; exact row 7 selected | bases `0x09248080`, `0x092c8080`, `0x09348080`, `0x093c8080`; offsets `0x00..0x58` | exact writer uses 32-bit MMIO and 36-bit split address fields | userland `/dev/mem` `REFUTED`; generic REPL adapter `REFUTED`; fixed instance-0 load returned no value and watchdog; write `UNKNOWN` | destination bases known; numeric words/source bases/interleave mask/lock `UNKNOWN`; all four addresses have branch-invariant broad TZ-owned/no-HLOS policy coverage | Exact system-PA remap candidate; final DRAM-hash role `UNKNOWN` |
 | 2 | `DC_NOC_BROADCAST_MPU` policy | `PROVED`: both exact TZ policy branches, consumed static-config path | XPU base `0x090e0000`; region 11 covers `0x09248000–0x09249000` | exact 32-byte policy record and XPU3 HAL conversion | static record grants no HLOS access; live denial `SUPPORTED`; register readback `UNKNOWN` | flags `0x9` = enabled/TZ owner; MSA-class RO; exact devcfg `disable_xpu_ac=0` | Strongest current explanation for fixed-read watchdog |
-| 3 | Same-instance BIMC MPU configuration | `PROVED`: exact TZ registry plus error routes; absent from both static lists | `qhs_llcc + 0xe000`: `0x0924e000`, `0x092ce000`, `0x0934e000`, `0x093ce000` | register semantics `UNKNOWN` | no live access attempted | initializer, final policy, self-aperture coverage, lock and ordering `UNKNOWN` | Highest remaining protection-ordering value |
+| 3 | Same-instance BIMC MPU configuration | `PROVED`: exact TZ registry/error routes and dynamic memory-lock topology fanout; absent from both static lists because it is configured dynamically | `qhs_llcc + 0xe000`: `0x0924e000`, `0x092ce000`, `0x0934e000`, `0x093ce000` | exact TZ constructs policy records; hardware register semantics beyond pinned HAL path remain partly `UNKNOWN` | no live access attempted; all four bases have branch-invariant broad TZ-owned/no-HLOS coverage | secure initializer `PROVED`; final runtime policy, topology input, control lock and ordering `UNKNOWN` | Highest remaining data-path protection-ordering value |
 | 4 | Selected DCB section 16 + SHRM firmware path | `PROVED`: `/6003_0200_1_dcb.bin`, 560-byte section 16, installed SHRM blobs | `qhs_shrm_mem + 0x5100` (`0x09065100`) | structured data/firmware; semantics `UNKNOWN` | host-readable; runtime access `UNKNOWN` | SHRM lock behavior `UNKNOWN` | High remaining channel/bank decode value |
 | 5 | Four-channel MCCC/MC windows in XBL topology | XBL/SHRM DDR bring-up | `qhs_mccc`, `qhs_llcc`, `qhs_mc` bases enumerated in exact topology | likely 32-bit; exact fields `UNKNOWN` | `UNKNOWN/UNKNOWN` | `UNKNOWN` | High for finer decode, no field yet |
 
@@ -66,7 +66,20 @@ VMID/HLOS access, while exact devcfg leaves XPU access control enabled.
 `SUPPORTED`: XPU/fabric denial caused the watchdog. `UNKNOWN`: decoded syndrome,
 runtime policy-register readback, and a possible sub-aperture clock contribution.
 
-`PROVED`: BIMC_MPU0..3 have exact registry and error-route entries but appear
-in neither embedded static policy list. Locating their initializer is the next
-host-only priority because they remain the leading candidates for data-path
-protection ordering relative to the remapper and final MCCC/MC decode.
+`PROVED` by Experiment 010: BIMC_MPU0..3 have exact registry/error-route entries
+and are dynamically programmed by TZ's memory-lock topology fanout, explaining
+their absence from both embedded static policy lists. QHEE's same-ID HLOS
+`hyp_assign` intercept is separate: it validates ownership and reaches a local
+stage-2/SMMU access-control mapper without directly invoking TZ's generic SMC
+wrapper.
+
+`PROVED`: both static-policy branches independently protect all four remapper
+addresses and all four BIMC configuration bases through `MEMNOC_MS_MPU` region
+0 and `CNOC_SNOC_MS_MPU` region 5. Both records are TZ-owned and grant no
+ordinary HLOS VMID. The exact HLOS-visible XPU toggle cannot disable any XPU
+because its allowed-disable list count is zero.
+
+`UNKNOWN`: final runtime policy/control words, topology selector input, and
+where the data-path check sits relative to final MCCC/MC channel/bank/rank/row
+decode. This is now the next host-only priority; repeating the denied
+configuration-aperture load cannot answer it.
