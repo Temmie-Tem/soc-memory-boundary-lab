@@ -1,14 +1,20 @@
 # Next-experiment scorecard — 2026-08-26
 
 This scorecard ranks host-only follow-up work after the integrated
-Experiments 019–022 and 024. It does not grant live, device, SMC, MMIO, write,
-or Experiments 015/016 authority. Experiment 024 is complete as a bounded
-static result; its conditional and semantic boundaries remain explicit below.
+Experiments 019–022, 024, and 025. It does not grant live, device, SMC, MMIO,
+write, or Experiments 015/016 authority. Experiments 024 and 025 are complete
+as bounded static results; their conditional and semantic boundaries remain
+explicit below.
 
 | Rank | Experiment | Information target | Scope and gate | Status |
 |---:|---|---|---|---|
-| 1 | 025 | Determine whether the runtime BSS object/registry path can keep the initialized base current through the unresolved success-path callback. | Host-only: bound registry/attach/factory/vtable/callback reach, write cross-references, and boot-order evidence for BSS slot `0x14890590` and registry `[0x14890e50,0x14890f50)`. Require a qualified, independently reviewed committed manifest before any promotion. | `NEXT HOST-ONLY`; highest information value |
-| 2 | 023R | Re-test the timing claim only after the protocol and provenance defects are repaired. | Require a protocol comparable to Experiment 014 (including ordering, warmup, barriers, and reopen accounting), physical-allocation PA provenance, and a unique full GF(2) matrix. `PA24=b1^b2` can remain `SUPPORTED` until those gates pass. | `LATER`; 023 is withheld/`NO-GO` and not public |
+| 1 | 026 | Reconstruct exact-XBL dispatch/order linking registration/bootstrap to main-init, with a complementary slot-escape census. | Host-only: bind the new function/table/caller ranges below; census unsupported-form slot/page/global aliases and argument escapes. Treat every Experiment 025 range as dependency-only. Require independent re-derivation and pinned hashes before any promotion; no device action. | `PRIMARY HYPOTHESIS`; 95/100 |
+| 2 | DCB writer follow-up | Resolve the remaining bounded DCB/register-writer complement after the 018–022 coverage. | Host-only, exact-byte and conservative decoder scope; no broad MMIO scan or device action. Preserve all current unknown writer/semantic boundaries. | `LATER`; 69/100 |
+| 3 | 023R | Re-test the timing claim only after the protocol and provenance defects are repaired. | Require a protocol comparable to Experiment 014 (including ordering, warmup, barriers, and reopen accounting), physical-allocation PA provenance, and a unique full GF(2) matrix. `PA24=b1^b2` can remain `SUPPORTED` until those gates pass. | `LATER`; 64/100; 023 is withheld/`NO-GO` and not public |
+
+The scores are decision aids, not vulnerability probabilities or evidence
+labels. They compare critical-`UNKNOWN` closure, discriminatory power, success
+probability, cost/recoverability, dependency/non-overlap, and reuse value.
 
 ## Experiment 024 integrated result
 
@@ -73,17 +79,69 @@ recorded in
 [EXP024_INTEGRATION_REVIEW_2026-08-26.md](EXP024_INTEGRATION_REVIEW_2026-08-26.md).
 The public manifest is 30,400 bytes and mode `0644`.
 
-## Experiment 025 design boundary
+## Experiment 025 integrated result
 
-The highest-information next step is bounded registry/attach/factory/vtable/
-callback and write-xref/boot-order proof for runtime BSS slot `0x14890590` and
-registry `[0x14890e50,0x14890f50)`. Pre-integration design inputs are the seed
-`[0x1482ee38,0x1482ee4c)`, registry/attach `[0x1482d7ec,0x1482d948)`, wrappers
-`[0x1482e7bc,0x1482e834)`, record `0x14875590` with ID `0x02000139`,
-descriptor/vtable `0x14824ab8..0x14824b40`, factory `[0x1484a880,0x1484a8fc)`,
-and callback `[0x1484a9d4,0x1484aa0c)`. These are design inputs, not final
-claims. Do not promote before a qualified, independently reviewed committed
-025 manifest. No device action or MMIO write is part of this scorecard.
+Experiment 025 is `COMPLETED` and integrated from commit `d743150` (parent
+`a68d2f1`). It is host-only, read-only static analysis of the exact XBL with no
+device, SMC, MMIO, protected-memory, normal-RAM, or activation action.
+
+`PROVED`: helper `[0x1486abec,0x1486acac)` has one direct caller at
+`0x1486847c`, which passes `X0=SP+0x10`, not main context `X19`; the helper's
+exact slot path loads, addresses, and reloads `0x14890590`. The attach path
+pins semantic `MOVZ/MOVK` service ID `0x02000139`.
+
+`PROVED`: the static seed derives `X0=0x14875668` and outer record
+`X1=0x14875590` with count five; it selects descriptor `0x14824ab8` -> factory
+`0x1484a880` -> constructed object candidate `0x1488f418` -> inline vtable
+`0x14824ad0 + 0x48` -> callback `0x1484a9d4`. The bounded callback path
+`a9d4->a730->a824->aa30->a854` has one recognized output write at
+`0x1484a9f4` to helper `SP+0xc`; nested recursion/status writes are only at
+`0x1488f3f9`, `0x14890ba0`, and `0x14890b90`, with one decoded MMIO read at
+`0x01fc8004` and zero recognized MMIO writes.
+
+The all-file-backed executable census and pinned loop blocks are conservative
+recognized coverage, not arbitrary-write absence. `SUPPORTED`: conditional
+intended binding can populate the slot and the recognized callback flow does
+not write caller context `+8`. `UNKNOWN`: runtime registration/order, slot
+value/object identity, actual `BLR X9` target, alternate BSS mutation/global
+aliases/unsupported writes, full `0x01d80000` base currentness, and live
+mapping/authority. Experiment 024's UFS mapping remains conditional; Class C
+remains unchanged and 015/016 remain `NOT ELIGIBLE`.
+
+The integrated tool/test/README/manifest SHA-256 values are respectively
+`16e9584a3043d76670c66b6a517e56c87267645506c1f76a040737d731b168b9`,
+`219227a927acb8a98d8e7294150c154b916795e709ab02bb076b946d8d7bb687`,
+`eb97735c91b79fb13f8feb40e9b98ffd7f2aa71a9dcc2fbe479fcdcf2e4014a3`, and
+`d3c405d7c8d23dc1cd65b1c578b4b4ce931d9bdfeb303c892e9c0c145c4c81cc`.
+The public manifest is 28,132 bytes and mode `0644`.
+Validation is 22 focused and 556 full tests, 65 public JSON manifests, Python
+byte-compilation, byte-identical regeneration, and two artifact-review PASS
+results; the durable integration-doc review is recorded separately in
+[EXP025_INTEGRATION_REVIEW_2026-08-26.md](EXP025_INTEGRATION_REVIEW_2026-08-26.md).
+
+## Experiment 026 primary design boundary
+
+Experiment 026 is the primary host-only selection, scored `95/100`, for exact-
+XBL dispatch/order and a complementary unsupported-form slot/page/global-alias/
+argument-escape census linking registration/bootstrap to main-init. Its new
+design-input ranges are:
+
+- registration-list helpers `[0x1482ecb4,0x1482edac)` and initializer loop
+  `[0x1482edac,0x1482f0b4)`;
+- table header `[0x14875534,0x14875568)`;
+- bootstrap caller `[0x14852ce0,0x14852d70)`, veneer `[0x14843d20,0x14843d50)`,
+  and alternate paths `[0x14828338,0x14828360)` and
+  `[0x14828b44,0x14828c80)`;
+- main dispatcher `[0x14864834,0x148648c0)`, callers
+  `[0x148641a4,0x1486420c)`, `[0x1486420c,0x1486424c)`,
+  `[0x148642dc,0x148644cc)`, and top `[0x1485a2ec,0x1485a30c)`;
+- memory-only runtime initializer pool `[0x146b30c0,0x146b38b0)`.
+
+These are design inputs/`HYPOTHESIS` only; no preliminary 026 range hashes are
+claims until Experiment 026 independently re-derives and pins them. All 025
+ranges are dependency-only. Even on static closure, runtime order, slot value,
+actual `BLR` target, base currentness and live mapping remain `UNKNOWN`; no
+device, SMC, MMIO, write, or activation action is part of this selection.
 
 ## Experiment 023R prerequisites
 

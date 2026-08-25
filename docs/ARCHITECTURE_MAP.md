@@ -247,12 +247,39 @@ alias/global consumer/writer, DDR/MC relation, GF(2), and alias/bypass remain
 destinations. Class C remains unchanged and Experiments 015/016 remain
 `NOT ELIGIBLE`.
 
-The next highest-information host-only step is bounded Experiment 025 proof
-for runtime-BSS slot `0x14890590` and registry `[0x14890e50,0x14890f50)`:
-registry/attach/factory/vtable/callback reach, write cross-references, and
-boot-order evidence. Do not promote before a qualified, independently
-reviewed committed 025 manifest. No device action or MMIO write is part of
-this next step.
+Experiment 025 is now `COMPLETED` and integrated from commit `d743150` (parent
+`a68d2f1`). `PROVED`: the exact platform-query helper
+`[0x1486abec,0x1486acac)` has caller `0x1486847c` with `X0=SP+0x10`, not main
+context `X19`; it loads, addresses, and reloads slot `0x14890590`, and pins
+semantic ID `0x02000139` via `MOVZ/MOVK`. The static seed
+`X0=0x14875668`, outer record `X1=0x14875590` count five, descriptor
+`0x14824ab8`, factory `0x1484a880`, constructed candidate `0x1488f418`, inline
+vtable `0x14824ad0 + 0x48`, and callback `0x1484a9d4` form the pinned chain.
+The bounded callback graph `a9d4->a730->a824->aa30->a854` has one recognized
+output write at `0x1484a9f4` to helper `SP+0xc`; nested writes are only to
+`0x1488f3f9`, `0x14890ba0`, and `0x14890b90`, with one decoded MMIO read at
+`0x01fc8004` and zero recognized MMIO writes. The all-executable census and
+pinned loop blocks are conservative recognized coverage, not arbitrary-write
+absence. `SUPPORTED`: conditional intended binding can populate the slot and
+the recognized callback flow does not write caller context `+8`. `UNKNOWN`:
+runtime registration/order, slot/object identity, actual `BLR X9` target,
+alternate BSS mutation/global aliases/unsupported writes, full `0x01d80000`
+base currentness, and live mapping or authority. Experiment 024's UFS mapping
+remains conditional; Class C and 015/016 eligibility are unchanged.
+
+The next primary host-only step is Experiment 026, scored `95/100`: exact-XBL
+dispatch/order plus a complementary unsupported-form slot/page/global-alias/
+argument-escape census linking registration/bootstrap to main-init. Its design
+inputs and new ranges are listed in
+[the scorecard](NEXT_EXPERIMENT_SCORECARD.md); all 025 ranges are
+dependency-only, preliminary 026 range hashes are not claims, and runtime
+order/slot/`BLR`/base currentness remain `UNKNOWN`. No device action or MMIO
+write is part of this selection.
+
+The Experiment 025 integration validation is 22 focused and 556 full unittest
+PASS, 65 public JSON manifests, Python byte-compilation, byte-identical
+regeneration, and two independent artifact-review PASS results recorded in
+[EXP025_INTEGRATION_REVIEW_2026-08-26.md](EXP025_INTEGRATION_REVIEW_2026-08-26.md).
 
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside

@@ -789,7 +789,8 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
    Experiments 018–022; unresolved dynamic bases, consumers and writers remain
    `UNKNOWN`, and no broad MMIO scan/device action is authorized. The
    subsequent Experiment 024 integration records the bounded resolution of
-   the false-negative path; current follow-up is tracked as Experiment 025.
+   the false-negative path; Experiment 025 later closes the intended static
+   platform-query binding without closing runtime order or base currentness.
 
 ## 2026-08-25 — Experiment 018 XBL MC writer cross-reference Stage 1A
 
@@ -1140,9 +1141,73 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
    `docs/EXP024_INTEGRATION_REVIEW_2026-08-26.md`. The public manifest is
    30,400 bytes, mode `0644`, at
    `evidence/manifests/024-xbl-six-byte-walker-20260826-01.manifest.json`.
-8. The next highest-information host-only step is Experiment 025: bound
-   registry/attach/factory/vtable/callback reach, write cross-references, and
-   boot-order evidence for runtime BSS slot `0x14890590` and registry
-   `[0x14890e50,0x14890f50)`. Do not promote before a qualified,
-   independently reviewed committed 025 manifest; no device action or MMIO
-   write is part of that design.
+8. Experiment 025 is the completed bounded static follow-up for the unresolved
+   platform-query binding; its integration and exact claim boundaries are
+   recorded below. The next primary host-only step is Experiment 026,
+   scored `95/100`, for exact-XBL dispatch/order plus a complementary
+   unsupported-form slot/page/global-alias/argument-escape census linking
+   registration/bootstrap to main-init. Its ranges are design inputs only until
+   independently re-derived; all Experiment 025 ranges are dependency-only.
+
+## 2026-08-26 — Experiment 025 XBL platform-query binding integration
+
+1. Integrated commit `d743150` (parent `a68d2f1`) as a host-only, read-only
+   static analysis of the exact SM8150 XBL. The exact input is 4,194,304 bytes
+   with SHA-256
+   `e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37`.
+   No device, SMC, MMIO, protected-memory, normal-RAM, or activation action
+   occurred. Class C remains `TRANSFORM ONLY`; Experiments 015/016 remain
+   `NOT ELIGIBLE`.
+2. `PROVED`: platform-query helper `[0x1486abec,0x1486acac)` has one pinned
+   direct caller at `0x1486847c`; it passes `X0=SP+0x10`, not main context
+   `X19`. The helper loads, forms the attach-output address for, and reloads
+   runtime slot `0x14890590`. The attach path pins service ID `0x02000139`
+   through semantic `MOVZ/MOVK` instruction words.
+3. `PROVED`: the static seed derives `X0=0x14875668` and outer record
+   `X1=0x14875590` with count five; it selects descriptor `0x14824ab8`, factory
+   `0x1484a880`, constructed object candidate `0x1488f418`, inline vtable
+   `0x14824ad0 + 0x48`, and callback `0x1484a9d4`.
+4. `PROVED`: bounded callback flow
+   `0x1484a9d4 -> 0x1484a730 -> 0x1484a824 -> 0x1484aa30 -> 0x1484a854`
+   has one recognized output write at `0x1484a9f4` to helper `SP+0xc`.
+   Recognized nested recursion/status writes are only at `0x1488f3f9`,
+   `0x14890ba0`, and `0x14890b90`; the bounded status helper has one decoded
+   MMIO read at `0x01fc8004` and zero recognized MMIO writes.
+5. The all-file-backed executable census plus pinned basic-block loop model
+   accounts for recognized slot/address/list xrefs and is conservative coverage,
+   not arbitrary-write absence. `SUPPORTED`: conditional intended binding can
+   populate the slot and the recognized callback flow does not write caller
+   context `+8`. `UNKNOWN`: runtime registration/order, slot value/object
+   identity, actual `BLR X9` target, alternate BSS mutation/global aliases/
+   unsupported writes, complete arbitrary-write absence, full `0x01d80000`
+   base currentness, and live mapping or authority. Experiment 024's UFS
+   mapping remains conditional.
+6. Tool/test/README/manifest SHA-256 values are
+   `16e9584a3043d76670c66b6a517e56c87267645506c1f76a040737d731b168b9`,
+   `219227a927acb8a98d8e7294150c154b916795e709ab02bb076b946d8d7bb687`,
+   `eb97735c91b79fb13f8feb40e9b98ffd7f2aa71a9dcc2fbe479fcdcf2e4014a3`, and
+   `d3c405d7c8d23dc1cd65b1c578b4b4ce931d9bdfeb303c892e9c0c145c4c81cc`.
+   The public manifest is 28,132 bytes, mode `0644`, at
+   `evidence/manifests/025-xbl-platform-query-binding-20260826-01.manifest.json`.
+7. Validation is 22 focused and 556 full unittest-discovery PASS, Python
+   byte-compilation PASS, 65 public JSON manifests parsed, two fresh
+   generations byte-identical, and two independent artifact-review PASS
+   results. The durable integration-doc review is
+   `docs/EXP025_INTEGRATION_REVIEW_2026-08-26.md`; two independent
+   common-document reviews returned `PASS`.
+8. Initial hostile artifact review findings were the B-vs-BL mask, stale
+   ADRP/clobber/control-flow/BR false xrefs, missing semantic MOVZ/MOVK ID pin,
+   bootstrap RET-range ambiguity, and incomplete Definition-of-done metadata.
+   The committed artifact repairs the branch mask, page/clobber/CFG and false
+   xref handling, semantic ID words, bootstrap range ending at `0x1484aa74`
+   with `RET` at `0x1484aa70`, and target/precondition/non-applicable live
+   artifact/publication/repetition metadata. Two independent final artifact
+   reviews returned `PASS`; this does not pre-approve the common-document
+   integration review.
+9. The next primary host-only selection is Experiment 026, scored `95/100`,
+   for exact-XBL dispatch/order and complementary unsupported-form
+   slot/page/global-alias/argument-escape census linking registration/bootstrap
+   to main-init. Its design-input ranges must be independently re-derived and
+   hash-pinned; all 025 ranges are dependency-only. Runtime order, slot value,
+   actual `BLR` target, base currentness, and live mapping remain `UNKNOWN`,
+   and no device action is part of the selection.

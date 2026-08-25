@@ -225,10 +225,11 @@ retained-evidence channels and sparse observed density; completeness is
 `REFUTED` by known `0x09248080`, while implemented-register coverage remains
 `UNKNOWN`. Class C is unchanged and Experiments 015/016 remain `NOT ELIGIBLE`.
 
-Integration validation for the current host-only record is 30 focused and 534
-full unittest PASS, 64 public JSON manifests, byte-identical regeneration,
-and two independent review PASS results recorded in the
-[Experiment 024 integration review](docs/EXP024_INTEGRATION_REVIEW_2026-08-26.md).
+Integration validation for the current host-only Experiment 025 record is 22
+focused and 556 full unittest PASS, 65 public JSON manifests, Python
+byte-compilation, byte-identical regeneration, and two independent
+artifact-review PASS results recorded in the
+[Experiment 025 integration review](docs/EXP025_INTEGRATION_REVIEW_2026-08-26.md).
 Experiment 023 remains
 `WITHHELD/NO-GO`, not integrated or public: its timing protocol is not
 comparable to Experiment 014, PA provenance is missing, and its full GF(2)
@@ -252,13 +253,36 @@ consumer/writer, DDR/MC relation, GF(2), and alias/bypass. All mappings are
 conditional symbolic supersets, not current destinations. Class C is
 unchanged; Experiments 015/016 remain `NOT ELIGIBLE`.
 
-The next highest-information host-only step is bounded Experiment 025 proof
-for runtime-BSS slot `0x14890590` and registry `[0x14890e50,0x14890f50)`:
-registry/attach/factory/vtable/callback reach, write cross-references, and
-boot-order evidence. Do not promote before a qualified, independently
-reviewed committed 025 manifest. See the
-[scorecard](docs/NEXT_EXPERIMENT_SCORECARD.md) and the historical
-[CONFIG/CDT review](docs/CONFIG_CDT_INTEGRATION_REVIEW_2026-08-26.md).
+Experiment 025 is `COMPLETED` and integrated from commit `d743150` (parent
+`a68d2f1`). `PROVED`: the exact platform-query helper
+`[0x1486abec,0x1486acac)` has caller `0x1486847c` with `X0=SP+0x10`, not main
+context `X19`; it loads, addresses, and reloads slot `0x14890590`, and pins
+semantic `MOVZ/MOVK` service ID `0x02000139`. The static seed derives
+`X0=0x14875668`, outer record `X1=0x14875590` with count five, then
+descriptor `0x14824ab8` -> factory `0x1484a880` -> constructed candidate
+`0x1488f418` -> inline vtable `0x14824ad0` + `0x48` -> callback `0x1484a9d4`.
+The bounded callback path `0x1484a9d4 -> 0x1484a730 -> 0x1484a824 ->
+0x1484aa30 -> 0x1484a854` has its recognized output write at `0x1484a9f4`
+to helper `SP+0xc`; nested recursion/status writes are only at
+`0x1488f3f9`, `0x14890ba0`, and `0x14890b90`, with one decoded MMIO read at
+`0x01fc8004` and zero recognized MMIO writes in the bounded helper. The
+all-executable census is conservative coverage, not arbitrary-write absence.
+`SUPPORTED`: intended conditional binding can populate the slot and the
+recognized callback flow does not write caller context `+8`. `UNKNOWN`: runtime
+registration/order, slot value/object identity, actual `BLR X9` target, alternate
+BSS mutation/global aliases/unsupported writes, full `0x01d80000` base
+currentness, and live mapping/authority. Experiment 024's UFS mapping remains
+conditional; Class C is unchanged and Experiments 015/016 remain
+`NOT ELIGIBLE`. See the
+[Experiment 025 integration review](docs/EXP025_INTEGRATION_REVIEW_2026-08-26.md).
+
+The next primary host-only selection is Experiment 026, scored `95/100`: exact
+XBL dispatch/order plus a complementary slot-escape census linking registration
+and bootstrap to main-init. Its design inputs include the new ranges and tables
+listed in the [scorecard](docs/NEXT_EXPERIMENT_SCORECARD.md), while all
+Experiment 025 ranges are dependency-only. Runtime order, slot value, `BLR`
+target, and base currentness remain `UNKNOWN`; no device action or MMIO write is
+part of the selection. Experiment 023R remains later and withheld.
 
 Claim vocabulary is deliberately closed:
 
@@ -312,6 +336,10 @@ Experiment 021's bounded-copy delivery audit is in
 [experiments/021-dcb-delivery-paths/README.md](experiments/021-dcb-delivery-paths/README.md).
 Experiment 022's two-channel observation-coverage audit is in
 [experiments/022-observation-coverage/README.md](experiments/022-observation-coverage/README.md).
+Experiment 024's exact XBL six-byte walker is in
+[experiments/024-xbl-six-byte-walker/README.md](experiments/024-xbl-six-byte-walker/README.md),
+and Experiment 025's platform-query binding is in
+[experiments/025-xbl-platform-query-binding/README.md](experiments/025-xbl-platform-query-binding/README.md).
 Verification 001's independent re-derivation of the load-bearing static claims
 is in
 [experiments/verification-001-independent-claim-audit/README.md](experiments/verification-001-independent-claim-audit/README.md).
