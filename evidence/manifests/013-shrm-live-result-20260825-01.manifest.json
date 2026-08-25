@@ -1,0 +1,110 @@
+{
+  "claims": {
+    "PROVED": [
+      "The fixed no-load map/unmap control returned 0xc071 with healthy post-state.",
+      "The paired candidate differs in exactly one 32-bit instruction: control MOVZ versus one LDR W at the fixed SHRM snapshot address.",
+      "The one-load path returned no value, disconnected the transport, and the retained log records Non Secure Watchdog Bark with TZBSP_ERR_FATAL_NON_SECURE_WDT.",
+      "The read operation was not retried, V2321 was restored by full-prefix SHA-256, and final native selftest has zero failures."
+    ],
+    "REFUTED": [
+      "The purpose-built EL1 path can directly observe this staged MCCC snapshot word on the tested boot.",
+      "The fixed SHRM snapshot read produced an alias or security-boundary bypass."
+    ],
+    "SUPPORTED": [
+      "The fixed 32-bit SHRM snapshot load, rather than mapping alone, caused a system-wide stall ending in the watchdog reset.",
+      "Active TZ/XPU policy denial or its downstream fabric response explains the stall because both exact static branches exclude HLOS access to the complete workspace."
+    ],
+    "UNKNOWN": [
+      "A decoded runtime XPU syndrome and final XPU register readback; therefore XPU is not assigned as the causally proved root cause.",
+      "Whether a secure diagnostic interface can export snapshot words without granting HLOS direct access.",
+      "Whether any separate mutable final address transform exists behind the protected interface."
+    ]
+  },
+  "classification": "CLASS_A_OR_B_CANDIDATE_FIXED_EL1_SHRM_READ_BLOCKED",
+  "device_access": false,
+  "inputs": {
+    "control_flash": {
+      "sha256": "201ef82868bef1b0d149acca0ca3440aaa18648b9289332d094ece778de25bd9"
+    },
+    "control_live": {
+      "sha256": "27f278978252d37e0a9d2fbd9f2e9575376086f7b19ec243590574e7b6b0800a"
+    },
+    "control_rollback": {
+      "sha256": "cdbcd3d119696aed405a27e787fbd85751d5c71979f7a2aa21939fd394105ea1"
+    },
+    "final_health": {
+      "sha256": "9add2c4d7b9218d96c8a2b919931cbfa325383ff0aeeea8c6902d7d937bc3899"
+    },
+    "last_kmsg": {
+      "sha256": "92af2a21292f8874e466afa4716830bf51d2098e3b68a14f7244b33043d2aeb2"
+    },
+    "read_flash": {
+      "sha256": "2a6ee2c54e07dc985043b141c2bbbfca226260a3d12bbbc2c9161968c5d77d44"
+    },
+    "read_live": {
+      "sha256": "fe32fbe256c511b361ca916996c2892264e9f685a576351cb5196601db5dbb73"
+    },
+    "read_rollback": {
+      "sha256": "a543159f7def2975c9d4a73ed04793be2da32dc1a5d32b3e625b102af7224d20"
+    }
+  },
+  "live_result": {
+    "control_outcome": "CONTROL_PASS",
+    "control_value": "0x0000c071",
+    "read_automatic_retries": false,
+    "read_outcome": "NO_VALUE_TRANSPORT_LOSS_THEN_WATCHDOG_RESET",
+    "watchdog": {
+      "a90r_result_present": false,
+      "bark_minus_last_pet_seconds": "11.000279",
+      "bark_time_seconds": "40.280410",
+      "cpu_alive_mask": "0x7",
+      "last_pet_time_seconds": "29.280131",
+      "tz_reset_reason": "TZBSP_ERR_FATAL_NON_SECURE_WDT",
+      "upload_cause": "Non Secure Watchdog Bark"
+    }
+  },
+  "mode": "HOST_ONLY_EVIDENCE_RECOMBINATION",
+  "paired_candidates": {
+    "body_differing_byte_offsets": [
+      76,
+      77,
+      78,
+      79
+    ],
+    "body_differing_instruction_count": 1,
+    "control_instruction_le": "340e98d2",
+    "control_sha256": "d1d4956b64ae5ca39eb5218d8e84e3da40bc2772e39f2a9d438bfaf778be46e0",
+    "read_instruction_le": "740240b9",
+    "read_sha256": "7ee6a41f3f55f6eea768a7fd7b66bf011b84e63fa523ee8a0430a50091b02116"
+  },
+  "private_record": {
+    "filename": "013-shrm-live-result-20260825-01.json",
+    "git_ignored": true,
+    "sha256": "f0ca560528cfb177b9777ba9c0b9f1386dea7af18b84a9e6a1362d3d292731dc",
+    "size": 5089
+  },
+  "rollback": {
+    "final_battery_capacity_percent": 100,
+    "final_boot_prefix_sha256": "ca978551aabe4b39563abaf529ccf2522054952d8b2ad852e632d26da88168cb",
+    "final_selftest": {
+      "duration": 43,
+      "entries": 12,
+      "fail": 0,
+      "passed": 11,
+      "warn": 1
+    },
+    "final_version": {
+      "build": "v2321-usb-clean-identity-rodata",
+      "version": "0.9.285"
+    },
+    "full_prefix_verified": true
+  },
+  "schema": "sdm855-shrm-live-result-public-v1",
+  "security_state": "NO_ALIAS_OR_BOUNDARY_BYPASS_OBSERVED",
+  "snapshot": {
+    "physical_address": "0x0906566c",
+    "set": 0,
+    "source_register": "0x09250118",
+    "word_index": 207
+  }
+}

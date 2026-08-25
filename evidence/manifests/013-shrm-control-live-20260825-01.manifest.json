@@ -1,0 +1,30 @@
+{
+  "arbitrary_address_input": false,
+  "automatic_retries": false,
+  "candidate_sha256": "d1d4956b64ae5ca39eb5218d8e84e3da40bc2772e39f2a9d438bfaf778be46e0",
+  "claim_boundary": "CONTROL_PASS proves only that fixed map/unmap returned safely without a bus load",
+  "completed_utc": "2026-08-25T00:24:55+00:00",
+  "driver_sha256": "98493464c7fb53bff122c8c3291c1a718837b8e2015ce33618dac204482f9f3b",
+  "error_type": null,
+  "experiment_id": "013-shrm-control-live-20260825-01",
+  "failed_stage": null,
+  "generic_call_target": false,
+  "health_after": {
+    "selftest_payload_sha256": "8f5a321af96193f555b98336cf8e542fdf140812b6816f226de8277f17fb2ed0",
+    "selftest_status": "ok",
+    "version_status": "ok"
+  },
+  "memory_or_mmio_writes": false,
+  "mode": "control",
+  "outcome": "CONTROL_PASS",
+  "panic_on_oops_restored": true,
+  "raw_snapshot_sha256": "27f278978252d37e0a9d2fbd9f2e9575376086f7b19ec243590574e7b6b0800a",
+  "raw_snapshot_size": 4882,
+  "schema": "sdm855-a90-inline-shrm-probe-public-v1",
+  "snapshot_physical_address": "0x0906566c",
+  "snapshot_source_register": "0x09250118",
+  "soc": "SM8150",
+  "started_utc": "2026-08-25T00:24:52+00:00",
+  "target_model": "SM-A908N",
+  "value": "0x0000c071"
+}

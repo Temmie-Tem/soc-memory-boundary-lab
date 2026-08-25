@@ -61,8 +61,14 @@ Host-only Experiment 013 proves that the complete SHRM snapshot workspace is
 inside three enabled, TZ-owned regions in both exact policy branches. The
 narrow `DC_NOC_NON_BROADCAST_MPU` region is exactly
 `0x09060000..0x0906ffff`; none of the six branch/region matches grants ordinary
-HLOS read or write. A fixed no-load control and one-word MCCC snapshot probe
-are host-built, but no Experiment 013 boot candidate has run yet.
+HLOS read or write. The fixed no-load control at snapshot word `0x0906566c`
+returned `0xc071`; its paired candidate differed by one instruction and made
+one 32-bit load, returned no value, disconnected USB, and ended in a retained
+`Non Secure Watchdog Bark` / `TZBSP_ERR_FATAL_NON_SECURE_WDT`. The operation
+was not retried. V2321 was restored by full-prefix SHA-256 and passed final
+selftest with zero failures. This blocks the tested direct EL1 snapshot path;
+it does not prove that XPU is the causal root or that no hidden transform
+exists.
 
 Claim vocabulary is deliberately closed:
 

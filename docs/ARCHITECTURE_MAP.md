@@ -92,7 +92,15 @@ snapshot workspace `0x09065100..0x09065fff` inside
 `DC_NOC_NON_BROADCAST_MPU`, `MEMNOC_MS_MPU`, and `CNOC_SNOC_MS_MPU` regions.
 All six matches are enabled/TZ-owned and exclude the comparative HLOS VMID for
 both read and write. Runtime activation is `SUPPORTED`; final policy-register
-readback and the result of one fixed EL1 load remain `UNKNOWN`.
+readback remains `UNKNOWN`.
+
+`PROVED` live: a purpose-built fixed control mapped/unmapped SHRM snapshot word
+`0x0906566c` and returned `0xc071`. Its paired body differed by one instruction
+and issued one `LDR W`; it returned no value and retained log records
+`Non Secure Watchdog Bark` plus `TZBSP_ERR_FATAL_NON_SECURE_WDT`. V2321 was
+restored and passed final health. `SUPPORTED`: the load caused a protected
+fabric stall and XPU policy explains it. A decoded XPU syndrome is absent, so
+the causal root remains below `PROVED`.
 
 `UNKNOWN`: numeric boot register words. XBL consumes runtime per-channel source
 bases and a rank-interleave mask not present in the retained firmware/log

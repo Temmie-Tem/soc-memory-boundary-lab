@@ -14,7 +14,7 @@
 | 010 | Identify BIMC_MPU0..3 initialization and separate QHEE ownership enforcement from TZ XPU control. | Exact secure paths supply BIMC policies; any HLOS XPU-control SMC has a bounded allowlist; all known controller apertures can be checked against both policy branches. | Host-only exact XBL/TZ/hyp/devcfg bytes; function/data/SMC-record pins; comparative names separated from exact claims; no device/SMC/MMIO access. | `PROVED`: QHEE `hyp_assign` uses local stage-2/SMMU AC; separate TZ fallback dynamically reconfigures BIMC_MPU0..3; XPU-disable allowlist count 0; all eight apertures have broad branch-invariant no-HLOS coverage. Final data-path ordering `UNKNOWN`; no bypass. |
 | 011 | Exact XBL exposes a PA-to-DRAM-coordinate model and selected DCB section 16 identifies candidate controller state. | A real DDR failure path computes rank/row/bank/channel/column; section tokens match SHRM-visible MCCC/MC pages. | Three exact SHA-256 pins, bounded function/word hashes, inverse-coordinate control, structural two-set parser, no device/SMC/MMIO. | `PROVED`: current formula is linear, complete, and bijective with no XOR/alias; section tokens match five controller families. Hidden hardware transform and token semantics `UNKNOWN`; no bypass. |
 | 012 | Exact SHRM section-16 consumer establishes token scaling and direction. | Xtensa helper computes controller addresses and stages reads/writes according to a direction argument; exact callsites reveal the observed mode. | Exact XBL/SHRM blob hashes, parser/callsite fingerprints, offset formula, capacity/count checks, no device/SMC/MMIO. | `PROVED`: `(base_page<<12)+(offset<<2)`; both direct consumers pass read direction and produce 430/64 snapshot reads. Section-16 write primitive `REFUTED` for observed paths; runtime values/locks/indirect paths `UNKNOWN`. |
-| 013 | Does either exact TZ branch grant HLOS access to the SHRM snapshot workspace? | Every covering policy region can be resolved and permission-decoded; a fixed snapshot word can then be tested with a paired no-load control. | Exact TZ hash, complete `0xf00` range, both selector branches, fixed one-word candidate, no runtime address/write input. | `PROVED` static: three TZ-owned regions per branch cover the complete workspace and all exclude HLOS read/write. Fixed control/read candidates are host-built; live control is `NOT RUN`. |
+| 013 | Does either exact TZ branch grant HLOS access to the SHRM snapshot workspace? | Every covering policy region can be resolved and permission-decoded; a fixed snapshot word can then be tested with a paired no-load control. | Exact TZ hash, complete `0xf00` range, both selector branches, candidates differing by one instruction, no retry/address/write input, verified V2321 rollback. | `PROVED`: three TZ-owned regions per branch exclude HLOS; no-load control returned `0xc071`; one-load read returned no value and retained `Non Secure Watchdog Bark`/`TZBSP_ERR_FATAL_NON_SECURE_WDT`. Direct EL1 path `REFUTED`; XPU root cause `SUPPORTED`; no bypass. |
 | 014 | Normal-RAM bank/channel relationships fit a stable GF(2) model not already explained by the exact diagnostic formula. | Timing clusters require address terms absent from the XBL coordinate model and cross-validate on held-out pairs. | Fresh pages, PA proof, randomized pairs, cache control, frequency pinning, formula-derived negative/positive groups. | `NOT ELIGIBLE`: a safe independent DRAM-coordinate observation path remains unresolved. |
 | 015 | A controlled transform state creates physical-to-DRAM alias. | `PA_A != PA_B` but writes through one are observed through the other after cache-neutral independent reads. | Prove distinct PTE/PAs; CPU and DMA controls; cache maintenance; reboot/state restoration; unchanged-state negative control. | `NOT ELIGIBLE`: candidate tokens exist, but operation semantics, readback/lock state, safe restore, and an alias-producing state are not proved. |
 | 016 | A normal-RAM alias reaches a protected boundary. | Only after 015, a minimal non-secret marker/boundary test differs between normal and alias path. | No dump, exact ordering proof, secondary enforcement control. | `NOT ELIGIBLE`. |
@@ -286,6 +286,40 @@
 - Repetition count: one final analysis result, regenerated three times only for
   deterministic host verification
 - Device/SMC/MMIO/controller/partition writes: none; device access: none
+
+## Experiment 013 SHRM snapshot boundary/live metadata
+
+- Experiment IDs: `013-shrm-snapshot-boundary-20260825-01`,
+  `013-shrm-control-live-20260825-01`, `013-shrm-read-live-20260825-01`, and
+  `013-shrm-live-result-20260825-01`
+- Target model / SoC: exact bound `SM-A908N` / `SM8150`; the separate S22+
+  endpoint was inventoried and received no command
+- Firmware/build: exact TZ SHA-256 `a5e6c574…`; final native build
+  `v2321-usb-clean-identity-rodata`, init `0.9.285`
+- Boot images: V2321 `ca978551…`; fixed no-load control `d1d4956b…`; fixed
+  one-load read `7ee6a41f…`; each live write had full 60,882,944-byte readback
+- Snapshot target: section-16 set-0 word 207 at `0x0906566c`, sourced from
+  MCCC register `0x09250118`
+- Timestamp: `2026-08-25 09:24–09:33 KST`
+- Preconditions: both exact TZ branches prove three enabled/TZ-owned covering
+  regions with no HLOS read/write; control/read bodies differ by exactly one
+  instruction; exact V2321 rollback available
+- Exact live sequence: control write/boot/op once -> V2321 rollback -> read
+  write/boot/op once -> retained-log capture -> V2321 rollback
+- Result: control `0xc071`; read returned no value and disconnected USB;
+  retained log proves `Non Secure Watchdog Bark`,
+  `TZBSP_ERR_FATAL_NON_SECURE_WDT`, bark `40.280410`, last pet `29.280131`,
+  CPU alive mask `0x07`, and no `A90R` result
+- Retained log: 2,097,136 bytes, SHA-256 `92af2a21…`
+- Final state: V2321 full-prefix SHA-256 restored; selftest
+  `pass=11 warn=1 fail=0`; battery 100%
+- Repetition count: control once; read once; read automatic retries zero
+- Device effects: four exact boot-only writes including two rollbacks; no
+  memory/controller/XPU/SCM/EL2/EL3/protected-memory write; one fixed 32-bit
+  SHRM load
+- Classification: `CLASS A/B CANDIDATE — FIXED DIRECT EL1 SHRM READ BLOCKED`;
+  XPU/fabric root cause `SUPPORTED`; alias/boundary bypass `REFUTED` for this
+  path
 
 ## Experiment 011 exact DRAM-coordinate metadata
 

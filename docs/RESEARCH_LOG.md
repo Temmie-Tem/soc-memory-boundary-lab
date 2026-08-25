@@ -445,4 +445,20 @@
    load; the read has exactly one 32-bit load; neither accepts an address or
    contains a memory/MMIO store.
 6. Candidate SHA-256 values are `d1d4956b…` (control) and `7ee6a41f…` (read).
-   State is `HOST_READY_CONTROL_ONLY`; no Experiment 013 candidate has run.
+   Initial state was `HOST_READY_CONTROL_ONLY`.
+7. The control candidate was written once with full boot-prefix readback,
+   code-booted from exact TWRP, and invoked once. It returned `0xc071`; version,
+   selftest and `panic_on_oops` restore passed. V2321 was then restored by full
+   prefix SHA-256 before read eligibility.
+8. The read candidate was written once with full-prefix readback and invoked
+   once. It returned no `A90R` value, disconnected USB, and was not retried.
+9. Captured retained `/proc/last_kmsg`, 2,097,136 bytes, SHA-256 `92af2a21…`.
+   It records bark `40.280410`, last pet `29.280131`, alive mask `0x07`,
+   `Non Secure Watchdog Bark`, and `TZBSP_ERR_FATAL_NON_SECURE_WDT`.
+10. `PROVED`: paired outcomes and reset identity. `SUPPORTED`: the sole extra
+    `LDR W`, rather than mapping, caused the system-wide stall; static XPU
+    denial explains it. Causal XPU syndrome remains `UNKNOWN`.
+11. Restored V2321 with full-prefix SHA-256 `ca978551…`. Final native receipt
+    proves version `0.9.285`, selftest `pass=11 warn=1 fail=0`, and battery
+    100%. Current result is `CLASS A/B CANDIDATE — FIXED DIRECT EL1 SHRM READ
+    BLOCKED / NO ALIAS OR BOUNDARY BYPASS OBSERVED`.

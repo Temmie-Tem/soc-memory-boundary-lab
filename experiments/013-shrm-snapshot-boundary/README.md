@@ -29,8 +29,7 @@ granted to ordinary HLOS in either embedded policy branch.
 `SUPPORTED`: a direct EL1 read is expected to be denied by active XPU policy or
 its downstream fabric response.
 
-`UNKNOWN`: final runtime XPU register state and whether one fixed EL1 read
-returns a value, faults locally, stalls, or causes a watchdog reset.
+`UNKNOWN`: final runtime XPU register state and a decoded XPU syndrome.
 
 ## Fixed live pair prepared
 
@@ -42,12 +41,36 @@ The host-built pair targets only SHRM set-0 word 207 at physical
 - read `7ee6a41f…`: the same path with exactly one 32-bit load.
 
 Neither candidate accepts a runtime address or call target, and neither
-contains a memory/MMIO store. Current state is `HOST_READY_CONTROL_ONLY`; the
-control must run cleanly and V2321 recovery must remain verified before the
-read candidate can become eligible.
+contains a memory/MMIO store.
+
+## Live result
+
+`PROVED`: the no-load control returned `0xc071` with healthy post-state. After
+verified V2321 rollback, the paired read candidate was flashed with full-prefix
+readback and invoked once. It returned no value and disconnected USB. The
+retained 2,097,136-byte log records:
 
 ```text
-CLASS A/B CANDIDATE — SHRM SNAPSHOT HAS NO STATIC HLOS GRANT
+Watchdog bark! Now = 40.280410
+Watchdog last pet at 29.280131
+cpu alive mask from last pet 07
+UploadCause[Non Secure Watchdog Bark]
+TZBSP_ERR_FATAL_NON_SECURE_WDT
+```
+
+No `A90R` result is present. The control/read bodies differ at exactly byte
+offsets `76..79`: one control `MOVZ` versus one read `LDR W` instruction.
+
+`SUPPORTED`: the single fixed load, rather than mapping alone, caused the
+system-wide stall. The exact no-HLOS policies make XPU/fabric denial the best
+current explanation, but no decoded runtime XPU syndrome exists.
+
+The read was not retried. V2321 was restored with full-prefix SHA-256
+`ca978551…`; final native version is `0.9.285`, selftest is
+`pass=11 warn=1 fail=0`, and battery was 100%.
+
+```text
+CLASS A/B CANDIDATE — FIXED DIRECT EL1 SHRM READ BLOCKED
 NO ALIAS OR SECURITY-BOUNDARY BYPASS OBSERVED
 ```
 

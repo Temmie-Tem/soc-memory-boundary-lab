@@ -263,7 +263,9 @@ same-window BIMC MPU configuration bases. Experiments 009/010 then resolved
 static coverage and secure initializer authority. Experiment 011 eliminated
 the XBL diagnostic formula itself as an alias source and exposed exact
 section-16 controller-token sets. Experiment 012 recovered the SHRM consumer,
-four-byte token scaling and direct read direction. The next measurement, if
-needed, is a separately qualified read-only observation of staged values; do
-not repeat the blocked live load and do not infer a write primitive from this
-snapshot path.
+four-byte token scaling and direct read direction. Experiment 013 then proved
+the complete snapshot workspace has no static HLOS grant; its no-load control
+passed, while one fixed snapshot load returned no value and watchdog-reset.
+Do not repeat that load. The next host-only target is any secure-firmware
+consumer that exports the staged buffers through an existing HLOS-readable
+diagnostic/shared-memory path.

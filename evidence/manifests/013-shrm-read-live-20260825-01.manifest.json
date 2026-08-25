@@ -1,0 +1,28 @@
+{
+  "arbitrary_address_input": false,
+  "automatic_retries": false,
+  "candidate_sha256": "7ee6a41f3f55f6eea768a7fd7b66bf011b84e63fa523ee8a0430a50091b02116",
+  "claim_boundary": "The recorded result does not by itself prove runtime XPU state, immutability, aliasing, or a protection bypass",
+  "completed_utc": "2026-08-25T00:28:46+00:00",
+  "driver_sha256": "98493464c7fb53bff122c8c3291c1a718837b8e2015ce33618dac204482f9f3b",
+  "error_type": "ReplTransientNoiseError",
+  "experiment_id": "013-shrm-read-live-20260825-01",
+  "failed_stage": "fixed-inline-op",
+  "generic_call_target": false,
+  "health_after": {
+    "error_type": "ConnectionResetError"
+  },
+  "memory_or_mmio_writes": false,
+  "mode": "read",
+  "outcome": "PROBE_FAILED",
+  "panic_on_oops_restored": false,
+  "raw_snapshot_sha256": "fe32fbe256c511b361ca916996c2892264e9f685a576351cb5196601db5dbb73",
+  "raw_snapshot_size": 3278,
+  "schema": "sdm855-a90-inline-shrm-probe-public-v1",
+  "snapshot_physical_address": "0x0906566c",
+  "snapshot_source_register": "0x09250118",
+  "soc": "SM8150",
+  "started_utc": "2026-08-25T00:28:21+00:00",
+  "target_model": "SM-A908N",
+  "value": null
+}

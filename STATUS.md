@@ -5,8 +5,9 @@ Current research state: `NO_BOUNDARY_BYPASS_OBSERVED`
 Current class: `A/B CANDIDATE — static controller-aperture policy and secure
 initializer paths proved; exact XBL diagnostic mapping is bijective and
 non-aliasing; section-16 is a read-only SHRM snapshot path whose complete
-workspace has no static HLOS grant; runtime state, indirect write paths, hidden
-transform and protection ordering remain unresolved`
+workspace has no static HLOS grant and whose fixed direct EL1 read path ended
+in watchdog reset; indirect write paths, hidden transform and protection
+ordering remain unresolved`
 
 Device mutation: Experiment 007 temporarily wrote the exact boot-only REPL,
 fixed no-load control, and fixed one-load read candidates. Each transition was
@@ -17,7 +18,10 @@ MMIO load.
 Experiment 004 created and removed fixed temporary block-device nodes under
 `/dev`; Experiment 005 created and removed one fixed temporary character node.
 Experiments 008, 009, 010, 011, 012, and Experiment 013 preparation were
-entirely host-only and performed no device, SMC, or MMIO access.
+entirely host-only. Experiment 013 then wrote exact control/read boot candidates
+and V2321 rollbacks with full-prefix readback. It performed no controller,
+memory, SCM, EL2, EL3, or protected-memory write and attempted one fixed
+32-bit SHRM load. V2321 is restored and healthy.
 
 ## A. 현재까지 PROVED
 
@@ -71,6 +75,12 @@ entirely host-only and performed no device, SMC, or MMIO access.
   regions. The exact narrow region is `DC_NOC_NON_BROADCAST_MPU` region 5 at
   `0x09060000–0x0906ffff`; all six branch/region matches exclude ordinary HLOS
   read and write.
+- Experiment 013's fixed no-load control mapped/unmapped snapshot word
+  `0x0906566c` and returned `0xc071`. The paired body differs by exactly one
+  32-bit instruction (`MOVZ` versus `LDR W`); the one-load path returned no
+  value, disconnected USB, and retained `Non Secure Watchdog Bark` with
+  `TZBSP_ERR_FATAL_NON_SECURE_WDT`. It was not retried. V2321 full-prefix
+  rollback and final `selftest fail=0` are proved.
 - Exact layout-1 code encodes six 36-bit ranges as low32/high4 fields, disables
   the four instances before programming and enables them afterward. There is no
   distinct lock-register write inside that exact bounded XBL function; later
@@ -195,6 +205,9 @@ entirely host-only and performed no device, SMC, or MMIO access.
 - “The SHRM snapshot workspace is statically unprotected or granted to HLOS.”
   Both exact policy branches cover it with the same three TZ-owned regions and
   no comparative HLOS VMID bit.
+- “The purpose-built direct EL1 path can observe staged MCCC snapshot word
+  `0x0906566c` on this boot.” The only eligible one-load attempt returned no
+  value and ended in a non-secure watchdog reset.
 
 ## D. UNKNOWN
 
@@ -202,8 +215,9 @@ entirely host-only and performed no device, SMC, or MMIO access.
   channel/rank/bank/row/column model.
 - Runtime values and lock state of the section-16 readback registers; any
   indirect helper invocation with reverse direction; and final-decode meaning.
-- Final runtime XPU register state and the exact result of one fixed EL1 read of
-  the staged MCCC snapshot word at `0x0906566c`.
+- Final runtime XPU register state and a decoded XPU syndrome for the fixed
+  staged-MCCC read. The observed reset is exact; XPU as its root cause remains
+  `SUPPORTED`, not `PROVED`.
 - Numeric boot remapper values, runtime MMIO writability, and lock state.
   Destination regions and rank sizes are known, but runtime per-channel source
   bases and the interleave mask are missing. Static TZ policy ownership is now
@@ -310,11 +324,11 @@ this difference is not yet a complete structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-The next experiment is prepared as a fixed pair. First run the exact no-load
-control at `0x0906566c` once. Only a clean control result and verified V2321
-rollback make the paired one-load read eligible. The read targets section-16
-set-0 word 207, which Experiment 012 binds to MCCC register `0x09250118`; it has
-no runtime address or write input.
+Do not repeat the fixed load. The next cheapest step is host-only recovery of
+downstream consumers of the two SHRM snapshot buffers at workspace offsets
+`0x230` and `0x8e8`. The discriminating question is whether secure firmware
+copies a bounded snapshot through an existing HLOS-readable diagnostic/shared
+buffer. If no export path exists, direct snapshot visibility remains blocked.
 
 ## N. 가장 위험한 아직 금지된 실험
 
@@ -364,6 +378,9 @@ Evidence against a presently usable bypass:
 - The complete SHRM snapshot workspace is independently covered by three
   enabled TZ-owned regions in both policy branches, with no ordinary HLOS read
   or write grant.
+- The purpose-built paired test separated mapping from access: map/unmap passed,
+  while the sole extra load produced no value and a retained non-secure watchdog
+  reset. This is strong evidence against usable direct EL1 visibility.
 - Secure ownership, boot-time locking, or a post-transform check could each
   independently make the AMD attack class fail.
 - Exact TrustZone firmware names multiple BIMC/MEMNOC/LLCC MPUs, increasing the
@@ -374,8 +391,8 @@ Evidence against a presently usable bypass:
 - Exact devcfg leaves XPU access control enabled (`disable_xpu_ac=0`), and the
   boot path consumes the selected static policy table.
 
-Critical unknowns are the fixed SHRM probe's runtime outcome, runtime snapshot
-values, lock state, indirect
+Critical unknowns are a secure snapshot-export path, runtime snapshot values,
+lock state, indirect
 reverse-direction use, runtime source-base/interleave state, final
 XPU/remapper/MCCC/MC readback, dynamic BIMC policy inputs, protection ordering,
 any transform hidden from the diagnostic, and deterministic alias behavior. The
