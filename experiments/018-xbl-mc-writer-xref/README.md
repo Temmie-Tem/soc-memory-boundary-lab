@@ -1,12 +1,14 @@
-# Experiment 018 — XBL MC writer cross-reference, Stage 1A + Stage 2A
+# Experiment 018 — XBL MC writer cross-reference, Stage 1A + Stage 2A + Stage 2B
 
 ## Scope and eligibility
 
-Experiment 018 Stage 1A and Stage 2A are host-only, read-only static evidence
+Experiment 018 Stage 1A, Stage 2A and Stage 2B are host-only, read-only static evidence
 over the exact retained SM8150 XBL. They make no device, SMC, MMIO, normal-RAM,
 protected-memory or runtime-register access. Stage 2A resolves only the four
 pinned non-SP RX candidates through a deliberately small direct-definition
-model; it does not identify a writer outside that model.
+model; Stage 2B extends only the two Stage 2A window-limit X8 candidates with a
+deliberately small W-wide-move model. Neither stage identifies a writer outside
+its model.
 
 Conceptual Experiment 015 (controlled normal-RAM alias) and Experiment 016
 (protected-boundary reach through that alias) remain reserved and `NOT
@@ -103,6 +105,37 @@ remain `NOT_ATTEMPTED_RWE_AMBIGUOUS`/`UNKNOWN`. Writer identity, unsupported or
 dynamic paths, execution, semantics, mutability/lock, GF(2), alias, bypass and
 other firmware remain `UNKNOWN`.
 
+## Stage 2B W-wide-move extension
+
+Stage 2B analyzes only the two Stage 2A `WINDOW_LIMIT` X8 candidates, with a
+maximum 512 aligned predecessor instructions and the same segment, basic-block,
+direct-branch and control-transfer boundaries:
+
+| Store VA / file offset | Base | Offset |
+|---|---|---|
+| `0x14844b20` / `0x2bb20` | X8 | `+0x400` |
+| `0x14844c78` / `0x2bc78` | X8 | `+0x4d0` |
+
+It adds only same-register 32-bit `MOVZ W8` followed by `MOVK W8` semantics;
+the W writes zero-extend into X8. Both exact chains pin `MOVZ W8,#0xf000` at
+VA/file `0x14844580`/`0x2b580` and `MOVK W8,#0x1489,LSL#16` at
+`0x1484458c`/`0x2b58c`. The resulting XBL virtual-address value is
+`0x1489f000`; the two computed effective values are `0x1489f400` and
+`0x1489f4d0`, at distances 360/357 and 446/443 instructions respectively.
+Neither value numerically equals a target, and both lie outside a file-backed
+PT_LOAD. These are computed XBL effective-address values, not physical
+destinations; VA-to-PA translation/identity and physical RAM/MC ownership are
+`UNKNOWN`.
+
+`PROVED`: the exact static W-wide-move model resolves both scoped bases and
+computes those two non-target numeric values. `REFUTED` only: exact numeric
+equality to one of the 12 target address values under this model. Runtime
+execution, writer identity, unsupported/mixed-width/dynamic/cross-block/call
+paths, physical destination, register semantics, mutability/lock, GF(2), alias,
+bypass and other firmware remain `UNKNOWN`; this does not state or imply that
+no writer exists. The classification is
+`NO_NUMERIC_TARGET_ADDRESS_MATCH_WITHIN_STAGE2B_W_WIDE_MOVE_RX_MODEL`.
+
 ## Reproduction and provenance
 
 ```sh
@@ -112,6 +145,9 @@ python3 -m unittest -v tests.test_sm8150_xbl_mc_writer_xref
 python3 tools/sm8150_xbl_mc_writer_stage2a.py \
   --output evidence/manifests/018-xbl-mc-writer-xref-stage2a-20260825-01.manifest.json
 python3 -m unittest -v tests.test_sm8150_xbl_mc_writer_stage2a
+python3 tools/sm8150_xbl_mc_writer_stage2b.py \
+  --output evidence/manifests/018-xbl-mc-writer-xref-stage2b-20260825-01.manifest.json
+python3 -m unittest -v tests.test_sm8150_xbl_mc_writer_stage2b
 ```
 
 - Tool SHA-256:
@@ -124,6 +160,21 @@ python3 -m unittest -v tests.test_sm8150_xbl_mc_writer_stage2a
 - Full repository unittest discovery: 287 tests pass.
 - Public manifest inventory: all 54 manifests parse as JSON.
 - Regeneration is byte-identical; manifest mode is `0644`.
+- Date: 2026-08-25 KST.
+- Mode: `HOST_ONLY_READ_ONLY`; device, SMC and MMIO access: none.
+
+## Stage 2B provenance
+
+- Tool SHA-256:
+  `aa35d8b303a7ea32a086d601b1f08390b1cad0932f105209ac337f394813dbcb`.
+- Focused-test SHA-256:
+  `af7ca7b46550dda13e85e517c0c1c1df19b6414549d06415316b6d428e020fc9`.
+- Public manifest SHA-256:
+  `a4715112e27c74e5548ecb49f09106c236146c8a0216c87446ddbd3c355ccca6`.
+- Focused result: 10 tests pass; full repository unittest discovery: 311
+  tests pass.
+- Public manifest inventory: all 56 manifests parse as JSON; regeneration is
+  byte-identical; mode is `0644`.
 - Date: 2026-08-25 KST.
 - Mode: `HOST_ONLY_READ_ONLY`; device, SMC and MMIO access: none.
 

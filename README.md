@@ -164,6 +164,13 @@ classification is
 `NO_RESOLVED_TARGET_STORE_WITHIN_STAGE2A_DIRECT_DEFINITION_RX_MODEL`.
 This refutes only that supported direct-definition path, not writer existence;
 the seven SP and three RWE candidates plus all other paths remain `UNKNOWN`.
+Stage 2B extends only the two Stage 2A window-limit X8 candidates with a
+maximum-512 same-block W-wide-move model. It resolves XBL virtual-address value
+`0x1489f000` and computes `0x1489f400`/`0x1489f4d0`, neither numerically equal
+to a target and both outside file-backed PT_LOADs. VA-to-PA translation and
+physical destination remain `UNKNOWN`; this refutes only numeric target
+equality within that model, not writer existence. Its classification is
+`NO_NUMERIC_TARGET_ADDRESS_MATCH_WITHIN_STAGE2B_W_WIDE_MOVE_RX_MODEL`.
 Experiment 018 broadens no AOP/TZ scope and does not satisfy reserved/`NOT
 ELIGIBLE` Experiments 015 or 016. See [Experiment 018](experiments/018-xbl-mc-writer-xref/README.md).
 
@@ -209,7 +216,7 @@ literal-attribution audit are in
 [experiments/014-dram-conflict-timing/README.md](experiments/014-dram-conflict-timing/README.md).
 Experiment 017's exact XBL table/read-copy cross-reference is in
 [experiments/017-xbl-mc-snapshot-xref/README.md](experiments/017-xbl-mc-snapshot-xref/README.md).
-Experiment 018's Stage 1A literal/store-offset census is in
+Experiment 018's Stage 1A/Stage 2A/Stage 2B XBL writer cross-reference is in
 [experiments/018-xbl-mc-writer-xref/README.md](experiments/018-xbl-mc-writer-xref/README.md).
 Verification 001's independent re-derivation of the load-bearing static claims
 is in

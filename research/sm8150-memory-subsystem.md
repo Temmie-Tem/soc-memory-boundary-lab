@@ -237,3 +237,27 @@ This refutes only the supported direct-definition path and does not prove
 writer absence. SP/RWE, unsupported/dynamic/cross-block/cross-call paths,
 runtime execution/semantics/mutability, GF(2), alias, bypass and other firmware
 remain `UNKNOWN`.
+
+## Experiment 018 Stage 2B — W-wide-move numeric discriminator
+
+Host-only Stage 2B extends only the two Stage 2A `WINDOW_LIMIT` X8 candidates,
+at `0x14844b20/0x2bb20/+0x400` and
+`0x14844c78/0x2bc78/+0x4d0`. Its same-block backward window is at most 512
+aligned instructions and retains the earlier control, segment and inbound
+direct-branch cutoffs. The only added provenance is same-register 32-bit
+`MOVZ W8,#0xf000` followed by `MOVK W8,#0x1489,LSL#16`, whose W semantics
+zero-extend into X8.
+
+Both exact chains pin those instructions at VA/file
+`0x14844580`/`0x2b580` and `0x1484458c`/`0x2b58c`. They resolve X8 value
+`0x1489f000`; the two computed XBL virtual-address values are `0x1489f400`
+and `0x1489f4d0` (distances 360/357 and 446/443). Both lie outside file-backed
+PT_LOADs and neither numerically equals a target. Thus
+`resolved_base_count=2`, `resolved_numeric_target_hit_count=0`, remaining Stage
+2A unresolved count 2, classification
+`NO_NUMERIC_TARGET_ADDRESS_MATCH_WITHIN_STAGE2B_W_WIDE_MOVE_RX_MODEL`.
+This proves only the bounded static numeric computation and refutes only numeric
+target equality under that model. The values are not physical destinations:
+VA-to-PA translation/identity, physical ownership, runtime execution, writer
+identity, semantics, mutability/lock, GF(2), alias, bypass and unsupported or
+dynamic paths remain `UNKNOWN`; no writer absence is claimed.

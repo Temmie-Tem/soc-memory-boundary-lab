@@ -70,6 +70,18 @@ classification is
 refutes only the supported Stage 2A direct-definition path, not writer
 existence; SP/RWE and all other paths remain `UNKNOWN`.
 
+Stage 2B now extends only the two Stage 2A window-limit X8 candidates with a
+maximum-512 same-block W-wide-move model. The pinned `MOVZ W8,#0xf000` and
+`MOVK W8,#0x1489,LSL#16` chain resolves XBL virtual-address value
+`0x1489f000`, computing `0x1489f400` and `0x1489f4d0`; both are outside
+file-backed PT_LOADs and neither numerically matches a target. The result is
+`resolved_base_count=2`, `resolved_numeric_target_hit_count=0`, with
+classification
+`NO_NUMERIC_TARGET_ADDRESS_MATCH_WITHIN_STAGE2B_W_WIDE_MOVE_RX_MODEL`.
+This refutes only numeric target equality in that model; physical destination,
+VA-to-PA translation, writer identity and all unsupported/dynamic paths remain
+`UNKNOWN`. Experiments 015 and 016 remain reserved and `NOT ELIGIBLE`.
+
 ## A. 현재까지 PROVED
 
 - Exact A90 source, defconfig, System.map, independently extracted stock
@@ -342,6 +354,15 @@ existence; SP/RWE and all other paths remain `UNKNOWN`.
   14 focused and 301 full repository unittest-discovery tests pass; all 55
   public manifests parse as JSON and regeneration is byte-identical; mode
   `0644`; device/SMC/MMIO access: none.
+- Experiment 018 Stage 2B command was
+  `python3 tools/sm8150_xbl_mc_writer_stage2b.py --output evidence/manifests/018-xbl-mc-writer-xref-stage2b-20260825-01.manifest.json`.
+  Tool/test/manifest SHA-256 values are
+  `aa35d8b303a7ea32a086d601b1f08390b1cad0932f105209ac337f394813dbcb`,
+  `af7ca7b46550dda13e85e517c0c1c1df19b6414549d06415316b6d428e020fc9`, and
+  `a4715112e27c74e5548ecb49f09106c236146c8a0216c87446ddbd3c355ccca6`;
+  10 focused and 311 full repository unittest-discovery tests pass; all 56
+  public manifests parse as JSON and regeneration is byte-identical; mode
+  `0644`; device/SMC/MMIO access: none.
 
 ## B. 현재 HYPOTHESIS
 
@@ -485,6 +506,11 @@ existence; SP/RWE and all other paths remain `UNKNOWN`.
 - Experiment 018 Stage 2A leaves the seven SP candidates, three RWE candidates,
   unsupported/cross-block/cross-call/dynamic paths, runtime execution and all
   writer/semantic/mutability/GF(2)/alias/bypass questions `UNKNOWN`.
+- Experiment 018 Stage 2B leaves VA-to-PA translation/identity, physical
+  destination, execution, writer identity, mixed-width/unsupported/dynamic
+  paths, semantics, mutability/lock, GF(2), alias and bypass `UNKNOWN`. Its
+  two computed values are XBL virtual-address values only; neighboring ELF
+  headers do not establish physical RAM ownership.
 
 ## E. SDM855 physical→DRAM pipeline 후보
 
@@ -589,10 +615,10 @@ ordering remain `UNKNOWN`, so this is not yet a structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-Do not repeat the fixed protected load. Experiment 018 Stage 2A completed the
-cheapest bounded host-only same-block direct-definition slice for the four
-non-SP RX candidates (X8/X19) and found no supported exact target. The seven SP
-candidates remain runtime-derived and the three RWE candidates remain
+Do not repeat the fixed protected load. Experiment 018 Stage 2B completed the
+cheap host-only same-block W-wide-move extension for the two Stage 2A window-
+limit X8 candidates; both computed values miss the 12 numeric targets. The
+seven SP candidates remain runtime-derived and the three RWE candidates remain
 ambiguous; all dynamic, cross-block/call and unsupported paths remain
 `UNKNOWN`. Any future writer xref must stay host-only and explicitly scoped; do
 not perform a broad MMIO scan or device action. A cold-boot repetition is not a
@@ -649,6 +675,11 @@ Evidence for the attack class being relevant:
 - Experiment 018 Stage 2A does not prove any writer, mutation, alias, protected
   reach or bypass. It only refutes the supported direct-definition model for
   the four analyzed RX candidates; 015 and 016 remain `NOT ELIGIBLE`.
+- Experiment 018 Stage 2B adds numeric-address confidence only for its two
+  W-wide-move-resolved X8 candidates. It refutes only exact numeric target
+  equality within that model; it does not prove any physical destination,
+  writer, mutation, alias, protected reach or bypass. Experiments 015 and 016
+  remain `NOT ELIGIBLE`.
 
 Evidence against a presently usable bypass:
 

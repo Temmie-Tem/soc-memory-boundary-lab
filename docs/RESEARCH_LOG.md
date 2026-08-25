@@ -868,3 +868,39 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
    Fourteen focused and 301 full unittest-discovery tests pass; all 55 public
    manifests parse as JSON and regeneration is byte-identical. Date:
    2026-08-25 KST; mode `HOST_ONLY_READ_ONLY`; public mode `0644`.
+
+## 2026-08-25 — Experiment 018 XBL MC writer cross-reference Stage 2B
+
+1. Kept the extension host-only and read-only over the exact 4,194,304-byte
+   XBL (`e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37`);
+   no device, SMC or MMIO action occurred. Experiments 015 and 016 remain
+   reserved and `NOT ELIGIBLE`.
+2. Limited analysis to the two Stage 2A `WINDOW_LIMIT` RX X8 stores at
+   `0x14844b20/0x2bb20/+0x400` and `0x14844c78/0x2bc78/+0x4d0`. The maximum
+   512-predecessor same-block model added only same-register 32-bit W-wide-move
+   semantics, with W writes zero-extending into X8; mixed-width and unsupported
+   definitions remain fail-closed.
+3. Exact pins are `MOVZ W8,#0xf000` at VA/file
+   `0x14844580`/`0x2b580` and `MOVK W8,#0x1489,LSL#16` at
+   `0x1484458c`/`0x2b58c`. Both chains resolve X8 value `0x1489f000`; their
+   computed XBL virtual-address values are `0x1489f400` and `0x1489f4d0` at
+   distances 360/357 and 446/443. Both are outside file-backed PT_LOADs and
+   neither numerically matches a target.
+4. The exact result is `resolved_base_count=2`,
+   `resolved_numeric_target_hit_count=0`, remaining Stage 2A unresolved count
+   2, and classification
+   `NO_NUMERIC_TARGET_ADDRESS_MATCH_WITHIN_STAGE2B_W_WIDE_MOVE_RX_MODEL`.
+   `PROVED` is limited to this static numeric computation; `REFUTED` is limited
+   to numeric equality under this model. VA-to-PA translation/identity,
+   physical destination/ownership, execution, writer identity, semantics,
+   mutability/lock, GF(2), alias, bypass and unsupported/dynamic paths remain
+   `UNKNOWN`; no writer absence is claimed.
+5. Generated the public manifest with
+   `python3 tools/sm8150_xbl_mc_writer_stage2b.py --output evidence/manifests/018-xbl-mc-writer-xref-stage2b-20260825-01.manifest.json`.
+   Tool/test/manifest SHA-256 values are
+   `aa35d8b303a7ea32a086d601b1f08390b1cad0932f105209ac337f394813dbcb`,
+   `af7ca7b46550dda13e85e517c0c1c1df19b6414549d06415316b6d428e020fc9`, and
+   `a4715112e27c74e5548ecb49f09106c236146c8a0216c87446ddbd3c355ccca6`;
+   10 focused and 311 full unittest-discovery tests pass. All 56 public
+   manifests parse as JSON, regeneration is byte-identical and the manifest
+   mode is `0644`. Date: 2026-08-25 KST.

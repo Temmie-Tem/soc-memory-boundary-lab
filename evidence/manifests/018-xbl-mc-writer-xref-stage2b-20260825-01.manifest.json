@@ -1,0 +1,180 @@
+{
+  "claims": {
+    "PROVED": [
+      "The exact XBL size/SHA-256 and the two Stage 2B candidate pins are verified.",
+      "The two exact W-wide-move chains decode to XBL virtual-address values 0x1489f000 and compute effective XBL virtual-address values 0x1489f400 and 0x1489f4d0.",
+      "Neither computed numeric value equals one of the 12 target address values under this Stage 2B model, and both computed values are outside file-backed PT_LOAD ranges."
+    ],
+    "REFUTED": [
+      "Exact numeric equality to the 12 target address values within the supported Stage 2B W-wide-move RX model."
+    ],
+    "UNKNOWN": [
+      "VA-to-PA translation/identity, physical destination, physical RAM or MC ownership, and any implication from neighboring ELF headers.",
+      "Writer identity, runtime execution, register semantics, mutability/lock state, GF(2) relation, alias, bypass, protected reach and all unsupported/dynamic/cross-block/call/other-firmware paths."
+    ]
+  },
+  "classification": "NO_NUMERIC_TARGET_ADDRESS_MATCH_WITHIN_STAGE2B_W_WIDE_MOVE_RX_MODEL",
+  "device_access": false,
+  "firmware_bytes_emitted": false,
+  "input": {
+    "filename": "xbl--sdb1.bin",
+    "pin_verified": true,
+    "sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+    "size": 4194304
+  },
+  "mmio_access": false,
+  "mode": "HOST_ONLY_READ_ONLY",
+  "model": {
+    "analyzed_candidate_count": 2,
+    "candidates": [
+      {
+        "base_register": "X8",
+        "base_value": "0x1489f000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "byte_offset": "0x400",
+        "effective_address": "0x1489f400",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "file_offset": "0x2bb20",
+        "inside_file_backed_pt_load": false,
+        "instruction_pins": [
+          {
+            "distance_instructions": 360,
+            "file_offset": "0x2b580",
+            "immediate": 61440,
+            "kind": "MOVZ",
+            "shift": 0,
+            "virtual_address": "0x14844580",
+            "width_bits": 32
+          },
+          {
+            "distance_instructions": 357,
+            "file_offset": "0x2b58c",
+            "immediate": 5257,
+            "kind": "MOVK",
+            "shift": 16,
+            "virtual_address": "0x1484458c",
+            "width_bits": 32
+          }
+        ],
+        "physical_destination": null,
+        "reason": "RESOLVED_W_MOVZ_MOVK_CHAIN",
+        "resolved": true,
+        "segment_class": "RX",
+        "slice": [
+          {
+            "kind": "MOVZ_W",
+            "provenance": "DIRECT_W_WIDE_MOVE_ZERO_EXTENDED",
+            "virtual_address": "0x14844580"
+          },
+          {
+            "kind": "MOVK_W",
+            "provenance": "DIRECT_W_WIDE_MOVE_ZERO_EXTENDED",
+            "virtual_address": "0x1484458c"
+          }
+        ],
+        "status": "RESOLVED_W_WIDE_MOVE_CHAIN",
+        "stop_reason": "SUPPORTED_W_WIDE_MOVE_DEFINITION",
+        "target_match": false,
+        "va_to_pa_translation": "UNKNOWN",
+        "virtual_address": "0x14844b20",
+        "width_bytes": 8
+      },
+      {
+        "base_register": "X8",
+        "base_value": "0x1489f000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "byte_offset": "0x4d0",
+        "effective_address": "0x1489f4d0",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "file_offset": "0x2bc78",
+        "inside_file_backed_pt_load": false,
+        "instruction_pins": [
+          {
+            "distance_instructions": 446,
+            "file_offset": "0x2b580",
+            "immediate": 61440,
+            "kind": "MOVZ",
+            "shift": 0,
+            "virtual_address": "0x14844580",
+            "width_bits": 32
+          },
+          {
+            "distance_instructions": 443,
+            "file_offset": "0x2b58c",
+            "immediate": 5257,
+            "kind": "MOVK",
+            "shift": 16,
+            "virtual_address": "0x1484458c",
+            "width_bits": 32
+          }
+        ],
+        "physical_destination": null,
+        "reason": "RESOLVED_W_MOVZ_MOVK_CHAIN",
+        "resolved": true,
+        "segment_class": "RX",
+        "slice": [
+          {
+            "kind": "MOVZ_W",
+            "provenance": "DIRECT_W_WIDE_MOVE_ZERO_EXTENDED",
+            "virtual_address": "0x14844580"
+          },
+          {
+            "kind": "MOVK_W",
+            "provenance": "DIRECT_W_WIDE_MOVE_ZERO_EXTENDED",
+            "virtual_address": "0x1484458c"
+          }
+        ],
+        "status": "RESOLVED_W_WIDE_MOVE_CHAIN",
+        "stop_reason": "SUPPORTED_W_WIDE_MOVE_DEFINITION",
+        "target_match": false,
+        "va_to_pa_translation": "UNKNOWN",
+        "virtual_address": "0x14844c78",
+        "width_bytes": 8
+      }
+    ],
+    "limitations": [
+      "The computed base/effective values are XBL virtual-address values, not physical destinations.",
+      "VA-to-PA translation or identity mapping is not modeled; physical RAM/MC ownership is UNKNOWN.",
+      "Only same-register 32-bit MOVZ Wn followed by W MOVK definitions are added; mixed-width and unsupported definitions fail closed.",
+      "SP, RWE, dynamic, memory/table, argument, cross-block/call and other-firmware paths remain UNKNOWN."
+    ],
+    "remaining_stage2a_unresolved_count": 2,
+    "resolved_base_count": 2,
+    "resolved_numeric_target_hit_count": 0,
+    "scope": "TWO_STAGE2A_WINDOW_LIMIT_RX_CANDIDATES_ONLY",
+    "window_max_instructions": 512
+  },
+  "schema": "sdm855-xbl-mc-writer-xref-stage2b-public-v1",
+  "smc_access": false,
+  "stage": "STAGE2B_W_WIDE_MOVE_RX_MODEL",
+  "stage2a_baseline": {
+    "classification": "NO_RESOLVED_TARGET_STORE_WITHIN_STAGE2A_DIRECT_DEFINITION_RX_MODEL",
+    "manifest_sha256": "eeed732e4a6cecd60453e9088d8c3d4c7ed207a1e7c723bae91e27033d134a4b",
+    "remaining_unresolved_count": 2,
+    "remaining_virtual_addresses": [
+      "0x146a70c0",
+      "0x14935bf4"
+    ],
+    "resolved_base_count": 0,
+    "resolved_target_hit_count": 0,
+    "test_sha256": "1272fadb0bcc6b883f74577284312ee34678975fa7ba60377d05d86927960b3b",
+    "tool_sha256": "eb0a8ce21154d97d052de9f7e4e0de40f85087a8cb517179f7c44332e9d85eb0"
+  },
+  "target_set": {
+    "target_count": 12,
+    "targets": [
+      "0x09260400",
+      "0x09260404",
+      "0x092604d0",
+      "0x092e0400",
+      "0x092e0404",
+      "0x092e04d0",
+      "0x09360400",
+      "0x09360404",
+      "0x093604d0",
+      "0x093e0400",
+      "0x093e0404",
+      "0x093e04d0"
+    ]
+  }
+}
