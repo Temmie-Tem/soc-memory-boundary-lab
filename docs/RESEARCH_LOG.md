@@ -814,7 +814,7 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
    not a writer proof. No REFUTED writer claim is made; writer identity,
    unsupported/other store forms, dynamic/cross-block paths, AOP/TZ paths,
    runtime semantics/mutability, alias and bypass remain `UNKNOWN`.
-5. The next discriminator is Stage 2A, limited to the four non-SP RX
+5. The next discriminator was Stage 2A, limited to the four non-SP RX
    candidates (X8/X19); the seven SP candidates remain runtime-derived and the
    three RWE candidates remain ambiguous. An independent Luna raw-byte
    feasibility scan agreed on the 14 candidates and found no resolved target
@@ -829,3 +829,42 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
    8 focused and all 287 repository unittest-discovery tests pass. All 54
    public manifests parse as JSON, regeneration is byte-identical and the
    manifest mode is `0644`. Date: 2026-08-25 KST.
+
+## 2026-08-25 — Experiment 018 XBL MC writer cross-reference Stage 2A
+
+1. Kept the phase host-only and read-only. The exact XBL input remains
+   4,194,304 bytes with SHA-256
+   `e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37`;
+   no device, SMC or MMIO action occurred.
+2. Limited the model to the four pinned non-SP RX Stage 1A candidates:
+   `0x14844b20/0x2bb20/X8/+0x400`,
+   `0x14844c78/0x2bc78/X8/+0x4d0`,
+   `0x146a70c0/0x2d6090/X8/+0x400`, and
+   `0x14935bf4/0x312bc4/X19/+0x400`. Seven SP candidates remain
+   runtime-derived and three RWE candidates remain ambiguous.
+3. The same-block backward slice is capped at 128 aligned instructions. It
+   supports only 64-bit MOVZ/MOVK and same-register `ADRP Xn; ADD Xn,Xn,#imm`.
+   32-bit wide-move chains, MOVN, MOV aliases, wrong-source ADD, loads, MADD,
+   branches/calls/returns, inbound direct-branch entries and all other
+   unsupported definitions fail closed.
+4. `PROVED`: exact outcomes are two `NO_DIRECT_CONSTANT_DEFINITION` results
+   stopped by `WINDOW_LIMIT`, one `UNSUPPORTED_REGISTER_DEFINITION` for LDR
+   X8 at `0x146a70b4`, and one `NO_DIRECT_CONSTANT_DEFINITION` stopped by a BL
+   `CONTROL_TRANSFER` before the older X19 definition. No base resolves and no
+   effective address equals a target.
+5. The exact result is `resolved_base_count=0`,
+   `resolved_target_hit_count=0`, classification
+   `NO_RESOLVED_TARGET_STORE_WITHIN_STAGE2A_DIRECT_DEFINITION_RX_MODEL`.
+   This refutes only the supported Stage 2A direct-definition path for the
+   four stores; it does not prove writer absence. Writer identity, unsupported
+   or dynamic paths, runtime execution/semantics/mutability, GF(2), alias,
+   bypass, protected reach and other firmware remain `UNKNOWN`.
+6. Generated the public manifest with
+   `python3 tools/sm8150_xbl_mc_writer_stage2a.py --output evidence/manifests/018-xbl-mc-writer-xref-stage2a-20260825-01.manifest.json`.
+   Tool/test/manifest SHA-256 values are
+   `eb0a8ce21154d97d052de9f7e4e0de40f85087a8cb517179f7c44332e9d85eb0`,
+   `1272fadb0bcc6b883f74577284312ee34678975fa7ba60377d05d86927960b3b`, and
+   `eeed732e4a6cecd60453e9088d8c3d4c7ed207a1e7c723bae91e27033d134a4b`.
+   Fourteen focused and 301 full unittest-discovery tests pass; all 55 public
+   manifests parse as JSON and regeneration is byte-identical. Date:
+   2026-08-25 KST; mode `HOST_ONLY_READ_ONLY`; public mode `0644`.

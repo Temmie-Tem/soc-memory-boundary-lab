@@ -1,11 +1,12 @@
-# Experiment 018 — XBL MC writer cross-reference, Stage 1A
+# Experiment 018 — XBL MC writer cross-reference, Stage 1A + Stage 2A
 
 ## Scope and eligibility
 
-Experiment 018 Stage 1A is host-only, read-only static evidence over the exact
-retained SM8150 XBL. It makes no device, SMC, MMIO, normal-RAM, protected-memory
-or runtime-register access. It does not resolve a store base or identify a
-writer.
+Experiment 018 Stage 1A and Stage 2A are host-only, read-only static evidence
+over the exact retained SM8150 XBL. They make no device, SMC, MMIO, normal-RAM,
+protected-memory or runtime-register access. Stage 2A resolves only the four
+pinned non-SP RX candidates through a deliberately small direct-definition
+model; it does not identify a writer outside that model.
 
 Conceptual Experiment 015 (controlled normal-RAM alias) and Experiment 016
 (protected-boundary reach through that alias) remain reserved and `NOT
@@ -64,12 +65,43 @@ forms, other firmware, register semantics, mutation, alias/bypass and runtime
 execution remain `UNKNOWN`. AOP/TZ scope is not broadened without
 source-backed writer or literal evidence.
 
-The next exact discriminator is Stage 2A: a same-block direct-definition slice
-of only the four non-SP RX candidates (X8/X19). The seven SP candidates remain
-runtime-derived and the three RWE candidates remain ambiguous. An independent
-Luna raw-byte feasibility scan agreed on the 14 candidates and found no
-resolved target in its broader bounded model, but emitted no artifact; that is
-supportive review, not manifest `PROVED` evidence.
+## Stage 2A direct-definition slice
+
+Stage 2A analyzes only these four non-SP RX candidates from the pinned Stage 1A
+census:
+
+| Store VA / file offset | Base | Offset |
+|---|---|---|
+| `0x14844b20` / `0x2bb20` | X8 | `+0x400` |
+| `0x14844c78` / `0x2bc78` | X8 | `+0x4d0` |
+| `0x146a70c0` / `0x2d6090` | X8 | `+0x400` |
+| `0x14935bf4` / `0x312bc4` | X19 | `+0x400` |
+
+The backward window is at most 128 aligned instructions. It stops at segment or
+window boundaries, direct/indirect branches, calls, returns and recognized
+inbound direct-branch block entries. Supported provenance is only 64-bit
+`MOVZ` followed by zero or more same-register `MOVK`, or same-register
+`ADRP Xn; ADD Xn,Xn,#imm`. 32-bit wide-move chains, `MOVN`, MOV aliases,
+wrong-source `ADD`, loads, MADD and all other definitions fail closed.
+
+Exact outcomes are:
+
+| Candidate | Outcome | Stop/reason |
+|---|---|---|
+| `0x14844b20` | unresolved | `NO_DIRECT_CONSTANT_DEFINITION` / `WINDOW_LIMIT` |
+| `0x14844c78` | unresolved | `NO_DIRECT_CONSTANT_DEFINITION` / `WINDOW_LIMIT` |
+| `0x146a70c0` | unresolved | `UNSUPPORTED_REGISTER_DEFINITION` (`LDR` at `0x146a70b4`) |
+| `0x14935bf4` | unresolved | `NO_DIRECT_CONSTANT_DEFINITION` / `CONTROL_TRANSFER` (BL boundary) |
+
+`resolved_base_count=0` and `resolved_target_hit_count=0`. The exact
+classification is
+`NO_RESOLVED_TARGET_STORE_WITHIN_STAGE2A_DIRECT_DEFINITION_RX_MODEL`.
+This refutes only the supported Stage 2A direct-definition path for these four
+candidate stores; it does not state or imply that no writer exists. The seven
+SP candidates remain runtime-derived `UNKNOWN`, and the three RWE candidates
+remain `NOT_ATTEMPTED_RWE_AMBIGUOUS`/`UNKNOWN`. Writer identity, unsupported or
+dynamic paths, execution, semantics, mutability/lock, GF(2), alias, bypass and
+other firmware remain `UNKNOWN`.
 
 ## Reproduction and provenance
 
@@ -77,6 +109,9 @@ supportive review, not manifest `PROVED` evidence.
 python3 tools/sm8150_xbl_mc_writer_xref.py \
   --output evidence/manifests/018-xbl-mc-writer-xref-stage1a-20260825-01.manifest.json
 python3 -m unittest -v tests.test_sm8150_xbl_mc_writer_xref
+python3 tools/sm8150_xbl_mc_writer_stage2a.py \
+  --output evidence/manifests/018-xbl-mc-writer-xref-stage2a-20260825-01.manifest.json
+python3 -m unittest -v tests.test_sm8150_xbl_mc_writer_stage2a
 ```
 
 - Tool SHA-256:
@@ -95,3 +130,18 @@ python3 -m unittest -v tests.test_sm8150_xbl_mc_writer_xref
 The public manifest contains hashes, addresses, counts, segment classes and
 claim classifications only; it contains no firmware bytes or private absolute
 paths.
+
+## Stage 2A provenance
+
+- Tool SHA-256:
+  `eb0a8ce21154d97d052de9f7e4e0de40f85087a8cb517179f7c44332e9d85eb0`.
+- Focused-test SHA-256:
+  `1272fadb0bcc6b883f74577284312ee34678975fa7ba60377d05d86927960b3b`.
+- Public manifest SHA-256:
+  `eeed732e4a6cecd60453e9088d8c3d4c7ed207a1e7c723bae91e27033d134a4b`.
+- Focused result: 14 tests pass.
+- Full repository unittest discovery after Stage 2A: 301 tests pass.
+- Public manifest inventory: all 55 manifests parse as JSON; regeneration is
+  byte-identical; mode is `0644`.
+- Date: 2026-08-25 KST.
+- Mode: `HOST_ONLY_READ_ONLY`; device, SMC and MMIO access: none.

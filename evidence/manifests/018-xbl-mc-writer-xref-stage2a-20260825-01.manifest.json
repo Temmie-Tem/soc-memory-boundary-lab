@@ -1,0 +1,1154 @@
+{
+  "claims": {
+    "PROVED": [
+      "The exact XBL size and SHA-256 pin are verified.",
+      "The Stage 1A 14-candidate census is preserved; Stage 2A analyzes exactly the four pinned non-SP RX candidates.",
+      "The bounded Stage 2A model outcome, per-candidate reasons and supported direct-definition counts are deterministic."
+    ],
+    "REFUTED": [
+      "The supported Stage 2A direct-definition path resolves none of the four analyzed RX candidate stores to an exact target."
+    ],
+    "UNKNOWN": [
+      "Any writer outside the supported Stage 2A direct-definition path, including unsupported, dynamic, memory/table, argument, wrapper, cross-block, cross-call and other-firmware paths.",
+      "Runtime execution, register semantics, mutability/lock state, GF(2) relation, alias, bypass and protected reach.",
+      "The seven SP candidates and three RWE candidates, which remain runtime-derived or ambiguous."
+    ]
+  },
+  "classification": "NO_RESOLVED_TARGET_STORE_WITHIN_STAGE2A_DIRECT_DEFINITION_RX_MODEL",
+  "device_access": false,
+  "firmware_bytes_emitted": false,
+  "input": {
+    "filename": "xbl--sdb1.bin",
+    "pin_verified": true,
+    "sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+    "size": 4194304
+  },
+  "literal_inventory": {
+    "base_literal_count": 4,
+    "table_byte_length": 984,
+    "table_file_end_offset": "0x63490",
+    "table_file_offset": "0x630b8",
+    "table_virtual_address": "0x146b1218",
+    "target_literal_count": 12,
+    "values": [
+      {
+        "kind": "base",
+        "u32": {
+          "aligned_count": 1,
+          "aligned_file_offset_count": 1,
+          "aligned_virtual_address_count": 1,
+          "count": 1,
+          "occurrences": [
+            {
+              "aligned_file_offset": true,
+              "aligned_virtual_address": true,
+              "file_offset": "0x80154",
+              "segment_class": "RWE",
+              "source": "other_file_literal",
+              "virtual_address": "0x148bc254"
+            }
+          ]
+        },
+        "u64": {
+          "aligned_count": 0,
+          "aligned_file_offset_count": 0,
+          "aligned_virtual_address_count": 0,
+          "count": 0,
+          "occurrences": []
+        },
+        "value": "0x09260000"
+      },
+      {
+        "kind": "base",
+        "u32": {
+          "aligned_count": 0,
+          "aligned_file_offset_count": 0,
+          "aligned_virtual_address_count": 0,
+          "count": 1,
+          "occurrences": [
+            {
+              "aligned_file_offset": false,
+              "aligned_virtual_address": false,
+              "file_offset": "0x53dc2",
+              "segment_class": "RW",
+              "source": "other_file_literal",
+              "virtual_address": "0x148743e2"
+            }
+          ]
+        },
+        "u64": {
+          "aligned_count": 0,
+          "aligned_file_offset_count": 0,
+          "aligned_virtual_address_count": 0,
+          "count": 0,
+          "occurrences": []
+        },
+        "value": "0x092e0000"
+      },
+      {
+        "kind": "base",
+        "u32": {
+          "aligned_count": 0,
+          "aligned_file_offset_count": 0,
+          "aligned_virtual_address_count": 0,
+          "count": 9,
+          "occurrences": [
+            {
+              "aligned_file_offset": false,
+              "aligned_virtual_address": false,
+              "file_offset": "0x2081d",
+              "segment_class": "RX",
+              "source": "other_file_literal",
+              "virtual_address": "0x1483981d"
+            },
+            {
+              "aligned_file_offset": false,
+              "aligned_virtual_address": false,
+              "file_offset": "0x209b9",
+              "segment_class": "RX",
+              "source": "other_file_literal",
+              "virtual_address": "0x148399b9"
+            },
+            {
+              "aligned_file_offset": false,
+              "aligned_virtual_address": false,
+              "file_offset": "0x20aa1",
+              "segment_class": "RX",
+              "source": "other_file_literal",
+              "virtual_address": "0x14839aa1"
+            },
+            {
+              "aligned_file_offset": false,
+              "aligned_virtual_address": false,
+              "file_offset": "0x9b851",
+              "segment_class": "RWE",
+              "source": "other_file_literal",
+              "virtual_address": "0x9fc14881"
+            },
+            {
+              "aligned_file_offset": false,
+              "aligned_virtual_address": false,
+              "file_offset": "0x2cd7dd",
+              "segment_class": "RX",
+              "source": "other_file_literal",
+              "virtual_address": "0x1469e80d"
+            },
+            {
+              "aligned_file_offset": false,
+              "aligned_virtual_address": false,
+              "file_offset": "0x2d4d19",
+              "segment_class": "RX",
+              "source": "other_file_literal",
+              "virtual_address": "0x146a5d49"
+            },
+            {
+              "aligned_file_offset": false,
+              "aligned_virtual_address": false,
+              "file_offset": "0x2d4d41",
+              "segment_class": "RX",
+              "source": "other_file_literal",
+              "virtual_address": "0x146a5d71"
+            },
+            {
+              "aligned_file_offset": false,
+              "aligned_virtual_address": false,
+              "file_offset": "0x2d4d69",
+              "segment_class": "RX",
+              "source": "other_file_literal",
+              "virtual_address": "0x146a5d99"
+            },
+            {
+              "aligned_file_offset": false,
+              "aligned_virtual_address": false,
+              "file_offset": "0x2d4d91",
+              "segment_class": "RX",
+              "source": "other_file_literal",
+              "virtual_address": "0x146a5dc1"
+            }
+          ]
+        },
+        "u64": {
+          "aligned_count": 0,
+          "aligned_file_offset_count": 0,
+          "aligned_virtual_address_count": 0,
+          "count": 0,
+          "occurrences": []
+        },
+        "value": "0x09360000"
+      },
+      {
+        "kind": "base",
+        "u32": {
+          "aligned_count": 0,
+          "aligned_file_offset_count": 0,
+          "aligned_virtual_address_count": 0,
+          "count": 0,
+          "occurrences": []
+        },
+        "u64": {
+          "aligned_count": 0,
+          "aligned_file_offset_count": 0,
+          "aligned_virtual_address_count": 0,
+          "count": 0,
+          "occurrences": []
+        },
+        "value": "0x093e0000"
+      },
+      {
+        "kind": "target",
+        "u32": {
+          "aligned_count": 1,
+          "aligned_file_offset_count": 1,
+          "aligned_virtual_address_count": 1,
+          "count": 1,
+          "occurrences": [
+            {
+              "aligned_file_offset": true,
+              "aligned_virtual_address": true,
+              "file_offset": "0x630b8",
+              "segment_class": "RW",
+              "source": "experiment_017_table",
+              "virtual_address": "0x146b1218"
+            }
+          ]
+        },
+        "u64": {
+          "aligned_count": 1,
+          "aligned_file_offset_count": 1,
+          "aligned_virtual_address_count": 1,
+          "count": 1,
+          "occurrences": [
+            {
+              "aligned_file_offset": true,
+              "aligned_virtual_address": true,
+              "file_offset": "0x630b8",
+              "segment_class": "RW",
+              "source": "experiment_017_table",
+              "virtual_address": "0x146b1218"
+            }
+          ]
+        },
+        "value": "0x09260400"
+      },
+      {
+        "kind": "target",
+        "u32": {
+          "aligned_count": 1,
+          "aligned_file_offset_count": 1,
+          "aligned_virtual_address_count": 1,
+          "count": 1,
+          "occurrences": [
+            {
+              "aligned_file_offset": true,
+              "aligned_virtual_address": true,
+              "file_offset": "0x630d8",
+              "segment_class": "RW",
+              "source": "experiment_017_table",
+              "virtual_address": "0x146b1238"
+            }
+          ]
+        },
+        "u64": {
+          "aligned_count": 1,
+          "aligned_file_offset_count": 1,
+          "aligned_virtual_address_count": 1,
+          "count": 1,
+          "occurrences": [
+            {
+              "aligned_file_offset": true,
+              "aligned_virtual_address": true,
+              "file_offset": "0x630d8",
+              "segment_class": "RW",
+              "source": "experiment_017_table",
+              "virtual_address": "0x146b1238"
+            }
+          ]
+        },
+        "value": "0x09260404"
+      },
+      {
+        "kind": "target",
+        "u32": {
+          "aligned_count": 1,
+          "aligned_file_offset_count": 1,
+          "aligned_virtual_address_count": 1,
+          "count": 1,
+          "occurrences": [
+            {
+              "aligned_file_offset": true,
+              "aligned_virtual_address": true,
+              "file_offset": "0x63238",
+              "segment_class": "RW",
+              "source": "experiment_017_table",
+              "virtual_address": "0x146b1398"
+            }
+          ]
+        },
+        "u64": {
+          "aligned_count": 1,
+          "aligned_file_offset_count": 1,
+          "aligned_virtual_address_count": 1,
+          "count": 1,
+          "occurrences": [
+            {
+              "aligned_file_offset": true,
+              "aligned_virtual_address": true,
+              "file_offset": "0x63238",
+              "segment_class": "RW",
+              "source": "experiment_017_table",
+              "virtual_address": "0x146b1398"
+            }
+          ]
+        },
+        "value": "0x092604d0"
+      },
+      {
+        "kind": "target",
+        "u32": {
+          "aligned_count": 1,
+          "aligned_file_offset_count": 1,
+          "aligned_virtual_address_count": 1,
+          "count": 1,
+          "occurrences": [
+            {
+              "aligned_file_offset": true,
+              "aligned_virtual_address": true,
+              "file_offset": "0x630c0",
+              "segment_class": "RW",
+              "source": "experiment_017_table",
+              "virtual_address": "0x146b1220"
+            }
+          ]
+        },
+        "u64": {
+          "aligned_count": 1,
+          "aligned_file_offset_count": 1,
+          "aligned_virtual_address_count": 1,
+          "count": 1,
+          "occurrences": [
+            {
+              "aligned_file_offset": true,
+              "aligned_virtual_address": true,
+              "file_offset": "0x630c0",
+              "segment_class": "RW",
+              "source": "experiment_017_table",
+              "virtual_address": "0x146b1220"
+            }
+          ]
+        },
+        "value": "0x092e0400"
+      },
+      {
+        "kind": "target",
+        "u32": {
+          "aligned_count": 1,
+          "aligned_file_offset_count": 1,
+          "aligned_virtual_address_count": 1,
+          "count": 1,
+          "occurrences": [
+            {
+              "aligned_file_offset": true,
+              "aligned_virtual_address": true,
+              "file_offset": "0x630e0",
+              "segment_class": "RW",
+              "source": "experiment_017_table",
+              "virtual_address": "0x146b1240"
+            }
+          ]
+        },
+        "u64": {
+          "aligned_count": 1,
+          "aligned_file_offset_count": 1,
+          "aligned_virtual_address_count": 1,
+          "count": 1,
+          "occurrences": [
+            {
+              "aligned_file_offset": true,
+              "aligned_virtual_address": true,
+              "file_offset": "0x630e0",
+              "segment_class": "RW",
+              "source": "experiment_017_table",
+              "virtual_address": "0x146b1240"
+            }
+          ]
+        },
+        "value": "0x092e0404"
+      },
+      {
+        "kind": "target",
+        "u32": {
+          "aligned_count": 1,
+          "aligned_file_offset_count": 1,
+          "aligned_virtual_address_count": 1,
+          "count": 1,
+          "occurrences": [
+            {
+              "aligned_file_offset": true,
+              "aligned_virtual_address": true,
+              "file_offset": "0x63240",
+              "segment_class": "RW",
+              "source": "experiment_017_table",
+              "virtual_address": "0x146b13a0"
+            }
+          ]
+        },
+        "u64": {
+          "aligned_count": 1,
+          "aligned_file_offset_count": 1,
+          "aligned_virtual_address_count": 1,
+          "count": 1,
+          "occurrences": [
+            {
+              "aligned_file_offset": true,
+              "aligned_virtual_address": true,
+              "file_offset": "0x63240",
+              "segment_class": "RW",
+              "source": "experiment_017_table",
+              "virtual_address": "0x146b13a0"
+            }
+          ]
+        },
+        "value": "0x092e04d0"
+      },
+      {
+        "kind": "target",
+        "u32": {
+          "aligned_count": 1,
+          "aligned_file_offset_count": 1,
+          "aligned_virtual_address_count": 1,
+          "count": 1,
+          "occurrences": [
+            {
+              "aligned_file_offset": true,
+              "aligned_virtual_address": true,
+              "file_offset": "0x630c8",
+              "segment_class": "RW",
+              "source": "experiment_017_table",
+              "virtual_address": "0x146b1228"
+            }
+          ]
+        },
+        "u64": {
+          "aligned_count": 1,
+          "aligned_file_offset_count": 1,
+          "aligned_virtual_address_count": 1,
+          "count": 1,
+          "occurrences": [
+            {
+              "aligned_file_offset": true,
+              "aligned_virtual_address": true,
+              "file_offset": "0x630c8",
+              "segment_class": "RW",
+              "source": "experiment_017_table",
+              "virtual_address": "0x146b1228"
+            }
+          ]
+        },
+        "value": "0x09360400"
+      },
+      {
+        "kind": "target",
+        "u32": {
+          "aligned_count": 1,
+          "aligned_file_offset_count": 1,
+          "aligned_virtual_address_count": 1,
+          "count": 1,
+          "occurrences": [
+            {
+              "aligned_file_offset": true,
+              "aligned_virtual_address": true,
+              "file_offset": "0x630e8",
+              "segment_class": "RW",
+              "source": "experiment_017_table",
+              "virtual_address": "0x146b1248"
+            }
+          ]
+        },
+        "u64": {
+          "aligned_count": 1,
+          "aligned_file_offset_count": 1,
+          "aligned_virtual_address_count": 1,
+          "count": 1,
+          "occurrences": [
+            {
+              "aligned_file_offset": true,
+              "aligned_virtual_address": true,
+              "file_offset": "0x630e8",
+              "segment_class": "RW",
+              "source": "experiment_017_table",
+              "virtual_address": "0x146b1248"
+            }
+          ]
+        },
+        "value": "0x09360404"
+      },
+      {
+        "kind": "target",
+        "u32": {
+          "aligned_count": 1,
+          "aligned_file_offset_count": 1,
+          "aligned_virtual_address_count": 1,
+          "count": 1,
+          "occurrences": [
+            {
+              "aligned_file_offset": true,
+              "aligned_virtual_address": true,
+              "file_offset": "0x63248",
+              "segment_class": "RW",
+              "source": "experiment_017_table",
+              "virtual_address": "0x146b13a8"
+            }
+          ]
+        },
+        "u64": {
+          "aligned_count": 1,
+          "aligned_file_offset_count": 1,
+          "aligned_virtual_address_count": 1,
+          "count": 1,
+          "occurrences": [
+            {
+              "aligned_file_offset": true,
+              "aligned_virtual_address": true,
+              "file_offset": "0x63248",
+              "segment_class": "RW",
+              "source": "experiment_017_table",
+              "virtual_address": "0x146b13a8"
+            }
+          ]
+        },
+        "value": "0x093604d0"
+      },
+      {
+        "kind": "target",
+        "u32": {
+          "aligned_count": 1,
+          "aligned_file_offset_count": 1,
+          "aligned_virtual_address_count": 1,
+          "count": 1,
+          "occurrences": [
+            {
+              "aligned_file_offset": true,
+              "aligned_virtual_address": true,
+              "file_offset": "0x630d0",
+              "segment_class": "RW",
+              "source": "experiment_017_table",
+              "virtual_address": "0x146b1230"
+            }
+          ]
+        },
+        "u64": {
+          "aligned_count": 1,
+          "aligned_file_offset_count": 1,
+          "aligned_virtual_address_count": 1,
+          "count": 1,
+          "occurrences": [
+            {
+              "aligned_file_offset": true,
+              "aligned_virtual_address": true,
+              "file_offset": "0x630d0",
+              "segment_class": "RW",
+              "source": "experiment_017_table",
+              "virtual_address": "0x146b1230"
+            }
+          ]
+        },
+        "value": "0x093e0400"
+      },
+      {
+        "kind": "target",
+        "u32": {
+          "aligned_count": 1,
+          "aligned_file_offset_count": 1,
+          "aligned_virtual_address_count": 1,
+          "count": 1,
+          "occurrences": [
+            {
+              "aligned_file_offset": true,
+              "aligned_virtual_address": true,
+              "file_offset": "0x630f0",
+              "segment_class": "RW",
+              "source": "experiment_017_table",
+              "virtual_address": "0x146b1250"
+            }
+          ]
+        },
+        "u64": {
+          "aligned_count": 1,
+          "aligned_file_offset_count": 1,
+          "aligned_virtual_address_count": 1,
+          "count": 1,
+          "occurrences": [
+            {
+              "aligned_file_offset": true,
+              "aligned_virtual_address": true,
+              "file_offset": "0x630f0",
+              "segment_class": "RW",
+              "source": "experiment_017_table",
+              "virtual_address": "0x146b1250"
+            }
+          ]
+        },
+        "value": "0x093e0404"
+      },
+      {
+        "kind": "target",
+        "u32": {
+          "aligned_count": 1,
+          "aligned_file_offset_count": 1,
+          "aligned_virtual_address_count": 1,
+          "count": 1,
+          "occurrences": [
+            {
+              "aligned_file_offset": true,
+              "aligned_virtual_address": true,
+              "file_offset": "0x63250",
+              "segment_class": "RW",
+              "source": "experiment_017_table",
+              "virtual_address": "0x146b13b0"
+            }
+          ]
+        },
+        "u64": {
+          "aligned_count": 1,
+          "aligned_file_offset_count": 1,
+          "aligned_virtual_address_count": 1,
+          "count": 1,
+          "occurrences": [
+            {
+              "aligned_file_offset": true,
+              "aligned_virtual_address": true,
+              "file_offset": "0x63250",
+              "segment_class": "RW",
+              "source": "experiment_017_table",
+              "virtual_address": "0x146b13b0"
+            }
+          ]
+        },
+        "value": "0x093e04d0"
+      }
+    ]
+  },
+  "mmio_access": false,
+  "mode": "HOST_ONLY_READ_ONLY",
+  "model": {
+    "analyzed_rx_candidate_count": 4,
+    "candidates": [
+      {
+        "base_register": "X8",
+        "base_value": null,
+        "byte_offset": "0x400",
+        "effective_address": null,
+        "file_offset": "0x2bb20",
+        "reason": "NO_DIRECT_CONSTANT_DEFINITION",
+        "resolved": false,
+        "segment_class": "RX",
+        "slice": [],
+        "status": "UNRESOLVED_NO_DIRECT_CONSTANT_DEFINITION",
+        "stop_reason": "WINDOW_LIMIT",
+        "target_match": null,
+        "virtual_address": "0x14844b20",
+        "width_bytes": 8
+      },
+      {
+        "base_register": "X8",
+        "base_value": null,
+        "byte_offset": "0x4d0",
+        "effective_address": null,
+        "file_offset": "0x2bc78",
+        "reason": "NO_DIRECT_CONSTANT_DEFINITION",
+        "resolved": false,
+        "segment_class": "RX",
+        "slice": [],
+        "status": "UNRESOLVED_NO_DIRECT_CONSTANT_DEFINITION",
+        "stop_reason": "WINDOW_LIMIT",
+        "target_match": null,
+        "virtual_address": "0x14844c78",
+        "width_bytes": 8
+      },
+      {
+        "base_register": "X8",
+        "base_value": null,
+        "byte_offset": "0x400",
+        "effective_address": null,
+        "file_offset": "0x2d6090",
+        "reason": "UNSUPPORTED_REGISTER_DEFINITION",
+        "resolved": false,
+        "segment_class": "RX",
+        "slice": [
+          {
+            "kind": "LDR_UNSIGNED_IMMEDIATE",
+            "provenance": "FAIL_CLOSED_UNSUPPORTED_DEFINITION",
+            "virtual_address": "0x146a70b4"
+          }
+        ],
+        "status": "UNSUPPORTED_REGISTER_DEFINITION",
+        "stop_reason": "UNSUPPORTED_REGISTER_DEFINITION",
+        "target_match": null,
+        "virtual_address": "0x146a70c0",
+        "width_bytes": 4
+      },
+      {
+        "base_register": "X19",
+        "base_value": null,
+        "byte_offset": "0x400",
+        "effective_address": null,
+        "file_offset": "0x312bc4",
+        "reason": "NO_DIRECT_CONSTANT_DEFINITION",
+        "resolved": false,
+        "segment_class": "RX",
+        "slice": [],
+        "status": "UNRESOLVED_NO_DIRECT_CONSTANT_DEFINITION",
+        "stop_reason": "CONTROL_TRANSFER",
+        "target_match": null,
+        "virtual_address": "0x14935bf4",
+        "width_bytes": 8
+      }
+    ],
+    "excluded_rwe_candidate_count": 3,
+    "excluded_rwe_status": "NOT_ATTEMPTED_RWE_AMBIGUOUS",
+    "excluded_rx_sp_candidate_count": 7,
+    "excluded_rx_sp_status": "UNRESOLVED_RUNTIME_SP",
+    "limitations": [
+      "Only the four pinned non-SP RX candidates are analyzed.",
+      "No SP, RWE, memory-load, table, argument, wrapper, cross-block, or cross-call provenance is resolved.",
+      "Only 64-bit MOVZ/MOVK and ADRP Xn followed by ADD Xn,Xn,#imm definitions are supported; 32-bit wide-move chains are rejected.",
+      "MOVN, MOV aliases, arithmetic other than the exact ADRP+ADD form, and unsupported definitions fail closed.",
+      "A direct branch target or basic-block entry is never crossed backward; runtime execution and writer identity remain UNKNOWN."
+    ],
+    "reason_counts": {
+      "NO_DIRECT_CONSTANT_DEFINITION": 3,
+      "UNSUPPORTED_REGISTER_DEFINITION": 1
+    },
+    "resolved_base_count": 0,
+    "resolved_target_hit_count": 0,
+    "rx_candidate_count": 11,
+    "scope": "FOUR_NON_SP_RX_CANDIDATES_ONLY",
+    "unresolved_count": 4,
+    "window_max_instructions": 128
+  },
+  "pt_load_census": {
+    "aligned_word_counts": {
+      "OTHER": 0,
+      "RW": 86173,
+      "RWE": 626226,
+      "RX": 221239
+    },
+    "candidates": [
+      {
+        "base_is_sp": false,
+        "base_register": "X8",
+        "byte_offset": "0x4d0",
+        "exact_target_resolution": null,
+        "file_offset": "0x6e570",
+        "segment_class": "RWE",
+        "source_register": "W10",
+        "status": "OFFSET_MATCH_ONLY_UNRESOLVED_BASE",
+        "virtual_address": "0x148aa670",
+        "width_bytes": 4
+      },
+      {
+        "base_is_sp": false,
+        "base_register": "X28",
+        "byte_offset": "0x400",
+        "exact_target_resolution": null,
+        "file_offset": "0x74a6c",
+        "segment_class": "RWE",
+        "source_register": "W31",
+        "status": "OFFSET_MATCH_ONLY_UNRESOLVED_BASE",
+        "virtual_address": "0x148b0b6c",
+        "width_bytes": 4
+      },
+      {
+        "base_is_sp": false,
+        "base_register": "X28",
+        "byte_offset": "0x404",
+        "exact_target_resolution": null,
+        "file_offset": "0x74a74",
+        "segment_class": "RWE",
+        "source_register": "W21",
+        "status": "OFFSET_MATCH_ONLY_UNRESOLVED_BASE",
+        "virtual_address": "0x148b0b74",
+        "width_bytes": 4
+      },
+      {
+        "base_is_sp": false,
+        "base_register": "X8",
+        "byte_offset": "0x400",
+        "exact_target_resolution": null,
+        "file_offset": "0x2bb20",
+        "segment_class": "RX",
+        "source_register": "X16",
+        "status": "OFFSET_MATCH_ONLY_UNRESOLVED_BASE",
+        "virtual_address": "0x14844b20",
+        "width_bytes": 8
+      },
+      {
+        "base_is_sp": false,
+        "base_register": "X8",
+        "byte_offset": "0x4d0",
+        "exact_target_resolution": null,
+        "file_offset": "0x2bc78",
+        "segment_class": "RX",
+        "source_register": "X5",
+        "status": "OFFSET_MATCH_ONLY_UNRESOLVED_BASE",
+        "virtual_address": "0x14844c78",
+        "width_bytes": 8
+      },
+      {
+        "base_is_sp": false,
+        "base_register": "X8",
+        "byte_offset": "0x400",
+        "exact_target_resolution": null,
+        "file_offset": "0x2d6090",
+        "segment_class": "RX",
+        "source_register": "W9",
+        "status": "OFFSET_MATCH_ONLY_UNRESOLVED_BASE",
+        "virtual_address": "0x146a70c0",
+        "width_bytes": 4
+      },
+      {
+        "base_is_sp": true,
+        "base_register": "SP",
+        "byte_offset": "0x4d0",
+        "exact_target_resolution": null,
+        "file_offset": "0x30b3b0",
+        "segment_class": "RX",
+        "source_register": "W8",
+        "status": "OFFSET_MATCH_ONLY_UNRESOLVED_BASE",
+        "virtual_address": "0x1492e3e0",
+        "width_bytes": 4
+      },
+      {
+        "base_is_sp": true,
+        "base_register": "SP",
+        "byte_offset": "0x400",
+        "exact_target_resolution": null,
+        "file_offset": "0x30b4bc",
+        "segment_class": "RX",
+        "source_register": "X12",
+        "status": "OFFSET_MATCH_ONLY_UNRESOLVED_BASE",
+        "virtual_address": "0x1492e4ec",
+        "width_bytes": 8
+      },
+      {
+        "base_is_sp": false,
+        "base_register": "X19",
+        "byte_offset": "0x400",
+        "exact_target_resolution": null,
+        "file_offset": "0x312bc4",
+        "segment_class": "RX",
+        "source_register": "X9",
+        "status": "OFFSET_MATCH_ONLY_UNRESOLVED_BASE",
+        "virtual_address": "0x14935bf4",
+        "width_bytes": 8
+      },
+      {
+        "base_is_sp": true,
+        "base_register": "SP",
+        "byte_offset": "0x404",
+        "exact_target_resolution": null,
+        "file_offset": "0x313e90",
+        "segment_class": "RX",
+        "source_register": "W17",
+        "status": "OFFSET_MATCH_ONLY_UNRESOLVED_BASE",
+        "virtual_address": "0x14936ec0",
+        "width_bytes": 4
+      },
+      {
+        "base_is_sp": true,
+        "base_register": "SP",
+        "byte_offset": "0x400",
+        "exact_target_resolution": null,
+        "file_offset": "0x313e98",
+        "segment_class": "RX",
+        "source_register": "W4",
+        "status": "OFFSET_MATCH_ONLY_UNRESOLVED_BASE",
+        "virtual_address": "0x14936ec8",
+        "width_bytes": 4
+      },
+      {
+        "base_is_sp": true,
+        "base_register": "SP",
+        "byte_offset": "0x400",
+        "exact_target_resolution": null,
+        "file_offset": "0x313ec8",
+        "segment_class": "RX",
+        "source_register": "W4",
+        "status": "OFFSET_MATCH_ONLY_UNRESOLVED_BASE",
+        "virtual_address": "0x14936ef8",
+        "width_bytes": 4
+      },
+      {
+        "base_is_sp": true,
+        "base_register": "SP",
+        "byte_offset": "0x404",
+        "exact_target_resolution": null,
+        "file_offset": "0x313ecc",
+        "segment_class": "RX",
+        "source_register": "W17",
+        "status": "OFFSET_MATCH_ONLY_UNRESOLVED_BASE",
+        "virtual_address": "0x14936efc",
+        "width_bytes": 4
+      },
+      {
+        "base_is_sp": true,
+        "base_register": "SP",
+        "byte_offset": "0x400",
+        "exact_target_resolution": null,
+        "file_offset": "0x314790",
+        "segment_class": "RX",
+        "source_register": "X7",
+        "status": "OFFSET_MATCH_ONLY_UNRESOLVED_BASE",
+        "virtual_address": "0x149377c0",
+        "width_bytes": 8
+      }
+    ],
+    "matching_offset_candidate_count": 14,
+    "matching_offset_candidate_count_by_segment": {
+      "RWE": 3,
+      "RX": 11
+    },
+    "matching_offsets_by_segment": {
+      "RWE": {
+        "0x400": 1,
+        "0x404": 1,
+        "0x4d0": 1
+      },
+      "RX": {
+        "0x400": 7,
+        "0x404": 2,
+        "0x4d0": 2
+      }
+    },
+    "recognized_str_wx_counts": {
+      "RWE": 5169,
+      "RX": 6945
+    },
+    "rwe_decodes_are_ambiguous": true,
+    "segment_counts": {
+      "OTHER": 0,
+      "RW": 3,
+      "RWE": 2,
+      "RX": 4
+    },
+    "segments": [
+      {
+        "aligned_word_count": 80758,
+        "class": "RX",
+        "file_offset": "0x3000",
+        "file_size": 323032,
+        "flags": 5,
+        "virtual_address": "0x1481c000"
+      },
+      {
+        "aligned_word_count": 16640,
+        "class": "RW",
+        "file_offset": "0x51de0",
+        "file_size": 66560,
+        "flags": 6,
+        "virtual_address": "0x14872400"
+      },
+      {
+        "aligned_word_count": 816,
+        "class": "RX",
+        "file_offset": "0x621e0",
+        "file_size": 3264,
+        "flags": 5,
+        "virtual_address": "0x146ae000"
+      },
+      {
+        "aligned_word_count": 533,
+        "class": "RW",
+        "file_offset": "0x62ea0",
+        "file_size": 2132,
+        "flags": 6,
+        "virtual_address": "0x146b1000"
+      },
+      {
+        "aligned_word_count": 36402,
+        "class": "RWE",
+        "file_offset": "0x63700",
+        "file_size": 145608,
+        "flags": 7,
+        "virtual_address": "0x1489f800"
+      },
+      {
+        "aligned_word_count": 589824,
+        "class": "RWE",
+        "file_offset": "0x86fd0",
+        "file_size": 2359296,
+        "flags": 7,
+        "virtual_address": "0x9fc00000"
+      },
+      {
+        "aligned_word_count": 22528,
+        "class": "RX",
+        "file_offset": "0x2c6fd0",
+        "file_size": 90112,
+        "flags": 83886085,
+        "virtual_address": "0x14698000"
+      },
+      {
+        "aligned_word_count": 117137,
+        "class": "RX",
+        "file_offset": "0x2dcfd0",
+        "file_size": 468548,
+        "flags": 5,
+        "virtual_address": "0x14900000"
+      },
+      {
+        "aligned_word_count": 69000,
+        "class": "RW",
+        "file_offset": "0x34f620",
+        "file_size": 276000,
+        "flags": 6,
+        "virtual_address": "0x85e44000"
+      }
+    ],
+    "unsupported_forms": {
+      "count": null,
+      "reason": "Stage 1A only decodes scalar STR W/X unsigned-immediate; all other store forms remain unmodeled/UNKNOWN.",
+      "status": "NOT_COUNTED_STAGE1A"
+    }
+  },
+  "schema": "sdm855-xbl-mc-writer-xref-stage2a-public-v1",
+  "smc_access": false,
+  "stage": "STAGE2A_DIRECT_DEFINITION_RX_MODEL",
+  "stage1a_summary": {
+    "classification": "STAGE1A_LITERAL_AND_STORE_OFFSET_CENSUS_WRITER_UNKNOWN",
+    "matching_offset_candidate_count": 14,
+    "matching_offset_candidate_count_by_segment": {
+      "RWE": 3,
+      "RX": 11
+    },
+    "resolved_target_hit_count": null,
+    "schema": "sdm855-xbl-mc-writer-xref-public-v1",
+    "stage": "STAGE1A_LITERAL_AND_STORE_OFFSET_CENSUS",
+    "target_count": 12
+  },
+  "stage2a_model": {
+    "analyzed_rx_candidate_count": 4,
+    "candidates": [
+      {
+        "base_register": "X8",
+        "base_value": null,
+        "byte_offset": "0x400",
+        "effective_address": null,
+        "file_offset": "0x2bb20",
+        "reason": "NO_DIRECT_CONSTANT_DEFINITION",
+        "resolved": false,
+        "segment_class": "RX",
+        "slice": [],
+        "status": "UNRESOLVED_NO_DIRECT_CONSTANT_DEFINITION",
+        "stop_reason": "WINDOW_LIMIT",
+        "target_match": null,
+        "virtual_address": "0x14844b20",
+        "width_bytes": 8
+      },
+      {
+        "base_register": "X8",
+        "base_value": null,
+        "byte_offset": "0x4d0",
+        "effective_address": null,
+        "file_offset": "0x2bc78",
+        "reason": "NO_DIRECT_CONSTANT_DEFINITION",
+        "resolved": false,
+        "segment_class": "RX",
+        "slice": [],
+        "status": "UNRESOLVED_NO_DIRECT_CONSTANT_DEFINITION",
+        "stop_reason": "WINDOW_LIMIT",
+        "target_match": null,
+        "virtual_address": "0x14844c78",
+        "width_bytes": 8
+      },
+      {
+        "base_register": "X8",
+        "base_value": null,
+        "byte_offset": "0x400",
+        "effective_address": null,
+        "file_offset": "0x2d6090",
+        "reason": "UNSUPPORTED_REGISTER_DEFINITION",
+        "resolved": false,
+        "segment_class": "RX",
+        "slice": [
+          {
+            "kind": "LDR_UNSIGNED_IMMEDIATE",
+            "provenance": "FAIL_CLOSED_UNSUPPORTED_DEFINITION",
+            "virtual_address": "0x146a70b4"
+          }
+        ],
+        "status": "UNSUPPORTED_REGISTER_DEFINITION",
+        "stop_reason": "UNSUPPORTED_REGISTER_DEFINITION",
+        "target_match": null,
+        "virtual_address": "0x146a70c0",
+        "width_bytes": 4
+      },
+      {
+        "base_register": "X19",
+        "base_value": null,
+        "byte_offset": "0x400",
+        "effective_address": null,
+        "file_offset": "0x312bc4",
+        "reason": "NO_DIRECT_CONSTANT_DEFINITION",
+        "resolved": false,
+        "segment_class": "RX",
+        "slice": [],
+        "status": "UNRESOLVED_NO_DIRECT_CONSTANT_DEFINITION",
+        "stop_reason": "CONTROL_TRANSFER",
+        "target_match": null,
+        "virtual_address": "0x14935bf4",
+        "width_bytes": 8
+      }
+    ],
+    "excluded_rwe_candidate_count": 3,
+    "excluded_rwe_status": "NOT_ATTEMPTED_RWE_AMBIGUOUS",
+    "excluded_rx_sp_candidate_count": 7,
+    "excluded_rx_sp_status": "UNRESOLVED_RUNTIME_SP",
+    "limitations": [
+      "Only the four pinned non-SP RX candidates are analyzed.",
+      "No SP, RWE, memory-load, table, argument, wrapper, cross-block, or cross-call provenance is resolved.",
+      "Only 64-bit MOVZ/MOVK and ADRP Xn followed by ADD Xn,Xn,#imm definitions are supported; 32-bit wide-move chains are rejected.",
+      "MOVN, MOV aliases, arithmetic other than the exact ADRP+ADD form, and unsupported definitions fail closed.",
+      "A direct branch target or basic-block entry is never crossed backward; runtime execution and writer identity remain UNKNOWN."
+    ],
+    "reason_counts": {
+      "NO_DIRECT_CONSTANT_DEFINITION": 3,
+      "UNSUPPORTED_REGISTER_DEFINITION": 1
+    },
+    "resolved_base_count": 0,
+    "resolved_target_hit_count": 0,
+    "rx_candidate_count": 11,
+    "scope": "FOUR_NON_SP_RX_CANDIDATES_ONLY",
+    "unresolved_count": 4,
+    "window_max_instructions": 128
+  },
+  "target_set": {
+    "base_count": 4,
+    "bases": [
+      "0x09260000",
+      "0x092e0000",
+      "0x09360000",
+      "0x093e0000"
+    ],
+    "offsets": [
+      "0x400",
+      "0x404",
+      "0x4d0"
+    ],
+    "target_count": 12,
+    "targets": [
+      "0x09260400",
+      "0x09260404",
+      "0x092604d0",
+      "0x092e0400",
+      "0x092e0404",
+      "0x092e04d0",
+      "0x09360400",
+      "0x09360404",
+      "0x093604d0",
+      "0x093e0400",
+      "0x093e0404",
+      "0x093e04d0"
+    ]
+  }
+}

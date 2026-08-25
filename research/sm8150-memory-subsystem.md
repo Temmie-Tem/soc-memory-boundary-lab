@@ -170,7 +170,7 @@ is proved, but no PA alias, transform mutation, protected reach or bypass is
 proved. Experiments 015 (normal-RAM alias) and 016 (protected-boundary reach)
 remain reserved and `NOT ELIGIBLE`; 017 satisfies neither gate.
 
-The cheapest next discriminator is a host-only symbolic AArch64 store
+The cheapest next discriminator at that stage was a host-only symbolic AArch64 store
 cross-reference/backward slice for the 12 exact qhs_mc targets (four bases ×
 `+0x400`, `+0x404`, `+0x4d0`), resolving MOVZ/MOVK, ADRP+ADD, literal/table
 loads, arithmetic and argument provenance. Unresolved dynamic bases remain
@@ -201,9 +201,39 @@ writer hypothesis is refuted by this stage.
 This remains Class C transform observation only. The actual writer, unsupported
 store forms, dynamic/cross-block/cross-call paths, AOP/TZ paths, runtime
 semantics/mutability, alias and bypass remain `UNKNOWN`; Experiments 015 and
-016 remain reserved and `NOT ELIGIBLE`. The next exact discriminator is Stage
-2A over only the four non-SP RX candidates, while the seven SP candidates are
-runtime-derived and the three RWE candidates remain ambiguous. An independent
+016 remain reserved and `NOT ELIGIBLE`. At Stage 1A, the next exact
+discriminator was Stage 2A over only the four non-SP RX candidates; it is now
+completed below. The seven SP candidates are runtime-derived and the three RWE
+candidates remain ambiguous. An independent
 Luna raw-byte feasibility scan agreed on the 14 candidates and found no
 resolved target in its broader model but emitted no artifact; it is supportive
 review, not manifest `PROVED` evidence.
+
+## Experiment 018 Stage 2A — exact RX direct-definition discriminator
+
+Host-only Stage 2A examines only the four non-SP RX candidates from the Stage
+1A census:
+
+| Store VA / file offset | Base | Offset |
+|---|---|---|
+| `0x14844b20` / `0x2bb20` | X8 | `+0x400` |
+| `0x14844c78` / `0x2bc78` | X8 | `+0x4d0` |
+| `0x146a70c0` / `0x2d6090` | X8 | `+0x400` |
+| `0x14935bf4` / `0x312bc4` | X19 | `+0x400` |
+
+The bounded backward slice examines at most 128 aligned instructions and stops
+at control transfers, recognized inbound direct-branch entries and mapping or
+window boundaries. It supports only 64-bit MOVZ/MOVK and same-register
+`ADRP Xn; ADD Xn,Xn,#imm`; 32-bit wide-move chains, MOVN, MOV aliases,
+wrong-source ADD, loads, MADD and other definitions fail closed.
+
+The two long X8 sequences reach the window limit without a supported
+definition. The `0x146a70c0` sequence encounters an unsupported LDR X8 at
+`0x146a70b4`. The X19 sequence stops at a BL control boundary before the older
+dynamic definition. Thus `resolved_base_count=0` and
+`resolved_target_hit_count=0`, with classification
+`NO_RESOLVED_TARGET_STORE_WITHIN_STAGE2A_DIRECT_DEFINITION_RX_MODEL`.
+This refutes only the supported direct-definition path and does not prove
+writer absence. SP/RWE, unsupported/dynamic/cross-block/cross-call paths,
+runtime execution/semantics/mutability, GF(2), alias, bypass and other firmware
+remain `UNKNOWN`.

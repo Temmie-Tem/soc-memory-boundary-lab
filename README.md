@@ -143,22 +143,29 @@ Experiments 015 (normal-RAM alias) and 016 (protected-boundary reach) remain
 reserved and `NOT ELIGIBLE`; 017 satisfies neither gate. The overall result
 remains Class C transform observation only.
 
-Host-only Experiment 018 Stage 1A now inventories the exact XBL literals and
+Host-only Experiment 018 Stage 1A inventories the exact XBL literals and
 strict STR W/X store-offset candidates for the 12 ranked MC targets. Each
 target's single 8-byte table encoding yields both the one aligned u64 match
 and the overlapping one aligned u32 match at the same file offset; these are
 two views of one table entry, not independent stored literals, and there is no
 separate target literal elsewhere. Only base `0x09260000` has an aligned u32
-outside that table, at file `0x80154` / VA `0x148bc254` in an RWE segment. The file-backed PT_LOAD
-census is RX4/RWE2/RW3, with 6945/5169 recognized STR W/X forms and 14
-matching offsets (RX11, RWE3; seven RX candidates are SP-based). Stage 1A
-performs no base/effective-address resolution, so its resolved hit count is
-`null`, not zero; the classification remains
-`STAGE1A_LITERAL_AND_STORE_OFFSET_CENSUS_WRITER_UNKNOWN`. It makes no writer
-claim, broadens no AOP/TZ scope, and does not satisfy reserved/`NOT ELIGIBLE`
-Experiments 015 or 016. The next discriminator is Stage 2A over only the four
-non-SP RX candidates; the seven SP and three RWE candidates remain unresolved
-or ambiguous. See [Experiment 018](experiments/018-xbl-mc-writer-xref/README.md).
+outside that table, at file `0x80154` / VA `0x148bc254` in an RWE segment. The
+file-backed PT_LOAD census is RX4/RWE2/RW3, with 6945/5169 recognized STR W/X
+forms and 14 matching offsets (RX11, RWE3; seven RX candidates are SP-based).
+Stage 1A performs no base/effective-address resolution, so its resolved hit
+count is `null`, not zero; its classification remains
+`STAGE1A_LITERAL_AND_STORE_OFFSET_CENSUS_WRITER_UNKNOWN`.
+
+Stage 2A then analyzes only the four non-SP RX candidates using a bounded
+same-block direct-definition model. It resolves no base and no exact target:
+the two long X8 sequences hit the 128-instruction window, the X8 load fails
+closed as unsupported, and the X19 path stops at a BL boundary. Its exact
+classification is
+`NO_RESOLVED_TARGET_STORE_WITHIN_STAGE2A_DIRECT_DEFINITION_RX_MODEL`.
+This refutes only that supported direct-definition path, not writer existence;
+the seven SP and three RWE candidates plus all other paths remain `UNKNOWN`.
+Experiment 018 broadens no AOP/TZ scope and does not satisfy reserved/`NOT
+ELIGIBLE` Experiments 015 or 016. See [Experiment 018](experiments/018-xbl-mc-writer-xref/README.md).
 
 Claim vocabulary is deliberately closed:
 

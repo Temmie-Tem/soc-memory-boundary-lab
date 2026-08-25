@@ -53,9 +53,22 @@ target's single 8-byte table encoding yields both the one aligned u64 match
 and the overlapping one aligned u32 match at the same file offset; these are
 two views of one table entry, not independent stored literals, and there is no
 separate target literal elsewhere. Only base `0x09260000` has an aligned u32
-outside it, at file `0x80154` / VA `0x148bc254` in RWE. Stage 1A performs no base/effective-
-address resolution, so its hit count is `null`, not zero, and makes no writer
-claim. Experiments 015 and 016 remain reserved and `NOT ELIGIBLE`.
+outside it, at file `0x80154` / VA `0x148bc254` in RWE. Stage 1A performs no
+base/effective-address resolution, so its hit count is `null`, not zero, and
+makes no writer claim. Experiments 015 and 016 remain reserved and `NOT
+ELIGIBLE`.
+
+Stage 2A now analyzes only the four non-SP RX candidates with a maximum 128-
+instruction same-block direct-definition slice. It supports only 64-bit
+`MOVZ/MOVK` and same-register `ADRP Xn; ADD Xn,Xn,#imm`, and fails closed at
+branches, calls, returns, inbound block entries, boundaries and unsupported
+definitions. Exact outcomes are two `WINDOW_LIMIT` no-definitions, one
+unsupported LDR definition at `0x146a70b4`, and one BL `CONTROL_TRANSFER`
+boundary. `resolved_base_count=0` and `resolved_target_hit_count=0`; the
+classification is
+`NO_RESOLVED_TARGET_STORE_WITHIN_STAGE2A_DIRECT_DEFINITION_RX_MODEL`. This
+refutes only the supported Stage 2A direct-definition path, not writer
+existence; SP/RWE and all other paths remain `UNKNOWN`.
 
 ## A. 현재까지 PROVED
 
@@ -302,9 +315,15 @@ claim. Experiments 015 and 016 remain reserved and `NOT ELIGIBLE`.
   aligned outside-table base literal is the RWE `0x80154`/`0x148bc254` fact,
   and matching offsets total 14. The public resolved hit count is `null` and
   classification is `STAGE1A_LITERAL_AND_STORE_OFFSET_CENSUS_WRITER_UNKNOWN`;
-  literal or offset equality is not a writer proof. Stage 2A is the next
-  discriminator for only four non-SP RX candidates; seven SP candidates remain
-  runtime-derived and three RWE candidates remain ambiguous.
+  literal or offset equality is not a writer proof. Stage 2A then analyzed only
+  four non-SP RX candidates; seven SP candidates remain runtime-derived and
+  three RWE candidates remain ambiguous.
+- Experiment 018 Stage 2A proves the bounded model outcome for exactly four
+  pinned non-SP RX candidates: two window-limit no-definitions, one unsupported
+  LDR-to-X8 definition at `0x146a70b4`, and one BL control boundary before the
+  older X19 definition. It resolves zero bases and zero exact target hits. The
+  result refutes only this supported direct-definition path and makes no claim
+  that no writer exists.
 - Experiment 018 command was
   `python3 tools/sm8150_xbl_mc_writer_xref.py --output evidence/manifests/018-xbl-mc-writer-xref-stage1a-20260825-01.manifest.json`.
   Public manifest/tool/focused-test SHA-256 are respectively
@@ -314,6 +333,15 @@ claim. Experiments 015 and 016 remain reserved and `NOT ELIGIBLE`.
   8 focused and all 287 repository unittest-discovery tests pass. All 54
   public manifests parse as JSON and the generated manifest is mode 0644.
   Date: 2026-08-25 KST; device/SMC/MMIO access: none.
+- Experiment 018 Stage 2A command was
+  `python3 tools/sm8150_xbl_mc_writer_stage2a.py --output evidence/manifests/018-xbl-mc-writer-xref-stage2a-20260825-01.manifest.json`.
+  Tool/test/manifest SHA-256 values are
+  `eb0a8ce21154d97d052de9f7e4e0de40f85087a8cb517179f7c44332e9d85eb0`,
+  `1272fadb0bcc6b883f74577284312ee34678975fa7ba60377d05d86927960b3b`, and
+  `eeed732e4a6cecd60453e9088d8c3d4c7ed207a1e7c723bae91e27033d134a4b`;
+  14 focused and 301 full repository unittest-discovery tests pass; all 55
+  public manifests parse as JSON and regeneration is byte-identical; mode
+  `0644`; device/SMC/MMIO access: none.
 
 ## B. 현재 HYPOTHESIS
 
@@ -454,6 +482,9 @@ claim. Experiments 015 and 016 remain reserved and `NOT ELIGIBLE`.
   of the literal/offset matches remain `UNKNOWN`. The RWE three are ambiguous;
   the seven SP-based RX candidates are runtime-derived. No REFUTED writer claim
   is made.
+- Experiment 018 Stage 2A leaves the seven SP candidates, three RWE candidates,
+  unsupported/cross-block/cross-call/dynamic paths, runtime execution and all
+  writer/semantic/mutability/GF(2)/alias/bypass questions `UNKNOWN`.
 
 ## E. SDM855 physical→DRAM pipeline 후보
 
@@ -558,14 +589,14 @@ ordering remain `UNKNOWN`, so this is not yet a structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-Do not repeat the fixed protected load. Following Experiment 018 Stage 1A, the
-cheapest next discriminator is Stage 2A: a host-only same-block direct-
-definition slice for only the four non-SP RX candidates (X8/X19). The seven
-SP candidates remain runtime-derived and the three RWE candidates remain
-ambiguous. Resolve only exact direct definitions and keep all dynamic,
-cross-block/call and unsupported paths `UNKNOWN`; do not perform a broad MMIO
-scan or device action. A cold-boot repetition is not a substitute for this
-writer xref.
+Do not repeat the fixed protected load. Experiment 018 Stage 2A completed the
+cheapest bounded host-only same-block direct-definition slice for the four
+non-SP RX candidates (X8/X19) and found no supported exact target. The seven SP
+candidates remain runtime-derived and the three RWE candidates remain
+ambiguous; all dynamic, cross-block/call and unsupported paths remain
+`UNKNOWN`. Any future writer xref must stay host-only and explicitly scoped; do
+not perform a broad MMIO scan or device action. A cold-boot repetition is not a
+substitute for this writer xref.
 
 ## N. 가장 위험한 아직 금지된 실험
 
@@ -615,6 +646,9 @@ Evidence for the attack class being relevant:
   candidates, and no base/effective-address resolution. It does not prove any
   writer, mutation, alias, protected reach or bypass; 015 and 016 remain `NOT
   ELIGIBLE`.
+- Experiment 018 Stage 2A does not prove any writer, mutation, alias, protected
+  reach or bypass. It only refutes the supported direct-definition model for
+  the four analyzed RX candidates; 015 and 016 remain `NOT ELIGIBLE`.
 
 Evidence against a presently usable bypass:
 
