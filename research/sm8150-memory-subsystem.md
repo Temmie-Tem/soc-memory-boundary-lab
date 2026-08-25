@@ -261,3 +261,28 @@ target equality under that model. The values are not physical destinations:
 VA-to-PA translation/identity, physical ownership, runtime execution, writer
 identity, semantics, mutability/lock, GF(2), alias, bypass and unsupported or
 dynamic paths remain `UNKNOWN`; no writer absence is claimed.
+
+## Experiment 018 Stage 2C — unique direct-caller retained-table path
+
+Host-only Stage 2C covers the remaining non-SP RX X8 store at
+`0x146a70c0/0x2d6090`, inside the exact writer range
+`[0x146a70a4,0x146a70dc)` (56 bytes, file `0x2d6074`). The wrapper and lookup
+ranges are respectively 108 and 272 bytes with exact pinned hashes; the scan
+of file-backed executable PT_LOADs finds exactly one direct BL caller at
+`0x146a67a4/0x2d5774`. Decoded pins show `X1=SP` to lookup, an ID-bounded
+16-byte table loop, matched row pointer `+8` copied through `[X19]`, then
+`X0=SP` to the writer, which loads X8 from `[X0]` and stores W9 at X8+0x400.
+
+The retained table at `0x146aa4d0/0x2d94a0` contains 48×16-byte rows with
+SHA-256
+`47a7f6195703f2f4d27cbe1e8bd0cc976600453a3ba4aebba98736ef8e03906e`; its
+following count word is 48. IDs and nonzero pointers are unique and all +4
+reserved words are zero. All 48 rows are emitted as
+`table_derived_possible_effective_values`; no pointer equals a target base and
+no `pointer+0x400` equals a target. These are a descriptor-`+0x20`-dependent
+possible-value superset, not proof of per-entry success or execution. The
+computed values are XBL effective-address values; VA-to-PA/identity, physical
+destination/ownership, runtime mutation/currentness, indirect callers, other
+X8 writers, execution and writer identity outside this path remain `UNKNOWN`.
+Classification:
+`NO_NUMERIC_TARGET_ADDRESS_MATCH_WITHIN_STAGE2C_UNIQUE_DIRECT_CALLER_TABLE_MODEL`.

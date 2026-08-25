@@ -904,3 +904,46 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
    10 focused and 311 full unittest-discovery tests pass. All 56 public
    manifests parse as JSON, regeneration is byte-identical and the manifest
    mode is `0644`. Date: 2026-08-25 KST.
+
+## 2026-08-25 — Experiment 018 XBL MC writer cross-reference Stage 2C
+
+1. Kept the stage host-only and read-only over the exact XBL
+   (`e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37`);
+   no device, SMC or MMIO action occurred. The scope is the remaining non-SP
+   RX X8 store at `0x146a70c0/0x2d6090`, and Experiments 015/016 remain reserved
+   and `NOT ELIGIBLE`.
+2. Pinned the writer `[0x146a70a4,0x146a70dc)` (file `0x2d6074`, 56 bytes,
+   SHA-256 `a50aaeb45c498a63e91704fc0ec4550b120ca0c1b691c238736b0532136dad6c`),
+   wrapper (108 bytes,
+   `24008bb23f54ed515774f020ac62cb3973b74dc57a41acd2bd358567863ad436`) and
+   lookup (272 bytes,
+   `9e54cfe4e5e2fad580b92c0853513f1be25046abeb00ff76db83d87ad3036046`).
+   The executable PT_LOAD scan found exactly one direct BL caller at
+   `0x146a67a4/0x2d5774`.
+3. Decoded critical success-path pins: wrapper `X1=SP` to lookup, lookup-result
+   branch to `0x146a67a0`, then `X0=SP` to the unique writer; lookup `X19=X1`,
+   bounded W10 index/count loop, ID compare branch into the row pointer load,
+   `LDR X8,[row+8]` and `STR X8,[X19]`; writer descriptor `+0x20` guard,
+   `LDR X8,[X0]` and `STR W9,[X8,#0x400]`.
+4. Parsed the retained table at `0x146aa4d0/0x2d94a0` as 48×16 bytes with
+   SHA-256 `47a7f6195703f2f4d27cbe1e8bd0cc976600453a3ba4aebba98736ef8e03906e`.
+   The following count u32 at `0x146aa7d0/0x2d97a0` is 48; all IDs and nonzero
+   pointers are unique and all reserved +4 fields are zero. All 48 rows emit
+   ID/base/possible `base+0x400`/numeric-match; zero target-base pointer matches
+   and zero possible effective target matches were found.
+5. The 48 values are a conservative possible-value superset because descriptor
+   `+0x20` eligibility is runtime-dependent; no claim says all rows execute.
+   Values are XBL effective-address values. `PROVED` is limited to the static
+   path/table evidence; `REFUTED` only numeric target equality in this model.
+   VA-to-PA/identity, physical destination/ownership, runtime mutation/currentness,
+   indirect callers, execution, writer identity outside this path, semantics,
+   mutability/lock, GF(2), alias and bypass remain `UNKNOWN`.
+6. Generated the public manifest with
+   `python3 tools/sm8150_xbl_mc_writer_stage2c.py --output evidence/manifests/018-xbl-mc-writer-xref-stage2c-20260825-01.manifest.json`.
+   Tool/test/manifest SHA-256 values are
+   `d53d820eb8d10e8417247fabbc0e3196f73c73584a6b7d79d583a96834c34d53`,
+   `92c95472940937a7001fe48dd055b4c598fd290c28a1e15757d1c297ebf5f526`, and
+   `e096562a35da93a1dac10a1651fc7eff08eecf05dafca4a789bae2fd50540c01`.
+   Nine focused and 320 full unittest-discovery tests pass; all 57 public
+   manifests parse as JSON, regeneration is byte-identical and mode is
+   `0644`. Date: 2026-08-25 KST.

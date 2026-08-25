@@ -171,6 +171,13 @@ to a target and both outside file-backed PT_LOADs. VA-to-PA translation and
 physical destination remain `UNKNOWN`; this refutes only numeric target
 equality within that model, not writer existence. Its classification is
 `NO_NUMERIC_TARGET_ADDRESS_MATCH_WITHIN_STAGE2B_W_WIDE_MOVE_RX_MODEL`.
+Stage 2C then analyzes the remaining X8 store at `0x146a70c0` through its
+unique direct BL caller and retained 48-entry table. The decoded lookup/writer
+path yields 48 conservative `table_derived_possible_effective_values`; none
+matches the 12 targets. Descriptor `+0x20` eligibility, per-entry execution,
+VA-to-PA translation and physical ownership remain `UNKNOWN`; this does not
+eliminate other X8 writer paths. Its classification is
+`NO_NUMERIC_TARGET_ADDRESS_MATCH_WITHIN_STAGE2C_UNIQUE_DIRECT_CALLER_TABLE_MODEL`.
 Experiment 018 broadens no AOP/TZ scope and does not satisfy reserved/`NOT
 ELIGIBLE` Experiments 015 or 016. See [Experiment 018](experiments/018-xbl-mc-writer-xref/README.md).
 

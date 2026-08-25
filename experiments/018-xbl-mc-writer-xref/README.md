@@ -1,4 +1,4 @@
-# Experiment 018 — XBL MC writer cross-reference, Stage 1A + Stage 2A + Stage 2B
+# Experiment 018 — XBL MC writer cross-reference, Stage 1A + Stage 2A + Stage 2B + Stage 2C
 
 ## Scope and eligibility
 
@@ -7,8 +7,9 @@ over the exact retained SM8150 XBL. They make no device, SMC, MMIO, normal-RAM,
 protected-memory or runtime-register access. Stage 2A resolves only the four
 pinned non-SP RX candidates through a deliberately small direct-definition
 model; Stage 2B extends only the two Stage 2A window-limit X8 candidates with a
-deliberately small W-wide-move model. Neither stage identifies a writer outside
-its model.
+deliberately small W-wide-move model; Stage 2C covers the remaining X8 writer
+candidate through its unique direct caller and retained table. None of these
+stages identifies a writer outside its model.
 
 Conceptual Experiment 015 (controlled normal-RAM alias) and Experiment 016
 (protected-boundary reach through that alias) remain reserved and `NOT
@@ -136,6 +137,47 @@ bypass and other firmware remain `UNKNOWN`; this does not state or imply that
 no writer exists. The classification is
 `NO_NUMERIC_TARGET_ADDRESS_MATCH_WITHIN_STAGE2B_W_WIDE_MOVE_RX_MODEL`.
 
+## Stage 2C unique direct-caller retained-table path
+
+Stage 2C examines the remaining non-SP RX X8 store candidate at
+`0x146a70c0` / file `0x2d6090`, `STR W9,[X8,#0x400]`, inside writer range
+`[0x146a70a4,0x146a70dc)`. The writer range is 56 bytes at file `0x2d6074`
+with SHA-256
+`a50aaeb45c498a63e91704fc0ec4550b120ca0c1b691c238736b0532136dad6c`.
+Its wrapper is `[0x146a6744,0x146a67b0)` / file `0x2d5714`, 108 bytes,
+SHA-256 `24008bb23f54ed515774f020ac62cb3973b74dc57a41acd2bd358567863ad436`;
+the lookup is `[0x146a7a08,0x146a7b18)` / file `0x2d69d8`, 272 bytes,
+SHA-256 `9e54cfe4e5e2fad580b92c0853513f1be25046abeb00ff76db83d87ad3036046`.
+
+The exact executable-segment scan finds one direct BL caller,
+`0x146a67a4` / file `0x2d5774`. Decoded pins show wrapper `X1=SP` to lookup,
+a lookup-result branch to `0x146a67a0`, then `X0=SP` to the unique writer.
+The lookup derives X19 from X1, bounds its W10 index by the count loaded from
+`[X10,#0x7d0]`, forms 16-byte rows, compares IDs, and on a match loads the
+pointer at row `+8` and stores it through `[X19]`. The writer's success
+fall-through loads X8 from `[X0]` and has `STR W9,[X8,#0x400]`, gated by its
+descriptor `+0x20` field.
+
+The retained table is VA `0x146aa4d0` / file `0x2d94a0`, 48 × 16 bytes,
+SHA-256
+`47a7f6195703f2f4d27cbe1e8bd0cc976600453a3ba4aebba98736ef8e03906e`.
+The following u32 at VA/file `0x146aa7d0` / `0x2d97a0` is 48; all 48 IDs and
+nonzero pointers are unique and all reserved `+4` u32 fields are zero. Every
+row is emitted as an ID, base value, possible `base+0x400` effective value and
+numeric target-match flag. No pointer equals one of the four target bases, and
+no possible `base+0x400` equals any of the 12 targets.
+
+These 48 values are `table_derived_possible_effective_values`: a conservative
+success-path superset, not proof that every row passes the runtime descriptor
+`+0x20` eligibility condition or that every store executes. Values are XBL
+effective-address values; VA-to-PA/identity, physical destination/ownership,
+runtime table mutation/currentness, indirect callers, execution and writer
+identity outside this direct path remain `UNKNOWN`. `PROVED` is limited to the
+decoded static path and table/list convergence; `REFUTED` only numeric equality
+to the 12 targets in this model. The remaining non-SP RX static candidate count
+is one (`X19`); this does not eliminate other X8 writer paths. Classification:
+`NO_NUMERIC_TARGET_ADDRESS_MATCH_WITHIN_STAGE2C_UNIQUE_DIRECT_CALLER_TABLE_MODEL`.
+
 ## Reproduction and provenance
 
 ```sh
@@ -148,6 +190,9 @@ python3 -m unittest -v tests.test_sm8150_xbl_mc_writer_stage2a
 python3 tools/sm8150_xbl_mc_writer_stage2b.py \
   --output evidence/manifests/018-xbl-mc-writer-xref-stage2b-20260825-01.manifest.json
 python3 -m unittest -v tests.test_sm8150_xbl_mc_writer_stage2b
+python3 tools/sm8150_xbl_mc_writer_stage2c.py \
+  --output evidence/manifests/018-xbl-mc-writer-xref-stage2c-20260825-01.manifest.json
+python3 -m unittest -v tests.test_sm8150_xbl_mc_writer_stage2c
 ```
 
 - Tool SHA-256:
@@ -174,6 +219,21 @@ python3 -m unittest -v tests.test_sm8150_xbl_mc_writer_stage2b
 - Focused result: 10 tests pass; full repository unittest discovery: 311
   tests pass.
 - Public manifest inventory: all 56 manifests parse as JSON; regeneration is
+  byte-identical; mode is `0644`.
+- Date: 2026-08-25 KST.
+- Mode: `HOST_ONLY_READ_ONLY`; device, SMC and MMIO access: none.
+
+## Stage 2C provenance
+
+- Tool SHA-256:
+  `d53d820eb8d10e8417247fabbc0e3196f73c73584a6b7d79d583a96834c34d53`.
+- Focused-test SHA-256:
+  `92c95472940937a7001fe48dd055b4c598fd290c28a1e15757d1c297ebf5f526`.
+- Public manifest SHA-256:
+  `e096562a35da93a1dac10a1651fc7eff08eecf05dafca4a789bae2fd50540c01`.
+- Focused result: 9 tests pass; full repository unittest discovery: 320 tests
+  pass.
+- Public manifest inventory: all 57 manifests parse as JSON; regeneration is
   byte-identical; mode is `0644`.
 - Date: 2026-08-25 KST.
 - Mode: `HOST_ONLY_READ_ONLY`; device, SMC and MMIO access: none.

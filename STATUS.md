@@ -82,6 +82,17 @@ This refutes only numeric target equality in that model; physical destination,
 VA-to-PA translation, writer identity and all unsupported/dynamic paths remain
 `UNKNOWN`. Experiments 015 and 016 remain reserved and `NOT ELIGIBLE`.
 
+Stage 2C covers the remaining non-SP RX X8 store at `0x146a70c0` through its
+unique direct BL caller at `0x146a67a4` and retained 48-entry table. The exact
+lookup/writer pins produce 48 conservative table-derived possible `+0x400`
+values; none numerically matches the 12 targets. Descriptor `+0x20`
+eligibility, per-entry execution, VA-to-PA translation, physical destination,
+indirect callers and other X8 writer paths remain `UNKNOWN`. One non-SP RX
+static candidate remains (`X19`). Classification is
+`NO_NUMERIC_TARGET_ADDRESS_MATCH_WITHIN_STAGE2C_UNIQUE_DIRECT_CALLER_TABLE_MODEL`;
+this is not a no-writer claim. Experiments 015 and 016 remain reserved and
+`NOT ELIGIBLE`.
+
 ## A. 현재까지 PROVED
 
 - Exact A90 source, defconfig, System.map, independently extracted stock
@@ -363,6 +374,15 @@ VA-to-PA translation, writer identity and all unsupported/dynamic paths remain
   10 focused and 311 full repository unittest-discovery tests pass; all 56
   public manifests parse as JSON and regeneration is byte-identical; mode
   `0644`; device/SMC/MMIO access: none.
+- Experiment 018 Stage 2C command was
+  `python3 tools/sm8150_xbl_mc_writer_stage2c.py --output evidence/manifests/018-xbl-mc-writer-xref-stage2c-20260825-01.manifest.json`.
+  Tool/test/manifest SHA-256 values are
+  `d53d820eb8d10e8417247fabbc0e3196f73c73584a6b7d79d583a96834c34d53`,
+  `92c95472940937a7001fe48dd055b4c598fd290c28a1e15757d1c297ebf5f526`, and
+  `e096562a35da93a1dac10a1651fc7eff08eecf05dafca4a789bae2fd50540c01`;
+  9 focused and 320 full unittest-discovery tests pass; all 57 public manifests
+  parse as JSON; regeneration is byte-identical; mode `0644`; device/SMC/MMIO
+  access: none.
 
 ## B. 현재 HYPOTHESIS
 
@@ -511,6 +531,12 @@ VA-to-PA translation, writer identity and all unsupported/dynamic paths remain
   paths, semantics, mutability/lock, GF(2), alias and bypass `UNKNOWN`. Its
   two computed values are XBL virtual-address values only; neighboring ELF
   headers do not establish physical RAM ownership.
+- Experiment 018 Stage 2C leaves descriptor `+0x20` per-entry eligibility,
+  successful execution, runtime table mutation/currentness, VA-to-PA identity,
+  physical destination/ownership, indirect callers, other X8 writer paths,
+  writer identity outside the unique direct path, semantics, mutability/lock,
+  GF(2), alias and bypass `UNKNOWN`. Its 48 rows are a possible-value superset,
+  not proof that every store executes.
 
 ## E. SDM855 physical→DRAM pipeline 후보
 
@@ -615,14 +641,15 @@ ordering remain `UNKNOWN`, so this is not yet a structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-Do not repeat the fixed protected load. Experiment 018 Stage 2B completed the
-cheap host-only same-block W-wide-move extension for the two Stage 2A window-
-limit X8 candidates; both computed values miss the 12 numeric targets. The
-seven SP candidates remain runtime-derived and the three RWE candidates remain
-ambiguous; all dynamic, cross-block/call and unsupported paths remain
-`UNKNOWN`. Any future writer xref must stay host-only and explicitly scoped; do
-not perform a broad MMIO scan or device action. A cold-boot repetition is not a
-substitute for this writer xref.
+Do not repeat the fixed protected load. Experiment 018 Stage 2C completed the
+cheap host-only unique-direct-caller/retained-table discriminator for the
+remaining X8 candidate; all 48 possible `+0x400` values miss the 12 numeric
+targets. One non-SP RX candidate remains (`X19`), while seven SP candidates
+remain runtime-derived and three RWE candidates remain ambiguous. Descriptor
+eligibility, dynamic/cross-block/call and unsupported paths remain `UNKNOWN`.
+Any future writer xref must stay host-only and explicitly scoped; do not perform
+a broad MMIO scan or device action. A cold-boot repetition is not a substitute
+for this writer xref.
 
 ## N. 가장 위험한 아직 금지된 실험
 
@@ -680,6 +707,13 @@ Evidence for the attack class being relevant:
   equality within that model; it does not prove any physical destination,
   writer, mutation, alias, protected reach or bypass. Experiments 015 and 016
   remain `NOT ELIGIBLE`.
+- Experiment 018 Stage 2C adds static exact-XBL path/table confidence only:
+  one direct caller, the 56/108/272-byte range hashes, and 48 possible
+  table-derived `+0x400` values with zero numeric target matches. It refutes
+  only numeric equality in that model; it does not prove per-entry eligibility,
+  execution, physical destination, writer identity outside this path, mutation,
+  alias, protected reach or bypass. Experiments 015 and 016 remain `NOT
+  ELIGIBLE`.
 
 Evidence against a presently usable bypass:
 

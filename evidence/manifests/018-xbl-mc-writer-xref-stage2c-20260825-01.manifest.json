@@ -1,0 +1,714 @@
+{
+  "baseline": {
+    "stage2a_manifest_sha256": "eeed732e4a6cecd60453e9088d8c3d4c7ed207a1e7c723bae91e27033d134a4b",
+    "stage2a_test_sha256": "1272fadb0bcc6b883f74577284312ee34678975fa7ba60377d05d86927960b3b",
+    "stage2a_tool_sha256": "eb0a8ce21154d97d052de9f7e4e0de40f85087a8cb517179f7c44332e9d85eb0",
+    "stage2b_classification": "NO_NUMERIC_TARGET_ADDRESS_MATCH_WITHIN_STAGE2B_W_WIDE_MOVE_RX_MODEL",
+    "stage2b_manifest_sha256": "a4715112e27c74e5548ecb49f09106c236146c8a0216c87446ddbd3c355ccca6",
+    "stage2b_resolved_base_count": 2,
+    "stage2b_resolved_numeric_target_hit_count": 0,
+    "stage2b_test_sha256": "af7ca7b46550dda13e85e517c0c1c1df19b6414549d06415316b6d428e020fc9",
+    "stage2b_tool_sha256": "aa35d8b303a7ea32a086d601b1f08390b1cad0932f105209ac337f394813dbcb"
+  },
+  "claims": {
+    "PROVED": [
+      "The exact XBL, wrapper/writer/lookup ranges and retained 48-entry table hashes and mappings are verified.",
+      "Exactly one direct BL in file-backed executable PT_LOADs targets the writer; the wrapper success path passes SP through lookup and then to that writer.",
+      "The lookup success path derives X19 from X1, loads a matched table-entry pointer at +8, and copies it to [X19]; the writer success path loads X8 from [X0] and has STR W9,[X8,#0x400].",
+      "The 48 table-derived base+0x400 values are a conservative possible-effective-value superset; none numerically matches the 12 targets."
+    ],
+    "REFUTED": [
+      "Numeric equality to one of the 12 target values within this exact unique-direct-caller retained-table model."
+    ],
+    "UNKNOWN": [
+      "Descriptor +0x20 eligibility for each entry, per-entry success, runtime table mutation/currentness, runtime execution, and coherent/current output.",
+      "VA-to-PA translation/identity, physical destination/ownership, indirect callers, writer identity outside this direct path, register semantics, mutability/lock, GF(2), alias, bypass and other firmware paths."
+    ]
+  },
+  "classification": "NO_NUMERIC_TARGET_ADDRESS_MATCH_WITHIN_STAGE2C_UNIQUE_DIRECT_CALLER_TABLE_MODEL",
+  "code_ranges": {
+    "lookup": {
+      "byte_length": 272,
+      "end_exclusive": "0x146a7b18",
+      "file_offset": "0x2d69d8",
+      "segment_class": "RX",
+      "sha256": "9e54cfe4e5e2fad580b92c0853513f1be25046abeb00ff76db83d87ad3036046",
+      "virtual_address": "0x146a7a08"
+    },
+    "wrapper": {
+      "byte_length": 108,
+      "end_exclusive": "0x146a67b0",
+      "file_offset": "0x2d5714",
+      "segment_class": "RX",
+      "sha256": "24008bb23f54ed515774f020ac62cb3973b74dc57a41acd2bd358567863ad436",
+      "virtual_address": "0x146a6744"
+    },
+    "writer": {
+      "byte_length": 56,
+      "end_exclusive": "0x146a70dc",
+      "file_offset": "0x2d6074",
+      "segment_class": "RX",
+      "sha256": "a50aaeb45c498a63e91704fc0ec4550b120ca0c1b691c238736b0532136dad6c",
+      "virtual_address": "0x146a70a4"
+    }
+  },
+  "device_access": false,
+  "direct_callers": {
+    "callers": [
+      {
+        "file_offset": "0x2d5774",
+        "segment_class": "RX",
+        "target": "0x146a70a4",
+        "virtual_address": "0x146a67a4"
+      }
+    ],
+    "count": 1,
+    "direct_file_backed_executable_pt_loads_only": true,
+    "target": "0x146a70a4"
+  },
+  "firmware_bytes_emitted": false,
+  "input": {
+    "filename": "xbl--sdb1.bin",
+    "pin_verified": true,
+    "sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+    "size": 4194304
+  },
+  "mmio_access": false,
+  "mode": "HOST_ONLY_READ_ONLY",
+  "retained_table": {
+    "byte_length": 768,
+    "count_u32": 48,
+    "count_u32_file_offset": "0x2d97a0",
+    "count_u32_virtual_address": "0x146aa7d0",
+    "entry_count": 48,
+    "entry_size": 16,
+    "exact_target_base_pointer_match_count": 0,
+    "file_offset": "0x2d94a0",
+    "physical_destination": null,
+    "possible_effective_numeric_target_match_count": 0,
+    "reserved_u32_zero_count": 48,
+    "rows": [
+      {
+        "base_value": "0x1dc1000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d94a0",
+        "entry_index": 0,
+        "entry_virtual_address": "0x146aa4d0",
+        "id": "0x1",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x1dc1400"
+      },
+      {
+        "base_value": "0x10a0000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d94b0",
+        "entry_index": 1,
+        "entry_virtual_address": "0x146aa4e0",
+        "id": "0x2",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x10a0400"
+      },
+      {
+        "base_value": "0x1e00000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d94c0",
+        "entry_index": 2,
+        "entry_virtual_address": "0x146aa4f0",
+        "id": "0x3",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x1e00400"
+      },
+      {
+        "base_value": "0xaec8000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d94d0",
+        "entry_index": 3,
+        "entry_virtual_address": "0x146aa500",
+        "id": "0x6",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0xaec8400"
+      },
+      {
+        "base_value": "0x800000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d94e0",
+        "entry_index": 4,
+        "entry_virtual_address": "0x146aa510",
+        "id": "0x8",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x800400"
+      },
+      {
+        "base_value": "0xa00000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d94f0",
+        "entry_index": 5,
+        "entry_virtual_address": "0x146aa520",
+        "id": "0x9",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0xa00400"
+      },
+      {
+        "base_value": "0xc00000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9500",
+        "entry_index": 6,
+        "entry_virtual_address": "0x146aa530",
+        "id": "0x4c",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0xc00400"
+      },
+      {
+        "base_value": "0x1890000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9510",
+        "entry_index": 7,
+        "entry_virtual_address": "0x146aa540",
+        "id": "0xb",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x1890400"
+      },
+      {
+        "base_value": "0x2600000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9520",
+        "entry_index": 8,
+        "entry_virtual_address": "0x146aa550",
+        "id": "0xc",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x2600400"
+      },
+      {
+        "base_value": "0x3800000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9530",
+        "entry_index": 9,
+        "entry_virtual_address": "0x146aa560",
+        "id": "0xe",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x3800400"
+      },
+      {
+        "base_value": "0x1d94000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9540",
+        "entry_index": 10,
+        "entry_virtual_address": "0x146aa570",
+        "id": "0x10",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x1d94400"
+      },
+      {
+        "base_value": "0x2f0000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9550",
+        "entry_index": 11,
+        "entry_virtual_address": "0x146aa580",
+        "id": "0x12",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x2f0400"
+      },
+      {
+        "base_value": "0x1f00000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9560",
+        "entry_index": 12,
+        "entry_virtual_address": "0x146aa590",
+        "id": "0x13",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x1f00400"
+      },
+      {
+        "base_value": "0x1f80000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9570",
+        "entry_index": 13,
+        "entry_virtual_address": "0x146aa5a0",
+        "id": "0x14",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x1f80400"
+      },
+      {
+        "base_value": "0x61a000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9580",
+        "entry_index": 14,
+        "entry_virtual_address": "0x146aa5b0",
+        "id": "0x18",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x61a400"
+      },
+      {
+        "base_value": "0x614000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9590",
+        "entry_index": 15,
+        "entry_virtual_address": "0x146aa5c0",
+        "id": "0x19",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x614400"
+      },
+      {
+        "base_value": "0x78e000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d95a0",
+        "entry_index": 16,
+        "entry_virtual_address": "0x146aa5d0",
+        "id": "0x1a",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x78e400"
+      },
+      {
+        "base_value": "0x14402000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d95b0",
+        "entry_index": 17,
+        "entry_virtual_address": "0x146aa5e0",
+        "id": "0x1c",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x14402400"
+      },
+      {
+        "base_value": "0x14404000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d95c0",
+        "entry_index": 18,
+        "entry_virtual_address": "0x146aa5f0",
+        "id": "0x1d",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x14404400"
+      },
+      {
+        "base_value": "0x3fe000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d95d0",
+        "entry_index": 19,
+        "entry_virtual_address": "0x146aa600",
+        "id": "0x1e",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x3fe400"
+      },
+      {
+        "base_value": "0x1520000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d95e0",
+        "entry_index": 20,
+        "entry_virtual_address": "0x146aa610",
+        "id": "0x23",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x1520400"
+      },
+      {
+        "base_value": "0x1524000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d95f0",
+        "entry_index": 21,
+        "entry_virtual_address": "0x146aa620",
+        "id": "0x22",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x1524400"
+      },
+      {
+        "base_value": "0x61c000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9600",
+        "entry_index": 22,
+        "entry_virtual_address": "0x146aa630",
+        "id": "0x27",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x61c400"
+      },
+      {
+        "base_value": "0xc430000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9610",
+        "entry_index": 23,
+        "entry_virtual_address": "0x146aa640",
+        "id": "0x28",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0xc430400"
+      },
+      {
+        "base_value": "0x10bc000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9620",
+        "entry_index": 24,
+        "entry_virtual_address": "0x146aa650",
+        "id": "0x29",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x10bc400"
+      },
+      {
+        "base_value": "0x616000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9630",
+        "entry_index": 25,
+        "entry_virtual_address": "0x146aa660",
+        "id": "0x2a",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x616400"
+      },
+      {
+        "base_value": "0x4a000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9640",
+        "entry_index": 26,
+        "entry_virtual_address": "0x146aa670",
+        "id": "0x2c",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x4a400"
+      },
+      {
+        "base_value": "0x2bac000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9650",
+        "entry_index": 27,
+        "entry_virtual_address": "0x146aa680",
+        "id": "0x2d",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x2bac400"
+      },
+      {
+        "base_value": "0x924e000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9660",
+        "entry_index": 28,
+        "entry_virtual_address": "0x146aa690",
+        "id": "0x2e",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x924e400"
+      },
+      {
+        "base_value": "0x92ce000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9670",
+        "entry_index": 29,
+        "entry_virtual_address": "0x146aa6a0",
+        "id": "0x2f",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x92ce400"
+      },
+      {
+        "base_value": "0x1db4000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9680",
+        "entry_index": 30,
+        "entry_virtual_address": "0x146aa6b0",
+        "id": "0x37",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x1db4400"
+      },
+      {
+        "base_value": "0x3c00000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9690",
+        "entry_index": 31,
+        "entry_virtual_address": "0x146aa6c0",
+        "id": "0x36",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x3c00400"
+      },
+      {
+        "base_value": "0xac60000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d96a0",
+        "entry_index": 32,
+        "entry_virtual_address": "0x146aa6d0",
+        "id": "0x38",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0xac60400"
+      },
+      {
+        "base_value": "0x96c0000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d96b0",
+        "entry_index": 33,
+        "entry_virtual_address": "0x146aa6e0",
+        "id": "0x4b",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x96c0400"
+      },
+      {
+        "base_value": "0x1526000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d96c0",
+        "entry_index": 34,
+        "entry_virtual_address": "0x146aa6f0",
+        "id": "0x39",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x1526400"
+      },
+      {
+        "base_value": "0x964e000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d96d0",
+        "entry_index": 35,
+        "entry_virtual_address": "0x146aa700",
+        "id": "0x3a",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x964e400"
+      },
+      {
+        "base_value": "0x2bae000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d96e0",
+        "entry_index": 36,
+        "entry_virtual_address": "0x146aa710",
+        "id": "0x3b",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x2bae400"
+      },
+      {
+        "base_value": "0x934e000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d96f0",
+        "entry_index": 37,
+        "entry_virtual_address": "0x146aa720",
+        "id": "0x3f",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x934e400"
+      },
+      {
+        "base_value": "0x14400000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9700",
+        "entry_index": 38,
+        "entry_virtual_address": "0x146aa730",
+        "id": "0x31",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x14400400"
+      },
+      {
+        "base_value": "0x90e0000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9710",
+        "entry_index": 39,
+        "entry_virtual_address": "0x146aa740",
+        "id": "0x3c",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x90e0400"
+      },
+      {
+        "base_value": "0xc290000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9720",
+        "entry_index": 40,
+        "entry_virtual_address": "0x146aa750",
+        "id": "0x3e",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0xc290400"
+      },
+      {
+        "base_value": "0x93ce000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9730",
+        "entry_index": 41,
+        "entry_virtual_address": "0x146aa760",
+        "id": "0x40",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x93ce400"
+      },
+      {
+        "base_value": "0x90b4000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9740",
+        "entry_index": 42,
+        "entry_virtual_address": "0x146aa770",
+        "id": "0x3d",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x90b4400"
+      },
+      {
+        "base_value": "0x626000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9750",
+        "entry_index": 43,
+        "entry_virtual_address": "0x146aa780",
+        "id": "0x1b",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x626400"
+      },
+      {
+        "base_value": "0x3400000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9760",
+        "entry_index": 44,
+        "entry_virtual_address": "0x146aa790",
+        "id": "0xd",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x3400400"
+      },
+      {
+        "base_value": "0x3000000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9770",
+        "entry_index": 45,
+        "entry_virtual_address": "0x146aa7a0",
+        "id": "0xf",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x3000400"
+      },
+      {
+        "base_value": "0x9102000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9780",
+        "entry_index": 46,
+        "entry_virtual_address": "0x146aa7b0",
+        "id": "0x4d",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x9102400"
+      },
+      {
+        "base_value": "0x14406000",
+        "base_value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "effective_address_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+        "entry_file_offset": "0x2d9790",
+        "entry_index": 47,
+        "entry_virtual_address": "0x146aa7c0",
+        "id": "0x4e",
+        "numeric_target_match": false,
+        "table_derived_possible_effective_address": "0x14406400"
+      }
+    ],
+    "sha256": "47a7f6195703f2f4d27cbe1e8bd0cc976600453a3ba4aebba98736ef8e03906e",
+    "source_pt_load_pf_w": false,
+    "unique_id_count": 48,
+    "unique_nonzero_pointer_count": 48,
+    "va_to_pa_translation": "UNKNOWN",
+    "value_domain": "XBL_VIRTUAL_ADDRESS_VALUE",
+    "virtual_address": "0x146aa4d0"
+  },
+  "schema": "sdm855-xbl-mc-writer-xref-stage2c-public-v1",
+  "scope": {
+    "remaining_non_sp_rx_static_candidate": {
+      "base_register": "X19",
+      "byte_offset": "0x400",
+      "file_offset": "0x312bc4",
+      "virtual_address": "0x14935bf4"
+    },
+    "remaining_non_sp_rx_static_candidate_count": 1,
+    "table_derived_possible_effective_values_count": 48,
+    "writer_store": {
+      "base_register": "X8",
+      "byte_offset": "0x400",
+      "file_offset": "0x2d6090",
+      "source_register": "W9",
+      "virtual_address": "0x146a70c0"
+    }
+  },
+  "smc_access": false,
+  "stage": "STAGE2C_UNIQUE_DIRECT_CALLER_TABLE_MODEL",
+  "success_path": {
+    "critical_instruction_pins_verified": true,
+    "lookup": {
+      "count_adrp_site": "0x146a7a30",
+      "count_load_site": "0x146a7a34",
+      "count_source": {
+        "base_register": "X10",
+        "byte_offset": "0x7d0",
+        "register": "W8"
+      },
+      "entry_index_register": "X11",
+      "entry_stride": 16,
+      "id_compare_branch": "0x146a7a84",
+      "id_compare_site": "0x146a7a58",
+      "id_load_site": "0x146a7a54",
+      "id_match_branch_site": "0x146a7a5c",
+      "index_compare_site": "0x146a7a64",
+      "index_copy_site": "0x146a7a4c",
+      "index_increment": 1,
+      "index_increment_site": "0x146a7a60",
+      "index_initial_value": 0,
+      "index_loop_branch_site": "0x146a7a68",
+      "index_register": "W10",
+      "index_shift_site": "0x146a7a50",
+      "index_zero_site": "0x146a7a44",
+      "input_id_move_site": "0x146a7a18",
+      "input_id_register": "W20",
+      "input_id_source": "W0",
+      "loop_back_target": "0x146a7a4c",
+      "loop_bound_register": "W8",
+      "output_register": "X19",
+      "output_source": "X1",
+      "pointer_entry_offset": 8,
+      "pointer_guard_site": "0x146a7a90",
+      "pointer_load_site": "0x146a7a88",
+      "pointer_output": "[X19]",
+      "pointer_store_site": "0x146a7a8c",
+      "success_epilogue_branch_site": "0x146a7b14",
+      "success_epilogue_branch_target": "0x146a7a78",
+      "success_return": 0,
+      "success_return_site": "0x146a7b10",
+      "table_base": "0x146aa4d0"
+    },
+    "wrapper": {
+      "lookup_call": "0x146a7a08",
+      "lookup_call_site": "0x146a6774",
+      "lookup_result_branch": "0x146a67a0",
+      "lookup_result_branch_site": "0x146a6778",
+      "writer_call": "0x146a70a4",
+      "writer_call_site": "0x146a67a4",
+      "x0_setup_site": "0x146a67a0",
+      "x0_source": "SP",
+      "x1_setup_site": "0x146a6770",
+      "x1_source": "SP"
+    },
+    "writer": {
+      "descriptor_pointer_load": "X8=[X0]",
+      "descriptor_pointer_load_site": "0x146a70b4",
+      "eligibility_field_offset": "0x20",
+      "eligibility_load_site": "0x146a70a4",
+      "store_base": "X8",
+      "store_offset": "0x400",
+      "store_site": "0x146a70c0",
+      "store_source": "W9"
+    }
+  }
+}

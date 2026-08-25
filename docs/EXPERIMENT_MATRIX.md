@@ -19,7 +19,7 @@
 | 015 | A controlled transform state creates physical-to-DRAM alias. | `PA_A != PA_B` but writes through one are observed through the other after cache-neutral independent reads. | Prove distinct PTE/PAs; CPU and DMA controls; cache maintenance; reboot/state restoration; unchanged-state negative control. | `NOT ELIGIBLE`: candidate tokens exist, but operation semantics, readback/lock state, safe restore, and an alias-producing state are not proved. |
 | 016 | A normal-RAM alias reaches a protected boundary. | Only after 015, a minimal non-secret marker/boundary test differs between normal and alias path. | No dump, exact ordering proof, secondary enforcement control. | `NOT ELIGIBLE`. |
 | 017 | Does exact XBL expose a table-driven MC read-copy path that independently covers the ranked MC candidates? | The pinned u64 table parses to 122 entries plus a zero terminator; the exact helper's static flow conditionally loads each table-derived address and stores results to a distinct buffer. | Exact XBL size/hash, PT_LOAD mapping, inclusive table/helper hashes, AArch64 word pins, direct-BL scan limited to file-backed executable PT_LOADs, SHRM-plan address-list cross-check; host-only, no device/SMC/MMIO. | `PROVED`: 30×4 MC groups + 2 globals, all 12 qhs_mc candidates covered, helper read-copy store-base dataflow, exactly two direct BL callsites. `REFUTED`: helper as candidate-register writer and independent hard 122-entry cap. Runtime completion/coherence/currentness, mutable table state, indirect reachability and writer semantics `UNKNOWN`; 015/016 remain `NOT ELIGIBLE`. |
-| 018 | Does exact XBL contain literal and syntactic store-offset evidence for the 12 ranked MC targets, and do the four non-SP RX candidates resolve through narrow direct-definition models? | Each target's single 8-byte table encoding yields one aligned u64 match and the overlapping aligned u32 match at the same file offset; strict STR W/X unsigned-immediate offsets enumerate candidates. Stage 2A resolves only 64-bit MOVZ/MOVK or same-register `ADRP Xn; ADD Xn,Xn,#imm` within 128 instructions; Stage 2B extends only its two X8 window-limit candidates with same-register W MOVZ/MOVK within 512 instructions. | Exact XBL size/SHA-256, PT_LOAD RX/RWE/RW/OTHER census, scalar STR decoder negatives, literal mapping/table membership, exact candidate pins, branch/inbound-entry/call cutoffs, unsupported/mixed-width definition negatives; host-only, no device/SMC/MMIO. | `PROVED`: the two aligned matches per target are views of one table entry, not independent literals, with no separate target literal elsewhere; outside-table aligned u32 only for base `0x09260000` at file `0x80154` / VA `0x148bc254` in RWE; 14 matching offsets (RX11/RWE3), seven RX SP-based; Stage 2A has two window-limit no-definitions, one unsupported LDR, one BL control boundary, zero resolved bases/hits. Stage 2B resolves two W-wide-move bases to XBL virtual-address values `0x1489f000`, computing `0x1489f400`/`0x1489f4d0`, with zero numeric target hits and both outside file-backed PT_LOADs. `REFUTED` only: the supported Stage 2A direct-definition path and Stage 2B numeric target equality. Physical destination, writer identity and all SP/RWE/unsupported/dynamic/cross-block paths remain `UNKNOWN`; 015/016 remain `NOT ELIGIBLE`. |
+| 018 | Does exact XBL contain literal and syntactic store-offset evidence for the 12 ranked MC targets, and do the non-SP RX candidates resolve through narrow direct-definition models? | Each target's single 8-byte table encoding yields one aligned u64 match and the overlapping aligned u32 match at the same file offset; strict STR W/X unsigned-immediate offsets enumerate candidates. Stage 2A resolves only 64-bit MOVZ/MOVK or same-register `ADRP Xn; ADD Xn,Xn,#imm` within 128 instructions; Stage 2B extends only its two X8 window-limit candidates with same-register W MOVZ/MOVK within 512 instructions; Stage 2C analyzes the remaining X8 writer through its unique direct caller and 48-row retained table. | Exact XBL size/SHA-256, PT_LOAD RX/RWE/RW/OTHER census, scalar STR decoder negatives, literal mapping/table membership, exact candidate/code/table pins, branch/ID-loop/success-path cutoffs, unsupported/mixed-width definition negatives; host-only, no device/SMC/MMIO. | `PROVED`: the two aligned matches per target are views of one table entry, not independent literals, with no separate target literal elsewhere; outside-table aligned u32 only for base `0x09260000` at file `0x80154` / VA `0x148bc254` in RWE; 14 matching offsets (RX11/RWE3), seven RX SP-based; Stage 2A has two window-limit no-definitions, one unsupported LDR, one BL control boundary, zero resolved bases/hits. Stage 2B resolves two W-wide-move bases to XBL virtual-address values `0x1489f000`, computing `0x1489f400`/`0x1489f4d0`, with zero numeric target hits. Stage 2C proves one direct caller, the 56/108/272-byte code-range hashes, and 48 unique ID/pointer rows with zero numeric target matches; these are a descriptor-eligibility-dependent possible-value superset. `REFUTED` only: the supported Stage 2A direct-definition path and Stage 2B/2C numeric target equality. Physical destination, runtime execution, writer identity outside the direct path and all SP/RWE/unsupported/dynamic/cross-block paths remain `UNKNOWN`; 015/016 remain `NOT ELIGIBLE`. |
 
 ## Experiment 001 metadata
 
@@ -745,3 +745,38 @@ preserve the already allocated Experiment 014–016 sequence.
 - Host verification: 10 focused tests and 311 full repository unittest-
   discovery tests pass; all 56 public manifests parse as JSON; regeneration is
   byte-identical. Stage 1A/Stage 2A artifacts remain hash-pinned and unchanged.
+
+## Experiment 018 XBL MC writer Stage 2C metadata
+
+- Experiment ID: `018-xbl-mc-writer-xref-stage2c-20260825-01`
+- Date: `2026-08-25 KST`
+- Target/input: exact retained `SM-A908N` / `SM8150` XBL
+  `xbl--sdb1.bin`, 4,194,304 bytes, SHA-256
+  `e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37`
+- Exact action:
+  `python3 tools/sm8150_xbl_mc_writer_stage2c.py --output evidence/manifests/018-xbl-mc-writer-xref-stage2c-20260825-01.manifest.json`
+- Device/SMC/MMIO access: none; mode `HOST_ONLY_READ_ONLY`; public mode `0644`.
+- Scope/pins: writer `[0x146a70a4,0x146a70dc)` / file `0x2d6074`, 56
+  bytes, SHA-256 `a50aaeb45c498a63e91704fc0ec4550b120ca0c1b691c238736b0532136dad6c`;
+  wrapper 108-byte SHA-256
+  `24008bb23f54ed515774f020ac62cb3973b74dc57a41acd2bd358567863ad436`;
+  lookup 272-byte SHA-256
+  `9e54cfe4e5e2fad580b92c0853513f1be25046abeb00ff76db83d87ad3036046`;
+  retained table 48×16 bytes at `0x146aa4d0` / `0x2d94a0`, SHA-256
+  `47a7f6195703f2f4d27cbe1e8bd0cc976600453a3ba4aebba98736ef8e03906e`.
+- Exact outcome: one direct BL caller at `0x146a67a4` / `0x2d5774`; count
+  u32 48; 48 unique IDs and nonzero pointers; reserved +4 zeros 48; zero
+  target-base pointer matches and zero possible `base+0x400` target matches.
+  The 48 rows are descriptor-eligibility-dependent possible values, not proof
+  of per-entry execution. One non-SP RX static candidate remains (`X19`).
+  Classification:
+  `NO_NUMERIC_TARGET_ADDRESS_MATCH_WITHIN_STAGE2C_UNIQUE_DIRECT_CALLER_TABLE_MODEL`.
+- Tool SHA-256:
+  `d53d820eb8d10e8417247fabbc0e3196f73c73584a6b7d79d583a96834c34d53`.
+- Focused-test SHA-256:
+  `92c95472940937a7001fe48dd055b4c598fd290c28a1e15757d1c297ebf5f526`.
+- Public manifest SHA-256:
+  `e096562a35da93a1dac10a1651fc7eff08eecf05dafca4a789bae2fd50540c01`.
+- Host verification: 9 focused tests and 320 full unittest-discovery tests pass;
+  all 57 public manifests parse as JSON; regeneration is byte-identical and
+  mode is `0644`.
