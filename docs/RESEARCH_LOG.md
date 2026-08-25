@@ -740,3 +740,51 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
     `7dc5050c…`, `50cdec42…`, and `e8219a53…`. Current classification is
     `NORMAL_RAM_HIDDEN_BANK_HASH_PROVED_NO_ALIAS_OR_BYPASS`; no physical-to-DRAM
     alias, transform mutation or boundary bypass was demonstrated.
+
+## 2026-08-25 — Experiment 017 exact XBL MC table/read-copy cross-reference
+
+1. Kept the phase host-only and read-only. The exact XBL input is 4,194,304
+   bytes with SHA-256 `e73a07a0…`; no device, SMC or MMIO action occurred.
+   Conceptual Experiments 015 (normal-RAM alias) and 016 (protected-boundary
+   reach) remain reserved and `NOT ELIGIBLE`; 017 satisfies neither gate.
+2. `PROVED`: VA `0x146b1218` maps through an exact ELF PT_LOAD to file offset
+   `0x630b8`. The table has 122 nonzero aligned u64 addresses and a zero
+   terminator at index 122; inclusive SHA-256 is `d5042980…`. Its structural
+   shape is 30 four-instance MC groups plus two global entries.
+3. `PROVED`: all 12 exact `qhs_mc +0x400/+0x404/+0x4d0` candidates are covered.
+   `PROVED`: qhs_mccc `+0x118` and qhs_mccc_master `+0x294` are excluded from
+   this table only. Existing Top-5 order is unchanged; coverage adds
+   independent observation confidence, not semantic likelihood.
+4. `PROVED`: cross-checking `tools.shrm_dump_decode.load_plan()` yields set0
+   `100/430`, set1 `4/64`, union intersection `100`, table-only `22`, and
+   SHRM-only `370`. This is address-list convergence only, not semantic
+   identity or writer attribution.
+5. `PROVED`: the exact helper range
+   `0x146ae138..0x146ae18c` (end-exclusive, file `0x62318`, length `0x54`,
+   SHA-256 `f325a8bf…`) statically constructs sentinel prefill followed by
+   table-derived 32-bit loads and conditional stores to distinct VA
+   `0x146bf300`. Identified store bases are only X12/X8, so this exact range
+   is `REFUTED` as a candidate-register programming/mutation path.
+6. The helper's code range is bounded, but traversal is zero-sentinel-only and
+   has no independent hard 122-entry cap; the exact on-disk table terminates at
+   index 122. Successful completion, partial/sentinel output,
+   coherent/atomic/current status, MMIO side effects/faults, mutable runtime
+   table contents/lock, post-boot writability, indirect BLR/tail reachability
+   and current-boot execution remain `UNKNOWN`.
+7. `PROVED`: a complete scan limited to direct BL instructions in file-backed
+   executable PT_LOADs finds exactly two static callsites, at
+   `0x146ae26c/file 0x6244c` and `0x14839f44/file 0x20f44`. No current-boot
+   execution claim is made.
+8. Generated the public manifest with:
+   `python3 tools/sm8150_xbl_mc_snapshot_xref.py --output evidence/manifests/017-xbl-mc-snapshot-xref-20260825-01.manifest.json`.
+   Manifest/tool/focused-test SHA-256 values are
+   `b1db2123…` / `2baa9e3d…` / `5b0f6f3e…`; 20 focused tests and all 279
+   repository unittest-discovery tests pass. The independent raw-byte review
+   was a read-only re-derivation with no emitted
+   artifact and therefore no review-artifact hash.
+9. Current classification remains
+   `TABLE_DRIVEN_REGISTER_READ_COPY_PATH_WRITER_AND_TRANSFORM_RELATION_UNKNOWN`;
+   overall state remains Class C transform observation only. The cheapest next
+   discriminator is a host-only symbolic AArch64 store xref/backward slice for
+   the 12 exact qhs_mc targets; unresolved dynamic bases remain `UNKNOWN`, and
+   no broad MMIO scan/device action is authorized.

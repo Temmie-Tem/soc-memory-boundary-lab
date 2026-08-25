@@ -18,6 +18,7 @@
 | 014 | Normal-RAM bank/channel relationships fit a stable GF(2) model not already explained by the exact diagnostic formula. | XOR-difference row-reopen timing recovers the selector kernel; row-bit relations and held-out combinations must agree while one-bank-bit perturbations leave the class. | Exact non-secure single-SG ION CMA PA binding; write-combine mapping; symmetric reopen/baseline directions; 64 PA pairs; 1001 repetitions; same-row, held-out and one-bit controls; CPU/DDR pinning. | `PROVED`, observed low-24 scope: row bits 16..23 contribute XOR terms to the rank-five selection space; PA9/PA10 independence `SUPPORTED`; diagnostic no-XOR bank formula `REFUTED` as complete silicon mapping. No complete-coordinate alias, mutation or bypass. |
 | 015 | A controlled transform state creates physical-to-DRAM alias. | `PA_A != PA_B` but writes through one are observed through the other after cache-neutral independent reads. | Prove distinct PTE/PAs; CPU and DMA controls; cache maintenance; reboot/state restoration; unchanged-state negative control. | `NOT ELIGIBLE`: candidate tokens exist, but operation semantics, readback/lock state, safe restore, and an alias-producing state are not proved. |
 | 016 | A normal-RAM alias reaches a protected boundary. | Only after 015, a minimal non-secret marker/boundary test differs between normal and alias path. | No dump, exact ordering proof, secondary enforcement control. | `NOT ELIGIBLE`. |
+| 017 | Does exact XBL expose a table-driven MC read-copy path that independently covers the ranked MC candidates? | The pinned u64 table parses to 122 entries plus a zero terminator; the exact helper's static flow conditionally loads each table-derived address and stores results to a distinct buffer. | Exact XBL size/hash, PT_LOAD mapping, inclusive table/helper hashes, AArch64 word pins, direct-BL scan limited to file-backed executable PT_LOADs, SHRM-plan address-list cross-check; host-only, no device/SMC/MMIO. | `PROVED`: 30×4 MC groups + 2 globals, all 12 qhs_mc candidates covered, helper read-copy store-base dataflow, exactly two direct BL callsites. `REFUTED`: helper as candidate-register writer and independent hard 122-entry cap. Runtime completion/coherence/currentness, mutable table state, indirect reachability and writer semantics `UNKNOWN`; 015/016 remain `NOT ELIGIBLE`. |
 
 ## Experiment 001 metadata
 
@@ -585,3 +586,54 @@ preserve the already allocated Experiment 014–016 sequence.
   removed. No MMIO/SMC/partition/firmware/protected-memory write.
 - Security result:
   `NORMAL_RAM_HIDDEN_BANK_HASH_PROVED_NO_ALIAS_OR_BYPASS`
+
+## Experiment 017 XBL MC table/read-copy metadata
+
+- Experiment ID: `017-xbl-mc-snapshot-xref-20260825-01`
+- Date: `2026-08-25 KST`
+- Target/input: exact retained `SM-A908N` / `SM8150` XBL
+  `xbl--sdb1.bin`, 4,194,304 bytes, SHA-256
+  `e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37`
+- Exact action:
+  `python3 tools/sm8150_xbl_mc_snapshot_xref.py --output evidence/manifests/017-xbl-mc-snapshot-xref-20260825-01.manifest.json`
+- Device/SMC/MMIO access: none; mode `HOST_ONLY_READ_ONLY`; public mode `0644`.
+- Table: VA `0x146b1218`, file `0x630b8`, 122 nonzero u64 entries plus a
+  u64 zero terminator at index 122; inclusive SHA-256
+  `d5042980f035d3d52974536115074940b4b1858cb30a47699e7553f1b200da07`;
+  structural shape 30 four-instance MC groups plus two globals.
+- Candidate coverage: all 12 qhs_mc `+0x400/+0x404/+0x4d0` addresses are in
+  the table; qhs_mccc `+0x118` and qhs_mccc_master `+0x294` are excluded from
+  this table only. Existing Top-5 order is unchanged; coverage raises
+  observation confidence, not semantic likelihood.
+- SHRM plan convergence: set0 `100/430`, set1 `4/64`, union intersection
+  `100`, table-only `22`, SHRM-only `370`; address-list convergence only, with
+  no semantic identity or writer attribution.
+- Helper: exact range `0x146ae138..0x146ae18c` end-exclusive, file `0x62318`,
+  length `0x54`, SHA-256
+  `f325a8bf4c8e9ff7c21a0d20752e742cd8e047422e9eff5c301bf3042a95e138`.
+  Static sentinel prefill and conditional table-derived 32-bit read/copy to
+  distinct VA `0x146bf300`; only X12/X8 are identified store bases. Traversal
+  is zero-sentinel-only with no hard 122-entry cap; successful execution,
+  partial output, coherence/currentness, MMIO side effects/faults, mutable
+  table state, lock/writability and indirect reachability remain `UNKNOWN`.
+- Direct reachability: exactly two direct BL callsites in file-backed executable
+  PT_LOADs, at VA/file `0x146ae26c/0x6244c` and
+  `0x14839f44/0x20f44`; no current-boot execution claim.
+- Classification: `TABLE_DRIVEN_REGISTER_READ_COPY_PATH_WRITER_AND_TRANSFORM_RELATION_UNKNOWN`;
+  current overall status remains Class C transform observation only. Experiments
+  015 (normal-RAM alias) and 016 (protected-boundary reach) remain reserved and
+  `NOT ELIGIBLE`; 017 satisfies neither gate.
+- Tool SHA-256:
+  `2baa9e3def46bb1c22bfd23c3dc7c4b800cf3fbc16ada1254e73023842633d99`.
+- Focused-test SHA-256:
+  `5b0f6f3e4d0b9a4a0e80f17555f4c8e12baf1f8d83f5bc6ee1fb97252d21f392`.
+- Public manifest SHA-256:
+  `b1db21235374c64de797c1a123c64ddb23c43fca9100bbd51cf7b4897ea5c61b`.
+- Host verification: 20 focused tests and all 279 repository unittest-discovery
+  tests pass. Independent raw-byte review
+  accepted the result as a read-only re-derivation and emitted no artifact or
+  artifact hash.
+- Next discriminator: host-only symbolic AArch64 store xref/backward slice for
+  the 12 exact qhs_mc targets, resolving MOVZ/MOVK, ADRP+ADD, literal/table
+  loads, arithmetic and argument provenance; unresolved dynamic bases remain
+  `UNKNOWN`; no broad MMIO scan/device action.

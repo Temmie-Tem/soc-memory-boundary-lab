@@ -1,0 +1,424 @@
+{
+  "claims": {
+    "PROVED": [
+      "The exact pinned XBL contains a 122-address little-endian u64 table at VA 0x146b1218 mapped to file offset 0x630b8, followed by a u64 zero terminator; the inclusive table hash is pinned.",
+      "The 122 nonzero entries have a deterministic structural grouping of 30 four-instance groups plus two global entries, without assigning undocumented suffix/register names.",
+      "All four +0x400, all four +0x404, and all four +0x4d0 MC candidate addresses from Verification 012 are present in the exact table.",
+      "The table excludes all four MCCC +0x118 candidates and the MCCC-master +0x294 candidate; this is table exclusion only.",
+      "The exact table and tools.shrm_dump_decode.load_plan() independently converge at set0=100/430, set1=4/64, union=100, table-only=22, and SHRM-union-only=370 addresses.",
+      "In the exact 0x54-byte helper range, the static control flow is constructed to issue a 32-bit load from each nonzero table-derived address and, if that load returns, issue a store of its result to the distinct output VA 0x146bf300; this does not prove successful runtime completion or a coherent snapshot.",
+      "A complete scan of direct BL instructions in file-backed executable PT_LOADs finds exactly two direct callers to the helper, at 0x146ae26c and 0x14839f44; this is static direct-reachability evidence only."
+    ],
+    "REFUTED": [
+      "The exact 0x54-byte helper range itself programs/writes the candidate controller addresses: its table-derived pointer registers are load bases only, and its identified STR store bases are X12 and X8 (the fixed output-buffer aliases).",
+      "The helper independently enforces a maximum of 122 iterations; its runtime traversal bound is zero-sentinel-only, although the exact on-disk pinned table has its terminator at index 122."
+    ],
+    "UNKNOWN": [
+      "Which code writes any listed registers, their bit semantics, post-boot writability/lock state, and the relation between these candidates and the measured GF(2) bank function or recovered row space.",
+      "Whether the helper successfully executes or completes, including partial/sentinel output and whether any destination reflects a coherent, atomic, or current snapshot.",
+      "Whether any helper path references this table on the current boot or retained boot and what runtime values any destination contains.",
+      "Whether an MMIO read has side effects, faults, or other runtime behavior, and what mutable runtime table contents exist after loading.",
+      "Any indirect BLR or tail-call reachability beyond the direct BL instructions scanned in file-backed executable PT_LOADs.",
+      "Whether candidates absent from this table are transform state; table absence alone is not a refutation."
+    ]
+  },
+  "classification": "TABLE_DRIVEN_REGISTER_READ_COPY_PATH_WRITER_AND_TRANSFORM_RELATION_UNKNOWN",
+  "device_access": false,
+  "elf": {
+    "direct_caller_mappings_verified": true,
+    "file_backed_pt_load_count": 9,
+    "helper_mapping_verified": true,
+    "table_file_offset_verified": "0x630b8",
+    "table_mapping_verified": true
+  },
+  "firmware_bytes_emitted": false,
+  "helper": {
+    "analysis_range_bounded": true,
+    "byte_length": 84,
+    "destination_buffer": {
+      "file_backed": false,
+      "fill_value": "0xdededede",
+      "first_loop_store_base": "X12",
+      "second_loop_store_base": "X8",
+      "separate_from_table": true,
+      "virtual_address": "0x146bf300"
+    },
+    "direct_caller_cardinality": 2,
+    "direct_caller_word_pins_verified": true,
+    "direct_callers": [
+      {
+        "file_offset": "0x6244c",
+        "target": "0x146ae138",
+        "virtual_address": "0x146ae26c",
+        "word_pin_verified": true
+      },
+      {
+        "file_offset": "0x20f44",
+        "target": "0x146ae138",
+        "virtual_address": "0x14839f44",
+        "word_pin_verified": true
+      }
+    ],
+    "end_exclusive": "0x146ae18c",
+    "file_offset": "0x62318",
+    "first_loop": {
+      "fill_store_base": "X12",
+      "fill_store_source": "W11",
+      "fill_store_virtual_address": "0x146ae15c",
+      "hard_iteration_limit": false,
+      "index_increment": 1,
+      "index_register": "W10",
+      "index_start": 0,
+      "loaded_pointer_register": "X13",
+      "static_pinned_entry_count": 122,
+      "table_load_virtual_address": "0x146ae164",
+      "table_load_width_bits": 64,
+      "terminates_on_zero": true,
+      "traversal_bound": "ZERO_SENTINEL_ONLY"
+    },
+    "hard_iteration_limit": false,
+    "instruction_pins_verified": true,
+    "memory_operations": [
+      {
+        "base_register": 12,
+        "immediate": 4,
+        "kind": "STR",
+        "source_register": 11,
+        "virtual_address": "0x146ae15c",
+        "width_bits": 32
+      },
+      {
+        "base_register": 9,
+        "extend": "UXTW",
+        "index_register": 10,
+        "index_width": 32,
+        "kind": "LDR",
+        "scale": 3,
+        "target_register": 13,
+        "virtual_address": "0x146ae164",
+        "width_bits": 64
+      },
+      {
+        "base_register": 10,
+        "immediate": 0,
+        "kind": "LDR",
+        "target_register": 10,
+        "virtual_address": "0x146ae174",
+        "width_bits": 32
+      },
+      {
+        "base_register": 8,
+        "immediate": 4,
+        "kind": "STR",
+        "source_register": 10,
+        "virtual_address": "0x146ae17c",
+        "width_bits": 32
+      },
+      {
+        "base_register": 9,
+        "extend": "UXTW",
+        "index_register": 11,
+        "index_width": 32,
+        "kind": "LDR",
+        "scale": 3,
+        "target_register": 10,
+        "virtual_address": "0x146ae180",
+        "width_bits": 64
+      }
+    ],
+    "second_loop": {
+      "hard_iteration_limit": false,
+      "index_increment": 1,
+      "index_register": "W11",
+      "index_start": 0,
+      "loaded_pointer_register": "X10",
+      "mmio_read": "LDR W10,[X10]",
+      "mmio_read_virtual_address": "0x146ae174",
+      "result_store": "STR W10,[X8],#4",
+      "result_store_virtual_address": "0x146ae17c",
+      "static_pinned_entry_count": 122,
+      "table_load_virtual_address": "0x146ae180",
+      "table_load_width_bits": 64,
+      "terminates_on_zero": true,
+      "traversal_bound": "ZERO_SENTINEL_ONLY"
+    },
+    "sha256": "f325a8bf4c8e9ff7c21a0d20752e742cd8e047422e9eff5c301bf3042a95e138",
+    "static_direction": "TABLE_U64_POINTERS_READ_MMIO_VALUES_TO_SEPARATE_BUFFER",
+    "static_pinned_entry_count": 122,
+    "store_base_registers": [
+      "X12",
+      "X8"
+    ],
+    "table_pointer": {
+      "add_immediate": "0x218",
+      "add_virtual_address": "0x146ae154",
+      "adrp_page": "0x146b1000",
+      "adrp_virtual_address": "0x146ae144",
+      "cursor_register": "X9",
+      "resolved_virtual_address": "0x146b1218"
+    },
+    "table_pointer_never_used_as_store_base": true,
+    "table_pointer_registers": [
+      "X9",
+      "X10",
+      "X13"
+    ],
+    "table_pointer_store_bases": [],
+    "traversal_bound": "ZERO_SENTINEL_ONLY",
+    "virtual_address": "0x146ae138"
+  },
+  "input": {
+    "filename": "xbl--sdb1.bin",
+    "pin_verified": true,
+    "sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+    "size": 4194304
+  },
+  "mmio_access": false,
+  "mode": "HOST_ONLY_READ_ONLY",
+  "schema": "sdm855-xbl-mc-snapshot-xref-public-v2",
+  "shrm_plan_crosscheck": {
+    "claim_scope": "independent address-list convergence only; no semantic identity or writer attribution",
+    "sets": [
+      {
+        "distinct_addresses": 430,
+        "set": 0,
+        "table_intersection_count": 100
+      },
+      {
+        "distinct_addresses": 64,
+        "set": 1,
+        "table_intersection_count": 4
+      }
+    ],
+    "source": "tools.shrm_dump_decode.load_plan()",
+    "union": {
+      "distinct_addresses": 470,
+      "shrm_union_only_count": 370,
+      "table_intersection_count": 100,
+      "table_only_count": 22
+    }
+  },
+  "smc_access": false,
+  "stage": "STAGE_2_HELPER_DIRECTION_PROVED",
+  "table": {
+    "all_entries_nonzero": true,
+    "byte_length": 984,
+    "candidate_coverage": {
+      "absence_scope": "table exclusion only; absence does not refute transform state",
+      "candidates": [
+        {
+          "all_expected_covered": true,
+          "covered_addresses": [
+            "0x09260400",
+            "0x092e0400",
+            "0x09360400",
+            "0x093e0400"
+          ],
+          "covered_count": 4,
+          "expected_count": 4,
+          "key": "mc_plus_0x400",
+          "label": "qhs_mc +0x400",
+          "missing_addresses": []
+        },
+        {
+          "all_expected_covered": true,
+          "covered_addresses": [
+            "0x09260404",
+            "0x092e0404",
+            "0x09360404",
+            "0x093e0404"
+          ],
+          "covered_count": 4,
+          "expected_count": 4,
+          "key": "mc_plus_0x404",
+          "label": "qhs_mc +0x404",
+          "missing_addresses": []
+        },
+        {
+          "all_expected_covered": false,
+          "covered_addresses": [],
+          "covered_count": 0,
+          "expected_count": 4,
+          "key": "mccc_plus_0x118",
+          "label": "qhs_mccc +0x118",
+          "missing_addresses": [
+            "0x09250118",
+            "0x092d0118",
+            "0x09350118",
+            "0x093d0118"
+          ]
+        },
+        {
+          "all_expected_covered": true,
+          "covered_addresses": [
+            "0x092604d0",
+            "0x092e04d0",
+            "0x093604d0",
+            "0x093e04d0"
+          ],
+          "covered_count": 4,
+          "expected_count": 4,
+          "key": "mc_plus_0x4d0",
+          "label": "qhs_mc +0x4d0",
+          "missing_addresses": []
+        },
+        {
+          "all_expected_covered": false,
+          "covered_addresses": [],
+          "covered_count": 0,
+          "expected_count": 1,
+          "key": "mccc_master_plus_0x294",
+          "label": "qhs_mccc_master +0x294",
+          "missing_addresses": [
+            "0x090b0294"
+          ]
+        }
+      ],
+      "excluded_candidate_count": 5,
+      "excluded_candidates_covered_count": 0,
+      "mc_candidate_count": 12,
+      "mc_candidates_all_covered": true
+    },
+    "entry_count": 122,
+    "file_offset": "0x630b8",
+    "grouping": {
+      "global_address_count": 2,
+      "global_indices": [
+        120,
+        121
+      ],
+      "mc_address_count": 120,
+      "mc_group_count": 30,
+      "mc_group_instance_count": 4,
+      "mc_groups": [
+        {
+          "index": 0,
+          "instance_count": 4
+        },
+        {
+          "index": 1,
+          "instance_count": 4
+        },
+        {
+          "index": 2,
+          "instance_count": 4
+        },
+        {
+          "index": 3,
+          "instance_count": 4
+        },
+        {
+          "index": 4,
+          "instance_count": 4
+        },
+        {
+          "index": 5,
+          "instance_count": 4
+        },
+        {
+          "index": 6,
+          "instance_count": 4
+        },
+        {
+          "index": 7,
+          "instance_count": 4
+        },
+        {
+          "index": 8,
+          "instance_count": 4
+        },
+        {
+          "index": 9,
+          "instance_count": 4
+        },
+        {
+          "index": 10,
+          "instance_count": 4
+        },
+        {
+          "index": 11,
+          "instance_count": 4
+        },
+        {
+          "index": 12,
+          "instance_count": 4
+        },
+        {
+          "index": 13,
+          "instance_count": 4
+        },
+        {
+          "index": 14,
+          "instance_count": 4
+        },
+        {
+          "index": 15,
+          "instance_count": 4
+        },
+        {
+          "index": 16,
+          "instance_count": 4
+        },
+        {
+          "index": 17,
+          "instance_count": 4
+        },
+        {
+          "index": 18,
+          "instance_count": 4
+        },
+        {
+          "index": 19,
+          "instance_count": 4
+        },
+        {
+          "index": 20,
+          "instance_count": 4
+        },
+        {
+          "index": 21,
+          "instance_count": 4
+        },
+        {
+          "index": 22,
+          "instance_count": 4
+        },
+        {
+          "index": 23,
+          "instance_count": 4
+        },
+        {
+          "index": 24,
+          "instance_count": 4
+        },
+        {
+          "index": 25,
+          "instance_count": 4
+        },
+        {
+          "index": 26,
+          "instance_count": 4
+        },
+        {
+          "index": 27,
+          "instance_count": 4
+        },
+        {
+          "index": 28,
+          "instance_count": 4
+        },
+        {
+          "index": 29,
+          "instance_count": 4
+        }
+      ],
+      "total_nonzero_count": 122
+    },
+    "sha256": "d5042980f035d3d52974536115074940b4b1858cb30a47699e7553f1b200da07",
+    "source_pt_load_pf_w": true,
+    "terminator_index": 122,
+    "terminator_is_zero": true,
+    "terminator_virtual_address": "0x146b15e8",
+    "virtual_address": "0x146b1218"
+  }
+}

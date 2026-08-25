@@ -129,6 +129,20 @@ audit of the real SHRM snapshot and all nine exact firmware images finds no
 direct mask in SHRM and refutes the apparent TrustZone matches as unaligned
 bytes inside 64-bit address tables.
 
+Host-only Experiment 017 now cross-references the exact XBL MC address table
+with the SHRM plan and the exact `0x54`-byte helper's static data flow. The pinned table
+has 122 nonzero u64 addresses plus a zero terminator, structurally 30 four-
+instance MC groups plus two globals. All 12 `qhs_mc +0x400/+0x404/+0x4d0`
+candidate addresses are covered; `qhs_mccc +0x118` and
+`qhs_mccc_master +0x294` are excluded from this table only. The helper's exact
+`0x54`-byte range constructs table-derived reads and conditional copies to a
+distinct read-copy buffer; its store-base data flow refutes that helper as a
+candidate-register writer. The loops are zero-sentinel-only with no hard
+122-entry cap, and static direct-BL reachability is not current-boot execution.
+Experiments 015 (normal-RAM alias) and 016 (protected-boundary reach) remain
+reserved and `NOT ELIGIBLE`; 017 satisfies neither gate. The overall result
+remains Class C transform observation only.
+
 Claim vocabulary is deliberately closed:
 
 - `PROVED`: directly demonstrated by named source, artifact, or repeated result.
@@ -169,6 +183,8 @@ are in
 Experiment 014's live ION timing, recovered GF(2) bank row space, controls and
 literal-attribution audit are in
 [experiments/014-dram-conflict-timing/README.md](experiments/014-dram-conflict-timing/README.md).
+Experiment 017's exact XBL table/read-copy cross-reference is in
+[experiments/017-xbl-mc-snapshot-xref/README.md](experiments/017-xbl-mc-snapshot-xref/README.md).
 Verification 001's independent re-derivation of the load-bearing static claims
 is in
 [experiments/verification-001-independent-claim-audit/README.md](experiments/verification-001-independent-claim-audit/README.md).

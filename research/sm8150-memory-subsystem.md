@@ -48,6 +48,12 @@ candidate is EL1-accessible.
 | 4 | DDRSS register token set | `PROVED`: exact topology plus section-16 numeric match and read consumer | base `0x090c0000`; set-0 tokens `0x16,0x17,0x2c` | 32-bit snapshot reads | `UNKNOWN/UNKNOWN` | observed SHRM direction is read; values/lock `UNKNOWN` | Small exact global observation set |
 | 5 | XBL ICB/qhs_llcc region remapper | `PROVED`: XBL programs it during DDR bring-up; exact row 7 selected | bases `0x09248080`, `0x092c8080`, `0x09348080`, `0x093c8080`; offsets `0x00..0x58` | exact writer uses 32-bit MMIO and 36-bit split address fields | `/dev/mem` and generic REPL routes `REFUTED`; fixed load returned no value and watchdog; write `UNKNOWN` | destination bases known; numeric words/source bases/interleave mask/lock `UNKNOWN`; no-HLOS policy coverage `PROVED` | Exact system-PA remap; final hash role `UNKNOWN` |
 
+Experiment 017 preserves the existing Verification-012 Top-5 order. Exact XBL
+table/read-copy coverage raises independent observation confidence for the
+three qhs_mc groups at `+0x400`, `+0x404` and `+0x4d0`, but does not increase
+their semantic likelihood. The absent MCCC candidates are excluded from this
+table only and are not downgraded as transform candidates.
+
 `DC_NOC_BROADCAST_MPU` and dynamic `BIMC_MPU0..3` remain the strongest
 protection-ordering candidates. They are omitted from this top-five table
 because the ranking here now targets address-transform state rather than
@@ -131,3 +137,41 @@ leaving its register-level attribution and writability `UNKNOWN`. The real SHRM
 snapshot has no instance of the seven non-zero recovered row-space masks; the
 exact firmware audit found zero aligned u32 instances, and four raw TZ hits
 were refuted as misaligned bytes inside 64-bit address tables.
+
+## Experiment 017 — exact XBL MC table/read-copy path
+
+Host-only Experiment 017 independently cross-references the exact XBL table
+and the Experiment-012 SHRM address plan. The pinned XBL is 4,194,304 bytes,
+SHA-256 `e73a07a0…`. Its u64 table at VA `0x146b1218` / file `0x630b8` has
+122 nonzero entries followed by a zero terminator at index 122, inclusive hash
+`d5042980…`, with 30 four-instance MC groups and two globals. All 12 exact
+`qhs_mc +0x400/+0x404/+0x4d0` candidates are covered; qhs_mccc `+0x118` and
+qhs_mccc_master `+0x294` are excluded from this table only. Existing Top-5
+order is unchanged; this is independent observation confidence, not semantic
+likelihood.
+
+The independent address-list intersections are set0 `100/430`, set1 `4/64`,
+union `100`, table-only `22`, and SHRM-only `370`. This proves convergence of
+address lists only, not semantic identity or writer attribution.
+
+The exact helper range `0x146ae138..0x146ae18c` (end-exclusive, file
+`0x62318`, length `0x54`, SHA-256 `f325a8bf…`) statically constructs a
+zero-sentinel table-driven 32-bit read/copy path to distinct VA `0x146bf300`.
+Its identified store bases are X12 and X8, refuting this exact range as a
+candidate-register programming/mutation path. The code range is bounded, but
+runtime traversal has no hard 122-entry cap. Successful completion, partial or
+sentinel output, coherence/currentness, MMIO side effects/faults, mutable table
+contents/lock, post-boot writability, indirect BLR/tail reachability and
+current-boot execution remain `UNKNOWN`. Direct-BL evidence is limited to two
+callsites in file-backed executable PT_LOADs.
+
+This remains Class C transform observation only: the low-24 GF(2) bank relation
+is proved, but no PA alias, transform mutation, protected reach or bypass is
+proved. Experiments 015 (normal-RAM alias) and 016 (protected-boundary reach)
+remain reserved and `NOT ELIGIBLE`; 017 satisfies neither gate.
+
+The cheapest next discriminator is a host-only symbolic AArch64 store
+cross-reference/backward slice for the 12 exact qhs_mc targets (four bases ×
+`+0x400`, `+0x404`, `+0x4d0`), resolving MOVZ/MOVK, ADRP+ADD, literal/table
+loads, arithmetic and argument provenance. Unresolved dynamic bases remain
+`UNKNOWN`; no broad MMIO scan or device action is authorized by this result.

@@ -40,6 +40,11 @@ below `/tmp/a90-native`. The temporary character node and probe were removed;
 the final exact-target receipt reports V2321 `0.9.285`, selftest `fail=0`, and
 battery 100%. No partition or hardware-control register was written.
 
+Host-only Experiment 017 then cross-referenced the exact XBL MC address table
+and helper read-copy path. It made no device, SMC or MMIO access and does not
+satisfy reserved/`NOT ELIGIBLE` Experiments 015 (normal-RAM alias) or 016
+(protected-boundary reach).
+
 ## A. 현재까지 PROVED
 
 - Exact A90 source, defconfig, System.map, independently extracted stock
@@ -256,6 +261,28 @@ battery 100%. No partition or hardware-control register was written.
   any alignment; firmware has zero aligned u32 hits. All four raw TZ substring
   hits are one-byte-shifted pieces of monotonic 64-bit address tables, not
   direct hash-mask constants.
+- Experiment 017 proves the exact XBL table at VA `0x146b1218` / file
+  `0x630b8`: 122 nonzero u64 addresses plus a zero terminator, inclusive hash
+  `d5042980…`, structurally 30 four-instance MC groups plus two globals. It
+  covers all 12 `qhs_mc +0x400/+0x404/+0x4d0` candidates and excludes
+  `qhs_mccc +0x118` plus `qhs_mccc_master +0x294` from this table only. The
+  independent SHRM-plan intersections are set0 `100/430`, set1 `4/64`, union
+  `100`, table-only `22`, SHRM-only `370`.
+- Experiment 017's exact helper range is `0x146ae138..0x146ae18c`
+  (end-exclusive), file `0x62318`, 0x54 bytes, hash `f325a8bf…`. Static
+  control flow constructs sentinel prefill and conditional 32-bit read/copy to
+  distinct VA `0x146bf300`; store bases inside the range are only X12/X8, so
+  this helper is not a candidate-register writer. The table is an exact
+  on-disk zero-sentinel table; helper traversal has no hard 122-entry cap.
+  Exactly two direct BL callsites occur in file-backed executable PT_LOADs;
+  current-boot execution and indirect/tail reachability remain `UNKNOWN`.
+- Experiment 017 command was
+  `python3 tools/sm8150_xbl_mc_snapshot_xref.py --output evidence/manifests/017-xbl-mc-snapshot-xref-20260825-01.manifest.json`.
+  Public manifest/tool/focused-test SHA-256 are respectively
+  `b1db2123…` / `2baa9e3d…` / `5b0f6f3e…`; 20 focused and all 279 repository
+  unittest-discovery tests pass. An
+  independent read-only raw-byte review accepted the result and emitted no
+  artifact or artifact hash. Date: 2026-08-25 KST; device/SMC/MMIO access: none.
 
 ## B. 현재 HYPOTHESIS
 
@@ -351,6 +378,12 @@ battery 100%. No partition or hardware-control register was written.
 - “Raw `0x009d2000`, `0x00a74000`, or `0x003a6000` byte matches in the exact TZ
   image directly attribute the hash to TrustZone.” All are unaligned windows
   inside 64-bit address tables advancing by `0x200000`.
+- “The exact 0x54-byte helper programs/writes the candidate controller
+  addresses.” Its table-derived registers are load bases only; the identified
+  STR store bases are X12/X8, the fixed read-copy-buffer aliases.
+- “The helper independently enforces a maximum of 122 iterations.” Its
+  traversal is zero-sentinel-only; the exact on-disk table's terminator is at
+  index 122.
 
 ## D. UNKNOWN
 
@@ -380,6 +413,10 @@ battery 100%. No partition or hardware-control register was written.
   current snapshot is refuted.
 - Any normal-boot HLOS-readable export of the set-0 words. The proved Samsung
   Upload path is post-reset bootloader diagnostics, not an EL1 runtime mapping.
+- Experiment 017's successful runtime completion, partial/sentinel output,
+  coherent/atomic/current status, MMIO read side effects or faults, mutable
+  runtime table contents/lock, indirect BLR/tail-call reachability, and any
+  other writer/programmer for these candidates.
 
 ## E. SDM855 physical→DRAM pipeline 후보
 
@@ -412,14 +449,20 @@ position relative to DRAM decode remain `UNKNOWN`.
 ## G. 가장 가능성 높은 controller/register 후보 Top 5
 
 1. `PROVED value / UNKNOWN semantics`: four `qhs_mc +0x400`, all
-   `0xc003ffff`.
+   `0xc003ffff`; Experiment 017 adds exact table/read-copy coverage and
+   independent observation confidence only.
 2. `PROVED value / UNKNOWN semantics`: four `qhs_mc +0x404`, all
-   `0x00003333`.
+   `0x00003333`; Experiment 017 adds exact table/read-copy coverage and
+   independent observation confidence only.
 3. `PROVED value / UNKNOWN semantics`: four `qhs_mccc +0x118`, all
-   `0x00111111`.
+   `0x00111111`; Experiment 017 excludes these from its table only and does
+   not downgrade their transform-state likelihood.
 4. `PROVED value pattern / UNKNOWN semantics`: four `qhs_mc +0x4d0`, first
-   pair `0x00300014`, second pair `0x00300033`.
-5. `PROVED value / UNKNOWN semantics`: `qhs_mccc_master +0x294 = 0x00001111`.
+   pair `0x00300014`, second pair `0x00300033`; Experiment 017 adds exact
+   table/read-copy coverage and independent observation confidence only.
+5. `PROVED value / UNKNOWN semantics`: `qhs_mccc_master +0x294 = 0x00001111`;
+   Experiment 017 excludes it from its table only and does not downgrade its
+   transform-state likelihood.
 
 Full addresses, values, and qualification fields are in the Verification-012
 public manifest and experiment README.
@@ -478,12 +521,13 @@ ordering remain `UNKNOWN`, so this is not yet a structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-Do not repeat the fixed protected load. The cheapest next discriminator is
-host-only exact XBL/AOP/SHRM code-data xref recovery for writes to the ranked
-MC/MCCC words, followed by a semantic comparison with the proved GF(2) row
-space. In parallel, one independent cold-boot repetition can test whether the
-same SHRM set-0 values and timing relations survive retraining; neither step
-requires a controller write.
+Do not repeat the fixed protected load. The cheapest next discriminator is a
+host-only symbolic AArch64 store cross-reference/backward slice for the 12
+exact `qhs_mc` targets (four bases × `+0x400`, `+0x404`, `+0x4d0`). Resolve
+effective addresses through `MOVZ/MOVK`, `ADRP+ADD`, literal/table loads,
+arithmetic and argument provenance; accept only exact target matches and keep
+unresolved dynamic bases `UNKNOWN`. Do not perform a broad MMIO scan or device
+action. A cold-boot repetition is not a substitute for this writer xref.
 
 ## N. 가장 위험한 아직 금지된 실험
 
@@ -501,6 +545,9 @@ behavior" prerequisite is now met by three retained resets. What still
 withholds them is information, not safety — set-0 values are available only in
 a post-reset snapshot, exact semantics are unknown, and no live readback path
 can verify or restore a mutation. They remain low-yield blind writes.
+
+Experiments 015 (normal-RAM alias) and 016 (protected-boundary reach) remain
+reserved and `NOT ELIGIBLE`; Experiment 017 does not satisfy either gate.
 
 ## O. 현재 취약점 가능성 평가
 
@@ -520,6 +567,9 @@ Evidence for the attack class being relevant:
   bank-selection relation with held-out positive and one-bank-bit negative
   controls. The transform side of the question is therefore real, rather than
   inferred from patents or diagnostic strings.
+- Experiment 017 adds exact-XBL table/read-copy observation confidence for the
+  three qhs_mc candidate groups, but proves no writer, mutation, alias,
+  protected reach or bypass. Experiments 015 and 016 remain `NOT ELIGIBLE`.
 
 Evidence against a presently usable bypass:
 

@@ -108,6 +108,18 @@ four-instance MC/MCCC structure, while set 1 is refuted as a coherent current
 snapshot. Exact set-0 bitfield semantics and any indirect reverse-direction
 invocation remain `UNKNOWN`.
 
+`PROVED` by host-only Experiment 017: exact XBL contains a 122-entry u64 table
+at `0x146b1218` / file `0x630b8`, with 30 four-instance MC groups and two
+globals. All 12 `qhs_mc +0x400/+0x404/+0x4d0` candidates are covered; MCCC
+`+0x118` and master `+0x294` are excluded from this table only. The exact
+`0x54`-byte helper statically constructs zero-sentinel table-driven 32-bit
+loads and conditional stores to distinct read-copy VA `0x146bf300`; its only
+identified store bases are X12/X8, so this helper is not a candidate-register
+programming path. The helper has no hard 122-entry cap. Runtime completion,
+coherence/currentness, MMIO side effects/faults, mutable table contents,
+indirect reachability and current-boot execution remain `UNKNOWN`. This is
+independent static observation confidence, not semantic likelihood.
+
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside
 `DC_NOC_NON_BROADCAST_MPU`, `MEMNOC_MS_MPU`, and `CNOC_SNOC_MS_MPU` regions.
@@ -307,9 +319,9 @@ all protection ordering relative to DRAM decode remain `UNKNOWN`.
 | Question | Current answer |
 |---|---|
 | Which block owns the final mapping? | `PROVED`: qhs_llcc ICB windows own boot region remapping; live timing proves a distinct low-24 XOR bank-selection relation. MCCC/MC/DDRSS token families are exact candidates; final hardware decode owner remains `UNKNOWN`. |
-| Who programs it? | `PROVED`: XBL programs the region remapper through `icbcfg` and copies section 16 to SHRM. `PROVED`: the exact SHRM section-16 consumers read listed controller words into a snapshot buffer; the observed section-16 paths do not write those addresses. AOP runtime DDR management is `PROVED`; final-decode writer remains `UNKNOWN`. |
+| Who programs it? | `PROVED`: XBL programs the region remapper through `icbcfg` and copies section 16 to SHRM. `PROVED`: the exact SHRM section-16 consumers read listed controller words into a read-copy buffer; the observed section-16 paths do not write those addresses. Experiment 017 independently proves the exact XBL helper's store-base dataflow does not program candidate registers. AOP runtime DDR management is `PROVED`; final-decode writer remains `UNKNOWN`. |
 | At what stage? | Region-remap programming during XBL DDR initialization before HLOS is `PROVED`; later mutability remains `UNKNOWN`. |
-| Can EL1 observe it? | `PROVED` behaviorally: non-secure ION/CNTVCT timing exposes the low-24 bank-equivalence relation. Direct register routes remain `REFUTED`: `/dev/mem` is absent and the fixed protected load returned no value. After reset, Samsung Upload exports coherent set-0 words, but is not an EL1 runtime interface and omits remapper controls. |
+| Can EL1 observe it? | `PROVED` behaviorally: non-secure ION/CNTVCT timing exposes the low-24 bank-equivalence relation. Direct register routes remain `REFUTED`: `/dev/mem` is absent and the fixed protected load returned no value. After reset, Samsung Upload exports coherent set-0 words, but is not an EL1 runtime interface and omits remapper controls. Experiment 017 adds host-only static XBL read-copy evidence, not current-boot EL1 observability. |
 | Can EL1 modify it? | No mutation is proved. The exact HLOS-visible XPU-disable allowlist has zero entries, and all known configuration apertures have branch-invariant TZ-owned coverage. Final runtime policy/lock readback is `UNKNOWN`. |
 | Does EL2/EL3 lock it? | `PROVED`: QHEE applies ownership/stage-2/SMMU enforcement and TZ dynamically programs BIMC policies. `UNKNOWN`: final hardware write-disable bit and exact dispatcher/lock ordering. |
 | Is there a post-transform security check? | `UNKNOWN`; the diagnostic coordinate formula and configuration-aperture coverage do not locate the data-path check. Dynamic BIMC MPU policy makes a later check plausible but does not place it relative to hidden/final decode. |
