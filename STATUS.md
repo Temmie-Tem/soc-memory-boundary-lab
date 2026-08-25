@@ -146,6 +146,23 @@ memory, SCM, EL2, EL3, or protected-memory write and attempted one fixed
   Experiment 009, an active `DC_NOC_BROADCAST_MPU` denial is now `SUPPORTED`,
   not yet causally `PROVED` because no decoded syndrome or runtime register
   readback exists.
+- Verification 001 independently re-derived seven load-bearing static claims
+  from the raw bytes without reusing any repository tool, and all seven were
+  `CONFIRMED`. The full Experiment 009 chain resolves end to end: registry
+  `{id=0x3c, base=0x090e0000, name → "DC_NOC_BROADCAST_MPU"}` → both policy
+  entries (`region_count=40`) → byte-identical region 11
+  (`read=0x80000000`, `write=0x00000000`, `0x09248000..0x09249000` exclusive).
+  The XPU disable allowlist is a compile-time `0` at fixed `0x1c122a90`; SMC
+  `0x0200030f` is a single `RET` (`0xd65f03c0`); the SHRM helper's decisive
+  instructions decode byte-exactly as `slli a9, a9, 12` and
+  `addx4 a12, a12, a9`.
+- `PROVED` by that audit and previously underweighted: region 11's write access
+  word is `0x00000000`, so **no** client class holds write permission, not
+  merely no ordinary HLOS VMID. `DC_NOC_NON_BROADCAST_MPU` region 5 matches.
+  Sibling regions 12 and 13 carry `0x40000000/0x40000000` and
+  `0xf0000000/0xf0000000`, so the write denial is deliberate, not a default.
+- The audit checks static facts only. It does not verify their security
+  interpretation, and every `UNKNOWN` in section D stands unchanged.
 
 ## B. 현재 HYPOTHESIS
 

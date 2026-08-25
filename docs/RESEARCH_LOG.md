@@ -462,3 +462,66 @@
     proves version `0.9.285`, selftest `pass=11 warn=1 fail=0`, and battery
     100%. Current result is `CLASS A/B CANDIDATE — FIXED DIRECT EL1 SHRM READ
     BLOCKED / NO ALIAS OR BOUNDARY BYPASS OBSERVED`.
+
+## 2026-08-25 — Verification 001 independent claim audit
+
+1. Motivation is provenance, not hardware: every `PROVED` statement here is one
+   agent's interpretation of the exact bytes, and Experiments 008–013 consume
+   004/006 conclusions as pinned inputs, so an early misinterpretation would be
+   inherited downstream. The existing quality signals do not test for this —
+   unit tests prove parser determinism, hash pins prove input stability, and
+   byte-identical regeneration proves tool reproducibility. None of the three
+   proves the interpretation is correct.
+2. Implemented `tools/independent_claim_audit.py`, which re-derives each audited
+   claim from raw bytes without importing, calling, or reusing any other module
+   in `tools/`. Structures are located by name and value search and then walked,
+   so a claim can fail even when the original tool reproduces byte-identically.
+   No AArch64 or Xtensa disassembler existed on the host, so minimal subset
+   decoders were written for the audit.
+3. `PROVED`: measured XBL and TrustZone SHA-256 equal the pinned values
+   `e73a07a0…` and `a5e6c574…`. The prior analysis did run on these exact bytes.
+4. `PROVED`: `icbcfg_info` and `/dev/icbcfg/boot` exist; the four claimed bases
+   appear both as a `count=4` u64 array at VA `0x14876978`, referenced from
+   `0x148769c0`, and as a u32 literal pool at VA `0x146aecb0`, at stride
+   `0x80000`.
+5. `PROVED`: the Experiment 009 claim resolves end to end. Registry record
+   `{id=0x3c, base=0x090e0000, name → "DC_NOC_BROADCAST_MPU"}` matches policy
+   entries at `0x1c1217a0`/`0x1c122628` by the low 16 bits of id `0x0001003c`;
+   both declare `region_count=0x28=40` and point at region tables whose region
+   11 is byte-identical: `flags=0x09`, `read=0x80000000`, `write=0x00000000`,
+   `start=0x09248000`, `end_exclusive=0x09249000`, containing `0x09248080`.
+6. `PROVED`: the Experiment 013 claim likewise resolves —
+   `DC_NOC_NON_BROADCAST_MPU` (`id=0x3d`, base `0x090b4000`, 16 regions) region
+   5 is `0x09060000..0x0906ffff` with `read=0x40000000`, `write=0x00000000` in
+   both branches, containing the SHRM workspace.
+7. `PROVED`: the XPU disable allowlist is a compile-time constant. Handler
+   `0x1c0a9a44` calls leaf helper `0x1c0a2630`, which returns count and array
+   pointer from fixed address `0x1c122a90`; that location holds `0`, so the
+   `cbz` is always taken and the path returns `-16`.
+8. `PROVED`: the SMC `0x0200030f` handler's first instruction at `0x1c050b9c`
+   is `0xd65f03c0`, a single `RET`.
+9. `PROVED`: the SHRM blob hash `421824b4…` and helper hash `01fc5d83…` both
+   match, and the decisive instructions decode byte-exactly —
+   `+0x24: 40 99 11` is `slli a9, a9, 12` and `+0x3e: 90 cc a0` is
+   `addx4 a12, a12, a9`. Xtensa `ADDX4 ar,as,at` is `ar = (as << 2) + at`, so
+   the pair is exactly `(base_page << 12) + (offset_token << 2)`.
+10. Two notation issues, no substantive error: the helper range
+    `0x2d8dc..0x2d959` is end-exclusive at 125 bytes, located by exhaustive
+    search rather than assumed; and `0x09248fff` is not a stored value, the raw
+    field being end-exclusive `0x09249000`.
+11. `PROVED` and underweighted previously: region 11's write access word is
+    `0x00000000`, so no client class holds write permission, not merely no
+    ordinary HLOS VMID. Region 5 of `DC_NOC_NON_BROADCAST_MPU` matches. Sibling
+    regions 12 (`0x40000000/0x40000000`) and 13 (`0xf0000000/0xf0000000`) show
+    this is deliberate rather than a default.
+12. Not audited: QHEE `hyp_assign` stage-2/SMMU path, TZ dynamic `BIMC_MPU0..3`
+    initializer, the Experiment 011 Quest coordinate formula, the section-16
+    callsites and their 430/64 counts, and the permission-conversion routine.
+13. Added `tests/test_independent_claim_audit.py`. All 125 repository tests
+    pass, all 33 public manifests parse, three consecutive manifest generations
+    are byte-identical, and the public manifest mode is `0644`. Tool, test and
+    manifest SHA-256 are `b6617c19…`, `2c42b6bd…` and `a722f0f6…`.
+14. Result is `INDEPENDENT AUDIT — 7/7 CHECKED CLAIMS CONFIRMED / NO
+    SUBSTANTIVE ERROR FOUND`. The security interpretation is explicitly not
+    audited: the confirmed evidence concerns reachability, and protection
+    ordering relative to the final DRAM transform remains `UNKNOWN`.

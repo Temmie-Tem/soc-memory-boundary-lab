@@ -1,0 +1,189 @@
+{
+  "auditor": {
+    "decoders_written_for_audit": [
+      "aarch64-subset",
+      "xtensa-rrr-subset"
+    ],
+    "disassembler_available": false,
+    "independent_of_repository_tools": true,
+    "method": "raw-byte re-derivation: structures are located by name and value search, then walked; no tools/ module is imported or invoked",
+    "reused_modules": []
+  },
+  "checks": [
+    {
+      "claim": "Experiments 006-013 consume XBL/TZ artifacts with the pinned SHA-256 values.",
+      "name": "input_pins",
+      "notes": [],
+      "observed": {
+        "tz_sha256": "a5e6c574e18e2e576a25df6274b20bdb142386811dfda6383f86d7b1b3c102ab",
+        "xbl_sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37"
+      },
+      "source": "docs/EXPERIMENT_MATRIX.md Experiment 006/012 metadata",
+      "verdict": "CONFIRMED"
+    },
+    {
+      "claim": "DAL property icbcfg_info resolves to four qhs_llcc + 0x8080 register bases.",
+      "name": "icbcfg_remapper_bases",
+      "notes": [],
+      "observed": {
+        "bases": [
+          "0x9248080",
+          "0x92c8080",
+          "0x9348080",
+          "0x93c8080"
+        ],
+        "instance_stride": "0x80000",
+        "referrer_vaddrs": [
+          "0x148769c0"
+        ],
+        "u32_literal_pool_vaddr": "0x146aecb0",
+        "u64_array_element_count": 4,
+        "u64_array_vaddr": "0x14876978"
+      },
+      "source": "STATUS.md section A (Experiment 006)",
+      "verdict": "CONFIRMED"
+    },
+    {
+      "claim": "Both TZ policy branches place 0x09248080 in enabled, TZ-owned DC_NOC_BROADCAST_MPU region 11 with access words 0x80000000/0x00000000.",
+      "name": "dc_noc_broadcast_region11",
+      "notes": [],
+      "observed": {
+        "branch_entry_vaddrs": [
+          "0x1c1217a0",
+          "0x1c122628"
+        ],
+        "branch_table_vaddrs": [
+          "0x1c2f3b80",
+          "0x1c2fb040"
+        ],
+        "branches_byte_identical": true,
+        "contains_pa": "0x9248080",
+        "end_exclusive": "0x9249000",
+        "end_inclusive": "0x9248fff",
+        "flags": "0x9",
+        "read_access_word": "0x80000000",
+        "region_count": 40,
+        "region_index": 11,
+        "start": "0x9248000",
+        "write_access_word": "0x0",
+        "xpu_base": "0x90e0000",
+        "xpu_id": "0x3c",
+        "xpu_name": "DC_NOC_BROADCAST_MPU"
+      },
+      "source": "STATUS.md section A (Experiment 009)",
+      "verdict": "CONFIRMED"
+    },
+    {
+      "claim": "Both TZ policy branches place the SHRM snapshot workspace in DC_NOC_NON_BROADCAST_MPU region 5 covering 0x09060000-0x0906ffff.",
+      "name": "dc_noc_non_broadcast_region5",
+      "notes": [],
+      "observed": {
+        "branch_entry_vaddrs": [
+          "0x1c121660",
+          "0x1c1224e8"
+        ],
+        "branch_table_vaddrs": [
+          "0x1c2f2f80",
+          "0x1c2fa440"
+        ],
+        "branches_byte_identical": true,
+        "contains_pa": "0x9065100",
+        "end_exclusive": "0x9070000",
+        "end_inclusive": "0x906ffff",
+        "flags": "0x9",
+        "read_access_word": "0x40000000",
+        "region_count": 16,
+        "region_index": 5,
+        "start": "0x9060000",
+        "write_access_word": "0x0",
+        "xpu_base": "0x90b4000",
+        "xpu_id": "0x3d",
+        "xpu_name": "DC_NOC_NON_BROADCAST_MPU"
+      },
+      "source": "experiments/013-shrm-snapshot-boundary/README.md",
+      "verdict": "CONFIRMED"
+    },
+    {
+      "claim": "The HLOS-visible XPU toggle SMC 0x02000c23 has an allowed-base count of zero.",
+      "name": "xpu_disable_allowlist_count",
+      "notes": [],
+      "observed": {
+        "allowed_base_count": 0,
+        "count_vaddr": "0x1c122a90",
+        "handler_vaddr": "0x1c0a9a44",
+        "query_helper_vaddr": "0x1c0a2630",
+        "static_constant": true
+      },
+      "source": "STATUS.md section A (Experiment 010)",
+      "verdict": "CONFIRMED"
+    },
+    {
+      "claim": "The exact TZ handler for SMC 0x0200030f is a single RET.",
+      "name": "rpm_region_smc_single_ret",
+      "notes": [],
+      "observed": {
+        "first_instruction": "0xd65f03c0",
+        "handler_vaddr": "0x1c050b9c",
+        "mnemonic": "ret"
+      },
+      "source": "STATUS.md section C (Experiment 010)",
+      "verdict": "CONFIRMED"
+    },
+    {
+      "claim": "The exact Xtensa SHRM helper computes (base_page << 12) + (offset_token << 2).",
+      "name": "shrm_section16_helper",
+      "notes": [],
+      "observed": {
+        "address_formula": "(base_page << 12) + (offset_token << 2)",
+        "addx4_bytes": "90cca0",
+        "addx4_offset": "0x3e",
+        "addx4_text": "addx4 a12, a12, a9",
+        "blob_sha256": "421824b417ab28e6c0d1802c05d7ce5422e93b116973ce7f039321fb5a01a1fd",
+        "helper_length_bytes": 125,
+        "helper_sha256": "01fc5d83049d3fff7db6aa10a316dfbd07dfbd87093bb0b5a5d722aa3dfe211b",
+        "helper_vaddr": "0x2d8dc",
+        "offset_token_scaling_bytes": 4,
+        "range_notation": "end-exclusive",
+        "slli_bytes": "409911",
+        "slli_offset": "0x24",
+        "slli_text": "slli a9, a9, 12"
+      },
+      "source": "STATUS.md section A (Experiment 012)",
+      "verdict": "CONFIRMED"
+    }
+  ],
+  "classification": "INDEPENDENT_AUDIT_ALL_CHECKED_CLAIMS_CONFIRMED",
+  "device_access": false,
+  "firmware_bytes_emitted": false,
+  "inputs": {
+    "tz": {
+      "filename": "tz--sdd5.bin",
+      "pin_verified": true,
+      "sha256": "a5e6c574e18e2e576a25df6274b20bdb142386811dfda6383f86d7b1b3c102ab",
+      "size": 4194304
+    },
+    "xbl": {
+      "filename": "xbl--sdb1.bin",
+      "pin_verified": true,
+      "sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+      "size": 4194304
+    }
+  },
+  "mmio_access": false,
+  "mode": "HOST_ONLY_READ_ONLY",
+  "not_audited": [
+    "QHEE hyp_assign stage-2/SMMU ownership path (Experiment 010).",
+    "TrustZone dynamic BIMC_MPU0..3 initializer (Experiment 010).",
+    "XBL Quest DDR coordinate reporter formula (Experiment 011).",
+    "SHRM section-16 callsites at 0x288a9/0x28e15 and their 430/64 counts (Experiment 012).",
+    "Permission-conversion routine mapping access words to VMID classes."
+  ],
+  "schema": "sdm855-independent-claim-audit-public-v1",
+  "scope_note": "This audit verifies static facts recorded by prior experiments. It does not verify their security interpretation, and it does not address protection ordering relative to the final DRAM transform, which remains UNKNOWN.",
+  "smc_access": false,
+  "summary": {
+    "checks_confirmed": 7,
+    "checks_mismatched": 0,
+    "checks_total": 7
+  }
+}

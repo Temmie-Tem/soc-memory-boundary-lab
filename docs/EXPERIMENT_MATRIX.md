@@ -357,3 +357,46 @@
 - Repetition count: one final analysis result, regenerated three times only for
   deterministic host verification
 - Device/SMC/MMIO/controller/partition writes: none; device access: none
+
+## Verification 001 independent claim-audit metadata
+
+This is an audit of the evidence chain, not a forward experiment. It takes no
+Experiment number because 014–016 are already allocated above.
+
+- Verification ID: `verification-001-independent-claim-audit-20260825-01`
+- Question: do the load-bearing static claims of Experiments 006–013 survive
+  independent re-derivation from the raw bytes?
+- Motivation: every `PROVED` statement is one agent's interpretation, and
+  Experiments 008–013 consume 004/006 conclusions as pinned inputs, so an early
+  misinterpretation would be inherited downstream
+- Why prior signals were insufficient: unit tests prove parser determinism,
+  hash pins prove input stability, and byte-identical regeneration proves tool
+  reproducibility; none proves the interpretation is correct
+- Controls: no module in `tools/` is imported, called, or reused; structures are
+  located by name and value search and then walked, so a claim can fail even
+  when the original tool reproduces byte-identically; subset AArch64 and Xtensa
+  decoders were written for the audit because no disassembler was available
+- Inputs: exact Experiment 004 XBL `e73a07a0…` and TrustZone `a5e6c574…`, both
+  measured equal to their pins
+- Timestamp: `2026-08-25 KST`
+- Exact action: `python3 tools/independent_claim_audit.py --replace`
+- Result: `7/7 CONFIRMED`; no substantive error; two notation issues recorded
+  (helper range is end-exclusive at 125 bytes; `0x09248fff` is not a stored
+  value, the raw field being end-exclusive `0x09249000`)
+- New finding: region 11 and `DC_NOC_NON_BROADCAST_MPU` region 5 both carry
+  write access word `0x00000000`, denying write to every client class rather
+  than only to ordinary HLOS
+- Not audited: QHEE `hyp_assign` stage-2/SMMU path, TZ dynamic `BIMC_MPU0..3`
+  initializer, Experiment 011 Quest coordinate formula, section-16 callsites and
+  their 430/64 counts, permission-conversion routine
+- Public manifest SHA-256:
+  `a722f0f66367de300b9a4402002e510a0d457c0250ca1b09f44e964f4914f2e5`
+- Tool SHA-256:
+  `b6617c19b9fc12d4d5c6dd83badc15da0a0e4df854ee8dc788b417ea3b0431fc`
+- Focused-test SHA-256:
+  `2c42b6bd7f513c055177c2754666cc902a338117cd7ea053bd602e0a2e62547b`
+- Host verification: 34 focused tests and all 125 repository tests pass; all 33
+  public manifests parse; three consecutive manifest generations are
+  byte-identical; public mode `0644`
+- Private record: none; the audit emits no firmware bytes
+- Device/SMC/MMIO/controller/partition writes: none; device access: none

@@ -70,6 +70,16 @@ selftest with zero failures. This blocks the tested direct EL1 snapshot path;
 it does not prove that XPU is the causal root or that no hidden transform
 exists.
 
+Host-only Verification 001 then audited the evidence chain itself. Every
+`PROVED` statement here is one agent's interpretation of the exact bytes, and
+Experiments 008–013 consume 004/006 conclusions as pinned inputs, so an early
+misinterpretation would be inherited downstream. Seven load-bearing static
+claims were re-derived from raw bytes without reusing any repository tool, and
+all seven were `CONFIRMED`, with no substantive error and two notation issues.
+The audit also records a fact the experiments underweighted: the remapper and
+SHRM policy regions deny write to **every** client class, not merely to ordinary
+HLOS. It verifies static facts only, not their security interpretation.
+
 Claim vocabulary is deliberately closed:
 
 - `PROVED`: directly demonstrated by named source, artifact, or repeated result.
@@ -107,6 +117,9 @@ in
 Experiment 013's exact SHRM workspace policy and fixed live-probe preparation
 are in
 [experiments/013-shrm-snapshot-boundary/README.md](experiments/013-shrm-snapshot-boundary/README.md).
+Verification 001's independent re-derivation of the load-bearing static claims
+is in
+[experiments/verification-001-independent-claim-audit/README.md](experiments/verification-001-independent-claim-audit/README.md).
 The exact A90 TWRP code-only System transition is documented in
 [docs/A90_TWRP_CODE_BOOT.md](docs/A90_TWRP_CODE_BOOT.md).
 
