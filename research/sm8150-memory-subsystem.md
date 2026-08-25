@@ -322,3 +322,31 @@ targets. It lies in the memory-only tail of RW PT_LOAD
 conditional static evidence only: import conformance, runtime execution,
 slot currentness, VA-to-PA identity and physical destination/ownership remain
 `UNKNOWN`; no writer absence is claimed.
+
+## Experiment 018 Stage 2E — RX SP-frame stores
+
+Host-only Stage 2E covers only the seven RX candidates whose encoded base is
+SP. F1 `[0x1492df68,0x1492e718)` and F2 `[0x14936ae0,0x14937c18)` are pinned
+by exact range hashes, unique direct-BL callers and frame prologue/epilogue
+instructions. The seven STR W/X forms map to offsets `0x400`, `0x404` and
+`0x4d0`; all are within F1's `SUB SP,#0x5a0` or F2's `SUB SP,#0x490` local
+allocation. Exact range-hash-bound audits within the recognized SP-write classes
+find only four frame updates per function; the explicit memory-writeback audit accounts for exactly four
+recognized sites per function (two SP and two non-SP). Recognized BR/BLR counts
+are zero, and the all-file-backed-executable-PT_LOAD-words direct-entry census
+finds one external BL to each function start and zero external entries to
+interiors. An independent GNU objdump 2.46 disassembly census, pinned by each
+exact range hash and not recomputed by this tool, reports F1 as 492 instructions
+with 134 writeback-free SP-base accesses and F2 as 1,102 instructions with 168
+such accesses. The same-function immediate-control CFG (BL modeled as
+fallthrough) has no recognized SP-write-class instruction after allocation on a
+path to each candidate; unsupported instruction effects remain `UNKNOWN`.
+
+This proves architectural SP-relative stores and frame-relative bounds only.
+Under a normal well-formed stack-frame premise they are not static absolute
+controller-base stores. Normal-return/callee SP restoration is a separate
+`SUPPORTED` premise; absolute runtime stack address, stack integrity or
+rebasing, VA-to-PA identity, physical destination/ownership, execution,
+indirect callers and writer identity remain `UNKNOWN`. The three RWE candidates
+remain outside this RX-only stage. Classification:
+`SEVEN_RX_SP_CANDIDATES_ARE_PINNED_STACK_FRAME_STORES_RUNTIME_STACK_ADDRESS_UNKNOWN`.

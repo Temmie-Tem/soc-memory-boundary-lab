@@ -1,0 +1,640 @@
+{
+  "accounting": {
+    "all_eleven_rx_candidates_examined": true,
+    "rwe_candidate_count_outside_scope_unknown": 3,
+    "rx_candidate_count_examined": 11,
+    "rx_non_sp_candidate_count_examined_prior_stage2a_to_2d": 4,
+    "rx_sp_candidate_count_examined": 7,
+    "stage2e_candidate_count": 7
+  },
+  "baseline": {
+    "stage2a_manifest_sha256": "eeed732e4a6cecd60453e9088d8c3d4c7ed207a1e7c723bae91e27033d134a4b",
+    "stage2a_test_sha256": "1272fadb0bcc6b883f74577284312ee34678975fa7ba60377d05d86927960b3b",
+    "stage2a_tool_sha256": "eb0a8ce21154d97d052de9f7e4e0de40f85087a8cb517179f7c44332e9d85eb0",
+    "stage2b_manifest_sha256": "a4715112e27c74e5548ecb49f09106c236146c8a0216c87446ddbd3c355ccca6",
+    "stage2b_test_sha256": "af7ca7b46550dda13e85e517c0c1c1df19b6414549d06415316b6d428e020fc9",
+    "stage2b_tool_sha256": "aa35d8b303a7ea32a086d601b1f08390b1cad0932f105209ac337f394813dbcb",
+    "stage2c_manifest_sha256": "e096562a35da93a1dac10a1651fc7eff08eecf05dafca4a789bae2fd50540c01",
+    "stage2c_test_sha256": "92c95472940937a7001fe48dd055b4c598fd290c28a1e15757d1c297ebf5f526",
+    "stage2c_tool_sha256": "d53d820eb8d10e8417247fabbc0e3196f73c73584a6b7d79d583a96834c34d53",
+    "stage2d_manifest_sha256": "48c7aa83d30844f1d42094fcb0f8d7dd13cf44265f9961167912792d014661c4",
+    "stage2d_test_sha256": "23c91a14c16706b920b4c3556e85844543dc99545a2b7b6d864a8c09d35f6136",
+    "stage2d_tool_sha256": "95e53e25f288ba1ef09996ff73919c2ad1dd4186c4fec41dc84216d715ee8b26"
+  },
+  "candidates": [
+    {
+      "base_register": "SP",
+      "byte_offset": "0x4d0",
+      "file_offset": "0x30b3b0",
+      "form": "STR W8,[SP,#0x4d0]",
+      "local_frame_bounds": {
+        "access_end_offset_exclusive": "0x4d4",
+        "access_start_offset": "0x4d0",
+        "allocation_size": "0x5a0",
+        "allocation_sub_site": "0x1492df88",
+        "remaining_allocation_after_access": "0xcc",
+        "within_allocation": true
+      },
+      "recognized_sp_write_sites_on_same_function_immediate_control_cfg_path": 0,
+      "runtime_absolute_stack_address": "UNKNOWN",
+      "source_register": "W8",
+      "sp_write_cfg_model": {
+        "direct_call_handling": "BL_FALLTHROUGH",
+        "normal_return_callee_sp_restoration": "SUPPORTED_SEPARATE_PREMISE",
+        "recognized_sp_write_classes": [
+          "ADD_SUB_IMMEDIATE_TARGETING_SP",
+          "ADD_SUB_EXTENDED_REGISTER_TARGETING_SP",
+          "SINGLE_SCALAR_OR_VECTOR_PRE_POST_INDEX_WITH_SP_BASE",
+          "PAIR_SCALAR_OR_VECTOR_PRE_POST_INDEX_WITH_SP_BASE"
+        ],
+        "scope": "SAME_FUNCTION_IMMEDIATE_CONTROL_CFG",
+        "unsupported_instruction_effects": "UNKNOWN"
+      },
+      "virtual_address": "0x1492e3e0",
+      "width_bits": 32
+    },
+    {
+      "base_register": "SP",
+      "byte_offset": "0x400",
+      "file_offset": "0x30b4bc",
+      "form": "STR X12,[SP,#0x400]",
+      "local_frame_bounds": {
+        "access_end_offset_exclusive": "0x408",
+        "access_start_offset": "0x400",
+        "allocation_size": "0x5a0",
+        "allocation_sub_site": "0x1492df88",
+        "remaining_allocation_after_access": "0x198",
+        "within_allocation": true
+      },
+      "recognized_sp_write_sites_on_same_function_immediate_control_cfg_path": 0,
+      "runtime_absolute_stack_address": "UNKNOWN",
+      "source_register": "X12",
+      "sp_write_cfg_model": {
+        "direct_call_handling": "BL_FALLTHROUGH",
+        "normal_return_callee_sp_restoration": "SUPPORTED_SEPARATE_PREMISE",
+        "recognized_sp_write_classes": [
+          "ADD_SUB_IMMEDIATE_TARGETING_SP",
+          "ADD_SUB_EXTENDED_REGISTER_TARGETING_SP",
+          "SINGLE_SCALAR_OR_VECTOR_PRE_POST_INDEX_WITH_SP_BASE",
+          "PAIR_SCALAR_OR_VECTOR_PRE_POST_INDEX_WITH_SP_BASE"
+        ],
+        "scope": "SAME_FUNCTION_IMMEDIATE_CONTROL_CFG",
+        "unsupported_instruction_effects": "UNKNOWN"
+      },
+      "virtual_address": "0x1492e4ec",
+      "width_bits": 64
+    },
+    {
+      "base_register": "SP",
+      "byte_offset": "0x404",
+      "file_offset": "0x313e90",
+      "form": "STR W17,[SP,#0x404]",
+      "local_frame_bounds": {
+        "access_end_offset_exclusive": "0x408",
+        "access_start_offset": "0x404",
+        "allocation_size": "0x490",
+        "allocation_sub_site": "0x14936b08",
+        "remaining_allocation_after_access": "0x88",
+        "within_allocation": true
+      },
+      "recognized_sp_write_sites_on_same_function_immediate_control_cfg_path": 0,
+      "runtime_absolute_stack_address": "UNKNOWN",
+      "source_register": "W17",
+      "sp_write_cfg_model": {
+        "direct_call_handling": "BL_FALLTHROUGH",
+        "normal_return_callee_sp_restoration": "SUPPORTED_SEPARATE_PREMISE",
+        "recognized_sp_write_classes": [
+          "ADD_SUB_IMMEDIATE_TARGETING_SP",
+          "ADD_SUB_EXTENDED_REGISTER_TARGETING_SP",
+          "SINGLE_SCALAR_OR_VECTOR_PRE_POST_INDEX_WITH_SP_BASE",
+          "PAIR_SCALAR_OR_VECTOR_PRE_POST_INDEX_WITH_SP_BASE"
+        ],
+        "scope": "SAME_FUNCTION_IMMEDIATE_CONTROL_CFG",
+        "unsupported_instruction_effects": "UNKNOWN"
+      },
+      "virtual_address": "0x14936ec0",
+      "width_bits": 32
+    },
+    {
+      "base_register": "SP",
+      "byte_offset": "0x400",
+      "file_offset": "0x313e98",
+      "form": "STR W4,[SP,#0x400]",
+      "local_frame_bounds": {
+        "access_end_offset_exclusive": "0x404",
+        "access_start_offset": "0x400",
+        "allocation_size": "0x490",
+        "allocation_sub_site": "0x14936b08",
+        "remaining_allocation_after_access": "0x8c",
+        "within_allocation": true
+      },
+      "recognized_sp_write_sites_on_same_function_immediate_control_cfg_path": 0,
+      "runtime_absolute_stack_address": "UNKNOWN",
+      "source_register": "W4",
+      "sp_write_cfg_model": {
+        "direct_call_handling": "BL_FALLTHROUGH",
+        "normal_return_callee_sp_restoration": "SUPPORTED_SEPARATE_PREMISE",
+        "recognized_sp_write_classes": [
+          "ADD_SUB_IMMEDIATE_TARGETING_SP",
+          "ADD_SUB_EXTENDED_REGISTER_TARGETING_SP",
+          "SINGLE_SCALAR_OR_VECTOR_PRE_POST_INDEX_WITH_SP_BASE",
+          "PAIR_SCALAR_OR_VECTOR_PRE_POST_INDEX_WITH_SP_BASE"
+        ],
+        "scope": "SAME_FUNCTION_IMMEDIATE_CONTROL_CFG",
+        "unsupported_instruction_effects": "UNKNOWN"
+      },
+      "virtual_address": "0x14936ec8",
+      "width_bits": 32
+    },
+    {
+      "base_register": "SP",
+      "byte_offset": "0x400",
+      "file_offset": "0x313ec8",
+      "form": "STR W4,[SP,#0x400]",
+      "local_frame_bounds": {
+        "access_end_offset_exclusive": "0x404",
+        "access_start_offset": "0x400",
+        "allocation_size": "0x490",
+        "allocation_sub_site": "0x14936b08",
+        "remaining_allocation_after_access": "0x8c",
+        "within_allocation": true
+      },
+      "recognized_sp_write_sites_on_same_function_immediate_control_cfg_path": 0,
+      "runtime_absolute_stack_address": "UNKNOWN",
+      "source_register": "W4",
+      "sp_write_cfg_model": {
+        "direct_call_handling": "BL_FALLTHROUGH",
+        "normal_return_callee_sp_restoration": "SUPPORTED_SEPARATE_PREMISE",
+        "recognized_sp_write_classes": [
+          "ADD_SUB_IMMEDIATE_TARGETING_SP",
+          "ADD_SUB_EXTENDED_REGISTER_TARGETING_SP",
+          "SINGLE_SCALAR_OR_VECTOR_PRE_POST_INDEX_WITH_SP_BASE",
+          "PAIR_SCALAR_OR_VECTOR_PRE_POST_INDEX_WITH_SP_BASE"
+        ],
+        "scope": "SAME_FUNCTION_IMMEDIATE_CONTROL_CFG",
+        "unsupported_instruction_effects": "UNKNOWN"
+      },
+      "virtual_address": "0x14936ef8",
+      "width_bits": 32
+    },
+    {
+      "base_register": "SP",
+      "byte_offset": "0x404",
+      "file_offset": "0x313ecc",
+      "form": "STR W17,[SP,#0x404]",
+      "local_frame_bounds": {
+        "access_end_offset_exclusive": "0x408",
+        "access_start_offset": "0x404",
+        "allocation_size": "0x490",
+        "allocation_sub_site": "0x14936b08",
+        "remaining_allocation_after_access": "0x88",
+        "within_allocation": true
+      },
+      "recognized_sp_write_sites_on_same_function_immediate_control_cfg_path": 0,
+      "runtime_absolute_stack_address": "UNKNOWN",
+      "source_register": "W17",
+      "sp_write_cfg_model": {
+        "direct_call_handling": "BL_FALLTHROUGH",
+        "normal_return_callee_sp_restoration": "SUPPORTED_SEPARATE_PREMISE",
+        "recognized_sp_write_classes": [
+          "ADD_SUB_IMMEDIATE_TARGETING_SP",
+          "ADD_SUB_EXTENDED_REGISTER_TARGETING_SP",
+          "SINGLE_SCALAR_OR_VECTOR_PRE_POST_INDEX_WITH_SP_BASE",
+          "PAIR_SCALAR_OR_VECTOR_PRE_POST_INDEX_WITH_SP_BASE"
+        ],
+        "scope": "SAME_FUNCTION_IMMEDIATE_CONTROL_CFG",
+        "unsupported_instruction_effects": "UNKNOWN"
+      },
+      "virtual_address": "0x14936efc",
+      "width_bits": 32
+    },
+    {
+      "base_register": "SP",
+      "byte_offset": "0x400",
+      "file_offset": "0x314790",
+      "form": "STR X7,[SP,#0x400]",
+      "local_frame_bounds": {
+        "access_end_offset_exclusive": "0x408",
+        "access_start_offset": "0x400",
+        "allocation_size": "0x490",
+        "allocation_sub_site": "0x14936b08",
+        "remaining_allocation_after_access": "0x88",
+        "within_allocation": true
+      },
+      "recognized_sp_write_sites_on_same_function_immediate_control_cfg_path": 0,
+      "runtime_absolute_stack_address": "UNKNOWN",
+      "source_register": "X7",
+      "sp_write_cfg_model": {
+        "direct_call_handling": "BL_FALLTHROUGH",
+        "normal_return_callee_sp_restoration": "SUPPORTED_SEPARATE_PREMISE",
+        "recognized_sp_write_classes": [
+          "ADD_SUB_IMMEDIATE_TARGETING_SP",
+          "ADD_SUB_EXTENDED_REGISTER_TARGETING_SP",
+          "SINGLE_SCALAR_OR_VECTOR_PRE_POST_INDEX_WITH_SP_BASE",
+          "PAIR_SCALAR_OR_VECTOR_PRE_POST_INDEX_WITH_SP_BASE"
+        ],
+        "scope": "SAME_FUNCTION_IMMEDIATE_CONTROL_CFG",
+        "unsupported_instruction_effects": "UNKNOWN"
+      },
+      "virtual_address": "0x149377c0",
+      "width_bits": 64
+    }
+  ],
+  "claims": {
+    "HYPOTHESIS": [
+      "Under a well-formed, normally executing stack frame, these seven stores write stack-resident state rather than a statically materialized controller base."
+    ],
+    "PROVED": [
+      "All seven scoped RX candidates decode as STR W/X unsigned-immediate stores with architectural base register SP and the pinned mappings, widths, offsets and source registers.",
+      "Both exact function ranges, unique direct-BL callers, prologues, local SUB allocations, epilogues and RET pins are verified.",
+      "Each candidate access lies fully within its function's local SUB allocation.",
+      "The same-function immediate-control CFG (with BL modeled as fallthrough) has no recognized SP-write-class instruction after allocation on a path to each candidate; the recognized scope is ADD/SUB immediate or extended targeting SP plus scalar/vector single/pair pre/post-index forms with SP base.",
+      "The explicit memory-writeback audit recognizes and accounts for exactly four writeback sites in each function (two SP frame sites and two non-SP sites), with base registers mechanically checked.",
+      "A scan of all file-backed executable PT_LOAD words finds exactly one external direct BL to each function start and no external direct entry to either function interior; recognized BR/BLR counts inside both ranges are zero."
+    ],
+    "REFUTED": [
+      "Within the pinned normal stack-frame model, these seven encodings are not static absolute target writers or controller-base-GPR stores."
+    ],
+    "SUPPORTED": [
+      "A normally conforming stack frame and normal-return/callee SP restoration support treating the pinned SP-relative accesses as local-frame stores; this is a separate premise and runtime stack integrity is not established."
+    ],
+    "UNKNOWN": [
+      "Absolute runtime stack address, VA-to-PA translation, physical destination/ownership, stack corruption or rebasing, unsupported instruction-class SP effects/semantics, execution, indirect callers, callee behavior, runtime semantics, mutability/lock, alias, bypass and writer identity remain UNKNOWN.",
+      "The three RWE candidates are explicitly outside this RX-only stage and remain UNKNOWN."
+    ]
+  },
+  "classification": "SEVEN_RX_SP_CANDIDATES_ARE_PINNED_STACK_FRAME_STORES_RUNTIME_STACK_ADDRESS_UNKNOWN",
+  "device_access": false,
+  "firmware_bytes_emitted": false,
+  "functions": {
+    "F1": {
+      "candidate_count": 2,
+      "direct_b_callers": [],
+      "direct_b_count": 0,
+      "direct_bl_callers": [
+        {
+          "file_offset": "0x30bd34",
+          "segment_class": "RX",
+          "target": "0x1492df68",
+          "virtual_address": "0x1492ed64"
+        }
+      ],
+      "direct_bl_count": 1,
+      "external_direct_entry_census": {
+        "external_direct_entries": [
+          {
+            "file_offset": "0x30bd34",
+            "kind": "BL",
+            "segment_class": "RX",
+            "target": "0x1492df68",
+            "virtual_address": "0x1492ed64"
+          }
+        ],
+        "external_direct_entry_count": 1,
+        "external_direct_entry_to_interior_count": 0,
+        "indirect_callers": "UNKNOWN",
+        "internal_direct_target_count": 42,
+        "range_hash_bound": true,
+        "recognized_kinds": [
+          "B",
+          "BL",
+          "B_COND",
+          "CBZ_CBNZ",
+          "TBZ_TBNZ"
+        ]
+      },
+      "frame_pins": {
+        "epilogue": {
+          "add_site": "0x1492e6f4",
+          "form": "ADD SP,SP,#allocation; LDP saved D registers,[SP],#frame",
+          "pair_site": "0x1492e710",
+          "ret_site": "0x1492e714"
+        },
+        "local_allocation": {
+          "form": "SUB SP,SP,#0x5a0",
+          "size": "0x5a0",
+          "sub_site": "0x1492df88"
+        },
+        "pins_verified": true,
+        "prologue": {
+          "form": "STP D9,D8,[SP,#-0x70]!",
+          "site": "0x1492df68"
+        }
+      },
+      "indirect_branch_census": {
+        "authenticated_branch_forms": "NOT_CLAIMED",
+        "cfg_fails_closed_on_recognized": true,
+        "count": 0,
+        "range_hash_bound": true,
+        "recognized_count": 0,
+        "recognized_kinds": [
+          "BR",
+          "BLR"
+        ],
+        "sites": []
+      },
+      "instruction_count": 492,
+      "non_sp_writeback_sites": [
+        {
+          "base_register": "X27",
+          "byte_immediate": "0x28",
+          "kind": "SINGLE_POST_INDEX_LOAD",
+          "virtual_address": "0x1492dfe8",
+          "writes_sp": false
+        },
+        {
+          "base_register": "X20",
+          "byte_immediate": "0x8",
+          "kind": "SINGLE_PRE_INDEX_LOAD",
+          "virtual_address": "0x1492e4f8",
+          "writes_sp": false
+        }
+      ],
+      "range": {
+        "byte_length": 1968,
+        "end_exclusive": "0x1492e718",
+        "file_offset": "0x30af38",
+        "segment_class": "RX",
+        "sha256": "941753add8e6b033096df1bce4b0950ed2ebaec8625e3147e0ba457279325e3b",
+        "virtual_address": "0x1492df68"
+      },
+      "sp_base_memory_access_census": {
+        "count": 134,
+        "range_hash_pinned": true,
+        "recomputed_by_this_tool": false,
+        "source": "INDEPENDENT_GNU_OBJDUMP_2.46_DISASSEMBLY_CENSUS"
+      },
+      "sp_write_census": {
+        "count": 4,
+        "explicit_memory_writeback_audit": {
+          "all_recognized_sites_accounted": true,
+          "count": 4,
+          "expected_count": 4,
+          "missing_count": 0,
+          "range_hash_bound": true,
+          "recognized_count": 4,
+          "sites": [
+            {
+              "base_register": "SP",
+              "byte_immediate": "-0x70",
+              "kind": "PAIR_VECTOR_PRE_INDEX_STORE",
+              "virtual_address": "0x1492df68",
+              "writes_sp": true
+            },
+            {
+              "base_register": "X27",
+              "byte_immediate": "0x28",
+              "kind": "SINGLE_POST_INDEX_LOAD",
+              "virtual_address": "0x1492dfe8",
+              "writes_sp": false
+            },
+            {
+              "base_register": "X20",
+              "byte_immediate": "0x8",
+              "kind": "SINGLE_PRE_INDEX_LOAD",
+              "virtual_address": "0x1492e4f8",
+              "writes_sp": false
+            },
+            {
+              "base_register": "SP",
+              "byte_immediate": "0x70",
+              "kind": "PAIR_VECTOR_POST_INDEX_LOAD",
+              "virtual_address": "0x1492e710",
+              "writes_sp": true
+            }
+          ],
+          "unexpected_count": 0
+        },
+        "range_hash_bound": true,
+        "recognized_sp_write_scope": [
+          "ADD_SUB_IMMEDIATE_TARGETING_SP",
+          "ADD_SUB_EXTENDED_REGISTER_TARGETING_SP",
+          "SINGLE_SCALAR_OR_VECTOR_PRE_POST_INDEX_WITH_SP_BASE",
+          "PAIR_SCALAR_OR_VECTOR_PRE_POST_INDEX_WITH_SP_BASE"
+        ],
+        "sites": [
+          {
+            "base_register": "SP",
+            "immediate": "-0x70",
+            "kind": "PAIR_VECTOR_PRE_INDEX_STORE",
+            "virtual_address": "0x1492df68",
+            "writes_sp": true
+          },
+          {
+            "base_register": "SP",
+            "immediate": "-0x5a0",
+            "kind": "SUB_IMMEDIATE_SP",
+            "virtual_address": "0x1492df88",
+            "writes_sp": true
+          },
+          {
+            "base_register": "SP",
+            "immediate": "0x5a0",
+            "kind": "ADD_IMMEDIATE_SP",
+            "virtual_address": "0x1492e6f4",
+            "writes_sp": true
+          },
+          {
+            "base_register": "SP",
+            "immediate": "0x70",
+            "kind": "PAIR_VECTOR_POST_INDEX_LOAD",
+            "virtual_address": "0x1492e710",
+            "writes_sp": true
+          }
+        ],
+        "unexpected_count": 0,
+        "unsupported_possible_sp_write_handling": "UNKNOWN_UNSUPPORTED_INSTRUCTION_EFFECTS_HASH_PINS_BYTES_ONLY"
+      }
+    },
+    "F2": {
+      "candidate_count": 5,
+      "direct_b_callers": [],
+      "direct_b_count": 0,
+      "direct_bl_callers": [
+        {
+          "file_offset": "0x313020",
+          "segment_class": "RX",
+          "target": "0x14936ae0",
+          "virtual_address": "0x14936050"
+        }
+      ],
+      "direct_bl_count": 1,
+      "external_direct_entry_census": {
+        "external_direct_entries": [
+          {
+            "file_offset": "0x313020",
+            "kind": "BL",
+            "segment_class": "RX",
+            "target": "0x14936ae0",
+            "virtual_address": "0x14936050"
+          }
+        ],
+        "external_direct_entry_count": 1,
+        "external_direct_entry_to_interior_count": 0,
+        "indirect_callers": "UNKNOWN",
+        "internal_direct_target_count": 123,
+        "range_hash_bound": true,
+        "recognized_kinds": [
+          "B",
+          "BL",
+          "B_COND",
+          "CBZ_CBNZ",
+          "TBZ_TBNZ"
+        ]
+      },
+      "frame_pins": {
+        "epilogue": {
+          "add_site": "0x14936bac",
+          "form": "ADD SP,SP,#allocation; LDP saved D registers,[SP],#frame",
+          "pair_site": "0x14936bd0",
+          "ret_site": "0x14936bd4"
+        },
+        "local_allocation": {
+          "form": "SUB SP,SP,#0x490",
+          "size": "0x490",
+          "sub_site": "0x14936b08"
+        },
+        "pins_verified": true,
+        "prologue": {
+          "form": "STP D13,D12,[SP,#-0x90]!",
+          "site": "0x14936ae0"
+        }
+      },
+      "indirect_branch_census": {
+        "authenticated_branch_forms": "NOT_CLAIMED",
+        "cfg_fails_closed_on_recognized": true,
+        "count": 0,
+        "range_hash_bound": true,
+        "recognized_count": 0,
+        "recognized_kinds": [
+          "BR",
+          "BLR"
+        ],
+        "sites": []
+      },
+      "instruction_count": 1102,
+      "non_sp_writeback_sites": [
+        {
+          "base_register": "X12",
+          "byte_immediate": "0x18",
+          "kind": "SINGLE_POST_INDEX_STORE",
+          "virtual_address": "0x14936d14",
+          "writes_sp": false
+        },
+        {
+          "base_register": "X22",
+          "byte_immediate": "0xf4",
+          "kind": "SINGLE_PRE_INDEX_LOAD",
+          "virtual_address": "0x14936d94",
+          "writes_sp": false
+        }
+      ],
+      "range": {
+        "byte_length": 4408,
+        "end_exclusive": "0x14937c18",
+        "file_offset": "0x313ab0",
+        "segment_class": "RX",
+        "sha256": "861cf19f8c6c27e4be5f1dfa8b662d0723ed5b1d02a115266c00ab4165bf058e",
+        "virtual_address": "0x14936ae0"
+      },
+      "sp_base_memory_access_census": {
+        "count": 168,
+        "range_hash_pinned": true,
+        "recomputed_by_this_tool": false,
+        "source": "INDEPENDENT_GNU_OBJDUMP_2.46_DISASSEMBLY_CENSUS"
+      },
+      "sp_write_census": {
+        "count": 4,
+        "explicit_memory_writeback_audit": {
+          "all_recognized_sites_accounted": true,
+          "count": 4,
+          "expected_count": 4,
+          "missing_count": 0,
+          "range_hash_bound": true,
+          "recognized_count": 4,
+          "sites": [
+            {
+              "base_register": "SP",
+              "byte_immediate": "-0x90",
+              "kind": "PAIR_VECTOR_PRE_INDEX_STORE",
+              "virtual_address": "0x14936ae0",
+              "writes_sp": true
+            },
+            {
+              "base_register": "SP",
+              "byte_immediate": "0x90",
+              "kind": "PAIR_VECTOR_POST_INDEX_LOAD",
+              "virtual_address": "0x14936bd0",
+              "writes_sp": true
+            },
+            {
+              "base_register": "X12",
+              "byte_immediate": "0x18",
+              "kind": "SINGLE_POST_INDEX_STORE",
+              "virtual_address": "0x14936d14",
+              "writes_sp": false
+            },
+            {
+              "base_register": "X22",
+              "byte_immediate": "0xf4",
+              "kind": "SINGLE_PRE_INDEX_LOAD",
+              "virtual_address": "0x14936d94",
+              "writes_sp": false
+            }
+          ],
+          "unexpected_count": 0
+        },
+        "range_hash_bound": true,
+        "recognized_sp_write_scope": [
+          "ADD_SUB_IMMEDIATE_TARGETING_SP",
+          "ADD_SUB_EXTENDED_REGISTER_TARGETING_SP",
+          "SINGLE_SCALAR_OR_VECTOR_PRE_POST_INDEX_WITH_SP_BASE",
+          "PAIR_SCALAR_OR_VECTOR_PRE_POST_INDEX_WITH_SP_BASE"
+        ],
+        "sites": [
+          {
+            "base_register": "SP",
+            "immediate": "-0x90",
+            "kind": "PAIR_VECTOR_PRE_INDEX_STORE",
+            "virtual_address": "0x14936ae0",
+            "writes_sp": true
+          },
+          {
+            "base_register": "SP",
+            "immediate": "-0x490",
+            "kind": "SUB_IMMEDIATE_SP",
+            "virtual_address": "0x14936b08",
+            "writes_sp": true
+          },
+          {
+            "base_register": "SP",
+            "immediate": "0x490",
+            "kind": "ADD_IMMEDIATE_SP",
+            "virtual_address": "0x14936bac",
+            "writes_sp": true
+          },
+          {
+            "base_register": "SP",
+            "immediate": "0x90",
+            "kind": "PAIR_VECTOR_POST_INDEX_LOAD",
+            "virtual_address": "0x14936bd0",
+            "writes_sp": true
+          }
+        ],
+        "unexpected_count": 0,
+        "unsupported_possible_sp_write_handling": "UNKNOWN_UNSUPPORTED_INSTRUCTION_EFFECTS_HASH_PINS_BYTES_ONLY"
+      }
+    }
+  },
+  "input": {
+    "filename": "xbl--sdb1.bin",
+    "pin_verified": true,
+    "sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+    "size": 4194304
+  },
+  "mmio_access": false,
+  "mode": "HOST_ONLY_READ_ONLY",
+  "schema": "sdm855-xbl-mc-writer-xref-stage2e-public-v1",
+  "smc_access": false,
+  "stage": "STAGE2E_RX_SP_FRAME_STORE_MODEL"
+}

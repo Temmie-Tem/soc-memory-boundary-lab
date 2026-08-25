@@ -993,3 +993,51 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
    Fourteen focused and 334 full unittest-discovery tests pass; all 58 public
    manifests parse as JSON, regeneration is byte-identical and mode is
    `0644`. Date: 2026-08-26 KST.
+
+## 2026-08-26 — Experiment 018 XBL MC writer cross-reference Stage 2E
+
+1. Kept the stage host-only/read-only over the exact XBL
+   (`e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37`), with
+   no device, SMC or MMIO action. Scope is only the seven RX SP-base
+   candidates; the three RWE candidates remain outside this stage.
+2. Independently pinned F1 `[0x1492df68,0x1492e718)` / file `0x30af38`, size
+   `0x7b0`, SHA-256
+   `941753add8e6b033096df1bce4b0950ed2ebaec8625e3147e0ba457279325e3b`, and
+   F2 `[0x14936ae0,0x14937c18)` / file `0x313ab0`, size `0x1138`, SHA-256
+   `861cf19f8c6c27e4be5f1dfa8b662d0723ed5b1d02a115266c00ab4165bf058e`.
+   Direct-BL callers are exactly `0x1492ed64/0x30bd34` and
+   `0x14936050/0x313020`; direct-B counts are zero.
+3. Decoded all seven exact STR W/X unsigned-immediate forms with base SP.
+   F1's local allocation is `0x5a0` and F2's is `0x490`; every access is
+   wholly within its allocation. Range-hash-bound manifests within the
+   recognized SP-write classes contain only the four frame updates per function;
+   the explicit memory-writeback
+   audit accounts for exactly four recognized sites per function (two SP and
+   two non-SP). Recognized BR/BLR counts are zero, and the all-file-backed-
+   executable-PT_LOAD-words direct-entry census finds one external BL to each
+   function start and zero external entries to interiors. An independent GNU
+   objdump 2.46 disassembly census, pinned by each exact range hash and not
+   recomputed by this tool, reports F1 as 492 instructions with 134
+   writeback-free SP-base accesses and F2 as 1,102 instructions with 168 such
+   accesses. The same-function immediate-control CFG (BL modeled as
+   fallthrough) has no recognized SP-write-class instruction after allocation
+   on a path to each candidate; unsupported instruction effects remain
+   `UNKNOWN`.
+4. `PROVED` is limited to architectural SP-relative encodings, exact mappings,
+   frame bounds and recognized-class static write audits. `SUPPORTED` is limited
+   to the normal stack-frame/conforming-call premise, with normal-return/callee
+   SP restoration separate from the same-function CFG result. `REFUTED` only interprets these seven
+   forms as non-static absolute/controller-base stores within that premise.
+   Absolute stack address, stack integrity/rebasing, VA-to-PA, physical
+   destination, execution, indirect callers and writer identity remain
+   `UNKNOWN`; Experiments 015/016 remain `NOT ELIGIBLE` and Class C is
+   unchanged.
+5. Generated the manifest with
+   `python3 tools/sm8150_xbl_mc_writer_stage2e.py --output evidence/manifests/018-xbl-mc-writer-xref-stage2e-20260826-01.manifest.json`.
+   Tool/test/manifest SHA-256 values are
+   `16519db59009efc1d55bee8ef37046679261ba486703dcffd371bb639331cc74`,
+   `174af64d6f536f2b44a8fe3301e53ea9d4ea5acfb50323fe783a2db714764563`, and
+   `c52babccfcfe825df7477dffc9533754fe1afd656d3afd839a398b078477ee36`.
+   Thirteen focused and 347 full unittest-discovery tests pass; all 59 public
+   JSON files parse as JSON, regeneration is byte-identical and mode is
+   `0644`. Date: 2026-08-26 KST.

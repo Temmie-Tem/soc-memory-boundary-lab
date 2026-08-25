@@ -105,6 +105,25 @@ conformance, VA-to-PA identity and physical ownership remain `UNKNOWN`; no
 writer absence is claimed. Classification is
 `NO_NUMERIC_TARGET_ADDRESS_MATCH_WITHIN_STAGE2D_UNIQUE_DIRECT_CALLER_CONDITIONAL_CALLEE_SAVED_PRESERVATION_MODEL`.
 
+Stage 2E examines only the seven RX SP-base candidates in exact F1/F2
+functions. Their STR W/X forms, frame allocations, prologues/epilogues, unique
+direct-BL callers and range-hash-bound audits within the recognized SP-write
+classes are pinned; each
+function's explicit memory-writeback audit accounts for exactly four recognized
+sites (two SP frame updates and two non-SP writebacks). Recognized BR/BLR counts
+are zero, and the all-file-backed-executable-PT_LOAD-words direct-entry census
+finds one external BL to each function start and zero external entries to
+interiors. All seven accesses are inside the local allocations. The
+same-function immediate-control CFG (BL modeled as fallthrough) has no
+recognized SP-write-class instruction after allocation on a path to each
+candidate; unsupported instruction effects remain `UNKNOWN`.
+An independent GNU objdump 2.46 disassembly census, pinned by each exact range
+hash and not recomputed by this tool, reports F1 as 492 instructions/134
+writeback-free SP-base accesses and F2 as 1,102/168.
+Absolute runtime stack address, stack integrity/rebasing, physical destination
+and execution remain `UNKNOWN`. Classification is
+`SEVEN_RX_SP_CANDIDATES_ARE_PINNED_STACK_FRAME_STORES_RUNTIME_STACK_ADDRESS_UNKNOWN`.
+
 ## A. 현재까지 PROVED
 
 - Exact A90 source, defconfig, System.map, independently extracted stock
@@ -404,6 +423,21 @@ writer absence is claimed. Classification is
   14 focused and 334 full unittest-discovery tests pass; all 58 public manifests
   parse as JSON; regeneration is byte-identical; mode `0644`; device/SMC/MMIO
   access: none.
+- Experiment 018 Stage 2E command is
+  `python3 tools/sm8150_xbl_mc_writer_stage2e.py --output evidence/manifests/018-xbl-mc-writer-xref-stage2e-20260826-01.manifest.json`.
+  Tool/test/manifest SHA-256 values are
+  `16519db59009efc1d55bee8ef37046679261ba486703dcffd371bb639331cc74`,
+  `174af64d6f536f2b44a8fe3301e53ea9d4ea5acfb50323fe783a2db714764563`, and
+  `c52babccfcfe825df7477dffc9533754fe1afd656d3afd839a398b078477ee36`;
+  13 focused and 347 full unittest-discovery tests pass; all 59 public
+  manifests parse as JSON; regeneration is byte-identical; mode `0644`;
+  device/SMC/MMIO access: none.
+- Stage 2E's exact SP-frame model proves seven RX SP-base stores, F1/F2 local
+  allocation bounds, four recognized explicit writeback sites per function
+  (two SP and two non-SP), zero recognized BR/BLR transfers, the external
+  direct-entry census, and the same-function immediate-control CFG result for
+  recognized SP-write classes; unsupported instruction effects remain UNKNOWN
+  and it does not prove an absolute stack address or runtime destination.
 
 ## B. 현재 HYPOTHESIS
 
@@ -564,6 +598,11 @@ writer absence is claimed. Classification is
   explicit conditions, VA-to-PA identity, physical
   destination/ownership, indirect callers, runtime semantics, mutability/lock,
   alias, bypass and writer identity outside the scoped path `UNKNOWN`.
+- Experiment 018 Stage 2E leaves absolute runtime stack address, stack
+  corruption/rebasing, callee behavior, execution, VA-to-PA identity, physical
+  destination/ownership, indirect callers, semantics, mutability/lock, alias,
+  bypass and writer identity `UNKNOWN`; the three RWE candidates remain outside
+  this RX-only stage.
 
 ## E. SDM855 physical→DRAM pipeline 후보
 
@@ -672,10 +711,10 @@ Do not repeat the fixed protected load. Experiment 018 Stage 2D completed the
 cheap host-only direct-BL and exact initialized-slot discriminator for the
 remaining X19 candidate; its conditional effective value misses the 12 numeric
 targets.
-All four non-SP RX candidates are now examined, but the X19 result remains
-conditional. Seven SP candidates remain runtime-derived and three RWE candidates
-remain ambiguous; initializer execution, import conformance and dynamic paths
-remain `UNKNOWN`.
+All eleven RX candidates are now examined: four non-SP through Stage 2A–2D and
+seven SP through Stage 2E. Three RWE candidates remain explicitly outside this
+RX-only stage; absolute stack addresses, execution and dynamic paths remain
+`UNKNOWN`.
 Any future writer xref must stay host-only and explicitly scoped; do not perform
 a broad MMIO scan or device action. A cold-boot repetition is not a substitute
 for this writer xref.
@@ -749,6 +788,10 @@ Evidence for the attack class being relevant:
   initializer execution, slot currentness, runtime conformance, physical
   destination, writer identity, mutation, alias, protected reach or bypass.
   Experiments 015 and 016 remain `NOT ELIGIBLE`.
+- Experiment 018 Stage 2E adds only RX SP-frame-store confidence for the seven
+  SP-base candidates. It does not prove runtime stack placement, physical
+  destination, execution, mutation, alias, protected reach, bypass or writer
+  absence; Experiments 015 and 016 remain `NOT ELIGIBLE`.
 
 Evidence against a presently usable bypass:
 

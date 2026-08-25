@@ -179,6 +179,20 @@ outside the 12 targets. Runtime initialization, slot currentness, import
 conformance, physical destination and indirect paths remain `UNKNOWN`; no
 writer absence is claimed.
 
+`PROVED` by host-only Experiment 018 Stage 2E: all seven RX SP-base STR W/X
+candidates map to the exact F1/F2 functions, whose local `SUB SP` allocations,
+frame updates and unique direct-BL callers are pinned. Each access lies within
+its local allocation. The same-function immediate-control CFG (BL modeled as
+fallthrough) has no recognized SP-write-class instruction after allocation on a
+path to each candidate; unsupported instruction effects remain `UNKNOWN`.
+The explicit memory-writeback audit accounts for four recognized sites per
+function (two SP frame updates and two non-SP writebacks); recognized BR/BLR
+counts are zero, and the all-file-backed-executable-PT_LOAD-words direct-entry
+census finds one external BL to each function start and none to interiors.
+Absolute runtime stack address, stack integrity, physical destination,
+execution and writer identity remain `UNKNOWN`; the three RWE candidates are
+outside this RX-only stage.
+
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside
 `DC_NOC_NON_BROADCAST_MPU`, `MEMNOC_MS_MPU`, and `CNOC_SNOC_MS_MPU` regions.

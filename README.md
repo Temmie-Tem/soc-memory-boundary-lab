@@ -189,6 +189,19 @@ preservation models, effective value `0x85e9e970` has no numeric match to the
 conformance, VA-to-PA identity and physical ownership remain `UNKNOWN`.
 Its classification is
 `NO_NUMERIC_TARGET_ADDRESS_MATCH_WITHIN_STAGE2D_UNIQUE_DIRECT_CALLER_CONDITIONAL_CALLEE_SAVED_PRESERVATION_MODEL`.
+Stage 2E now covers the seven RX candidates whose encoded base is SP. Exact
+F1/F2 frame ranges, prologues/epilogues and direct-BL callers are pinned; all
+seven STR W/X accesses lie within their local `SUB SP` allocations. The
+same-function immediate-control CFG (BL modeled as fallthrough) has no
+recognized SP-write-class instruction after allocation on a path to each
+candidate; unsupported instruction effects remain `UNKNOWN`. Each range's
+explicit memory-writeback audit accounts for exactly four recognized sites (two SP frame
+updates and two non-SP writebacks); recognized BR/BLR counts are zero, and the
+all-file-backed-executable-PT_LOAD-words direct-entry census finds one external
+BL to each function start and zero external entries to interiors. Runtime stack address,
+stack integrity, physical destination and execution remain `UNKNOWN`. Its
+classification is
+`SEVEN_RX_SP_CANDIDATES_ARE_PINNED_STACK_FRAME_STORES_RUNTIME_STACK_ADDRESS_UNKNOWN`.
 Experiment 018 broadens no AOP/TZ scope and does not satisfy reserved/`NOT
 ELIGIBLE` Experiments 015 or 016. See [Experiment 018](experiments/018-xbl-mc-writer-xref/README.md).
 
@@ -234,7 +247,7 @@ literal-attribution audit are in
 [experiments/014-dram-conflict-timing/README.md](experiments/014-dram-conflict-timing/README.md).
 Experiment 017's exact XBL table/read-copy cross-reference is in
 [experiments/017-xbl-mc-snapshot-xref/README.md](experiments/017-xbl-mc-snapshot-xref/README.md).
-Experiment 018's Stage 1A/Stage 2A/Stage 2B XBL writer cross-reference is in
+Experiment 018's Stage 1A/Stage 2A/Stage 2B/Stage 2C/Stage 2D/Stage 2E XBL writer cross-reference is in
 [experiments/018-xbl-mc-writer-xref/README.md](experiments/018-xbl-mc-writer-xref/README.md).
 Verification 001's independent re-derivation of the load-bearing static claims
 is in

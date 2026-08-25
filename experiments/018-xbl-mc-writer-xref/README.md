@@ -1,4 +1,4 @@
-# Experiment 018 — XBL MC writer cross-reference, Stage 1A + Stage 2A + Stage 2B + Stage 2C + Stage 2D
+# Experiment 018 — XBL MC writer cross-reference, Stage 1A + Stage 2A + Stage 2B + Stage 2C + Stage 2D + Stage 2E
 
 ## Scope and eligibility
 
@@ -9,8 +9,9 @@ pinned non-SP RX candidates through a deliberately small direct-definition
 model; Stage 2B extends only the two Stage 2A window-limit X8 candidates with a
 deliberately small W-wide-move model; Stage 2C covers the remaining X8 writer
 candidate through its unique direct caller and retained table; Stage 2D covers
-the remaining X19 candidate under explicit callee-preservation conditions. None
-of these stages identifies a writer outside its model.
+the remaining X19 candidate under explicit callee-preservation conditions; and
+Stage 2E covers only the seven RX SP-base candidates as local frame-relative
+stores. None of these stages identifies a writer outside its model.
 
 Conceptual Experiment 015 (controlled normal-RAM alias) and Experiment 016
 (protected-boundary reach through that alias) remain reserved and `NOT
@@ -247,6 +248,49 @@ writer-absence or runtime-execution claim is made. Seven SP RX and three RWE
 candidates remain `UNKNOWN`. Classification:
 `NO_NUMERIC_TARGET_ADDRESS_MATCH_WITHIN_STAGE2D_UNIQUE_DIRECT_CALLER_CONDITIONAL_CALLEE_SAVED_PRESERVATION_MODEL`.
 
+## Stage 2E RX SP-frame stores
+
+Stage 2E covers only the seven RX candidates whose encoded base register is
+architectural SP:
+
+| Function | Candidate locations and forms |
+| --- | --- |
+| F1 `[0x1492df68,0x1492e718)` | `0x1492e3e0/file 0x30b3b0` `STR W8,[SP,#0x4d0]`; `0x1492e4ec/file 0x30b4bc` `STR X12,[SP,#0x400]` |
+| F2 `[0x14936ae0,0x14937c18)` | `0x14936ec0/file 0x313e90` `STR W17,[SP,#0x404]`; `0x14936ec8/file 0x313e98` and `0x14936ef8/file 0x313ec8` `STR W4,[SP,#0x400]`; `0x14936efc/file 0x313ecc` `STR W17,[SP,#0x404]`; `0x149377c0/file 0x314790` `STR X7,[SP,#0x400]` |
+
+F1 is pinned at file `0x30af38`, size `0x7b0`, SHA-256
+`941753add8e6b033096df1bce4b0950ed2ebaec8625e3147e0ba457279325e3b`, with
+one direct BL caller at `0x1492ed64/file 0x30bd34`; F2 is pinned at file
+`0x313ab0`, size `0x1138`, SHA-256
+`861cf19f8c6c27e4be5f1dfa8b662d0723ed5b1d02a115266c00ab4165bf058e`, with
+one direct BL caller at `0x14936050/file 0x313020`. Both direct-B counts are
+zero. Their local allocations are `SUB SP,SP,#0x5a0` and
+`SUB SP,SP,#0x490`; every listed access is fully within its allocation. The
+range-hash-bound SP-write census within the recognized SP-write classes finds
+only the four frame updates; the
+explicit memory-writeback audit mechanically accounts for exactly four
+recognized sites per function (two SP frame updates and two non-SP writebacks).
+An independent GNU objdump 2.46 disassembly census, pinned by each exact range
+hash and not recomputed by this tool, reports F1 as 492 instructions with 134
+writeback-free SP-base memory accesses and F2 as 1,102 instructions with 168
+such accesses. Recognized BR/BLR counts are
+zero; a scan of all file-backed executable PT_LOAD words finds one external BL
+to each function start and zero external entries to interiors. Other direct/indirect
+paths remain outside this static claim.
+
+The same-function immediate-control CFG (BL modeled as fallthrough) finds no
+recognized SP-write-class instruction after each local allocation on a path to
+the candidate. Its recognized scope is ADD/SUB immediate or extended targeting
+SP plus scalar/vector single/pair pre/post-index forms with SP base; unsupported
+instruction effects remain `UNKNOWN`. These are architectural SP-relative stores, not statically
+materialized controller-base-GPR stores, only within the pinned normal
+stack-frame model. Normal-return/callee SP restoration is a separate
+`SUPPORTED` premise. Absolute runtime stack address, stack integrity/rebasing,
+VA-to-PA translation, physical destination, runtime execution and writer
+identity remain `UNKNOWN`; the three RWE candidates are outside this stage.
+Classification:
+`SEVEN_RX_SP_CANDIDATES_ARE_PINNED_STACK_FRAME_STORES_RUNTIME_STACK_ADDRESS_UNKNOWN`.
+
 ## Reproduction and provenance
 
 ```sh
@@ -265,6 +309,9 @@ python3 -m unittest -v tests.test_sm8150_xbl_mc_writer_stage2c
 python3 tools/sm8150_xbl_mc_writer_stage2d.py \
   --output evidence/manifests/018-xbl-mc-writer-xref-stage2d-20260826-01.manifest.json
 python3 -m unittest -v tests.test_sm8150_xbl_mc_writer_stage2d
+python3 tools/sm8150_xbl_mc_writer_stage2e.py \
+  --output evidence/manifests/018-xbl-mc-writer-xref-stage2e-20260826-01.manifest.json
+python3 -m unittest -v tests.test_sm8150_xbl_mc_writer_stage2e
 ```
 
 - Tool SHA-256:
@@ -322,6 +369,20 @@ python3 -m unittest -v tests.test_sm8150_xbl_mc_writer_stage2d
   pass.
 - Public manifest inventory: all 58 manifests parse as JSON; regeneration is
   byte-identical; mode is `0644`.
+- Date: 2026-08-26 KST.
+- Mode: `HOST_ONLY_READ_ONLY`; device, SMC and MMIO access: none.
+
+## Stage 2E provenance
+
+- Tool SHA-256:
+  `16519db59009efc1d55bee8ef37046679261ba486703dcffd371bb639331cc74`.
+- Focused-test SHA-256:
+  `174af64d6f536f2b44a8fe3301e53ea9d4ea5acfb50323fe783a2db714764563`.
+- Public manifest SHA-256:
+  `c52babccfcfe825df7477dffc9533754fe1afd656d3afd839a398b078477ee36`.
+- Focused result: 13 tests pass; full repository unittest discovery: 347 tests
+  pass; all 59 public JSON files parse as JSON; regeneration is byte-identical
+  and mode is `0644`.
 - Date: 2026-08-26 KST.
 - Mode: `HOST_ONLY_READ_ONLY`; device, SMC and MMIO access: none.
 
