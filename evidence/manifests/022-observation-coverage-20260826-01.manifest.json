@@ -1,0 +1,443 @@
+{
+ "channels": {
+  "shrm_snapshot_set0": 430,
+  "shrm_snapshot_union": 470,
+  "union": 492,
+  "xbl_mc_table": 122,
+  "xbl_table_addresses_new_to_the_snapshot": 22
+ },
+ "claims": {
+  "PROVED": [
+   "Two static channels name controller addresses: the SHRM snapshot and the Experiment 017 XBL MC table. Their union is the complete set this project can name without a device read.",
+   "Within each ranked MC instance the union names a small fraction of the span it covers. All three ranked offsets lie inside that sample, which is not a coincidence and not evidence: they were selected from it, so their presence is a property of how the candidates were chosen."
+  ],
+  "REFUTED": [
+   "The ranked-candidate negatives from Experiments 014, 017, 018, 019 and 021 bound where the Experiment 014 bank relation can live. The candidate set was drawn from the observable sample, and that sample is a small fraction of the register space it is drawn from."
+  ],
+  "UNKNOWN": [
+   "How many registers each block actually implements, and therefore the true denominator.",
+   "Whether the bank relation is implemented by a register at all.",
+   "Everything the observation channels do not name, which is the majority of each block by either denominator."
+  ]
+ },
+ "coverage_by_block": [
+  {
+   "block": "0x09050000",
+   "by_channel": {
+    "shrm_snapshot": 7,
+    "xbl_mc_table": 0
+   },
+   "coverage_of_64k_block_percent": 0.0427,
+   "coverage_of_observed_span_percent": 100.0,
+   "is_ranked_instance": false,
+   "max_offset": "0x00012c",
+   "min_offset": "0x000114",
+   "observed": 7,
+   "observed_span_word_slots": 7
+  },
+  {
+   "block": "0x090b0000",
+   "by_channel": {
+    "shrm_snapshot": 9,
+    "xbl_mc_table": 0
+   },
+   "coverage_of_64k_block_percent": 0.0549,
+   "coverage_of_observed_span_percent": 5.3254,
+   "is_ranked_instance": false,
+   "max_offset": "0x0002a0",
+   "min_offset": "0x000000",
+   "observed": 9,
+   "observed_span_word_slots": 169
+  },
+  {
+   "block": "0x090c0000",
+   "by_channel": {
+    "shrm_snapshot": 3,
+    "xbl_mc_table": 0
+   },
+   "coverage_of_64k_block_percent": 0.0183,
+   "coverage_of_observed_span_percent": 13.0435,
+   "is_ranked_instance": false,
+   "max_offset": "0x0000b0",
+   "min_offset": "0x000058",
+   "observed": 3,
+   "observed_span_word_slots": 23
+  },
+  {
+   "block": "0x09180000",
+   "by_channel": {
+    "shrm_snapshot": 36,
+    "xbl_mc_table": 1
+   },
+   "coverage_of_64k_block_percent": 0.2258,
+   "coverage_of_observed_span_percent": 0.5639,
+   "is_ranked_instance": false,
+   "max_offset": "0x006700",
+   "min_offset": "0x00007c",
+   "observed": 37,
+   "observed_span_word_slots": 6562
+  },
+  {
+   "block": "0x09190000",
+   "by_channel": {
+    "shrm_snapshot": 36,
+    "xbl_mc_table": 1
+   },
+   "coverage_of_64k_block_percent": 0.2258,
+   "coverage_of_observed_span_percent": 0.5639,
+   "is_ranked_instance": false,
+   "max_offset": "0x006700",
+   "min_offset": "0x00007c",
+   "observed": 37,
+   "observed_span_word_slots": 6562
+  },
+  {
+   "block": "0x09220000",
+   "by_channel": {
+    "shrm_snapshot": 21,
+    "xbl_mc_table": 0
+   },
+   "coverage_of_64k_block_percent": 0.1282,
+   "coverage_of_observed_span_percent": 0.6858,
+   "is_ranked_instance": false,
+   "max_offset": "0x003318",
+   "min_offset": "0x000344",
+   "observed": 21,
+   "observed_span_word_slots": 3062
+  },
+  {
+   "block": "0x09230000",
+   "by_channel": {
+    "shrm_snapshot": 14,
+    "xbl_mc_table": 0
+   },
+   "coverage_of_64k_block_percent": 0.0854,
+   "coverage_of_observed_span_percent": 0.1144,
+   "is_ranked_instance": false,
+   "max_offset": "0x00e034",
+   "min_offset": "0x002100",
+   "observed": 14,
+   "observed_span_word_slots": 12238
+  },
+  {
+   "block": "0x09240000",
+   "by_channel": {
+    "shrm_snapshot": 15,
+    "xbl_mc_table": 0
+   },
+   "coverage_of_64k_block_percent": 0.0916,
+   "coverage_of_observed_span_percent": 0.2085,
+   "is_ranked_instance": false,
+   "max_offset": "0x008064",
+   "min_offset": "0x001000",
+   "observed": 15,
+   "observed_span_word_slots": 7194
+  },
+  {
+   "block": "0x09250000",
+   "by_channel": {
+    "shrm_snapshot": 4,
+    "xbl_mc_table": 0
+   },
+   "coverage_of_64k_block_percent": 0.0244,
+   "coverage_of_observed_span_percent": 100.0,
+   "is_ranked_instance": false,
+   "max_offset": "0x00011c",
+   "min_offset": "0x000110",
+   "observed": 4,
+   "observed_span_word_slots": 4
+  },
+  {
+   "block": "0x09260000",
+   "by_channel": {
+    "shrm_snapshot": 37,
+    "xbl_mc_table": 30
+   },
+   "coverage_of_64k_block_percent": 0.2563,
+   "coverage_of_observed_span_percent": 0.4514,
+   "is_ranked_instance": true,
+   "max_offset": "0x0091e0",
+   "min_offset": "0x000080",
+   "observed": 42,
+   "observed_span_word_slots": 9305
+  },
+  {
+   "block": "0x092a0000",
+   "by_channel": {
+    "shrm_snapshot": 21,
+    "xbl_mc_table": 0
+   },
+   "coverage_of_64k_block_percent": 0.1282,
+   "coverage_of_observed_span_percent": 0.6858,
+   "is_ranked_instance": false,
+   "max_offset": "0x003318",
+   "min_offset": "0x000344",
+   "observed": 21,
+   "observed_span_word_slots": 3062
+  },
+  {
+   "block": "0x092b0000",
+   "by_channel": {
+    "shrm_snapshot": 14,
+    "xbl_mc_table": 0
+   },
+   "coverage_of_64k_block_percent": 0.0854,
+   "coverage_of_observed_span_percent": 0.1144,
+   "is_ranked_instance": false,
+   "max_offset": "0x00e034",
+   "min_offset": "0x002100",
+   "observed": 14,
+   "observed_span_word_slots": 12238
+  },
+  {
+   "block": "0x092c0000",
+   "by_channel": {
+    "shrm_snapshot": 15,
+    "xbl_mc_table": 0
+   },
+   "coverage_of_64k_block_percent": 0.0916,
+   "coverage_of_observed_span_percent": 0.2085,
+   "is_ranked_instance": false,
+   "max_offset": "0x008064",
+   "min_offset": "0x001000",
+   "observed": 15,
+   "observed_span_word_slots": 7194
+  },
+  {
+   "block": "0x092d0000",
+   "by_channel": {
+    "shrm_snapshot": 4,
+    "xbl_mc_table": 0
+   },
+   "coverage_of_64k_block_percent": 0.0244,
+   "coverage_of_observed_span_percent": 100.0,
+   "is_ranked_instance": false,
+   "max_offset": "0x00011c",
+   "min_offset": "0x000110",
+   "observed": 4,
+   "observed_span_word_slots": 4
+  },
+  {
+   "block": "0x092e0000",
+   "by_channel": {
+    "shrm_snapshot": 37,
+    "xbl_mc_table": 30
+   },
+   "coverage_of_64k_block_percent": 0.2563,
+   "coverage_of_observed_span_percent": 0.4514,
+   "is_ranked_instance": true,
+   "max_offset": "0x0091e0",
+   "min_offset": "0x000080",
+   "observed": 42,
+   "observed_span_word_slots": 9305
+  },
+  {
+   "block": "0x09320000",
+   "by_channel": {
+    "shrm_snapshot": 21,
+    "xbl_mc_table": 0
+   },
+   "coverage_of_64k_block_percent": 0.1282,
+   "coverage_of_observed_span_percent": 0.6858,
+   "is_ranked_instance": false,
+   "max_offset": "0x003318",
+   "min_offset": "0x000344",
+   "observed": 21,
+   "observed_span_word_slots": 3062
+  },
+  {
+   "block": "0x09330000",
+   "by_channel": {
+    "shrm_snapshot": 14,
+    "xbl_mc_table": 0
+   },
+   "coverage_of_64k_block_percent": 0.0854,
+   "coverage_of_observed_span_percent": 0.1144,
+   "is_ranked_instance": false,
+   "max_offset": "0x00e034",
+   "min_offset": "0x002100",
+   "observed": 14,
+   "observed_span_word_slots": 12238
+  },
+  {
+   "block": "0x09340000",
+   "by_channel": {
+    "shrm_snapshot": 15,
+    "xbl_mc_table": 0
+   },
+   "coverage_of_64k_block_percent": 0.0916,
+   "coverage_of_observed_span_percent": 0.2085,
+   "is_ranked_instance": false,
+   "max_offset": "0x008064",
+   "min_offset": "0x001000",
+   "observed": 15,
+   "observed_span_word_slots": 7194
+  },
+  {
+   "block": "0x09350000",
+   "by_channel": {
+    "shrm_snapshot": 4,
+    "xbl_mc_table": 0
+   },
+   "coverage_of_64k_block_percent": 0.0244,
+   "coverage_of_observed_span_percent": 100.0,
+   "is_ranked_instance": false,
+   "max_offset": "0x00011c",
+   "min_offset": "0x000110",
+   "observed": 4,
+   "observed_span_word_slots": 4
+  },
+  {
+   "block": "0x09360000",
+   "by_channel": {
+    "shrm_snapshot": 37,
+    "xbl_mc_table": 30
+   },
+   "coverage_of_64k_block_percent": 0.2563,
+   "coverage_of_observed_span_percent": 0.4514,
+   "is_ranked_instance": true,
+   "max_offset": "0x0091e0",
+   "min_offset": "0x000080",
+   "observed": 42,
+   "observed_span_word_slots": 9305
+  },
+  {
+   "block": "0x093a0000",
+   "by_channel": {
+    "shrm_snapshot": 21,
+    "xbl_mc_table": 0
+   },
+   "coverage_of_64k_block_percent": 0.1282,
+   "coverage_of_observed_span_percent": 0.6858,
+   "is_ranked_instance": false,
+   "max_offset": "0x003318",
+   "min_offset": "0x000344",
+   "observed": 21,
+   "observed_span_word_slots": 3062
+  },
+  {
+   "block": "0x093b0000",
+   "by_channel": {
+    "shrm_snapshot": 14,
+    "xbl_mc_table": 0
+   },
+   "coverage_of_64k_block_percent": 0.0854,
+   "coverage_of_observed_span_percent": 0.1144,
+   "is_ranked_instance": false,
+   "max_offset": "0x00e034",
+   "min_offset": "0x002100",
+   "observed": 14,
+   "observed_span_word_slots": 12238
+  },
+  {
+   "block": "0x093c0000",
+   "by_channel": {
+    "shrm_snapshot": 15,
+    "xbl_mc_table": 0
+   },
+   "coverage_of_64k_block_percent": 0.0916,
+   "coverage_of_observed_span_percent": 0.2085,
+   "is_ranked_instance": false,
+   "max_offset": "0x008064",
+   "min_offset": "0x001000",
+   "observed": 15,
+   "observed_span_word_slots": 7194
+  },
+  {
+   "block": "0x093d0000",
+   "by_channel": {
+    "shrm_snapshot": 4,
+    "xbl_mc_table": 0
+   },
+   "coverage_of_64k_block_percent": 0.0244,
+   "coverage_of_observed_span_percent": 100.0,
+   "is_ranked_instance": false,
+   "max_offset": "0x00011c",
+   "min_offset": "0x000110",
+   "observed": 4,
+   "observed_span_word_slots": 4
+  },
+  {
+   "block": "0x093e0000",
+   "by_channel": {
+    "shrm_snapshot": 37,
+    "xbl_mc_table": 30
+   },
+   "coverage_of_64k_block_percent": 0.2563,
+   "coverage_of_observed_span_percent": 0.4514,
+   "is_ranked_instance": true,
+   "max_offset": "0x0091e0",
+   "min_offset": "0x000080",
+   "observed": 42,
+   "observed_span_word_slots": 9305
+  },
+  {
+   "block": "0x09690000",
+   "by_channel": {
+    "shrm_snapshot": 15,
+    "xbl_mc_table": 0
+   },
+   "coverage_of_64k_block_percent": 0.0916,
+   "coverage_of_observed_span_percent": 11.0294,
+   "is_ranked_instance": false,
+   "max_offset": "0x00871c",
+   "min_offset": "0x008500",
+   "observed": 15,
+   "observed_span_word_slots": 136
+  }
+ ],
+ "denominator_note": "A 64-KiB block holds 16384 addressable word slots; how many are implemented is UNKNOWN and is certainly fewer, so coverage against the block is a LOWER bound on true coverage. Coverage against the observed span is the defensible figure: both ends of that span are addresses a channel really names.",
+ "device_access": "none",
+ "experiment_id": "022-observation-coverage",
+ "image": "xbl--sdb1.bin",
+ "image_sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+ "mode": "HOST_ONLY_READ_ONLY",
+ "ranked_instances": {
+  "coverage_of_64k_blocks_percent": 0.2563,
+  "per_instance": {
+   "0x09260000": {
+    "coverage_of_observed_span_percent": 0.4514,
+    "observed": 42,
+    "observed_span_word_slots": 9305,
+    "ranked_offsets_observed": [
+     "0x400",
+     "0x404",
+     "0x4d0"
+    ]
+   },
+   "0x092e0000": {
+    "coverage_of_observed_span_percent": 0.4514,
+    "observed": 42,
+    "observed_span_word_slots": 9305,
+    "ranked_offsets_observed": [
+     "0x400",
+     "0x404",
+     "0x4d0"
+    ]
+   },
+   "0x09360000": {
+    "coverage_of_observed_span_percent": 0.4514,
+    "observed": 42,
+    "observed_span_word_slots": 9305,
+    "ranked_offsets_observed": [
+     "0x400",
+     "0x404",
+     "0x4d0"
+    ]
+   },
+   "0x093e0000": {
+    "coverage_of_observed_span_percent": 0.4514,
+    "observed": 42,
+    "observed_span_word_slots": 9305,
+    "ranked_offsets_observed": [
+     "0x400",
+     "0x404",
+     "0x4d0"
+    ]
+   }
+  },
+  "total_addressable_word_slots": 65536,
+  "total_observed": 168
+ },
+ "schema": "sm8150-observation-coverage-v1"
+}
