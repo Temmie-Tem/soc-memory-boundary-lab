@@ -83,9 +83,11 @@ sets. The exact Xtensa SHRM helper at `0x2d8dc` computes
 `(base_page << 12) + (offset_token << 2)` and stages one 32-bit word per
 computed register. Both exact direct consumers pass direction zero, which is
 the helper's read-to-snapshot path; selected lists contain 430 and 64 reads.
-`SUPPORTED`: this is an SHRM controller-register snapshot inventory. The
-returned values and any indirect reverse-direction invocation remain
-`UNKNOWN`.
+`SUPPORTED`: this is an SHRM controller-register snapshot inventory.
+Verification 012 subsequently acquired the real file: set 0 has coherent
+four-instance MC/MCCC structure, while set 1 is refuted as a coherent current
+snapshot. Exact set-0 bitfield semantics and any indirect reverse-direction
+invocation remain `UNKNOWN`.
 
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside
@@ -109,8 +111,9 @@ workspace and both snapshot destinations. The AArch64 loop at `0x14917ca8`
 loads each `{base,size,description,filename}` record and calls registrar
 `0x14917670`; its pinned call chain begins in the dload path. `SUPPORTED`: this
 is a post-reset bootloader diagnostic path, not a normal HLOS runtime mapping.
-FMM/debug-level/token eligibility, collection-time population and successful
-retail extraction remain `UNKNOWN`.
+Verification 005 later proved the exact outer/inner gates, and Verification 012
+proved successful retail extraction through Samsung Upload. This remains a
+post-reset diagnostic path, not a normal HLOS runtime mapping.
 
 `PROVED` live by Verifications 003/004: exact V2321 exposes
 `debug_level=0x4f4c` (`LOW`), `force_upload=0`, A90 source-backed
@@ -118,13 +121,21 @@ retail extraction remain `UNKNOWN`.
 S22+ `qcom_dload_mode` and ramoops `max_reason` paths are absent. Exact A90
 source and live config explain both differences: `msm-poweroff.c` owns the
 dload module parameter, `CONFIG_QCOM_DLOAD_MODE=y`, and
-`CONFIG_QCOM_MINIDUMP=n`. `REFUTED`: current observable dump-entry signals are
-all positive. Actual XBL FMM/token eligibility remains `UNKNOWN`; no reset was
-attempted.
+`CONFIG_QCOM_MINIDUMP=n`. `REFUTED`: all initial observable dump-entry signals
+were positive; debug and force-upload were negative. No reset was attempted in
+those two eligibility passes.
+Later bounded verification captured FMM as unlocked, changed only debug
+LOW→MID, and used one panic trigger.
 
-`UNKNOWN`: numeric boot register words. XBL consumes runtime per-channel source
-bases and a rank-interleave mask not present in the retained firmware/log
-artifacts.
+`PROVED` live by Verification 012: host journal records
+`04e8:685d / MSM_UPLOAD`; the qdl 05c6 collector captured nothing. One exact
+64-KiB `SHRM_MEM.BIN` passed the workspace header and 494-word plan. The staged
+inventory still excludes all four remapper controls at `+0x8080`. The final
+partition was restored and a new LOW boot passed health.
+
+`PROVED`: bounded set-0 MC/MCCC/DDRSS numeric words are now available from the
+post-reset snapshot. `UNKNOWN`: their exact bitfield meanings, the remapper
+control words, runtime per-channel source bases, and the rank-interleave mask.
 
 `SUPPORTED`: This four-instance block owns system-PA region placement/remapping
 during DDR bring-up. `UNKNOWN`: whether it also owns final channel/bank/row
@@ -271,7 +282,7 @@ all protection ordering relative to DRAM decode remain `UNKNOWN`.
 | Which block owns the final mapping? | `PROVED`: qhs_llcc ICB windows own boot region remapping and XBL exposes a bijective intended coordinate model. MCCC/MC/DDRSS token families are now exact candidates; final hardware decode owner remains `UNKNOWN`. |
 | Who programs it? | `PROVED`: XBL programs the region remapper through `icbcfg` and copies section 16 to SHRM. `PROVED`: the exact SHRM section-16 consumers read listed controller words into a snapshot buffer; the observed section-16 paths do not write those addresses. AOP runtime DDR management is `PROVED`; final-decode writer remains `UNKNOWN`. |
 | At what stage? | Region-remap programming during XBL DDR initialization before HLOS is `PROVED`; later mutability remains `UNKNOWN`. |
-| Can EL1 observe it? | Register contents remain `UNKNOWN`. `/dev/mem` and generic REPL routes are `REFUTED`; the fixed load returned no value. `PROVED`: both static branches cover all four remapper/BIMC apertures with no HLOS grant. XBL has a separate raw-dump catalog covering the staged buffers, but it is not an EL1 runtime interface. `SUPPORTED`: XPU/fabric denial. |
+| Can EL1 observe it? | Direct runtime routes remain `REFUTED`: `/dev/mem` is absent and the fixed protected load returned no value. `PROVED`: after reset, Samsung Upload exported coherent set-0 controller words through XBL; this is not an EL1 runtime interface and does not cover remapper controls. `SUPPORTED`: XPU/fabric denial. |
 | Can EL1 modify it? | No mutation is proved. The exact HLOS-visible XPU-disable allowlist has zero entries, and all known configuration apertures have branch-invariant TZ-owned coverage. Final runtime policy/lock readback is `UNKNOWN`. |
 | Does EL2/EL3 lock it? | `PROVED`: QHEE applies ownership/stage-2/SMMU enforcement and TZ dynamically programs BIMC policies. `UNKNOWN`: final hardware write-disable bit and exact dispatcher/lock ordering. |
 | Is there a post-transform security check? | `UNKNOWN`; the diagnostic coordinate formula and configuration-aperture coverage do not locate the data-path check. Dynamic BIMC MPU policy makes a later check plausible but does not place it relative to hidden/final decode. |

@@ -178,8 +178,9 @@ file instead of misreporting 494 zero values.
 
 `PROVED`: the decoder's staged inventory does not include any remapper control
 window at `qhs_llcc + 0x8080`; it therefore cannot answer remapper enable,
-active-slot, or lock-state questions. No real `SHRM_MEM.BIN` has been supplied,
-so all controller values remain `UNKNOWN`.
+active-slot, or lock-state questions. At Verification-002 time no real file had
+been supplied. Verification 012 supersedes that historical state with one
+validated live dump and a coherent set-0 qualification.
 
 ## Next discriminator
 

@@ -1,0 +1,35 @@
+{
+  "claims": {
+    "PROVED": [
+      "One exact SysRq crash write was accepted by A90P1; it was not retried."
+    ],
+    "UNKNOWN": [
+      "Dump entry and SHRM export are classified only by the separate host collector result."
+    ]
+  },
+  "classification": "CRASH_DISPATCHED_NO_REPLAY",
+  "completed_utc": "2026-08-25T03:35:27+00:00",
+  "dispatch_receipt": {
+    "a90p1_writefile_begin_observed": true,
+    "socket_disconnect_observed": true,
+    "transcript_sha256": "8b376649b1d13f2393609a662f62a9b75d5f796fc1d044ffd9e13fad7ac4f52b",
+    "transcript_size": 99
+  },
+  "effect": "writefile /proc/sysrq-trigger c",
+  "effect_dispatched_count": 1,
+  "effect_replayed": false,
+  "experiment_id": "verification-011-a90-sysrq-crash-trigger-20260825-01",
+  "preflight": {
+    "debug_level": "0x494d",
+    "download_mode": "1",
+    "dump_sink": "0x0",
+    "force_upload": "0x0",
+    "panic": "-1",
+    "panic_on_warn": "0",
+    "sysrq": "1"
+  },
+  "schema": "sdm855-a90-sysrq-crash-public-v1",
+  "soc": "SM8150",
+  "started_utc": "2026-08-25T03:35:20+00:00",
+  "target_model": "SM-A908N"
+}

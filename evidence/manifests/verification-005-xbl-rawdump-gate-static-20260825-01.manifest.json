@@ -1,0 +1,1185 @@
+{
+  "call_chain": [
+    {
+      "name": "outer_gate_to_saved_cookie_read_clear",
+      "pc": "0x14829f2c",
+      "target": "0x14829a94"
+    },
+    {
+      "name": "outer_gate_to_restart_reason_check",
+      "pc": "0x14829f38",
+      "target": "0x1482afe8"
+    },
+    {
+      "name": "entry_gate_to_dload",
+      "pc": "0x14901cc8",
+      "target": "0x14902cb8"
+    },
+    {
+      "name": "dload_to_catalog_builder",
+      "pc": "0x14902cc4",
+      "target": "0x14917740"
+    },
+    {
+      "name": "builder_to_catalog_consumer",
+      "pc": "0x1491777c",
+      "target": "0x14917c60"
+    },
+    {
+      "name": "entry_gate_to_tz_allow_wrapper",
+      "pc": "0x14901c64",
+      "target": "0x14918410"
+    }
+  ],
+  "claims": {
+    "PROVED": [
+      "Exact XBL reads debuglevel, force_upload_flag and FMM_lock at offsets 0x0, 0x3f4 and 0x3fc of the same Samsung param record whose exact kernel-source layout has those offsets.",
+      "FMM lock magic 0x464d4f4e hard-resets before the dload chain.",
+      "When FMM is unlocked, non-LOW debug alone sets vendor_allow even with force_upload_flag zero and a negative TZ_ALLOWS_MEM_DUMP result.",
+      "The full 26-record catalog, including SHRM record 19, is selected by saved dload cookie bit 4 or exact restart reason 0x776655ee.",
+      "The exact watchdog source sets SEC_DEBUG_MODE and requests full-dump dload mode while the dload master is enabled.",
+      "Main XBL selects its dload path only when saved cookie bits 4/5 are present or restart reason equals 0x776655ee; it consumes and clears saved cookie bits 4/5.",
+      "Dump sink values 0x73646364 and 0x42544456 select SD card and internal boot device; other values use the USB-default branch."
+    ],
+    "REFUTED": [
+      "Both debug level and force-upload must be enabled to reach the exact dload call chain.",
+      "The TZ allows-memory-dump return is an unconditional prerequisite for reaching the vendor dload call when debug is non-LOW.",
+      "An unidentified FMM cookie must be added: FMM is a deny lock whose exact param field and magic are known."
+    ],
+    "SUPPORTED": [
+      "A debug-level-only experiment is the minimum persistent state change for the already-proved watchdog path; force_upload_flag need not be changed.",
+      "An orderly reboot with MID but without a saved dload cookie, SEC_DEBUG restart reason, or key/FEDL override should take the ordinary non-dload continuation."
+    ],
+    "UNKNOWN": [
+      "Current byte values of FMM_lock and dump_sink until the param partition is captured.",
+      "Whether a lower Sahara, XPU, TrustZone or transport check filters SHRM_MEM.BIN after catalog registration.",
+      "Whether the USB host protocol permits selecting only SHRM_MEM.BIN instead of transferring the whole offered catalog."
+    ]
+  },
+  "classification": "DEBUG_ONLY_SUFFICIENT_WHEN_OUTER_DUMP_TRIGGER_PRESENT",
+  "code_pins": [
+    {
+      "end_exclusive": "0x14901dc4",
+      "name": "entry_gate",
+      "sha256": "91a6f7cfe13a8a45be8bfc471a27538e0914a3fa2fcc3f9dfacf51e0a328605e",
+      "size": 840,
+      "start": "0x14901a7c"
+    },
+    {
+      "end_exclusive": "0x14829f44",
+      "name": "outer_dload_gate",
+      "sha256": "f0082ec1d4ac183dfce85e0673e22c765e0e35eb18863db9bf4abb92eea2ee40",
+      "size": 28,
+      "start": "0x14829f28"
+    },
+    {
+      "end_exclusive": "0x14829b28",
+      "name": "saved_cookie_read_clear",
+      "sha256": "e83df79752206af6cdb6d61e4e122a08b68e38e0ca8e913f26a858473ccda6ed",
+      "size": 148,
+      "start": "0x14829a94"
+    },
+    {
+      "end_exclusive": "0x149000a8",
+      "name": "rawdump_segment_entry",
+      "sha256": "3f3cc08aee409dcb578b48f68a8834f44975b24522ef7fd0c7ef5cc4606b85ab",
+      "size": 152,
+      "start": "0x14900010"
+    },
+    {
+      "end_exclusive": "0x14902ce8",
+      "name": "dload_entry",
+      "sha256": "9b4cc75011cd7be22a5f4bd3c1b5981172a710b0b00315a922679d8b41505741",
+      "size": 48,
+      "start": "0x14902cb8"
+    },
+    {
+      "end_exclusive": "0x14917ca8",
+      "name": "catalog_gate",
+      "sha256": "6a90a331b7769ab9e1dc92aa13183528e360e42cce0b9ece03e367c70609efb5",
+      "size": 28,
+      "start": "0x14917c8c"
+    },
+    {
+      "end_exclusive": "0x14918454",
+      "name": "tz_allow_wrapper",
+      "sha256": "72f3af2f1a5c92a4d61b0b6727164afd061ab9bc998005bdfb87f330052205b5",
+      "size": 68,
+      "start": "0x14918410"
+    },
+    {
+      "end_exclusive": "0x14844da8",
+      "name": "shared_table_producer",
+      "sha256": "7bc8503c02b3890d9f767ced7ee65fb787a8aa62a746dc9344d04739f7f8e502",
+      "size": 2088,
+      "start": "0x14844580"
+    },
+    {
+      "end_exclusive": "0x1482b008",
+      "name": "sec_debug_restart_check",
+      "sha256": "e10badcb567a326ac66e586c6307fa48cb0f067202f7f65b45193c4cf17da941",
+      "size": 32,
+      "start": "0x1482afe8"
+    },
+    {
+      "end_exclusive": "0x14843d98",
+      "name": "tz_allow_smc_target",
+      "sha256": "8f99eab91f09274b5624892dfeb427fd67b46d65a2ba1de7e70620bb4d92e071",
+      "size": 72,
+      "start": "0x14843d50"
+    },
+    {
+      "end_exclusive": "0x14905ecc",
+      "name": "dump_sink_decode",
+      "sha256": "27f60ee4e6ff055351d694dbf39234b2c916f3d7da65850b3794e522b3ecae57",
+      "size": 128,
+      "start": "0x14905e4c"
+    }
+  ],
+  "device_access": false,
+  "dump_sink": {
+    "bootdev_internal": "0x42544456",
+    "live_value": "UNKNOWN_PENDING_PARAM_CAPTURE",
+    "param_offset": "0x400",
+    "sdcard": "0x73646364",
+    "selection": "only exact SD-card or bootdev magic selects storage; every other value follows the USB-default branch",
+    "usb_default": "0x00000000"
+  },
+  "entry_gate": {
+    "fmm_denial": {
+      "deny_value": "0x464d4f4e",
+      "param_offset": "0x3fc"
+    },
+    "formula": "not FMM_locked and not QUEST_DDR_special and ((debug != LOW) or (force_upload_flag == 5) or three_key_override or TZ_ALLOWS_MEM_DUMP)",
+    "quest_ddr_special_exclusion": "(upload_cause | 1) == 0xc8515313 takes the dedicated Quest DDR path",
+    "truth_table": [
+      {
+        "debug_low": false,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": true,
+        "entry_reason": "VENDOR_ALLOW",
+        "fmm_locked": false,
+        "force_upload_enabled": false,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": true,
+        "registers_primary_26_record_catalog": true,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": true,
+        "three_key_override": false,
+        "tz_allows_memory_dump": false,
+        "vendor_allow": true
+      },
+      {
+        "debug_low": false,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": true,
+        "entry_reason": "VENDOR_ALLOW",
+        "fmm_locked": false,
+        "force_upload_enabled": false,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": true,
+        "registers_primary_26_record_catalog": true,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": true,
+        "three_key_override": false,
+        "tz_allows_memory_dump": true,
+        "vendor_allow": true
+      },
+      {
+        "debug_low": false,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": true,
+        "entry_reason": "VENDOR_ALLOW",
+        "fmm_locked": false,
+        "force_upload_enabled": false,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": true,
+        "registers_primary_26_record_catalog": true,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": true,
+        "three_key_override": true,
+        "tz_allows_memory_dump": false,
+        "vendor_allow": true
+      },
+      {
+        "debug_low": false,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": true,
+        "entry_reason": "VENDOR_ALLOW",
+        "fmm_locked": false,
+        "force_upload_enabled": false,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": true,
+        "registers_primary_26_record_catalog": true,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": true,
+        "three_key_override": true,
+        "tz_allows_memory_dump": true,
+        "vendor_allow": true
+      },
+      {
+        "debug_low": false,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": true,
+        "entry_reason": "VENDOR_ALLOW",
+        "fmm_locked": false,
+        "force_upload_enabled": true,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": true,
+        "registers_primary_26_record_catalog": true,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": true,
+        "three_key_override": false,
+        "tz_allows_memory_dump": false,
+        "vendor_allow": true
+      },
+      {
+        "debug_low": false,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": true,
+        "entry_reason": "VENDOR_ALLOW",
+        "fmm_locked": false,
+        "force_upload_enabled": true,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": true,
+        "registers_primary_26_record_catalog": true,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": true,
+        "three_key_override": false,
+        "tz_allows_memory_dump": true,
+        "vendor_allow": true
+      },
+      {
+        "debug_low": false,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": true,
+        "entry_reason": "VENDOR_ALLOW",
+        "fmm_locked": false,
+        "force_upload_enabled": true,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": true,
+        "registers_primary_26_record_catalog": true,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": true,
+        "three_key_override": true,
+        "tz_allows_memory_dump": false,
+        "vendor_allow": true
+      },
+      {
+        "debug_low": false,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": true,
+        "entry_reason": "VENDOR_ALLOW",
+        "fmm_locked": false,
+        "force_upload_enabled": true,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": true,
+        "registers_primary_26_record_catalog": true,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": true,
+        "three_key_override": true,
+        "tz_allows_memory_dump": true,
+        "vendor_allow": true
+      },
+      {
+        "debug_low": true,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": false,
+        "entry_reason": "LOW_DEBUG_AND_TZ_DENY_SKIP",
+        "fmm_locked": false,
+        "force_upload_enabled": false,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": false,
+        "registers_primary_26_record_catalog": false,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": false,
+        "three_key_override": false,
+        "tz_allows_memory_dump": false,
+        "vendor_allow": false
+      },
+      {
+        "debug_low": true,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": true,
+        "entry_reason": "TZ_ALLOWS_MEMORY_DUMP",
+        "fmm_locked": false,
+        "force_upload_enabled": false,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": true,
+        "registers_primary_26_record_catalog": true,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": true,
+        "three_key_override": false,
+        "tz_allows_memory_dump": true,
+        "vendor_allow": false
+      },
+      {
+        "debug_low": true,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": true,
+        "entry_reason": "VENDOR_ALLOW",
+        "fmm_locked": false,
+        "force_upload_enabled": false,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": true,
+        "registers_primary_26_record_catalog": true,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": true,
+        "three_key_override": true,
+        "tz_allows_memory_dump": false,
+        "vendor_allow": true
+      },
+      {
+        "debug_low": true,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": true,
+        "entry_reason": "VENDOR_ALLOW",
+        "fmm_locked": false,
+        "force_upload_enabled": false,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": true,
+        "registers_primary_26_record_catalog": true,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": true,
+        "three_key_override": true,
+        "tz_allows_memory_dump": true,
+        "vendor_allow": true
+      },
+      {
+        "debug_low": true,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": true,
+        "entry_reason": "VENDOR_ALLOW",
+        "fmm_locked": false,
+        "force_upload_enabled": true,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": true,
+        "registers_primary_26_record_catalog": true,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": true,
+        "three_key_override": false,
+        "tz_allows_memory_dump": false,
+        "vendor_allow": true
+      },
+      {
+        "debug_low": true,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": true,
+        "entry_reason": "VENDOR_ALLOW",
+        "fmm_locked": false,
+        "force_upload_enabled": true,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": true,
+        "registers_primary_26_record_catalog": true,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": true,
+        "three_key_override": false,
+        "tz_allows_memory_dump": true,
+        "vendor_allow": true
+      },
+      {
+        "debug_low": true,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": true,
+        "entry_reason": "VENDOR_ALLOW",
+        "fmm_locked": false,
+        "force_upload_enabled": true,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": true,
+        "registers_primary_26_record_catalog": true,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": true,
+        "three_key_override": true,
+        "tz_allows_memory_dump": false,
+        "vendor_allow": true
+      },
+      {
+        "debug_low": true,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": true,
+        "entry_reason": "VENDOR_ALLOW",
+        "fmm_locked": false,
+        "force_upload_enabled": true,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": true,
+        "registers_primary_26_record_catalog": true,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": true,
+        "three_key_override": true,
+        "tz_allows_memory_dump": true,
+        "vendor_allow": true
+      },
+      {
+        "debug_low": false,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": false,
+        "entry_reason": "FMM_LOCK_HARD_RESET",
+        "fmm_locked": true,
+        "force_upload_enabled": false,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": false,
+        "registers_primary_26_record_catalog": false,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": false,
+        "three_key_override": false,
+        "tz_allows_memory_dump": false,
+        "vendor_allow": true
+      },
+      {
+        "debug_low": false,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": false,
+        "entry_reason": "FMM_LOCK_HARD_RESET",
+        "fmm_locked": true,
+        "force_upload_enabled": false,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": false,
+        "registers_primary_26_record_catalog": false,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": false,
+        "three_key_override": false,
+        "tz_allows_memory_dump": true,
+        "vendor_allow": true
+      },
+      {
+        "debug_low": false,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": false,
+        "entry_reason": "FMM_LOCK_HARD_RESET",
+        "fmm_locked": true,
+        "force_upload_enabled": false,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": false,
+        "registers_primary_26_record_catalog": false,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": false,
+        "three_key_override": true,
+        "tz_allows_memory_dump": false,
+        "vendor_allow": true
+      },
+      {
+        "debug_low": false,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": false,
+        "entry_reason": "FMM_LOCK_HARD_RESET",
+        "fmm_locked": true,
+        "force_upload_enabled": false,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": false,
+        "registers_primary_26_record_catalog": false,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": false,
+        "three_key_override": true,
+        "tz_allows_memory_dump": true,
+        "vendor_allow": true
+      },
+      {
+        "debug_low": false,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": false,
+        "entry_reason": "FMM_LOCK_HARD_RESET",
+        "fmm_locked": true,
+        "force_upload_enabled": true,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": false,
+        "registers_primary_26_record_catalog": false,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": false,
+        "three_key_override": false,
+        "tz_allows_memory_dump": false,
+        "vendor_allow": true
+      },
+      {
+        "debug_low": false,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": false,
+        "entry_reason": "FMM_LOCK_HARD_RESET",
+        "fmm_locked": true,
+        "force_upload_enabled": true,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": false,
+        "registers_primary_26_record_catalog": false,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": false,
+        "three_key_override": false,
+        "tz_allows_memory_dump": true,
+        "vendor_allow": true
+      },
+      {
+        "debug_low": false,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": false,
+        "entry_reason": "FMM_LOCK_HARD_RESET",
+        "fmm_locked": true,
+        "force_upload_enabled": true,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": false,
+        "registers_primary_26_record_catalog": false,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": false,
+        "three_key_override": true,
+        "tz_allows_memory_dump": false,
+        "vendor_allow": true
+      },
+      {
+        "debug_low": false,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": false,
+        "entry_reason": "FMM_LOCK_HARD_RESET",
+        "fmm_locked": true,
+        "force_upload_enabled": true,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": false,
+        "registers_primary_26_record_catalog": false,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": false,
+        "three_key_override": true,
+        "tz_allows_memory_dump": true,
+        "vendor_allow": true
+      },
+      {
+        "debug_low": true,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": false,
+        "entry_reason": "FMM_LOCK_HARD_RESET",
+        "fmm_locked": true,
+        "force_upload_enabled": false,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": false,
+        "registers_primary_26_record_catalog": false,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": false,
+        "three_key_override": false,
+        "tz_allows_memory_dump": false,
+        "vendor_allow": false
+      },
+      {
+        "debug_low": true,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": false,
+        "entry_reason": "FMM_LOCK_HARD_RESET",
+        "fmm_locked": true,
+        "force_upload_enabled": false,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": false,
+        "registers_primary_26_record_catalog": false,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": false,
+        "three_key_override": false,
+        "tz_allows_memory_dump": true,
+        "vendor_allow": false
+      },
+      {
+        "debug_low": true,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": false,
+        "entry_reason": "FMM_LOCK_HARD_RESET",
+        "fmm_locked": true,
+        "force_upload_enabled": false,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": false,
+        "registers_primary_26_record_catalog": false,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": false,
+        "three_key_override": true,
+        "tz_allows_memory_dump": false,
+        "vendor_allow": true
+      },
+      {
+        "debug_low": true,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": false,
+        "entry_reason": "FMM_LOCK_HARD_RESET",
+        "fmm_locked": true,
+        "force_upload_enabled": false,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": false,
+        "registers_primary_26_record_catalog": false,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": false,
+        "three_key_override": true,
+        "tz_allows_memory_dump": true,
+        "vendor_allow": true
+      },
+      {
+        "debug_low": true,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": false,
+        "entry_reason": "FMM_LOCK_HARD_RESET",
+        "fmm_locked": true,
+        "force_upload_enabled": true,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": false,
+        "registers_primary_26_record_catalog": false,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": false,
+        "three_key_override": false,
+        "tz_allows_memory_dump": false,
+        "vendor_allow": true
+      },
+      {
+        "debug_low": true,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": false,
+        "entry_reason": "FMM_LOCK_HARD_RESET",
+        "fmm_locked": true,
+        "force_upload_enabled": true,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": false,
+        "registers_primary_26_record_catalog": false,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": false,
+        "three_key_override": false,
+        "tz_allows_memory_dump": true,
+        "vendor_allow": true
+      },
+      {
+        "debug_low": true,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": false,
+        "entry_reason": "FMM_LOCK_HARD_RESET",
+        "fmm_locked": true,
+        "force_upload_enabled": true,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": false,
+        "registers_primary_26_record_catalog": false,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": false,
+        "three_key_override": true,
+        "tz_allows_memory_dump": false,
+        "vendor_allow": true
+      },
+      {
+        "debug_low": true,
+        "dload_cookie_full_bit": true,
+        "enters_dload_call_chain": false,
+        "entry_reason": "FMM_LOCK_HARD_RESET",
+        "fmm_locked": true,
+        "force_upload_enabled": true,
+        "outer_dload_trigger_present": true,
+        "quest_ddr_special_cause": false,
+        "rawdump_app_gate_allows": false,
+        "registers_primary_26_record_catalog": false,
+        "saved_dload_cookie_mask_0x30": true,
+        "sec_debug_restart_reason": true,
+        "shrm_descriptor_registered": false,
+        "three_key_override": true,
+        "tz_allows_memory_dump": true,
+        "vendor_allow": true
+      }
+    ],
+    "tz_permission_query": {
+      "control_flow_role": "sufficient when vendor_allow is false; not required for entry when vendor_allow is true",
+      "executed_by_tool": false,
+      "smc_id": "0x82000310"
+    },
+    "vendor_allow": {
+      "debug_low": "0x574f4c44",
+      "force_upload_enabled": 5,
+      "formula": "debug != LOW or force_upload_flag == 5 or three_key_override"
+    }
+  },
+  "evaluations": {
+    "current_visible_state_with_fmm_zero_and_tz_deny": {
+      "debug_low": true,
+      "dload_cookie_full_bit": true,
+      "enters_dload_call_chain": false,
+      "entry_reason": "LOW_DEBUG_AND_TZ_DENY_SKIP",
+      "fmm_locked": false,
+      "force_upload_enabled": false,
+      "outer_dload_trigger_present": true,
+      "quest_ddr_special_cause": false,
+      "rawdump_app_gate_allows": false,
+      "registers_primary_26_record_catalog": false,
+      "saved_dload_cookie_mask_0x30": true,
+      "sec_debug_restart_reason": true,
+      "shrm_descriptor_registered": false,
+      "three_key_override": false,
+      "tz_allows_memory_dump": false,
+      "vendor_allow": false
+    },
+    "orderly_boot_debug_non_low_without_outer_trigger": {
+      "debug_low": false,
+      "dload_cookie_full_bit": false,
+      "enters_dload_call_chain": false,
+      "entry_reason": "VENDOR_ALLOW",
+      "fmm_locked": false,
+      "force_upload_enabled": false,
+      "outer_dload_trigger_present": false,
+      "quest_ddr_special_cause": false,
+      "rawdump_app_gate_allows": true,
+      "registers_primary_26_record_catalog": false,
+      "saved_dload_cookie_mask_0x30": false,
+      "sec_debug_restart_reason": false,
+      "shrm_descriptor_registered": false,
+      "three_key_override": false,
+      "tz_allows_memory_dump": false,
+      "vendor_allow": true
+    },
+    "watchdog_trigger_plus_debug_non_low_with_force_zero_and_tz_deny": {
+      "debug_low": false,
+      "dload_cookie_full_bit": true,
+      "enters_dload_call_chain": true,
+      "entry_reason": "VENDOR_ALLOW",
+      "fmm_locked": false,
+      "force_upload_enabled": false,
+      "outer_dload_trigger_present": true,
+      "quest_ddr_special_cause": false,
+      "rawdump_app_gate_allows": true,
+      "registers_primary_26_record_catalog": true,
+      "saved_dload_cookie_mask_0x30": true,
+      "sec_debug_restart_reason": true,
+      "shrm_descriptor_registered": true,
+      "three_key_override": false,
+      "tz_allows_memory_dump": false,
+      "vendor_allow": true
+    }
+  },
+  "firmware_bytes_emitted": false,
+  "full_catalog_gate": {
+    "formula": "saved_dload_cookie bit 4 or restart_reason == 0x776655ee",
+    "primary_loop": "0x14917ca8",
+    "resolved_imports": {
+      "boot_dload_read_saved_cookie": {
+        "producer_add_pc": "0x148445fc",
+        "producer_adrp_pc": "0x148445c0",
+        "producer_store_pc": "0x14844610",
+        "table_offset": "0x068",
+        "target": "0x14829a14"
+      },
+      "restart_override_semantics": {
+        "physical_address": "0x146bf65c",
+        "required_value": "0x776655ee",
+        "result": "true exactly when restart reason equals SEC_DEBUG_MODE"
+      },
+      "sec_debug_restart_reason_override": {
+        "producer_add_pc": "0x14844d40",
+        "producer_adrp_pc": "0x14844cf8",
+        "producer_store_pc": "0x14844d5c",
+        "table_offset": "0x580",
+        "target": "0x1482afe8"
+      }
+    },
+    "restart_reason": "0x776655ee",
+    "saved_cookie_full_dump_bit": "0x10",
+    "shrm_record_index": 19
+  },
+  "input": {
+    "filename": "xbl--sdb1.bin",
+    "pin_verified": true,
+    "sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+    "size": 4194304
+  },
+  "instruction_pins": [
+    {
+      "pc": "0x14829aa8",
+      "word": "0x52860013"
+    },
+    {
+      "pc": "0x14829aac",
+      "word": "0x72a03fb3"
+    },
+    {
+      "pc": "0x14829abc",
+      "word": "0xb9400268"
+    },
+    {
+      "pc": "0x14829ac0",
+      "word": "0x121c0503"
+    },
+    {
+      "pc": "0x14829ac8",
+      "word": "0x340001a3"
+    },
+    {
+      "pc": "0x14829aec",
+      "word": "0x320003e0"
+    },
+    {
+      "pc": "0x14829af0",
+      "word": "0x121a7528"
+    },
+    {
+      "pc": "0x14829af4",
+      "word": "0xb9000268"
+    },
+    {
+      "pc": "0x14829f2c",
+      "word": "0x97fffeda"
+    },
+    {
+      "pc": "0x14829f34",
+      "word": "0x3500006d"
+    },
+    {
+      "pc": "0x14829f38",
+      "word": "0x9400042c"
+    },
+    {
+      "pc": "0x14829f3c",
+      "word": "0x340005e0"
+    },
+    {
+      "pc": "0x14901aa4",
+      "word": "0x52a01213"
+    },
+    {
+      "pc": "0x14901ac4",
+      "word": "0x910ff263"
+    },
+    {
+      "pc": "0x14901ad8",
+      "word": "0x97fff9a3"
+    },
+    {
+      "pc": "0x14901ae0",
+      "word": "0x5289e9ca"
+    },
+    {
+      "pc": "0x14901ae4",
+      "word": "0x72a8c9aa"
+    },
+    {
+      "pc": "0x14901ae8",
+      "word": "0x6b0a013f"
+    },
+    {
+      "pc": "0x14901aec",
+      "word": "0x540000e1"
+    },
+    {
+      "pc": "0x14901b20",
+      "word": "0xaa1303e3"
+    },
+    {
+      "pc": "0x14901b24",
+      "word": "0x97fff990"
+    },
+    {
+      "pc": "0x14901b28",
+      "word": "0x910fd263"
+    },
+    {
+      "pc": "0x14901b3c",
+      "word": "0x97fff98a"
+    },
+    {
+      "pc": "0x14901b50",
+      "word": "0xb9401feb"
+    },
+    {
+      "pc": "0x14901b54",
+      "word": "0x5289888c"
+    },
+    {
+      "pc": "0x14901b58",
+      "word": "0x72aae9ec"
+    },
+    {
+      "pc": "0x14901b5c",
+      "word": "0x6b0c017f"
+    },
+    {
+      "pc": "0x14901b60",
+      "word": "0x540000e1"
+    },
+    {
+      "pc": "0x14901b64",
+      "word": "0xb9401be8"
+    },
+    {
+      "pc": "0x14901b68",
+      "word": "0x7100151f"
+    },
+    {
+      "pc": "0x14901b6c",
+      "word": "0x540005e1"
+    },
+    {
+      "pc": "0x14901b7c",
+      "word": "0x320003e8"
+    },
+    {
+      "pc": "0x14901b84",
+      "word": "0xb9011ac8"
+    },
+    {
+      "pc": "0x14901c28",
+      "word": "0x94005bc8"
+    },
+    {
+      "pc": "0x14901c34",
+      "word": "0x97fff9b0"
+    },
+    {
+      "pc": "0x14901c40",
+      "word": "0x97fff9a5"
+    },
+    {
+      "pc": "0x14901c7c",
+      "word": "0x2a1f03e8"
+    },
+    {
+      "pc": "0x14901c64",
+      "word": "0x940059eb"
+    },
+    {
+      "pc": "0x14901c6c",
+      "word": "0x340000ce"
+    },
+    {
+      "pc": "0x14901c70",
+      "word": "0xb9411ac4"
+    },
+    {
+      "pc": "0x14901c74",
+      "word": "0x35000124"
+    },
+    {
+      "pc": "0x14901c90",
+      "word": "0xb9411ad1"
+    },
+    {
+      "pc": "0x14901c94",
+      "word": "0x34000931"
+    },
+    {
+      "pc": "0x14901cc8",
+      "word": "0x940003fc"
+    },
+    {
+      "pc": "0x14917c90",
+      "word": "0x97ffa1a9"
+    },
+    {
+      "pc": "0x14917c9c",
+      "word": "0x37200060"
+    },
+    {
+      "pc": "0x14917ca0",
+      "word": "0x97ffa28d"
+    },
+    {
+      "pc": "0x14917ca4",
+      "word": "0x34001d20"
+    },
+    {
+      "pc": "0x1482aff0",
+      "word": "0x528abdc9"
+    },
+    {
+      "pc": "0x1482aff4",
+      "word": "0x72aeecc9"
+    },
+    {
+      "pc": "0x1482aff8",
+      "word": "0xb9400108"
+    },
+    {
+      "pc": "0x1482affc",
+      "word": "0x6b09011f"
+    },
+    {
+      "pc": "0x1482b000",
+      "word": "0x1a9f17e0"
+    },
+    {
+      "pc": "0x14843d5c",
+      "word": "0x52806208"
+    },
+    {
+      "pc": "0x14843d60",
+      "word": "0x72b04008"
+    },
+    {
+      "pc": "0x14843d84",
+      "word": "0x97f9a89f"
+    },
+    {
+      "pc": "0x14905e68",
+      "word": "0x52888ac6"
+    },
+    {
+      "pc": "0x14905e6c",
+      "word": "0x72a84a86"
+    },
+    {
+      "pc": "0x14905e78",
+      "word": "0x6b06011f"
+    },
+    {
+      "pc": "0x14905e80",
+      "word": "0x528c6c87"
+    },
+    {
+      "pc": "0x14905e84",
+      "word": "0x72ae6c87"
+    },
+    {
+      "pc": "0x14905e88",
+      "word": "0x6b07011f"
+    }
+  ],
+  "minimal_next_state": {
+    "change_debuglevel_to": "0x44494d44",
+    "classification": "DEBUG_ONLY_SUFFICIENT_WHEN_OUTER_DUMP_TRIGGER_PRESENT",
+    "keep_dump_sink": "0x00000000",
+    "keep_force_upload_flag": "0x00000000",
+    "preconditions": [
+      "byte-exact param partition capture and independent before/host/after hashes",
+      "live FMM_lock is not 0x464d4f4e",
+      "live dump_sink is USB default or is explicitly restored to its captured value",
+      "download_mode remains 1",
+      "a controlled watchdog/panic supplies an outer dump trigger only after host collection is ready"
+    ]
+  },
+  "mode": "HOST_ONLY_READ_ONLY",
+  "outer_dload_selection": {
+    "consumed_cookie_mask": "0x30",
+    "cookie_semantics": "the exact main XBL path reads bits 4/5 and clears them before continuing; absence of both cookie bits and SEC_DEBUG restart reason takes the non-dload continuation",
+    "formula": "(saved_dload_cookie & 0x30) != 0 or restart_reason == 0x776655ee",
+    "saved_cookie_address": "0x01fd3000",
+    "scope": "this is the outer main-XBL selection gate; the debug/FMM/TZ formula below is inside the separately mapped XBLRamDump image"
+  },
+  "param_record": {
+    "absolute_read_addresses": {
+      "FMM_lock": "0x009003fc",
+      "debuglevel": "0x00900000",
+      "dump_sink": "0x00900400",
+      "force_upload_flag": "0x009003f4"
+    },
+    "derived_offsets": {
+      "FMM_lock": "0x3fc",
+      "debuglevel": "0x000",
+      "dump_sink": "0x400",
+      "force_upload_flag": "0x3f4"
+    },
+    "record_physical_base_used_by_xbl": "0x00900000",
+    "values": {
+      "dump_sink_bootdev": "0x42544456",
+      "dump_sink_sdcard": "0x73646364",
+      "dump_sink_usb_default": "0x00000000",
+      "fmm_lock_magic": "0x464d4f4e",
+      "force_upload_enabled": 5,
+      "kernel_debug_high": "0x47494844",
+      "kernel_debug_low": "0x574f4c44",
+      "kernel_debug_mid": "0x44494d44"
+    }
+  },
+  "partition_write": false,
+  "schema": "sdm855-xbl-rawdump-gate-static-public-v1",
+  "smc_executed": false,
+  "source_provenance": {
+    "exact_samsung_kernel_sources": [
+      {
+        "name": "sec_param_h",
+        "required_statements_present": true,
+        "sha256": "58b6963e9e45e8b60fa41a5997f4e2ca8f8a0002e302a8a4df765f345b6b892f"
+      },
+      {
+        "name": "sec_param_c",
+        "required_statements_present": true,
+        "sha256": "86c03620a8c517dd3111006a15bc777a5d7cfedff75eebc4004e8d0e1bcd99c2"
+      },
+      {
+        "name": "sec_debug_h",
+        "required_statements_present": true,
+        "sha256": "893a8747793e2b5aa6457295e2bace268763d4bb251a1567504d55d209381db3"
+      },
+      {
+        "name": "sec_debug_c",
+        "required_statements_present": true,
+        "sha256": "21e36f47deba1cf775928f4117443da3a88dc8316315f985676d93221a9f14c9"
+      },
+      {
+        "name": "msm_poweroff_c",
+        "required_statements_present": true,
+        "sha256": "0a2b20ecc358936d5a55a9936210345823ffe767768e9287a916502a3abc3d79"
+      }
+    ],
+    "non_exact_qualcomm_proxy_sources": [
+      {
+        "commit": "53a3bb52a45ca92b6bf2d1aa0ba6936d9ff156bc",
+        "exact_target_source": false,
+        "path": "QcomPkg/XBLLoader/boot_fastcall_tz.h",
+        "repository": "arzekrasr/BOOT.XF.4.1",
+        "role": "shared-function ABI and TZ_ALLOWS_MEM_DUMP_CMD name",
+        "url": "https://github.com/arzekrasr/BOOT.XF.4.1/blob/53a3bb52a45ca92b6bf2d1aa0ba6936d9ff156bc/QcomPkg/XBLLoader/boot_fastcall_tz.h"
+      },
+      {
+        "commit": "53a3bb52a45ca92b6bf2d1aa0ba6936d9ff156bc",
+        "exact_target_source": false,
+        "path": "QcomPkg/SocPkg/Library/XBLRamDumpLib/XBLRamDump.c",
+        "repository": "arzekrasr/BOOT.XF.4.1",
+        "role": "Qualcomm XBLRamDump control-flow comparison",
+        "url": "https://github.com/arzekrasr/BOOT.XF.4.1/blob/53a3bb52a45ca92b6bf2d1aa0ba6936d9ff156bc/QcomPkg/SocPkg/Library/XBLRamDumpLib/XBLRamDump.c"
+      }
+    ]
+  },
+  "watchdog_join": {
+    "consequence": "the proved watchdog path supplies both full-dump cookie bit 4 and the SEC_DEBUG_MODE catalog override while download_mode remains 1",
+    "exact_kernel_source": "sec_debug_prepare_for_wdog_bark_reset writes SEC_DEBUG_MODE and NON_SECURE_WDOG_BARK; sec_debug_set_upload_magic(nonzero) calls set_dload_mode(1); msm-poweroff uses full-dump type 0x10"
+  }
+}

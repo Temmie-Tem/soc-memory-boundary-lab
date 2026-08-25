@@ -1,0 +1,91 @@
+{
+  "action": "restore-low",
+  "bootloader": "A908NKSU5EWA3",
+  "claims": {
+    "PROVED": [
+      "Exactly one four-byte bounded write effect was dispatched to the exact live param partition and the full post-write hash matched the host-derived expected image.",
+      "force_upload_flag, FMM_lock and dump_sink are unchanged in the host-derived before/after images whose complete SHA-256 values bound the live transition."
+    ],
+    "UNKNOWN": [
+      "The current boot still reflects the pre-transition XBL cmdline until a separate normal reboot consumes the persistent field."
+    ]
+  },
+  "classification": "RESTORED_VERIFIED",
+  "cmdline_before_reboot": {
+    "androidboot.debug_level": "0x4f4c",
+    "androidboot.force_upload": "0x0",
+    "sec_debug.dump_sink": "0x0"
+  },
+  "completed_utc": "2026-08-25T03:24:32+00:00",
+  "device_rebooted": false,
+  "device_sha256_after": "1faafee97d08ff93b690dbcffe21d680f20232aa2d3dff5f462b747577bb4345",
+  "device_sha256_before": "50e5c715fc72fb72780d251c3f8e2f19191060e7bcd9f7cb68f7d194e762c256",
+  "download_mode_before": "1",
+  "effect_a90p1_end": {
+    "cmd": "run",
+    "duration_ms": "101",
+    "errno": "0",
+    "flags": "0x2",
+    "rc": "0",
+    "seq": "141",
+    "status": "ok"
+  },
+  "effect_dispatched_count": 1,
+  "effect_replayed": false,
+  "experiment_id": "verification-008-a90-param-debug-low-restore-20260825-01",
+  "full_hash_verified": true,
+  "partition": {
+    "byte_size": 10485760,
+    "devname": "sda10",
+    "logical_block_size": 4096,
+    "major": 8,
+    "minor": 10,
+    "partname": "param",
+    "read_only": 0,
+    "sectors": 20480,
+    "start_sector": 125080
+  },
+  "payload": {
+    "sha256": "c01cd024980a8977d378fd9b5e6e7f2a8bc27daf29628447b214cc6d892c75d4",
+    "size": 4
+  },
+  "regular_file_dd_smoke": {
+    "a90p1_end": {
+      "cmd": "run",
+      "duration_ms": "100",
+      "errno": "0",
+      "flags": "0x2",
+      "rc": "0",
+      "seq": "138",
+      "status": "ok"
+    },
+    "args": [
+      "dd",
+      "if=/tmp/sdm855_mblab_param_debug_payload",
+      "of=/tmp/sdm855_mblab_param_debug_dd_smoke",
+      "bs=4",
+      "count=1",
+      "seek=1",
+      "conv=notrunc,fsync",
+      "status=none"
+    ],
+    "expected_sha256": "050000f920e7067489cba127c0703fd10f27a55f6fbc6a9fc7d2a08c885dacd2",
+    "passed": true,
+    "readback_sha256": "050000f920e7067489cba127c0703fd10f27a55f6fbc6a9fc7d2a08c885dacd2"
+  },
+  "runtime": "v2321-usb-clean-identity-rodata",
+  "schema": "sdm855-a90-param-debug-transition-public-v1",
+  "soc": "SM8150",
+  "started_utc": "2026-08-25T03:24:31+00:00",
+  "target_model": "SM-A908N",
+  "transition": {
+    "after_bytes_hex": "444c4f57",
+    "after_label": "LOW",
+    "after_sha256": "1faafee97d08ff93b690dbcffe21d680f20232aa2d3dff5f462b747577bb4345",
+    "before_bytes_hex": "444d4944",
+    "before_label": "MID",
+    "before_sha256": "50e5c715fc72fb72780d251c3f8e2f19191060e7bcd9f7cb68f7d194e762c256",
+    "partition_offset": "0x900000",
+    "size": 4
+  }
+}

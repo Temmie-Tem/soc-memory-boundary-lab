@@ -98,8 +98,8 @@ HLOS read/write grant in either exact TZ branch and is covered by three
 TZ-owned policy regions. The fixed no-load control passed; the paired one-word
 MCCC snapshot load returned no value and ended in a retained non-secure
 watchdog reset. This refutes direct EL1 visibility through the tested path.
-`UNKNOWN`: runtime values, lock state, whether any read register controls final
-address decode, any indirect reverse-direction invocation, and where the
+`UNKNOWN`: exact set-0 semantics, lock state, whether any read register controls
+final address decode, any indirect reverse-direction invocation, and where the
 data-path check sits relative to hidden/final decode. Repeating the denied
 configuration-aperture load cannot answer these questions.
 
@@ -107,11 +107,11 @@ configuration-aperture load cannot answer these questions.
 catalog covers the entire enclosing SHRM 64-KiB region as `SHRM_MEM.BIN`.
 This supplies a concrete post-reset observation candidate without changing
 controller state. It does not change the direct-EL1 result: the catalog is not
-a normal-HLOS runtime API, and retail eligibility, collection-time population and
-actual extraction are `UNKNOWN`.
+a normal-HLOS runtime API. Verification 012 later proved retail extraction and
+coherent set-0 population.
 
 `PROVED` host-only by decoder commit `9fdd5d6`: the two staged ranges resolve
 deterministically to 430 and 64 ordered source-register labels, and neither
-range reaches the remapper control window at `+0x8080`. No real dump values
-have been decoded, so register contents and final-decode meaning remain
-`UNKNOWN`.
+range reaches the remapper control window at `+0x8080`. Verification 012 later
+acquired one real dump and qualified set 0; no remapper control value was
+recovered.

@@ -146,8 +146,9 @@ Experiment 014 is already `HOST_READY / DEVICE PHASE NOT RUN`; its model and
 synthetic controls are committed independently. Commit `9fdd5d6` completed the
 host-only decoder: its 20 focused tests prove the `430/64` plan, ordered labels,
 bounds, value placement and invalid/zero-dump rejection. The plan does not
-cover the separate remapper `+0x8080` window. No real dump values have been
-decoded. Neither track substitutes for the other. Agreement would strongly
+cover the separate remapper `+0x8080` window. Verification 012 later decoded a
+real dump and qualified set 0; this paragraph records the earlier eligibility
+state. Neither track substitutes for the other. Agreement would strongly
 support the recovered mapping; disagreement would identify either an
 unlabelled register interpretation or a hidden transform term.
 

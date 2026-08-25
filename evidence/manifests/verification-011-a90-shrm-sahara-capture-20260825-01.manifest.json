@@ -1,0 +1,39 @@
+{
+  "claims": {
+    "PROVED": [
+      "The host collector used the exact pinned qdl v2.8 binary with one fixed SHRM_MEM.BIN segment filter."
+    ],
+    "UNKNOWN": [
+      "Whether the exact A90 exposes a compatible Qualcomm Sahara memory-debug USB interface and returns SHRM_MEM.BIN."
+    ]
+  },
+  "classification": "NO_SHRM_DUMP_CAPTURED",
+  "collector": {
+    "binary_sha256": "8066d34f2aefdfa64afa43a44c630a5e43a6b9da991d2b0b4dae5acaf0da26e5",
+    "release_url": "https://github.com/linux-msm/qdl/releases/tag/v2.8",
+    "release_zip_sha256": "80e2fb22c093ce6641ee0102dd45f5851f4fc65803d0e8d359c4080699e5af6c",
+    "tag": "v2.8",
+    "tag_commit": "ced92634a8e4f0681cd1137c5bba079b23479c44",
+    "version_output": "qdl version v2.8"
+  },
+  "completed_utc": "2026-08-25T03:36:31+00:00",
+  "decode": null,
+  "dump": {
+    "filename": null,
+    "sha256": null,
+    "size": null
+  },
+  "dump_files": [],
+  "experiment_id": "verification-011-a90-shrm-sahara-capture-20260825-01",
+  "filter": "SHRM_MEM.BIN",
+  "filter_count": 1,
+  "protocol_reset_expected_after_collection": true,
+  "qdl_log_sha256": "0fc2d1fd90de9396ca0c67054176d1f6357e93f1141c9eadf7343d211363dc37",
+  "qdl_returncode": -15,
+  "raw_dump_git_ignored": true,
+  "schema": "sdm855-a90-shrm-sahara-capture-public-v1",
+  "soc": "SM8150",
+  "started_utc": "2026-08-25T03:35:15+00:00",
+  "target_model": "SM-A908N",
+  "timed_out": false
+}

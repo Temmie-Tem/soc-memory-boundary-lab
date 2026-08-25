@@ -42,6 +42,10 @@ DMA remap, or stale cache observation is not sufficient.
   load does not distinguish access control from clock/power or fabric state.
 - `UNKNOWN`: EL1 write access to those registers, their lock state, and their
   security owner.
+- `PROVED`: a post-reset XBL/Samsung Upload diagnostic path can export the
+  protected SHRM snapshot without granting direct EL1 access. One exact dump
+  contains coherent set-0 MC/MCCC state; this is observation after reset, not a
+  Normal-World runtime primitive.
 - `UNKNOWN`: Arbitrary read/write access to QHEE private runtime memory.
 - `UNKNOWN`: Arbitrary read/write access to TrustZone private runtime memory.
 - `REFUTED`: “EL2 interfaces and reserved ranges are mapped, therefore EL2
@@ -78,7 +82,9 @@ notes become active.
 
 ## Decision classes
 
-Current class: `UNKNOWN — insufficient evidence for Class A–E`.
+Current class: `A/B CANDIDATE — known direct EL1 paths are blocked and the
+transform-adjacent snapshot is observable only through a post-reset diagnostic;
+immutability and post-transform enforcement are not yet proved`.
 
 - Class A: structurally blocked.
 - Class B: observable but immutable.

@@ -485,3 +485,70 @@ preserve the already allocated Experiment 014–016 sequence.
   34 public manifests parse; consecutive private/public generations are
   byte-identical; private mode `0600`, public mode `0644`
 - Device/SMC/MMIO/controller/partition writes: none; device access: none
+
+## Verification 005 exact XBL rawdump-gate metadata
+
+- Verification ID:
+  `verification-005-xbl-rawdump-gate-static-20260825-01`
+- Target model / SoC / build: retained exact `SM-A908N` / `SM8150` /
+  `A908NKSU5EWA3`
+- Exact input: XBL 4,194,304 bytes, SHA-256 `e73a07a0…`; exact Samsung
+  `sec_param`, panic-handler, SysRq, and `msm-poweroff` sources
+- Exact action: host-only ELF/code/data reconstruction and exhaustive boolean
+  truth-table evaluation
+- Result: main-XBL outer trigger is saved-cookie bits 4/5 or restart reason
+  `0x776655ee`; XBLRamDump inner gate admits MID alone when FMM is unlocked;
+  force-upload enable is exact integer 5 and is not jointly required
+- Classification: `DEBUG_ONLY_SUFFICIENT_WHEN_OUTER_DUMP_TRIGGER_PRESENT`
+- Public manifest SHA-256: `5024b24e…`
+- Tool SHA-256: `75581e19…`
+- Device/reboot/partition/MMIO/SMC access: none
+
+## Verifications 006–014 bounded live-gate metadata
+
+- Target model / SoC / build: exact live `SM-A908N` / `SM8150` /
+  `A908NKSU5EWA3`; native `v2321-usb-clean-identity-rodata`
+- Timestamp: `2026-08-25 12:14–12:41 KST`
+- Initial `param`: live `sda10`, 10 MiB; device-before/host/device-after
+  SHA-256 all `1faafee9…`; DLOW, force-upload 0, FMM 0, dump-sink 0
+- Exact effects: four-byte LOW→MID; one normal reboot; one SysRq `c`; one
+  four-byte MID→LOW restoration; one final normal reboot. Two intermediate
+  apply/restore qualification transitions were separately hash-verified.
+- Exact MID full-image SHA-256: `50e5c715…`; exact LOW full-image SHA-256:
+  `1faafee9…`
+- Trigger preconditions: MID, force-upload 0, FMM 0, dump-sink 0, dload master
+  1, SysRq enabled; one dispatch and no replay
+- Transport result: Qualcomm 05c6 Sahara/qdl captured no file; host journal
+  proved Samsung `04e8:685d / MSM_UPLOAD`
+- Final result: original full `param` hash restored; new boot reports LOW,
+  force-upload 0, dump-sink 0, dload master 1; selftest `fail=0`
+- Public manifest SHA-256 sequence: capture `c9bc1838…`, first apply
+  `7bf70d53…`, first restore `f10a6888…`, reapply `705fac7c…`, MID reboot
+  `d466bf94…`, trigger `aa3ef26b…`, qdl result `bed07a93…`, final restore
+  `81b734c2…`, health `c27f307b…`, LOW reboot `c3d7983e…`
+- Raw rollback image and journals: mode `0600`, Git-ignored
+- Forbidden-target result: no controller, XPU, SMMU, SCM, EL2, EL3, firmware,
+  bootloader, GPT, RPMB, QFPROM, or protected-memory write
+- Repetition count: one panic only; no trigger replay
+
+## Verification 012 Samsung Upload SHRM metadata
+
+- Verification ID:
+  `verification-012-a90-samsung-upload-shrm-20260825-01`
+- Exact collection: Samsung Upload client commit `8c9f6eb7…`, source SHA-256
+  `7580a6c1…`; selected only exact static catalog record 19
+- Raw result: `SHRM_MEM.BIN`, 65,536 bytes, SHA-256 `409550ad…`, mode `0600`,
+  Git-ignored
+- Structural result: exact section-16 header at file offset `0x5100`; 430 + 64
+  staged entries cover 470 distinct source-register addresses
+- Set 0: 430 words, 220 zero, 71 distinct; 17/18 four-instance MC groups
+  identical and one two-value pair split; `SUPPORTED_POPULATED_COHERENT_SNAPSHOT`
+- Set 1: 64/64 distinct nonzero values; four different MC `+0x80` values;
+  0/24 overlaps agree with set 0; `REFUTED_AS_COHERENT_CURRENT_SNAPSHOT`
+- Remapper coverage: `REFUTED`; all four `qhs_llcc +0x8080` controls remain
+  outside the staged list
+- Public manifest SHA-256: `ab1ce816…`
+- Private analysis SHA-256: `ed5c39e9…`, 168,042 bytes, mode `0600`
+- Analysis tool/test SHA-256: `a93e1478…` / `138c504b…`
+- Security result: `NO_ALIAS_OR_BOUNDARY_BYPASS_OBSERVED`
+- Repetition count: one exact file acquisition; one host decode/qualification

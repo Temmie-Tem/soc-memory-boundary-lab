@@ -20,6 +20,13 @@ was followed by a retained `Non Secure Watchdog Bark`. `SUPPORTED`, not
 readback and passed final native health. No DDR/controller, XPU, SMMU, SCM,
 EL2, EL3, or protected-memory write has been performed.
 
+Live Verifications 005–014 have now completed the gated diagnostic track. Exact
+XBL static analysis proved that MID alone admits the inner vendor path while a
+panic-supplied dload cookie/restart reason supplies the outer trigger. A
+byte-exact 10-MiB `param` capture proved FMM, force-upload, and dump sink were
+zero; only the four-byte debug field was changed, verified, and finally
+restored. One source-backed SysRq panic was dispatched without replay.
+
 Host-only Experiment 008 then resolved the exact live DCB and remapper row from
 the retained boot records, pinned the six-slot 36-bit XBL writer, and bound
 TrustZone `BIMC_MPU0..3` records to `qhs_llcc + 0xe000` beside each remapper at
@@ -83,31 +90,31 @@ The audit also records a fact the experiments underweighted: the remapper and
 SHRM policy regions deny write to **every** client class, not merely to ordinary
 HLOS. It verifies static facts only, not their security interpretation.
 
-Host-only Verification 002 then traced consumers beyond the blocked EL1 path.
+Host-only Verification 002 traced consumers beyond the blocked EL1 path.
 Exact XBL contains and actively enumerates a 26-record crash/download raw-dump
 table whose index 19 exports the full `0x09060000..0x0906ffff` SHRM range as
 `SHRM_MEM.BIN`, covering both snapshot buffers. This refutes “no firmware
-export path exists,” but does **not** prove a normal Android/HLOS interface:
-FMM/debug-level/token eligibility, collection-time population, and actual retail
-collection remain `UNKNOWN`. A read-only mounted-SD check found neither
-`SHRM_MEM.BIN` nor `rawdump.bin`; the exact A90 firmware used here remains the
-private Experiment-004 live capture, not an SD-card artifact.
+export path exists,” but does **not** prove a normal Android/HLOS interface. A
+read-only mounted-SD check found neither `SHRM_MEM.BIN` nor `rawdump.bin`; the
+exact A90 firmware used here remains the private Experiment-004 live capture,
+not an SD-card artifact.
 
-Live Verifications 003/004 then implemented the property-free A90 eligibility
+Live Verifications 003/004 implemented the property-free A90 eligibility
 counterpart. Exact V2321 reported `debug_level=LOW`, `force_upload=0`, and the
 A90 source-backed `msm_poweroff` dload master switch `1`; the newer S22+
-`qcom_dload_mode` path is absent on this 4.14 kernel. Current classification is
-`DUMP_ENTRY_SIGNALS_INCOMPLETE`, while actual XBL/FMM/token eligibility remains
-`UNKNOWN`. No reset was attempted. Experiment 014's host-ready conflict-timing
-model remains a complementary transform-side track.
+`qcom_dload_mode` path is absent on this 4.14 kernel. Verification 005 then
+recovered the exact outer/inner XBL gates, and Verification 006 captured the
+live fields before any write.
 
-The host-only `SHRM_MEM.BIN` decoder is also complete. It derives, rather than
+The host-only `SHRM_MEM.BIN` decoder is complete. It derives, rather than
 duplicates, Experiment 012's ordered plan and labels all `430 + 64 = 494`
-staged words as soon as a structurally valid 64-KiB dump is supplied. It
-rejects wrong-size, wrong-header, and zero-filled inputs. The staged list does
-not reach the separate remapper window at `qhs_llcc + 0x8080`, so the decoder
-cannot recover remapper enable/slot/lock state. No real dump values have yet
-been decoded.
+staged words in the real 64-KiB dump. Verification 012 acquired it through
+Samsung `04e8:685d / MSM_UPLOAD`, SHA-256 `409550ad…`; Qualcomm 05c6 Sahara/qdl
+was the wrong transport. Set 0 is a coherent populated-state candidate (17/18
+four-instance MC groups identical, one stable two-by-two split). Set 1 is
+refuted as a coherent current snapshot. The staged list does not reach the
+separate remapper window at `qhs_llcc + 0x8080`, and no alias or bypass was
+observed. The device is restored to LOW and passed a new-boot selftest.
 
 Claim vocabulary is deliberately closed:
 
@@ -154,6 +161,13 @@ chain are in
 [experiments/verification-002-shrm-dump-export/README.md](experiments/verification-002-shrm-dump-export/README.md).
 Verifications 003/004's live A90 property-free dump-gate inventory is in
 [experiments/verification-003-a90-rawdump-eligibility/README.md](experiments/verification-003-a90-rawdump-eligibility/README.md).
+Verification 005's exact XBL outer/inner gate reconstruction is in
+[experiments/verification-005-xbl-rawdump-gate-static/README.md](experiments/verification-005-xbl-rawdump-gate-static/README.md).
+Verifications 006–014's bounded `param`, reboot, trigger, and recovery sequence
+is in
+[experiments/verification-006-a90-param-debug-live/README.md](experiments/verification-006-a90-param-debug-live/README.md).
+The real Samsung Upload dump and set qualification are in
+[experiments/verification-012-a90-samsung-upload-shrm/README.md](experiments/verification-012-a90-samsung-upload-shrm/README.md).
 The exact A90 TWRP code-only System transition is documented in
 [docs/A90_TWRP_CODE_BOOT.md](docs/A90_TWRP_CODE_BOOT.md).
 

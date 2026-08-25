@@ -85,28 +85,29 @@ chain are instruction-pinned, so the descriptor is consumed rather than
 orphaned data.
 
 `SUPPORTED`: this is a bootloader crash/download diagnostic export, not a
-normal-HLOS runtime interface. `UNKNOWN`: current FMM/debug-level/token
-eligibility, collection-time population of the staged words, and successful
-collection on the exact retail target.
+normal-HLOS runtime interface. Verification 012 later proved the gate,
+collection, and coherent set-0 population; runtime HLOS access remains absent.
 
 `PROVED` host-only by decoder commit `9fdd5d6`: a valid 64-KiB export can be
 mapped immediately to 430 and 64 ordered source-register labels using the
 committed section-16 inventory. The covered words do not include the remapper
 window at `qhs_llcc + 0x8080`; remapper enable/slot/lock state stays outside
-this route. No real dump values have yet been decoded.
+this route. Verification 012 later acquired and decoded one real dump; set 0 is
+coherent, set 1 is excluded, and the remapper controls remain outside coverage.
 
-`PROVED` live by Verifications 003/004: current V2321 is `LOW` with
+`PROVED` live by Verifications 003/004: V2321 was initially `LOW` with
 `androidboot.force_upload=0`, while the exact A90 4.14 source-backed dload
 master parameter is `1`. The S22+ `qcom_dload_mode` module path does not exist
 on this kernel; `msm_poweroff` is the exact owner. These values classify the
-current visible entry signals as incomplete, so no reset/dump collection was
-attempted. FMM/token state remains `UNKNOWN`.
+visible entry signals as incomplete, so no reset/dump collection was attempted
+in those passes. Later verification proved FMM unlocked, used MID once, and
+restored LOW.
 
 `SUPPORTED`: base tokens are 4-KiB page numbers for exact SHRM topology targets.
-`UNKNOWN`: runtime values, lock state, whether any readback register controls
-final address decode, and whether an indirect reverse-direction invocation
-exists. The structured read list does not prove a writable channel/bank/row
-hash.
+`UNKNOWN`: exact set-0 semantics, lock state, whether any readback register
+controls final address decode, and whether an indirect reverse-direction
+invocation exists. The structured read list does not prove a writable
+channel/bank/row hash.
 
 ## 2a. Exact XBL diagnostic coordinate model
 

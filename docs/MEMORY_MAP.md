@@ -82,8 +82,8 @@ Experiment 006 adds exact firmware-backed physical landmarks:
 | Range/address | Role | Evidence/status |
 |---|---|---|
 | `0x09050000` | `qhs_shrm_csr` | `PROVED` exact XBL topology. |
-| `0x09060000` | `qhs_shrm_mem` | `PROVED`; DCB section 16 lands at `0x09065100` (`+0x5100`). Both exact TZ branches place its complete `0xf00` workspace in three TZ-owned regions with no HLOS grant. Fixed word `0x0906566c` map/unmap passed; one load returned no value and ended in non-secure watchdog reset. Exact XBL raw-dump record 19 separately covers `0x09060000..0x0906ffff` as `SHRM_MEM.BIN`; retail eligibility and collection-time population are `UNKNOWN`. |
-| `0x090b0000` | `qhs_mccc_master` | `PROVED` exact `qhm_shrm` topology and matching section-16 base token `0x90b0`; token address semantics `SUPPORTED`. |
+| `0x09060000` | `qhs_shrm_mem` | `PROVED`; DCB section 16 lands at `0x09065100` (`+0x5100`). Both exact TZ branches place its complete `0xf00` workspace in three TZ-owned regions with no HLOS grant. Fixed word `0x0906566c` map/unmap passed; one load returned no value and ended in non-secure watchdog reset. Exact XBL raw-dump record 19 covers `0x09060000..0x0906ffff`; Verification 012 collected the exact 64-KiB file through Samsung Upload. |
+| `0x090b0000` | `qhs_mccc_master` | `PROVED` exact topology and section-16 base; coherent set 0 has `+0x294 = 0x00001111`; semantic role `UNKNOWN`. |
 | `0x090c0000` | `qhs_ddrss_regs` | `PROVED` exact `qhm_shrm` topology and matching section-16 base token `0x90c0`; token address semantics `SUPPORTED`. |
 | `0x090e0000` | TZ `DC_NOC_BROADCAST_MPU` configuration base | `PROVED` exact consumed registry and both static-policy descriptors. |
 | `0x090b4000` | TZ `DC_NOC_NON_BROADCAST_MPU` configuration base | `PROVED` exact registry, both static lists, and error route. |
@@ -92,8 +92,8 @@ Experiment 006 adds exact firmware-backed physical landmarks:
 | `0x09000000–0x097fffff` | `CNOC_SNOC_MS_MPU` region 5 | `PROVED` in both TZ branches: enabled/TZ-owned, independently covers all eight known addresses, no HLOS VMID grant. |
 | `0x09248000–0x09248fff` | `DC_NOC_BROADCAST_MPU` region 11 | `PROVED` in both TZ selector branches: enabled, TZ-owned, MSA-class read-only, no HLOS grant. |
 | `0x09248080–0x092480d8` | qhs_llcc remapper instance 0 | `PROVED` exact XBL ICB writer and inside TZ policy region 11; one fixed EL1 load returned no value and ended in watchdog. |
-| `0x09250000`, `0x092d0000`, `0x09350000`, `0x093d0000` | per-channel `qhs_mccc` | `PROVED` exact SHRM topology and section-16 numeric token matches; final-decode register semantics `UNKNOWN`. |
-| `0x09260000`, `0x092e0000`, `0x09360000`, `0x093e0000` | per-channel `qhs_mc` roots | `PROVED` exact SHRM topology and section-16 numeric token families through per-channel subpages; exact register semantics `UNKNOWN`. |
+| `0x09250000`, `0x092d0000`, `0x09350000`, `0x093d0000` | per-channel `qhs_mccc` | `PROVED` exact SHRM topology; coherent set 0 has all four `+0x118 = 0x00111111`; final-decode semantics `UNKNOWN`. |
+| `0x09260000`, `0x092e0000`, `0x09360000`, `0x093e0000` | per-channel `qhs_mc` roots | `PROVED` exact topology; coherent set 0 exposes 18 common offsets, 17 identical groups and one two-by-two split; exact register semantics `UNKNOWN`. |
 | `0x0924e000` | `BIMC_MPU0` configuration base | `PROVED` exact registry/error route and TZ dynamic topology target; also inside broad branch-invariant no-HLOS policies. Final runtime value `UNKNOWN`. |
 | `0x092c8080–0x092c80d8` | qhs_llcc remapper instance 1 | `PROVED` exact XBL writer and broad branch-invariant TZ-owned/no-HLOS coverage. |
 | `0x092ce000` | `BIMC_MPU1` configuration base | `PROVED` exact registry/error route and TZ dynamic topology target; broad no-HLOS coverage. Final runtime value `UNKNOWN`. |

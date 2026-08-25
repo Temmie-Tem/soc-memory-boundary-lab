@@ -606,7 +606,95 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
    `9fdd5d6`. Its plan resolves all 430/64 staged words back to 494 source
    register labels and rejects wrong-size, wrong-header, and zero-filled
    inputs. The proved staged inventory does not reach the remapper `+0x8080`
-   control window. No real dump values have been decoded.
+   control window. At that point no real dump values had been decoded;
+   Verification 012 later superseded this state.
 9. Next work is host-only producer/control-path recovery for debug-level,
    force-upload and FMM/token. Experiment 014's timing model proceeds as the
    complementary behavioural track; it is host-ready but has no device phase.
+
+## 2026-08-25 — Verification 005 exact XBL rawdump gates
+
+1. Parsed exact A90 XBL `e73a07a…` and corrected a key image-boundary error:
+   `0x14900000` is the separately mapped XBLRamDump image, not main XBL's entry.
+2. `PROVED`: main XBL's outer dload decision at `0x14829f2c/0x14829f38`
+   requires saved cookie bits `4/5` or restart reason `0x776655ee`. Saved bits
+   are read/cleared through `0x14829a94` from `0x01fd3000`.
+3. `PROVED`: XBLRamDump reads Samsung `param` offsets debug `+0x0`, force
+   `+0x3f4`, FMM `+0x3fc`, and sink `+0x400`. FMM magic `0x464d4f4e` denies;
+   exact force-upload enable is integer 5.
+4. `PROVED`: with FMM unlocked and not on the Quest-DDR special path, non-LOW
+   debug alone admits the vendor call even with force-upload zero and a denied
+   `TZ_ALLOWS_MEM_DUMP` SMC. Full catalog registration separately requires
+   cookie bit 4 or `SEC_DEBUG_MODE` restart reason.
+5. `PROVED`: exact Samsung panic/watchdog source supplies both the outer full-
+   dump dload cookie and `0x776655ee`; live dload master is one.
+6. `REFUTED`: MID and force-upload must both be enabled. `REFUTED`: a positive
+   TZ result is unconditionally required. `REFUTED`: orderly MID reboot alone
+   enters rawdump.
+7. Implemented `tools/xbl_rawdump_gate_inventory.py` and 14 focused tests;
+   generated public manifest SHA-256 `5024b24e…`. Device access: none.
+
+## 2026-08-25 — Verifications 006–010 live param qualification
+
+1. Implemented a target-fixed 10-MiB `param` capture. Live GPT/sysfs resolved
+   `sda10`, `PARTNAME=param`, major/minor `8:10`, and the exact expected size.
+2. `PROVED`: device-before, host, and device-after SHA-256 all equal
+   `1faafee97d08ff93b690dbcffe21d680f20232aa2d3dff5f462b747577bb4345`.
+   The mode-0600 rollback image is private and Git-ignored.
+3. `PROVED`: captured fields were DLOW, force-upload 0, FMM 0, and dump-sink 0.
+4. Wrote a transition tool fixed to one four-byte field at partition offset
+   `0x900000`. It derives complete expected LOW/MID images and refuses any
+   unexpected full-partition pre/post hash.
+5. Verification 007 applied DLOW→DMID once; Verification 008 restored DLOW once
+   while qualifying the path; Verification 009 applied DMID once for the dump
+   experiment. Every complete hash matched. Host images prove no force/FMM/sink
+   byte changed.
+6. Verification 010 performed one orderly reboot with MID. A new boot returned
+   with `debug_level=0x494d`, force-upload 0, dump-sink 0, dload master 1, and
+   selftest `fail=0`. This dynamically confirms that MID is consumed but does
+   not supply the outer rawdump trigger.
+
+## 2026-08-25 — Verifications 011–014 live SHRM acquisition and recovery
+
+1. Pinned linux-msm qdl v2.8 and prepared a one-name `SHRM_MEM.BIN` Sahara
+   filter before the trigger. Implemented a one-shot SysRq tool that refuses
+   replay after an accepted begin frame.
+2. Verification 011 dispatched exactly one `writefile /proc/sysrq-trigger c`.
+   Exact source maps this to panic; no retry occurred after transport loss.
+3. `REFUTED`: Qualcomm USB `05c6` Sahara/qdl is this A90 boot's crash-dump
+   transport. qdl captured no file and was terminated without matching the
+   live endpoint.
+4. Host kernel journal instead records Samsung `04e8:685d`, product
+   `MSM_UPLOAD`, manufacturer Samsung at 12:35:43 KST. Its eight-line,
+   serial-free acquisition/return excerpt is pinned by SHA-256 `4b326be7…`.
+5. Pinned `bkerler/sboot_dump` commit `8c9f6eb7…` and source SHA-256
+   `7580a6c1…`. The live catalog showed 56 records and record 19 as the exact
+   SHRM range; this console transcript was observed but not separately saved,
+   so the count remains `SUPPORTED` rather than a pinned `PROVED` fact.
+6. Selected only record 19. `PROVED`: acquired `SHRM_MEM.BIN` is exactly 65,536
+   bytes, SHA-256
+   `409550ad226443271a39b6bc060f0e8fb3224111cc03f07a6ee563eaa7098bb7`.
+   No other memory record was collected.
+7. The file reproduces the exact section-16 header at offset `0x5100`; the
+   existing decoder mapped all 430 + 64 entries to labelled positions covering
+   470 distinct source-register addresses.
+8. `SUPPORTED`: set 0 is populated/coherent. It has 18 common `qhs_mc` offsets
+   over four instances; 17 are identical and `+0x4d0` has one stable two-pair
+   split. `REFUTED`: set 1 is a coherent current snapshot; all 64 values are
+   distinct, all four MC `+0x80` values differ, and none of 24 exact overlaps
+   matches set 0. Set-1 cause remains `UNKNOWN`.
+9. Ranked five exact set-0 candidates while retaining semantic status
+   `UNKNOWN`: MC `+0x400`, MC `+0x404`, MCCC `+0x118`, MC `+0x4d0`, and MCCC
+   master `+0x294`. A comparative Qualcomm BIMC layout was explicitly rejected
+   for direct naming because its `+0x400` mask/layout contradicts the A90 values.
+10. `PROVED`: the dump still does not cover the separate remapper control
+    windows at `+0x8080`. No alias, transform mutation, protected-boundary
+    read, or isolation bypass was observed.
+11. Sent the Samsung upload power-down command; host journal records disconnect
+    then native `04e8:6861` return at 12:39:52. Verification 013 restored the
+    original complete LOW partition hash. Verification 014 performed one new
+    normal boot and proved LOW, force 0, sink 0, dload master 1, selftest
+    `fail=0`.
+12. Implemented `tools/sm8150_shrm_live_dump_analysis.py` and focused tests.
+    Public manifest SHA-256 `ab1ce816…`; ignored private analysis SHA-256
+    `ed5c39e9…`. Current state remains `NO_BOUNDARY_BYPASS_OBSERVED`.

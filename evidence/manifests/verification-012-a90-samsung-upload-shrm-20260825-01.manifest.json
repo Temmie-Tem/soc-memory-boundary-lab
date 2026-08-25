@@ -1,0 +1,351 @@
+{
+  "claims": {
+    "PROVED": [
+      "One exact 64-KiB file has the pinned SHA-256 and the exact section-16 workspace header at dump offset 0x5100.",
+      "The decoder mapped 430 + 64 staged entries to 494 labelled positions covering 470 distinct source-register addresses without reading a live device.",
+      "The host kernel journal records Samsung 04e8:685d MSM_UPLOAD enumeration, disconnect, and return of the A90 native 04e8:6861 runtime.",
+      "The acquisition used Samsung Upload transport; the concurrently waiting qdl 05c6 Sahara collector captured no file.",
+      "The final param image was restored to LOW and a subsequent boot proved LOW/force-upload 0/dump-sink 0 with selftest fail=0."
+    ],
+    "REFUTED": [
+      "Qualcomm 05c6 Sahara/qdl is the exact A90 crash-dump transport used by this boot.",
+      "Set 1 can be treated as a coherent current register snapshot in this acquisition: all 64 values are distinct, its four MC +0x80 values all differ, and none of 24 duplicated addresses matches set 0.",
+      "This dump covers the separate qhs_llcc +0x8080 remapper control window.",
+      "This acquisition demonstrates a physical-address alias or protected-memory isolation bypass."
+    ],
+    "SUPPORTED": [
+      "Set 0 is populated controller state: 17 of 18 four-instance MC offset groups are identical and the remaining group has a stable two-by-two split.",
+      "The five ranked words are high-value semantic-recovery and timing-cross-check candidates because they sit in exact MC/MCCC topology blocks and show repeated structure."
+    ],
+    "UNKNOWN": [
+      "The exact semantic register names and bitfields for the five controller candidates.",
+      "Whether any candidate controls channel/bank/rank/row/column hashing or is writable after boot.",
+      "Whether set 1 is stale, unpopulated, or uninitialized; only its use as a coherent current snapshot is refuted.",
+      "The final transform owner, lock state, and protection ordering relative to that transform."
+    ]
+  },
+  "classification": "REAL_SHRM_DUMP_ACQUIRED_SET0_QUALIFIED_NO_BYPASS",
+  "controller_candidates_top5": [
+    {
+      "addresses": [
+        "0x09260400",
+        "0x092e0400",
+        "0x09360400",
+        "0x093e0400"
+      ],
+      "block": "qhs_mc",
+      "distinct_values": 1,
+      "rank": 1,
+      "ranking_reason": "four-instance exact equality inside the MC aperture",
+      "relative_offset": "0x400",
+      "semantic_name": "UNKNOWN",
+      "transform_role": "HYPOTHESIS_NOT_PROVED",
+      "values": [
+        "0xc003ffff",
+        "0xc003ffff",
+        "0xc003ffff",
+        "0xc003ffff"
+      ]
+    },
+    {
+      "addresses": [
+        "0x09260404",
+        "0x092e0404",
+        "0x09360404",
+        "0x093e0404"
+      ],
+      "block": "qhs_mc",
+      "distinct_values": 1,
+      "rank": 2,
+      "ranking_reason": "four-instance exact equality inside the MC aperture",
+      "relative_offset": "0x404",
+      "semantic_name": "UNKNOWN",
+      "transform_role": "HYPOTHESIS_NOT_PROVED",
+      "values": [
+        "0x00003333",
+        "0x00003333",
+        "0x00003333",
+        "0x00003333"
+      ]
+    },
+    {
+      "addresses": [
+        "0x09250118",
+        "0x092d0118",
+        "0x09350118",
+        "0x093d0118"
+      ],
+      "block": "qhs_mccc",
+      "distinct_values": 1,
+      "rank": 3,
+      "ranking_reason": "four-instance exact equality inside the MCCC aperture",
+      "relative_offset": "0x118",
+      "semantic_name": "UNKNOWN",
+      "transform_role": "HYPOTHESIS_NOT_PROVED",
+      "values": [
+        "0x00111111",
+        "0x00111111",
+        "0x00111111",
+        "0x00111111"
+      ]
+    },
+    {
+      "addresses": [
+        "0x092604d0",
+        "0x092e04d0",
+        "0x093604d0",
+        "0x093e04d0"
+      ],
+      "block": "qhs_mc",
+      "distinct_values": 2,
+      "rank": 4,
+      "ranking_reason": "stable two-by-two instance split inside the MC aperture",
+      "relative_offset": "0x4d0",
+      "semantic_name": "UNKNOWN",
+      "transform_role": "HYPOTHESIS_NOT_PROVED",
+      "values": [
+        "0x00300014",
+        "0x00300014",
+        "0x00300033",
+        "0x00300033"
+      ]
+    },
+    {
+      "addresses": [
+        "0x090b0294"
+      ],
+      "block": "qhs_mccc_master",
+      "distinct_values": 1,
+      "rank": 5,
+      "ranking_reason": "single master-side word paired with four MCCC instances",
+      "relative_offset": "0x294",
+      "semantic_name": "UNKNOWN",
+      "transform_role": "HYPOTHESIS_NOT_PROVED",
+      "values": [
+        "0x00001111"
+      ]
+    }
+  ],
+  "device_access": false,
+  "dump": {
+    "decoded_staged_entries": 494,
+    "distinct_source_registers": 470,
+    "filename": "SHRM_MEM.BIN",
+    "physical_range": "0x09060000..0x0906ffff",
+    "section16_header": [
+      "0x0008",
+      "0x0230",
+      "0x01b8",
+      "0x08e8"
+    ],
+    "sha256": "409550ad226443271a39b6bc060f0e8fb3224111cc03f07a6ee563eaa7098bb7",
+    "size": 65536,
+    "workspace_offset": "0x5100"
+  },
+  "evidence_chain": {
+    "low_reboot": {
+      "filename": "verification-014-a90-low-final-reboot-20260825-01.manifest.json",
+      "sha256": "c3d7983e1ce76fbc137df4b877b1236f421906f4e64bb6e84183043c01fd1563"
+    },
+    "mid_reboot": {
+      "filename": "verification-010-a90-mid-normal-reboot-20260825-01.manifest.json",
+      "sha256": "d466bf945c81f65fe8cbd529c3aebe11dcb3b231dba096ca9958928b20d19d44"
+    },
+    "native_health": {
+      "filename": "verification-013-a90-final-health-20260825-01.manifest.json",
+      "sha256": "c27f307b25c3361414a3ef22d92c4fd164f648432d545e16f1dd15517e172d85"
+    },
+    "param_capture": {
+      "filename": "verification-006-a90-param-capture-20260825-01.manifest.json",
+      "sha256": "c9bc183871a37cc0166b4e6c29bde9a90d19be8f6410f00e7d1b28596a218993"
+    },
+    "param_low_restore": {
+      "filename": "verification-013-a90-param-debug-low-final-restore-20260825-01.manifest.json",
+      "sha256": "81b734c2b75bcd18c2aeeca86bce9c61cada394b4e850b6ab2b78a16ea29f799"
+    },
+    "qdl_capture": {
+      "filename": "verification-011-a90-shrm-sahara-capture-20260825-01.manifest.json",
+      "sha256": "bed07a93a54da162ecb7409b1dad5da94c7b4f8480cc9b08091dc6c56423f3bd"
+    },
+    "sysrq_trigger": {
+      "filename": "verification-011-a90-sysrq-crash-trigger-20260825-01.manifest.json",
+      "sha256": "aa3ef26baaa77acd3b05f566eda66a1b01c13cd3b29b61b765d03afaefe013d8"
+    },
+    "xbl_export": {
+      "filename": "verification-002-shrm-dump-export-20260825-01.manifest.json",
+      "sha256": "7f35e4e6dd3ede0c1bc2f398d3148656ac95b948a257ad19e8ab6d030c20e635"
+    },
+    "xbl_gate": {
+      "filename": "verification-005-xbl-rawdump-gate-static-20260825-01.manifest.json",
+      "sha256": "5024b24ec72a715c2c23ef7f6600f80f9aefff5172f43f9ad4c74a7ed6a2916e"
+    }
+  },
+  "experiment_id": "verification-012-a90-samsung-upload-shrm-20260825-01",
+  "final_state": {
+    "evidence": {
+      "low_reboot": {
+        "filename": "verification-014-a90-low-final-reboot-20260825-01.manifest.json",
+        "sha256": "c3d7983e1ce76fbc137df4b877b1236f421906f4e64bb6e84183043c01fd1563"
+      },
+      "native_health": {
+        "filename": "verification-013-a90-final-health-20260825-01.manifest.json",
+        "sha256": "c27f307b25c3361414a3ef22d92c4fd164f648432d545e16f1dd15517e172d85"
+      },
+      "param_low_restore": {
+        "filename": "verification-013-a90-param-debug-low-final-restore-20260825-01.manifest.json",
+        "sha256": "81b734c2b75bcd18c2aeeca86bce9c61cada394b4e850b6ab2b78a16ea29f799"
+      }
+    },
+    "param_partition": "LOW_RESTORED_VERIFIED",
+    "post_reboot_debug_level": "0x4f4c",
+    "post_reboot_download_mode": "1",
+    "post_reboot_dump_sink": "0x0",
+    "post_reboot_force_upload": "0x0",
+    "post_reboot_selftest_fail": 0
+  },
+  "mode": "HOST_ONLY_EVIDENCE_QUALIFICATION",
+  "private_record": {
+    "filename": "analysis.json",
+    "git_ignored": true,
+    "sha256": "ed5c39e90ad6810f2d7860fcce980ebe380104a6fb8008a72cbfdbf924f73c61",
+    "size": 168042
+  },
+  "remapper_coverage": {
+    "control_registers": [
+      "0x09248080",
+      "0x092c8080",
+      "0x09348080",
+      "0x093c8080"
+    ],
+    "covers_remapper_window": false,
+    "note": "Staged words share the remapper's 4-KiB page but lie strictly below the window at +0x8080. Boot remapper values, active-slot mask and lock state are NOT recoverable from this dump.",
+    "staged_inside_remapper_window": [],
+    "staged_on_remapper_pages": [
+      "0x09248030",
+      "0x09248048",
+      "0x0924804c",
+      "0x09248050",
+      "0x09248054",
+      "0x09248058",
+      "0x0924805c",
+      "0x09248060",
+      "0x09248064",
+      "0x092c8030",
+      "0x092c8048",
+      "0x092c804c",
+      "0x092c8050",
+      "0x092c8054",
+      "0x092c8058",
+      "0x092c805c",
+      "0x092c8060",
+      "0x092c8064",
+      "0x09348030",
+      "0x09348048",
+      "0x0934804c",
+      "0x09348050",
+      "0x09348054",
+      "0x09348058",
+      "0x0934805c",
+      "0x09348060",
+      "0x09348064",
+      "0x093c8030",
+      "0x093c8048",
+      "0x093c804c",
+      "0x093c8050",
+      "0x093c8054",
+      "0x093c8058",
+      "0x093c805c",
+      "0x093c8060",
+      "0x093c8064"
+    ]
+  },
+  "schema": "sdm855-a90-shrm-live-dump-public-v1",
+  "security_state": "NO_ALIAS_OR_BOUNDARY_BYPASS_OBSERVED",
+  "set_qualification": {
+    "overlap": {
+      "common_registers": 24,
+      "different_values": 24,
+      "equal_values": 0
+    },
+    "set0": {
+      "classification": "SUPPORTED_POPULATED_COHERENT_SNAPSHOT",
+      "mc_symmetry": {
+        "common_offsets": 18,
+        "exactly_equal_groups": 17,
+        "four_value_groups": 0,
+        "instance_bases": [
+          "0x09260000",
+          "0x092e0000",
+          "0x09360000",
+          "0x093e0000"
+        ],
+        "two_value_groups": 1
+      },
+      "metrics": {
+        "all_values_distinct": false,
+        "distinct_values": 71,
+        "nonzero_words": 210,
+        "words": 430,
+        "zero_words": 220
+      },
+      "use_for_follow_up": true
+    },
+    "set1": {
+      "classification": "REFUTED_AS_COHERENT_CURRENT_SNAPSHOT",
+      "mc_symmetry": {
+        "common_offsets": 1,
+        "exactly_equal_groups": 0,
+        "four_value_groups": 1,
+        "instance_bases": [
+          "0x09260000",
+          "0x092e0000",
+          "0x09360000",
+          "0x093e0000"
+        ],
+        "two_value_groups": 0
+      },
+      "metrics": {
+        "all_values_distinct": true,
+        "distinct_values": 64,
+        "nonzero_words": 64,
+        "words": 64,
+        "zero_words": 0
+      },
+      "possible_explanations": [
+        "STALE",
+        "UNPOPULATED",
+        "UNINITIALIZED"
+      ],
+      "use_for_follow_up": false
+    }
+  },
+  "soc": "SM8150",
+  "target_model": "SM-A908N",
+  "transport": {
+    "host_journal": {
+      "device_serial_omitted": true,
+      "line_count": 8,
+      "native_04e8_6861_returned": true,
+      "sha256": "4b326be73287e38a90ff9e6cb1de0c3e756562b56f2804720465dc7302fbe177",
+      "upload_disconnected": true,
+      "upload_enumerated": true
+    },
+    "live_catalog_transcript": "OBSERVED_BUT_NOT_SEPARATELY_PINNED",
+    "observed_product": "MSM_UPLOAD",
+    "observed_usb": "04e8:685d",
+    "protocol_family": "SAMSUNG_UPLOAD",
+    "qualcomm_sahara_05c6": false,
+    "selected_record_count": 1,
+    "source": {
+      "commit": "8c9f6eb79ffbe702152ca7810f6382bf5e1bfd58",
+      "repository": "https://github.com/bkerler/sboot_dump",
+      "samupload_py_sha256": "7580a6c1aab8f03ecb8130d418b43d8f264c6926aa5f527ca8a213e4b523672c"
+    },
+    "static_catalog_descriptor": {
+      "end_inclusive": "0x0906ffff",
+      "name": "SHRM_MEM.BIN",
+      "record_index": 19,
+      "start": "0x09060000"
+    }
+  }
+}
