@@ -66,17 +66,20 @@ be recovered from XBL's `0x01fc8000` producer or equivalent boot evidence.
 The copy routines are `0x148aeb7c` and `0x148aebfc`; `0x148aeddc` invokes both
 after `0x148aedbc` clears part of SHRM memory.
 
-`PROVED` by Experiment 011: selected section 16 has header
+`PROVED` by Experiments 011/012: selected section 16 has header
 `{8, 0x230, 0x1b8, 0x8e8}` and parses exactly into two compact record sets of
 the form `{u8 base_count, u8 offset_count, u16 base_tokens[], u16
-offset_tokens[]}`. Base tokens numerically equal `physical_base >> 12` for
-exact SHRM topology targets including per-channel MCCC/MC, MCCC master, DDRSS,
-and SHRM CSR. `SUPPORTED`: they are 4-KiB page numbers in a register-access or
-configuration list.
+offset_tokens[]}`. The exact Xtensa helper at `0x2d8dc` computes
+`(base_page << 12) + (offset_token << 2)` and copies each 32-bit register word
+into a SHRM snapshot buffer. Both direct consumers pass direction zero, so the
+observed path is a read inventory, not a write command stream. The selected
+lists produce 430 and 64 register-word reads.
 
-`UNKNOWN`: SHRM instruction encoding, offset-token scaling/flags, operation
-direction, set ordering, and whether any token controls final address decode.
-The structured match does not prove a writable channel/bank/row hash.
+`SUPPORTED`: base tokens are 4-KiB page numbers for exact SHRM topology targets.
+`UNKNOWN`: runtime values, lock state, whether any readback register controls
+final address decode, and whether an indirect reverse-direction invocation
+exists. The structured read list does not prove a writable channel/bank/row
+hash.
 
 ## 2a. Exact XBL diagnostic coordinate model
 
@@ -257,9 +260,10 @@ does not identify XPU, clock, power or ownership cause.
 
 Experiment 008 resolved the exact DCB, row and writer semantics and proved the
 same-window BIMC MPU configuration bases. Experiments 009/010 then resolved
-static coverage and secure initializer authority. Experiment 011 eliminates
-the XBL diagnostic formula itself as an alias source and exposes exact
-section-16 controller-token sets. The cheapest next measurement is host-only:
-recover the SHRM interpreter or an exact alternate consumer that defines token
-scaling and read/write semantics. Do not repeat the same live load without a
-new, discriminating prediction. No controller write is justified.
+static coverage and secure initializer authority. Experiment 011 eliminated
+the XBL diagnostic formula itself as an alias source and exposed exact
+section-16 controller-token sets. Experiment 012 recovered the SHRM consumer,
+four-byte token scaling and direct read direction. The next measurement, if
+needed, is a separately qualified read-only observation of staged values; do
+not repeat the blocked live load and do not infer a write primitive from this
+snapshot path.

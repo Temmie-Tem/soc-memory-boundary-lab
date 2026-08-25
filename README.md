@@ -50,6 +50,13 @@ sets whose base tokens match SHRM-visible MCCC/MC/DDRSS pages. Hidden hardware
 transform state, token semantics, mutability, and protection ordering remain
 `UNKNOWN`; no alias or bypass has been observed.
 
+Host-only Experiment 012 then recovers the exact Xtensa SHRM section-16
+consumer. Its helper computes `(base_page << 12) + (offset_token << 2)` and
+reads each 32-bit register into a SHRM snapshot buffer. Both exact callsites
+pass the read direction; the selected lists produce 430 and 64 register-word
+reads and no transform-write stream. Runtime register values and any indirect
+reverse-direction path remain `UNKNOWN`.
+
 Claim vocabulary is deliberately closed:
 
 - `PROVED`: directly demonstrated by named source, artifact, or repeated result.
@@ -81,6 +88,9 @@ Experiment 010's QHEE/TZ authority split and dynamic BIMC initializer are in
 Experiment 011's exact diagnostic coordinate formula and DCB/SHRM register-token
 inventory are in
 [experiments/011-dram-coordinate-map/README.md](experiments/011-dram-coordinate-map/README.md).
+Experiment 012's exact SHRM interpreter and read-only section-16 conclusion are
+in
+[experiments/012-shrm-section16-interpreter/README.md](experiments/012-shrm-section16-interpreter/README.md).
 The exact A90 TWRP code-only System transition is documented in
 [docs/A90_TWRP_CODE_BOOT.md](docs/A90_TWRP_CODE_BOOT.md).
 

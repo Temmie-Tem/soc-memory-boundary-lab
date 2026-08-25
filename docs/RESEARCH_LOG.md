@@ -396,3 +396,32 @@
 10. Current result is `CLASS A/B CANDIDATE / NO ALIAS PRIMITIVE OBSERVED`.
     The next cheapest step is static recovery of the SHRM section-16
     interpreter, not another blocked EL1 controller read.
+
+## 2026-08-25 — Experiment 012 exact SHRM section-16 interpreter
+
+1. Recovered the exact embedded SHRM instruction image as Xtensa code installed
+   at physical `0x09068000`; its 23,776-byte source blob hash is
+   `421824b4…`. The section workspace at physical `0x09065100` maps to Xtensa
+   local address `0x25100` through the exact SHRM data/code installation
+   offsets.
+2. Pinned the common helper at Xtensa VA `0x2d8dc..0x2d959` by SHA-256
+   `01fc5d83…`. The helper parses `u8 base_count`, `u8 offset_count`, `u16`
+   base pages and `u16` offset tokens, then computes
+   `(base_page << 12) + (offset_token << 2)`.
+3. `PROVED`: direction zero reads each computed 32-bit register into a SHRM
+   snapshot buffer. A nonzero direction is the reverse copy in the helper
+   model, but no direct section-16 callsite in the bounded image passes it.
+4. `PROVED`: exact callsites at `0x288a9` and `0x28e15` pass direction zero.
+   The selected lists terminate after 20/7 non-padding records and produce
+   430/64 register-word reads, fitting capacities `0x6b8/0x618` bytes.
+5. `REFUTED`: interpreting offset tokens as 4-KiB offsets or treating the
+   observed section-16 path as a transform-write primitive. Runtime values,
+   lock state, final-decode meaning and any indirect reverse-direction use are
+   still `UNKNOWN`.
+6. Implemented `tools/sm8150_shrm_section16_inventory.py`, three focused tests,
+   the private/public manifest pair and
+   `experiments/012-shrm-section16-interpreter/README.md`. No device, SMC,
+   MMIO, partition, EL2, EL3 or protected-memory action occurred.
+7. Current result is
+   `CLASS A/B CANDIDATE — SECTION-16 READ-ONLY SNAPSHOT / NO TRANSFORM-WRITE OR
+   ALIAS PRIMITIVE OBSERVED`.

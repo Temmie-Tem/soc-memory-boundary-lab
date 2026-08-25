@@ -4,8 +4,8 @@ Current research state: `NO_BOUNDARY_BYPASS_OBSERVED`
 
 Current class: `A/B CANDIDATE — static controller-aperture policy and secure
 initializer paths proved; exact XBL diagnostic mapping is bijective and
-non-aliasing; hidden hardware transform, runtime state, and protection ordering
-remain unresolved`
+non-aliasing; section-16 is a read-only SHRM snapshot path; runtime state,
+indirect write paths, hidden transform and protection ordering remain unresolved`
 
 Device mutation: Experiment 007 temporarily wrote the exact boot-only REPL,
 fixed no-load control, and fixed one-load read candidates. Each transition was
@@ -15,7 +15,7 @@ MMIO, SCM, EL2, EL3, or protected-memory write; it attempted one fixed 32-bit
 MMIO load.
 Experiment 004 created and removed fixed temporary block-device nodes under
 `/dev`; Experiment 005 created and removed one fixed temporary character node.
-Experiments 008, 009, 010, and 011 were entirely host-only and performed no
+Experiments 008, 009, 010, 011, and 012 were entirely host-only and performed no
 device, SMC, or MMIO access.
 
 ## A. 현재까지 PROVED
@@ -60,6 +60,11 @@ device, SMC, or MMIO access.
   token sets with 22 and 8 records. Base tokens numerically equal
   `physical_base >> 12` for exact `qhm_shrm` MCCC, MC, MCCC-master, DDRSS, and
   SHRM-CSR topology bindings.
+- Experiment 012 recovers the exact Xtensa SHRM helper at `0x2d8dc`. It
+  computes `(base_page << 12) + (offset_token << 2)` and direction zero reads
+  each 32-bit word into a SHRM snapshot buffer. The two exact section-16
+  callsites pass direction zero and produce 430/64 reads; the observed path is
+  not a transform-write command stream.
 - Exact layout-1 code encodes six 36-bit ranges as low32/high4 fields, disables
   the four instances before programming and enables them afterward. There is no
   distinct lock-register write inside that exact bounded XBL function; later
@@ -130,8 +135,8 @@ device, SMC, or MMIO access.
 
 - Final hardware PA-to-coordinate state may extend beyond the now-proved,
   bijective XBL diagnostic formula through SHRM/MCCC/MC logic not yet decoded.
-- One or more section-16 MCCC/MC offset tokens may control a hidden XOR,
-  interleave, or swizzle not represented by the diagnostic formula.
+- One or more section-16 readback registers may expose hidden XOR, interleave,
+  or swizzle state not represented by the diagnostic formula.
 - The retained watchdog may be the XPU denial's downstream fabric response.
   Static policy coverage and lack of an HLOS grant support this; the encrypted
   or unparsed TZ log prevents a causal syndrome match.
@@ -178,15 +183,16 @@ device, SMC, or MMIO access.
 - “The `invert_row` string alone proves final PA-to-row transform state.” Its
   two pinned users report and forward a local DDR-code flag outside the Quest
   coordinate reporter.
-- “Section 16's raw offset tokens already prove register byte offsets, writes,
-  or mutable transform state.” SHRM token semantics remain undecoded.
+- “Section 16's raw offset tokens imply 4-KiB register offsets or an observed
+  write primitive.” The exact SHRM helper proves four-byte scaling and read
+  direction for both direct consumers.
 
 ## D. UNKNOWN
 
 - Whether hardware adds any transform beyond the exact XBL diagnostic
   channel/rank/bank/row/column model.
-- SHRM instruction encoding and section-16 offset scaling, flags, operation
-  direction, execution-set meaning, runtime values, and lock state.
+- Runtime values and lock state of the section-16 readback registers; any
+  indirect helper invocation with reverse direction; and final-decode meaning.
 - Numeric boot remapper values, runtime MMIO writability, and lock state.
   Destination regions and rank sizes are known, but runtime per-channel source
   bases and the interleave mask are missing. Static TZ policy ownership is now
@@ -231,15 +237,15 @@ position relative to DRAM decode remain `UNKNOWN`.
 
 ## G. 가장 가능성 높은 controller/register 후보 Top 5
 
-1. `PROVED token match / HYPOTHESIS transform semantics`: per-channel MCCC at
-   `0x09250000`, `0x092d0000`, `0x09350000`, `0x093d0000`; section-16 token
-   sets contain `0x46` and `0x44..0x47`.
-2. `PROVED token families / HYPOTHESIS transform semantics`: per-channel MC
+1. `PROVED readback candidate / UNKNOWN final-decode meaning`: per-channel MCCC
+   at `0x09250000`, `0x092d0000`, `0x09350000`, `0x093d0000`; exact SHRM reads
+   use `(page<<12)+(token<<2)` with `0x46` and `0x44..0x47` families.
+2. `PROVED readback candidate / UNKNOWN final-decode meaning`: per-channel MC
    roots `0x09260000`, `0x092e0000`, `0x09360000`, `0x093e0000`; ten records
    cover the root plus six matching non-root subpage families.
-3. `PROVED token match / UNKNOWN semantics`: MCCC master `0x090b0000`, with
+3. `PROVED readback candidate / UNKNOWN semantics`: MCCC master `0x090b0000`, with
    compact tokens `0xa5` and `0x0,0xa0,0xa2..0xa8`.
-4. `PROVED token match / UNKNOWN semantics`: DDRSS regs `0x090c0000`, tokens
+4. `PROVED readback candidate / UNKNOWN semantics`: DDRSS regs `0x090c0000`, tokens
    `0x16,0x17,0x2c`.
 5. `PROVED system-PA remapper / UNKNOWN final-hash role`: four
    `qhs_llcc + 0x8080` windows with 36-bit fields through `+0x58`.
@@ -293,17 +299,17 @@ this difference is not yet a complete structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-Do not repeat the same load. The next host-only phase should recover the SHRM
-section-16 interpreter or an exact alternate consumer that proves token
-scaling, flag bits, operation direction, and execution-set ordering. Only then
-can a particular MCCC/MC register be tested against the recovered coordinate
-model or ordered relative to QHEE/TZ protection.
+Do not repeat the same load. The next cheapest host-only phase is to model the
+430/64 SHRM snapshot addresses and decide whether an independent, read-only
+observation route can expose the staged values. That route must remain separate
+from any write experiment; the static interpreter already proves the observed
+section-16 direction and four-byte offset scaling.
 
 ## N. 가장 위험한 아직 금지된 실험
 
 Treating a section-16 offset token as a byte offset and writing the resulting
-MCCC/MC address. Scaling, flags, operation direction and values are all
-`UNKNOWN`, so this could target an unrelated live controller register. Writing
+MCCC/MC address. The exact helper proves four-byte scaling for its read path,
+but no safe write semantics, restore state, or runtime values are known. Writing
 the proved `qhs_llcc + 0x8080` map words while memory traffic is active is also
 high risk because it can redirect system PA. Neither is justified without exact
 semantics, boot values, a one-core/cache-safe critical section, restore path,
@@ -354,9 +360,11 @@ Evidence against a presently usable bypass:
 - Exact devcfg leaves XPU access control enabled (`disable_xpu_ac=0`), and the
   boot path consumes the selected static policy table.
 
-Critical unknowns are SHRM token semantics, runtime source-base/interleave
-state, final XPU/remapper/MCCC/MC readback, dynamic BIMC policy inputs,
-protection ordering, any transform hidden from the diagnostic, and deterministic
-alias behavior. The defensible current conclusion is `SECURE CONTROLLER-
-APERTURE POLICY/INITIALIZER PROVED / XBL DIAGNOSTIC MAP NON-ALIASING / HIDDEN
-FINAL TRANSFORM UNKNOWN / NO BYPASS OBSERVED`.
+Critical unknowns are runtime SHRM snapshot values, lock state, indirect
+reverse-direction use, runtime source-base/interleave state, final
+XPU/remapper/MCCC/MC readback, dynamic BIMC policy inputs, protection ordering,
+any transform hidden from the diagnostic, and deterministic alias behavior. The
+defensible current conclusion is `SECURE CONTROLLER-APERTURE POLICY/INITIALIZER
+PROVED / SHRM SECTION-16 READ-ONLY SNAPSHOT PROVED FOR DIRECT CONSUMERS / XBL
+DIAGNOSTIC MAP NON-ALIASING / HIDDEN FINAL TRANSFORM UNKNOWN / NO BYPASS
+OBSERVED`.

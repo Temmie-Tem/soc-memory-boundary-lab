@@ -79,11 +79,13 @@ because it is used by the actual DDR failure path. An additional silicon-only
 transform remains `UNKNOWN`.
 
 `PROVED`: selected DCB section 16 parses exactly into two base-token/offset-token
-sets. Its base tokens numerically equal `physical_base >> 12` for exact
-`qhm_shrm` MCCC, MC, MCCC-master, DDRSS, and SHRM-CSR topology targets.
-`SUPPORTED`: they are 4-KiB page numbers in an SHRM register-access/config
-inventory. Token scaling, operation direction, writer stage, runtime values,
-and final-decode semantics remain `UNKNOWN`.
+sets. The exact Xtensa SHRM helper at `0x2d8dc` computes
+`(base_page << 12) + (offset_token << 2)` and stages one 32-bit word per
+computed register. Both exact direct consumers pass direction zero, which is
+the helper's read-to-snapshot path; selected lists contain 430 and 64 reads.
+`SUPPORTED`: this is an SHRM controller-register snapshot inventory. The
+returned values and any indirect reverse-direction invocation remain
+`UNKNOWN`.
 
 `UNKNOWN`: numeric boot register words. XBL consumes runtime per-channel source
 bases and a rank-interleave mask not present in the retained firmware/log
@@ -232,7 +234,7 @@ all protection ordering relative to DRAM decode remain `UNKNOWN`.
 | Question | Current answer |
 |---|---|
 | Which block owns the final mapping? | `PROVED`: qhs_llcc ICB windows own boot region remapping and XBL exposes a bijective intended coordinate model. MCCC/MC/DDRSS token families are now exact candidates; final hardware decode owner remains `UNKNOWN`. |
-| Who programs it? | `PROVED`: XBL programs the region remapper through `icbcfg` and copies section 16 to SHRM. `SUPPORTED`: section 16 is an SHRM register-access/config inventory. Exact MCCC/MC operation direction and final-decode writer remain `UNKNOWN`. AOP runtime DDR management is `PROVED`. |
+| Who programs it? | `PROVED`: XBL programs the region remapper through `icbcfg` and copies section 16 to SHRM. `PROVED`: the exact SHRM section-16 consumers read listed controller words into a snapshot buffer; the observed section-16 paths do not write those addresses. AOP runtime DDR management is `PROVED`; final-decode writer remains `UNKNOWN`. |
 | At what stage? | Region-remap programming during XBL DDR initialization before HLOS is `PROVED`; later mutability remains `UNKNOWN`. |
 | Can EL1 observe it? | Register contents remain `UNKNOWN`. `/dev/mem` and generic REPL routes are `REFUTED`; the fixed load returned no value. `PROVED`: both static branches cover all four remapper/BIMC apertures with no HLOS grant. `SUPPORTED`: XPU/fabric denial. |
 | Can EL1 modify it? | No mutation is proved. The exact HLOS-visible XPU-disable allowlist has zero entries, and all known configuration apertures have branch-invariant TZ-owned coverage. Final runtime policy/lock readback is `UNKNOWN`. |

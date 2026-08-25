@@ -80,8 +80,12 @@ basis and deliberately encodes no Qualcomm-specific bit assignment.
 - `PROVED`: selected DCB section-16 base tokens numerically match exact
   SHRM-visible MCCC/MC/MCCC-master/DDRSS pages. `SUPPORTED`: they are register-
   inventory page numbers.
-- `UNKNOWN`: Offset-token scaling, operation direction, width, reset value,
-  boot value, lock bit, and whether any token is final-transform state.
+- `PROVED` by Experiment 012: the exact Xtensa SHRM helper computes
+  `(base_page << 12) + (offset_token << 2)` and its two direct section-16
+  callsites pass direction zero, reading 32-bit words into snapshot buffers.
+- `UNKNOWN`: runtime values, reset value, boot value, lock bit, whether any
+  token is final-transform state, and whether an indirect reverse-direction
+  invocation exists.
 - `UNKNOWN`: Whether any relevant state remains writable from EL1 after boot.
 - `UNKNOWN`: Whether security enforcement occurs before or after the final
   transform, or is repeated after it.

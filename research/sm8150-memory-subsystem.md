@@ -34,10 +34,10 @@ candidate is EL1-accessible.
 
 | Rank | Candidate | Who/when | Base and offset | Width | EL1 read/write | Reset/boot/lock/owner | Confidence |
 |---:|---|---|---|---|---|---|---|
-| 1 | Per-channel MCCC token set | `PROVED`: selected section 16 plus exact `qhm_shrm` topology | bases `0x09250000`, `0x092d0000`, `0x09350000`, `0x093d0000`; set-0 token `0x46`, set-1 `0x44..0x47` | base-token/page interpretation `SUPPORTED`; offset scaling and access width `UNKNOWN` | `UNKNOWN/UNKNOWN`; broad surrounding TZ policy does not yet prove each data-page decision | values/reset/boot/lock `UNKNOWN`; SHRM visibility `PROVED` | Highest compact four-channel final-decode candidate; semantics still `HYPOTHESIS` |
-| 2 | Per-channel MC page-token sets | `PROVED`: selected section 16 plus exact `qhm_shrm` topology | roots `0x09260000`, `0x092e0000`, `0x09360000`, `0x093e0000`; ten records through matching subpages | raw uint16 tokens `PROVED`; page and register semantics `SUPPORTED/UNKNOWN` | `UNKNOWN/UNKNOWN` | operation direction, values, reset, boot, lock `UNKNOWN` | Broadest exact finer-decode candidate set |
-| 3 | MCCC master token set | `PROVED`: exact topology plus section-16 numeric match | base `0x090b0000`; set-0 `0xa5`, set-1 `0x0,0xa0,0xa2..0xa8` | token scaling/access width `UNKNOWN` | XBL boot map class is `NS_DEVICE`; post-boot EL1 read/write still `UNKNOWN` | values and lock `UNKNOWN`; SHRM target `PROVED` | High global interleave/decode candidate value |
-| 4 | DDRSS register token set | `PROVED`: exact topology plus section-16 numeric match | base `0x090c0000`; set-0 tokens `0x16,0x17,0x2c` | token scaling/access width `UNKNOWN` | `UNKNOWN/UNKNOWN` | operation, values, and lock `UNKNOWN` | Small exact global candidate set |
+| 1 | Per-channel MCCC token set | `PROVED`: selected section 16 plus exact `qhm_shrm` topology and SHRM read consumer | bases `0x09250000`, `0x092d0000`, `0x09350000`, `0x093d0000`; address formula `(page<<12)+(token<<2)` | 32-bit snapshot reads | `UNKNOWN/UNKNOWN` from EL1; section-16 SHRM path reads into snapshot only | values/reset/boot/lock `UNKNOWN`; no observed write callsite | Highest compact four-channel final-decode observation candidate; mutation `REFUTED` for observed path |
+| 2 | Per-channel MC page-token sets | `PROVED`: selected section 16 plus exact `qhm_shrm` topology and SHRM read consumer | roots `0x09260000`, `0x092e0000`, `0x09360000`, `0x093e0000`; ten records through matching subpages | 32-bit snapshot reads | `UNKNOWN/UNKNOWN` | operation values/reset/boot/lock `UNKNOWN`; observed direction is read | Broadest exact finer-decode observation set |
+| 3 | MCCC master token set | `PROVED`: exact topology plus section-16 numeric match and read consumer | base `0x090b0000`; set-0 `0xa5`, set-1 `0x0,0xa0,0xa2..0xa8` | 32-bit snapshot reads | XBL boot map class is `NS_DEVICE`; post-boot EL1 read/write `UNKNOWN` | values and lock `UNKNOWN`; observed SHRM direction is read | High global interleave/decode observation value |
+| 4 | DDRSS register token set | `PROVED`: exact topology plus section-16 numeric match and read consumer | base `0x090c0000`; set-0 tokens `0x16,0x17,0x2c` | 32-bit snapshot reads | `UNKNOWN/UNKNOWN` | observed SHRM direction is read; values/lock `UNKNOWN` | Small exact global observation set |
 | 5 | XBL ICB/qhs_llcc region remapper | `PROVED`: XBL programs it during DDR bring-up; exact row 7 selected | bases `0x09248080`, `0x092c8080`, `0x09348080`, `0x093c8080`; offsets `0x00..0x58` | exact writer uses 32-bit MMIO and 36-bit split address fields | `/dev/mem` and generic REPL routes `REFUTED`; fixed load returned no value and watchdog; write `UNKNOWN` | destination bases known; numeric words/source bases/interleave mask/lock `UNKNOWN`; no-HLOS policy coverage `PROVED` | Exact system-PA remap; final hash role `UNKNOWN` |
 
 `DC_NOC_BROADCAST_MPU` and dynamic `BIMC_MPU0..3` remain the strongest
@@ -90,10 +90,10 @@ addresses and all four BIMC configuration bases through `MEMNOC_MS_MPU` region
 ordinary HLOS VMID. The exact HLOS-visible XPU toggle cannot disable any XPU
 because its allowed-disable list count is zero.
 
-`PROVED` by Experiment 011: section 16 is structurally decoded and numerically
-binds exact SHRM-visible MCCC/MC/DDRSS pages. `UNKNOWN`: its offset scaling,
-operation direction, values, and whether any record changes address decode.
-Final runtime policy/control words and where the data-path check sits relative
-to hidden/final decode also remain `UNKNOWN`. Recovering the SHRM interpreter
-is now the next host-only priority; repeating the denied configuration-aperture
-load cannot answer it.
+`PROVED` by Experiment 011/012: section 16 binds exact SHRM-visible
+MCCC/MC/DDRSS pages, and the exact SHRM helper scales offsets by four bytes and
+reads the computed words into a snapshot buffer at both direct consumers.
+`UNKNOWN`: runtime values, lock state, whether any read register controls final
+address decode, any indirect reverse-direction invocation, and where the
+data-path check sits relative to hidden/final decode. Repeating the denied
+configuration-aperture load cannot answer these questions.
