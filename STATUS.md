@@ -124,6 +124,36 @@ Absolute runtime stack address, stack integrity/rebasing, physical destination
 and execution remain `UNKNOWN`. Classification is
 `SEVEN_RX_SP_CANDIDATES_ARE_PINNED_STACK_FRAME_STORES_RUNTIME_STACK_ADDRESS_UNKNOWN`.
 
+Host-only Experiments 019–022 are now integrated. Experiment 019 proves only
+strict syntactic candidate pair arrays in two key domains, not register tables
+or consumers; absolute keys do not hit ranked MC bases, sections and implicit
+bases are `UNKNOWN`, and bounded stored/exact-wide/ORR materialisation finds
+`0x00003333` and `0x00300014` absent while `0x00300033` has two adjacent
+sequences. It makes no writer-absence claim. Experiment 020's bounded
+register-offset census has a pinned false negative at `0x14868a50`;
+`SUPPORTED` only is treating its largest RWE segment as a candidate by
+size/content. Controller identity, general walkers, DCB consumers and writers
+remain `UNKNOWN`. Experiment 021 proves seven direct
+`BL` and zero direct `B` edges to one bounded-copy target; only five are
+locally labelled `{0,1,2,15,16}`, two are unlabelled, and other-section/global
+delivery is `UNKNOWN`, not refuted. Experiment 022 proves `430/470/122/492`
+counts for two enumerated retained-evidence channels and sparse density;
+completeness is `REFUTED` by known `0x09248080`, while implemented-register
+coverage remains `UNKNOWN`. Class C is unchanged; Experiments 015/016 remain
+`NOT ELIGIBLE`.
+
+Integration validation is independently recorded as 157 focused and 504 full
+unittest PASS, four byte-identical regenerations, and a passing cached-tree
+review. Experiment 023 is `WITHHELD/NO-GO`, not integrated or public: its
+timing protocol is not comparable to Experiment 014 (fixed order, half
+warmup, `ISB`, summed reopen without `/2`), physical-allocation PA provenance
+is missing so a `+0x1000` countermodel fits the labels, and the full GF(2)
+matrix is non-unique. `PA24=b1^b2` is `SUPPORTED` only; raw evidence remains
+private. Experiment 024 is the highest-information next host-only step; its
+design observations are `HYPOTHESIS`/next-stage until a qualified,
+independently reviewed 024 manifest is committed and integrated.
+See [the scorecard](docs/NEXT_EXPERIMENT_SCORECARD.md).
+
 ## A. 현재까지 PROVED
 
 - Exact A90 source, defconfig, System.map, independently extracted stock
@@ -438,6 +468,27 @@ and execution remain `UNKNOWN`. Classification is
   direct-entry census, and the same-function immediate-control CFG result for
   recognized SP-write classes; unsupported instruction effects remain UNKNOWN
   and it does not prove an absolute stack address or runtime destination.
+- Experiment 019 proves strict syntactic candidate pair arrays in two key
+  domains across the bounded DCB blocks. This is a shape result only: the
+  arrays are not proved register tables or consumers, no absolute key reaches
+  a ranked MC base, and bounded materialisation proves only the stated
+  stored/exact-wide/ORR absences (`0x00003333`, `0x00300014`) plus two adjacent
+  `0x00300033` sequences. No writer absence is proved.
+- Experiment 020 proves its bounded register-offset/store census and supports
+  treating the largest RWE segment as a candidate segment only. The pinned
+  false negative at `0x14868a50` refutes any general zero-walker conclusion;
+  general walkers, DCB consumers and writer identity remain `UNKNOWN`.
+- Experiment 021 proves the direct census for one bounded-copy target: seven
+  direct `BL`, zero direct `B`, five locally labelled sites for sections
+  `{0,1,2,15,16}`, and two unlabelled sites. This does not refute delivery of
+  other sections through unlabelled, indirect, other-copy or global paths.
+- Experiment 022 proves the `430/470/122/492` counts and their sparse observed
+  density for two enumerated retained-evidence channels only. The known
+  `0x09248080` counterexample refutes completeness of those channels;
+  implemented-register coverage remains `UNKNOWN`.
+- The integrated host-only validation record is 157 focused and 504 full
+  unittest PASS, four byte-identical regenerations, and cached-tree review
+  PASS.
 
 ## B. 현재 HYPOTHESIS
 
@@ -453,6 +504,16 @@ and execution remain `UNKNOWN`. Classification is
 - One or more coherent set-0 MC/MCCC words may encode geometry, channel
   selection, or a hidden transform term. Their repeated/two-by-two structure
   makes this testable, but no semantic assignment is presently proved.
+- Experiment 024's design observations are next-stage `HYPOTHESIS`, not final
+  `PROVED`: resolve the exact six-byte walker behind the 020 false negative,
+  its three direct callers/table providers, runtime-base provenance and
+  XBL-local table alternatives, then cross-check the two pinned A90
+  design-source snapshots; live-DTB identity remains `UNKNOWN`.
+  The information target is UFS-PHY versus DDR/MC/DCB; no device action is
+  part of the design.
+- Experiment 023R is a later candidate only after a comparable timing
+  protocol, physical-allocation PA provenance and a unique full GF(2) matrix
+  are available. Until then `PA24=b1^b2` is `SUPPORTED`, not `PROVED`.
 
 ## C. REFUTED
 
@@ -540,6 +601,18 @@ and execution remain `UNKNOWN`. Classification is
   traversal is zero-sentinel-only; the exact on-disk table's terminator is at
   index 122.
 
+- “Experiment 019's syntactic pair arrays are proved register tables or
+  consumers.” Their shape does not establish section/base semantics or a
+  writer, and no writer absence follows.
+- “Experiment 020's narrow zero-walker result is a general absence claim.”
+  The pinned false negative at `0x14868a50` refutes that generalization.
+- “Experiment 021's five local section labels account for every direct
+  bounded-copy call.” Two direct `BL` sites are unlabelled; other-section and
+  global delivery are not refuted.
+- “Experiment 022's two enumerated channels are complete.” Known
+  `0x09248080` is outside them, so completeness is `REFUTED`; this does not
+  refute implemented registers outside the channels.
+
 ## D. UNKNOWN
 
 - Contributions from rank-relative PA bits `24..31`, exact physical channel
@@ -603,6 +676,25 @@ and execution remain `UNKNOWN`. Classification is
   destination/ownership, indirect callers, semantics, mutability/lock, alias,
   bypass and writer identity `UNKNOWN`; the three RWE candidates remain outside
   this RX-only stage.
+- Experiment 019 leaves section/base semantics, consumers, register identity,
+  computed values, writer identity and any relation to the GF(2) observation
+  `UNKNOWN`; its materialisation audit is bounded to stored words, exact wide
+  moves and ORR immediates.
+- Experiment 020 leaves the exact six-byte walker interpretation, its DCB
+  identity, runtime base, general walker coverage, DCB consumer and writer
+  `UNKNOWN`; the largest RWE segment is not an identity proof.
+- Experiment 021 leaves the two unlabelled direct calls, delivery of sections
+  outside `{0,1,2,15,16}`, indirect/global callers and other copy routines
+  `UNKNOWN`.
+- Experiment 022 leaves implemented-register denominator/coverage and all
+  unenumerated controller-address channels `UNKNOWN`; sparse observed density
+  is not global search coverage.
+- Experiment 023 remains withheld/`NO-GO`; its protocol comparability, PA
+  provenance, and unique full GF(2) matrix are unresolved, and its raw
+  evidence is private. Experiment 024's unqualified, pre-integration design
+  observations,
+  including the UFS-PHY versus DDR/MC/DCB interpretation, remain
+  `HYPOTHESIS`/next-stage.
 
 ## E. SDM855 physical→DRAM pipeline 후보
 
@@ -707,17 +799,21 @@ ordering remain `UNKNOWN`, so this is not yet a structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-Do not repeat the fixed protected load. Experiment 018 Stage 2D completed the
-cheap host-only direct-BL and exact initialized-slot discriminator for the
-remaining X19 candidate; its conditional effective value misses the 12 numeric
-targets.
-All eleven RX candidates are now examined: four non-SP through Stage 2A–2D and
-seven SP through Stage 2E. Three RWE candidates remain explicitly outside this
-RX-only stage; absolute stack addresses, execution and dynamic paths remain
-`UNKNOWN`.
-Any future writer xref must stay host-only and explicitly scoped; do not perform
-a broad MMIO scan or device action. A cold-boot repetition is not a substitute
-for this writer xref.
+Do not repeat the fixed protected load. Experiments 019–022 have completed the
+current bounded host-only static follow-up and leave consumer/base/writer
+identity `UNKNOWN` where stated above. The highest-information next step is
+Experiment 024: resolve Experiment 020's exact six-byte walker, its three
+direct callers/table providers, runtime-base provenance and XBL-local table
+alternatives, then cross-check the two pinned A90 design-source snapshots;
+live-DTB identity remains `UNKNOWN`. Its unqualified, pre-integration
+design observations remain `HYPOTHESIS`; the goal is to distinguish a UFS-PHY
+path from a DDR/MC/DCB path. This step is host-only and requires no device,
+SMC, MMIO or write action.
+
+Experiment 023R is later and remains withheld until its timing protocol is
+comparable to Experiment 014, physical-allocation PA provenance is present,
+and the full GF(2) matrix is unique. `PA24=b1^b2` remains `SUPPORTED` only.
+See [docs/NEXT_EXPERIMENT_SCORECARD.md](docs/NEXT_EXPERIMENT_SCORECARD.md).
 
 ## N. 가장 위험한 아직 금지된 실험
 
@@ -792,6 +888,18 @@ Evidence for the attack class being relevant:
   SP-base candidates. It does not prove runtime stack placement, physical
   destination, execution, mutation, alias, protected reach, bypass or writer
   absence; Experiments 015 and 016 remain `NOT ELIGIBLE`.
+- Experiment 019 adds syntactic candidate pair-array evidence only. It does
+  not prove register-table meaning, a consumer, a base, writer identity or
+  writer absence; bounded materialisation remains limited to the named models.
+- Experiment 020 adds a bounded register-offset census and candidate-segment
+  observation, but the pinned false negative at `0x14868a50` prevents a general
+  zero-walker inference. General walker, consumer and writer remain `UNKNOWN`.
+- Experiment 021 adds direct-edge evidence for one bounded-copy target only:
+  seven `BL`, zero `B`, five local labels and two unlabelled calls. Other
+  section/global delivery remains `UNKNOWN`, not refuted.
+- Experiment 022 adds sparse density for two enumerated evidence channels only;
+  known `0x09248080` refutes channel completeness and implemented-register
+  coverage remains `UNKNOWN`. These host-only results do not advance 015/016.
 
 Evidence against a presently usable bypass:
 

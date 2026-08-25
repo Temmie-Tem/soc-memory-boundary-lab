@@ -205,6 +205,41 @@ classification is
 Experiment 018 broadens no AOP/TZ scope and does not satisfy reserved/`NOT
 ELIGIBLE` Experiments 015 or 016. See [Experiment 018](experiments/018-xbl-mc-writer-xref/README.md).
 
+Host-only Experiments 019–022 now extend the static boundary with four
+strictly bounded results. Experiment 019 proves only strict syntactic
+candidate address/offset-value pair arrays in two key domains, not register
+tables or consumers; absolute keys do not hit ranked MC bases, sections and
+implicit bases remain `UNKNOWN`, and bounded stored/exact-wide/ORR
+materialisation finds `0x00003333` and `0x00300014` absent while
+`0x00300033` has two adjacent sequences. No writer absence is claimed.
+Experiment 020 proves a bounded register-offset census and exact stores into a
+candidate segment, but only `SUPPORTED` treating the largest RWE segment as a
+candidate by size/content. Its narrow classifier has a pinned false negative
+at `0x14868a50`; controller identity, general walkers, DCB consumers and
+writers remain `UNKNOWN`.
+Experiment 021 proves seven direct `BL` and zero direct `B` edges to one pinned
+bounded-copy target; only five calls are locally labelled `{0,1,2,15,16}` and
+two are unlabelled, so other-section/global delivery is `UNKNOWN`, not
+refuted. Experiment 022 proves `430/470/122/492` counts for two enumerated
+retained-evidence channels and sparse observed density; completeness is
+`REFUTED` by known `0x09248080`, while implemented-register coverage remains
+`UNKNOWN`. Class C is unchanged and Experiments 015/016 remain `NOT ELIGIBLE`.
+
+Integration validation is independently recorded as 157 focused and 504 full
+unittest PASS, four byte-identical regenerations, and a passing cached-tree
+review. Experiment 023 is explicitly `WITHHELD/NO-GO`, not integrated or
+public: its timing protocol is not comparable to Experiment 014, PA
+provenance is missing, and its full GF(2) matrix is non-unique. `PA24=b1^b2`
+is `SUPPORTED` only; raw evidence remains private. Experiment 024 is the
+highest-information next host-only step: resolve Experiment 020's exact
+six-byte walker, three direct callers/table providers, runtime-base provenance
+and XBL-local table alternatives, then cross-check the two pinned A90
+design-source snapshots. Live-DTB identity remains `UNKNOWN`.
+Those design observations are `HYPOTHESIS`/next-stage until a qualified,
+independently reviewed 024 manifest is committed and integrated. See [the
+scorecard](docs/NEXT_EXPERIMENT_SCORECARD.md) and [the
+integration review](docs/CONFIG_CDT_INTEGRATION_REVIEW_2026-08-26.md).
+
 Claim vocabulary is deliberately closed:
 
 - `PROVED`: directly demonstrated by named source, artifact, or repeated result.
@@ -249,6 +284,14 @@ Experiment 017's exact XBL table/read-copy cross-reference is in
 [experiments/017-xbl-mc-snapshot-xref/README.md](experiments/017-xbl-mc-snapshot-xref/README.md).
 Experiment 018's Stage 1A/Stage 2A/Stage 2B/Stage 2C/Stage 2D/Stage 2E XBL writer cross-reference is in
 [experiments/018-xbl-mc-writer-xref/README.md](experiments/018-xbl-mc-writer-xref/README.md).
+Experiment 019's strict DCB pair-array inventory is in
+[experiments/019-dcb-register-programming/README.md](experiments/019-dcb-register-programming/README.md).
+Experiment 020's bounded XBL consumer and register-offset cross-reference is in
+[experiments/020-xbl-dcb-consumer-xref/README.md](experiments/020-xbl-dcb-consumer-xref/README.md).
+Experiment 021's bounded-copy delivery audit is in
+[experiments/021-dcb-delivery-paths/README.md](experiments/021-dcb-delivery-paths/README.md).
+Experiment 022's two-channel observation-coverage audit is in
+[experiments/022-observation-coverage/README.md](experiments/022-observation-coverage/README.md).
 Verification 001's independent re-derivation of the load-bearing static claims
 is in
 [experiments/verification-001-independent-claim-audit/README.md](experiments/verification-001-independent-claim-audit/README.md).

@@ -18,9 +18,11 @@ CPU virtual address
 Evidence: exact source `sm8150-bus.dtsi:1091-1098` and `:1573-1581`, SHA-256
 `2f72785b42496ff21ade9bc2ee5bfc06253daaf6352e1caf2683d0d8a06f4c4d`.
 
-`PROVED`: The exact DT supplies LLCC at `0x09200000 + 0x450000`, four bank
-offsets, and broadcast offset `0x400000`. Evidence: `sm8150.dtsi:1971-1999`,
-SHA-256 `c0d42e66ddd5640e2dd7b65527c25fb617008d94a6a04062b9e1077f0eb63849`.
+`PROVED` as selected OSRC source evidence, not live-DTB identity: its
+`sm8150.dtsi` supplies LLCC at `0x09200000 + 0x450000`, four bank offsets, and
+broadcast offset `0x400000`. Evidence: `sm8150.dtsi:1971-1999`, SHA-256
+`c0d42e66ddd5640e2dd7b65527c25fb617008d94a6a04062b9e1077f0eb63849`. The
+live-DTB hash remains `UNKNOWN`.
 
 `PROVED`: The Linux LLCC driver fields at offsets `0x21000 + 8*n`,
 `0x21004 + 8*n`, `0x21f00`, and `0x21f04` configure cache slice allocation,
@@ -192,6 +194,52 @@ census finds one external BL to each function start and none to interiors.
 Absolute runtime stack address, stack integrity, physical destination,
 execution and writer identity remain `UNKNOWN`; the three RWE candidates are
 outside this RX-only stage.
+
+## Host-only DCB follow-up — Experiments 019–022
+
+`PROVED` by Experiment 019, narrowly: the exact bounded DCB blocks contain
+strict syntactic candidate address/offset-value pair arrays in absolute and
+base-relative key domains. These are not proved register tables or consumers;
+absolute keys do not reach ranked MC bases, and section/base semantics,
+consumer identity, register meaning and writer identity remain `UNKNOWN`.
+The bounded stored-word/exact-wide/ORR audit finds `0x00003333` and
+`0x00300014` absent and two adjacent sequences for `0x00300033`; it does not
+prove writer absence.
+
+`PROVED` by Experiment 020, within its decoder model: the XBL contains 719
+register-offset stores, but the narrow classifier has a pinned false negative
+at `0x14868a50`. `SUPPORTED`: the largest RWE segment is only a candidate
+segment selected by bounded size/content criteria. General six-byte walkers,
+DCB consumers, runtime bases and writers remain `UNKNOWN`; a general
+zero-walker conclusion is `REFUTED` by the pinned false negative.
+
+`PROVED` by Experiment 021 for one pinned bounded-copy target: direct census is
+seven `BL` and zero direct `B` edges; five calls have local labels for sections
+`{0,1,2,15,16}`, and two are unlabelled. Other-section, indirect, other-copy
+and global delivery remain `UNKNOWN`, not refuted. Only local label
+completeness is `REFUTED`.
+
+`PROVED` by Experiment 022: `430/470/122/492` are counts for two enumerated
+retained-evidence channels, and their observed density is sparse. Completeness
+of those channels is `REFUTED` by known `0x09248080`; implemented-register
+coverage and the unenumerated address set remain `UNKNOWN`. These results do
+not identify the final decode owner or advance Experiments 015/016, which
+remain `NOT ELIGIBLE`.
+
+Experiment 023 is explicitly `WITHHELD/NO-GO`, not integrated or public. Its
+protocol is not comparable to Experiment 014, physical-allocation PA
+provenance is missing, its full GF(2) matrix is non-unique, and
+`PA24=b1^b2` is `SUPPORTED` only. Experiment 024 is the highest-information
+next host-only step: resolve the exact six-byte walker, its three direct
+callers/table providers, runtime-base provenance and XBL-local table
+alternatives, then cross-check the two pinned A90 design-source snapshots;
+live-DTB identity remains `UNKNOWN`. Those design
+observations remain `HYPOTHESIS`/next-stage until a qualified, independently
+reviewed 024 manifest is committed and integrated.
+Every-success-path base preservation is currently `UNKNOWN` because helper
+`0x1486abec` reaches unresolved `BLR X9` at `0x1486ac1c`; absence of main/local
+direct-store overwrite does not prove current-base preservation. No device action
+or MMIO write is part of this next step.
 
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside
@@ -392,7 +440,7 @@ all protection ordering relative to DRAM decode remain `UNKNOWN`.
 | Question | Current answer |
 |---|---|
 | Which block owns the final mapping? | `PROVED`: qhs_llcc ICB windows own boot region remapping; live timing proves a distinct low-24 XOR bank-selection relation. MCCC/MC/DDRSS token families are exact candidates; final hardware decode owner remains `UNKNOWN`. |
-| Who programs it? | `PROVED`: XBL programs the region remapper through `icbcfg` and copies section 16 to SHRM. `PROVED`: the exact SHRM section-16 consumers read listed controller words into a read-copy buffer; the observed section-16 paths do not write those addresses. Experiment 017 independently proves the exact XBL helper's store-base dataflow does not program candidate registers. Experiment 018 Stage 1A adds only literal/offset census evidence, Stage 2A refutes only its supported direct-definition path for four RX candidates, Stage 2B refutes only numeric target equality for two W-wide-move-resolved values, Stage 2C refutes only numeric target equality for a 48-row possible-value superset, and Stage 2D refutes only numeric target equality under explicit preservation/slot conditions; none proves writer absence or physical destination. AOP runtime DDR management is `PROVED`; final-decode writer remains `UNKNOWN`. |
+| Who programs it? | `PROVED`: XBL programs the region remapper through `icbcfg` and copies section 16 to SHRM. `PROVED`: the exact SHRM section-16 consumers read listed controller words into a read-copy buffer; the observed section-16 paths do not write those addresses. Experiment 017 independently proves the exact XBL helper's store-base dataflow does not program candidate registers. Experiment 018 Stage 1A adds only literal/offset census evidence, Stage 2A refutes only its supported direct-definition path for four RX candidates, Stage 2B refutes only numeric target equality for two W-wide-move-resolved values, Stage 2C refutes only numeric target equality for a 48-row possible-value superset, and Stage 2D refutes only numeric target equality under explicit preservation/slot conditions; none proves writer absence or physical destination. Experiments 019–022 add only syntactic pair arrays, a bounded register-offset census with a false-negative control, one bounded-copy direct-edge census, and two-channel sparse density. Their consumer/base/writer boundaries remain `UNKNOWN`; 021 other-section/global delivery is not refuted and 022 channel completeness is `REFUTED`. AOP runtime DDR management is `PROVED`; final-decode writer remains `UNKNOWN`. |
 | At what stage? | Region-remap programming during XBL DDR initialization before HLOS is `PROVED`; later mutability remains `UNKNOWN`. |
 | Can EL1 observe it? | `PROVED` behaviorally: non-secure ION/CNTVCT timing exposes the low-24 bank-equivalence relation. Direct register routes remain `REFUTED`: `/dev/mem` is absent and the fixed protected load returned no value. After reset, Samsung Upload exports coherent set-0 words, but is not an EL1 runtime interface and omits remapper controls. Experiment 017 adds host-only static XBL read-copy evidence, not current-boot EL1 observability. |
 | Can EL1 modify it? | No mutation is proved. The exact HLOS-visible XPU-disable allowlist has zero entries, and all known configuration apertures have branch-invariant TZ-owned coverage. Final runtime policy/lock readback is `UNKNOWN`. |

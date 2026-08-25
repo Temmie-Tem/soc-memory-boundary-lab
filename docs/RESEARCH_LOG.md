@@ -784,10 +784,11 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
    artifact and therefore no review-artifact hash.
 9. Current classification remains
    `TABLE_DRIVEN_REGISTER_READ_COPY_PATH_WRITER_AND_TRANSFORM_RELATION_UNKNOWN`;
-   overall state remains Class C transform observation only. The cheapest next
-   discriminator is a host-only symbolic AArch64 store xref/backward slice for
-   the 12 exact qhs_mc targets; unresolved dynamic bases remain `UNKNOWN`, and
-   no broad MMIO scan/device action is authorized.
+   overall state remains Class C transform observation only. The earlier
+   symbolic AArch64 store xref/backward-slice discriminator is covered by
+   Experiments 018–022; unresolved dynamic bases, consumers and writers remain
+   `UNKNOWN`, and no broad MMIO scan/device action is authorized. The current
+   next host-only step is Experiment 024.
 
 ## 2026-08-25 — Experiment 018 XBL MC writer cross-reference Stage 1A
 
@@ -1041,3 +1042,47 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
    Thirteen focused and 347 full unittest-discovery tests pass; all 59 public
    JSON files parse as JSON, regeneration is byte-identical and mode is
    `0644`. Date: 2026-08-26 KST.
+
+## 2026-08-26 — Experiments 019–022 config/CDT integration
+
+1. Integrated the four committed host-only, read-only experiments from commit
+   `3dfa725`. Independent validation records **157 focused PASS**, **504 full
+   unittest PASS**, four byte-identical manifest regenerations, and cached-tree
+   review `PASS`. No device, SMC or MMIO action occurred. Class C remains
+   `TRANSFORM ONLY`; Experiments 015/016 remain `NOT ELIGIBLE`.
+2. Experiment 019 is `PROVED` only for strict syntactic candidate pair arrays
+   in two key domains. The arrays are not proved register tables or consumers;
+   absolute keys do not hit ranked MC bases, and section/base semantics,
+   consumers and writer identity are `UNKNOWN`. The bounded stored/exact-wide/
+   ORR audit finds `0x00003333` and `0x00300014` absent and two adjacent
+   `0x00300033` sequences. No writer absence is claimed.
+3. Experiment 020 is `PROVED` only for its bounded register-offset census and
+   `SUPPORTED` for treating the largest RWE segment as a candidate segment.
+   The narrow classifier has a pinned false negative at `0x14868a50`, so a
+   general zero-walker claim is `REFUTED`. General walker, DCB consumer,
+   runtime-base and writer identity remain `UNKNOWN`.
+4. Experiment 021 is `PROVED` for one pinned bounded-copy target's direct
+   census: seven `BL`, zero `B`, five local labels `{0,1,2,15,16}`, and two
+   unlabelled sites. Other-section, indirect, other-copy and global delivery
+   are `UNKNOWN`, not refuted; only local label completeness is `REFUTED`.
+5. Experiment 022 is `PROVED` for `430/470/122/492` across two enumerated
+   retained-evidence channels and their sparse observed density. Completeness
+   is `REFUTED` by known `0x09248080`; implemented-register coverage remains
+   `UNKNOWN`.
+6. Experiment 023 is explicitly `WITHHELD/NO-GO`, not integrated or public.
+   Its timing protocol is not comparable to Experiment 014 (fixed order, half
+   warmup, `ISB`, summed reopen without `/2`); physical-allocation PA
+   provenance is missing so a `+0x1000` countermodel fits the labels; and the
+   full GF(2) matrix is non-unique. `PA24=b1^b2` is `SUPPORTED` only. Raw
+   evidence remains private.
+7. Experiment 024 is selected as the highest-information next host-only step.
+   Unqualified, pre-integration design observations remain
+   `HYPOTHESIS`/next-stage: resolve
+   the exact six-byte walker behind 020's false negative, its three direct
+   callers/table providers, runtime-base provenance and XBL-local table
+   alternatives, then cross-check the two pinned A90 design-source snapshots;
+   live-DTB identity remains `UNKNOWN`. Every-success-
+   path base preservation is still `UNKNOWN` because helper `0x1486abec`
+   reaches unresolved `BLR X9` at `0x1486ac1c`; main/local direct-store
+   non-overwrite does not prove current-base preservation. No device action or
+   MMIO write is part of this step. See `docs/NEXT_EXPERIMENT_SCORECARD.md`.

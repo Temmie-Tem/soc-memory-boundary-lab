@@ -170,11 +170,11 @@ is proved, but no PA alias, transform mutation, protected reach or bypass is
 proved. Experiments 015 (normal-RAM alias) and 016 (protected-boundary reach)
 remain reserved and `NOT ELIGIBLE`; 017 satisfies neither gate.
 
-The cheapest next discriminator at that stage was a host-only symbolic AArch64 store
-cross-reference/backward slice for the 12 exact qhs_mc targets (four bases ×
-`+0x400`, `+0x404`, `+0x4d0`), resolving MOVZ/MOVK, ADRP+ADD, literal/table
-loads, arithmetic and argument provenance. Unresolved dynamic bases remain
-`UNKNOWN`; no broad MMIO scan or device action is authorized by this result.
+The earlier cheapest discriminator was a host-only symbolic AArch64 store
+cross-reference/backward slice for the 12 exact qhs_mc targets. That line is
+now covered by Experiments 018–022; unresolved dynamic bases, consumers and
+writers remain `UNKNOWN`. The next highest-information step is Experiment 024,
+which stays host-only and performs no broad MMIO scan or device action.
 
 ## Experiment 018 — exact XBL MC writer cross-reference Stage 1A
 
@@ -350,3 +350,68 @@ rebasing, VA-to-PA identity, physical destination/ownership, execution,
 indirect callers and writer identity remain `UNKNOWN`. The three RWE candidates
 remain outside this RX-only stage. Classification:
 `SEVEN_RX_SP_CANDIDATES_ARE_PINNED_STACK_FRAME_STORES_RUNTIME_STACK_ADDRESS_UNKNOWN`.
+
+## Experiment 019 — DCB candidate pair arrays
+
+`PROVED`, narrowly: strict acceptance finds candidate address/offset-value pair
+arrays in two syntactic key domains across the bounded DCB blocks. These are
+not proved register tables or consumers. Absolute keys do not reach ranked MC
+bases; implicit section bases, section semantics, consumers, register identity
+and writer identity remain `UNKNOWN`.
+
+The bounded materialisation audit proves only its named models: stored-word,
+exact one-instruction/adjacent-wide-move and ORR-immediate paths contain no
+`0x00003333` or `0x00300014`, while `0x00300033` has two adjacent sequences.
+Computed/loaded/other ordering remains `UNKNOWN`, and no writer absence is
+claimed. Class C and the `NOT ELIGIBLE` status of Experiments 015/016 are
+unchanged.
+
+## Experiment 020 — DCB consumer and register-offset complement
+
+`PROVED`, within the independent bounded census: 719 register-offset stores
+are present (488 unscaled; 67 loop-shaped). A pinned false negative at
+`0x14868a50` means the narrow classifier's zero is not a general zero-walker
+result. `SUPPORTED`: the largest RWE segment is a candidate segment only.
+
+General six-byte walker coverage, DCB identity, runtime base, table-provider
+identity, consumer and writer remain `UNKNOWN`; the design meaning of the
+false-negative path is deferred to Experiment 024.
+
+## Experiment 021 — bounded-copy delivery paths
+
+`PROVED` for the pinned target and direct encoding census: seven direct `BL`
+edges and zero direct `B` edges exist. Five calls have local labels for
+sections `{0,1,2,15,16}` and two are unlabelled. Other-section, indirect,
+other-copy and global delivery are `UNKNOWN`, not refuted; only the claim that
+the local labels account for every direct call is `REFUTED`.
+
+## Experiment 022 — sparse density of two retained channels
+
+`PROVED`: the two enumerated retained-evidence channels have exact counts
+`430/470/122/492` and sparse observed density around each ranked instance.
+Completeness of those channels is `REFUTED` by known `0x09248080`; the true
+implemented-register denominator and coverage remain `UNKNOWN`. The counts do
+not generalize the negative results of 014, 017, 018, 019 or 021 beyond these
+channels.
+
+## Integration gate and next stage
+
+Independent validation records 157 focused and 504 full unittest PASS, four
+byte-identical regenerations and cached-tree review PASS. Experiment 023 is
+explicitly `WITHHELD/NO-GO`, not integrated or public: its timing protocol is
+not comparable to Experiment 014 (fixed order, half warmup, `ISB`, summed
+reopen without `/2`), physical-allocation PA provenance is missing so a
+`+0x1000` countermodel fits the labels, and the full GF(2) matrix is non-unique.
+`PA24=b1^b2` is `SUPPORTED` only; raw evidence is private.
+
+Experiment 024 is the highest-information next host-only step. Its
+unqualified, pre-integration design observations are `HYPOTHESIS`/next-stage:
+resolve the
+exact six-byte walker behind the 020 false negative, its three direct
+callers/table providers, runtime-base provenance and XBL-local table
+alternatives, then cross-check the two pinned A90 design-source snapshots;
+live-DTB identity remains `UNKNOWN`. Every-success-path
+base preservation is still `UNKNOWN` because helper `0x1486abec` reaches an
+unresolved `BLR X9` at `0x1486ac1c`; absence of main/local direct-store
+overwrites does not prove current-base preservation. No device action or MMIO
+write is part of this step.
