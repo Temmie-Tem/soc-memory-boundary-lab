@@ -1,0 +1,269 @@
+# Experiment 020 — XBL DCB consumers and largest-RWE candidate segment
+
+## Question
+
+Experiment 018 resolved candidate controller stores through four static models —
+direct constant definition, a wide-move extension, a unique-caller retained
+table, and a conditional callee-preservation model — and every one returned no
+target match. Experiment 019 then showed candidate base-relative DCB pair arrays,
+not a proved consumer or register-programming link.
+
+That raises a bounded complement question. Which additional register-offset and
+computed-address shapes lie outside Experiment 018's immediate-offset models?
+This experiment does not establish writer absence or general writer presence.
+
+## Scope and eligibility
+
+Host-only, read-only static evidence over the exact Experiment-004
+`xbl--sdb1.bin`. No device, SMC, MMIO, normal-RAM, protected-memory or
+runtime-register access. Conceptual Experiments 015 and 016 remain reserved and
+`NOT ELIGIBLE`; this experiment satisfies neither gate.
+
+The ELF walk and every decoder here are written independently of the other
+`tools/` modules, for the reason Verification 001 records.
+
+## Result
+
+`PROVED`: the exact XBL contains **719** register-offset stores in executable
+segments (RX 453, RWE 266), of which **488** are unscaled and **67** sit inside
+a short backward-branch loop.
+
+Experiment 018 Stage 1A states its own census as *"strict scalar AArch64 STR W/X
+**unsigned-immediate** recognition"*. A table walker writes through
+`STR Wt,[Xn,Xm]`, because its offset is a value loaded from the table at
+runtime and cannot be an immediate. That class is therefore outside Stage 1A's
+census by construction, and every later stage inherits its candidate list.
+
+`SUPPORTED`: the largest RWE segment is a candidate segment selected by size and
+content, at VA `0x9fc00000`,
+file offset `0x86fd0`, 2,359,296 bytes. It contains **zero** file-backed 64-bit
+values inside the SoC control aperture `0x09000000..0x0a000000`, and **zero**
+equal to a ranked MC base.
+
+`PROVED`: the exact five-store setter writes candidate-segment globals from
+setter at `[0x9fc06410,0x9fc0643c)`:
+
+```text
+0x9fc06424  STR XZR,[X8,#0x368]   -> 0x9fc38368 = 0
+0x9fc06428  STR X0, [X7,#0x360]   -> 0x9fc38360 = argument 0
+0x9fc0642c  STR X1, [X6,#0x370]   -> 0x9fc38370 = argument 1
+0x9fc06430  STR X2, [X5,#0x378]   -> 0x9fc38378 = argument 2
+0x9fc06434  STR W3, [X4,#0x350]   -> 0x9fc38350 = argument 3
+```
+
+Every non-zero store takes its value from an incoming argument register. The
+setter has exactly one direct `BL` caller, at `0x9fc023f0`, which loads those
+arguments from a struct reached through `X0`. Across the whole image, 550
+stores into candidate-segment globals come from a register and 59 write `XZR`.
+
+`SUPPORTED`: Experiment 020 complements Experiment 018 by examining
+register-offset and computed-address shapes outside its immediate-offset models;
+it neither refutes nor proves writer absence.
+
+`UNKNOWN`: the runtime origin of the candidate-segment arguments, and therefore
+the absolute address any candidate-segment store reaches; which register-offset store, if any,
+consumes a DCB table; the implicit base of DCB sections 10, 11 and 12; register
+semantics; the relation to the Experiment 014 GF(2) bank relation; post-boot
+writability; alias; boundary bypass.
+
+Current classification is unchanged:
+
+```text
+CLASS C (TRANSFORM ONLY)
+NO_BOUNDARY_BYPASS_OBSERVED
+```
+
+## Does any of those stores walk a table within the narrow model?
+
+Counting the class Stage 1A cannot see is only useful if one of its members is
+a DCB consumer. A walker reads its store offset out of the table, so the offset
+must change on every pass. That is decidable from the last definition of the
+offset register inside the loop body, where the body runs from the loop head to
+the back edge — a definition placed after the store still applies on the next
+pass, and cutting the body at the store misclassifies those.
+
+Two shapes imitate a walker and are excluded on principle rather than by
+inspection. A loop-invariant `LDR Xd,[Xn,#imm]` whose base is never modified in
+the body loads the same displacement each iteration; that is an array write.
+And a body containing `RET` is a function epilogue restoring callee-saved
+registers from `SP`, which a backward conditional branch on a return path can
+make look like a loop.
+
+Of the 67 looping candidates:
+
+| Offset register definition | Count |
+|---|---:|
+| induction variable or computed | 37 |
+| defined outside the loop | 12 |
+| function epilogue, not a loop | 12 |
+| loaded, but loop-invariant | 6 |
+| **loaded through an advancing pointer** | **0** |
+
+The narrow classifier reports zero register-offset table walkers within the
+stated direct-last-definition loop model. Its exact pinned false negative below
+invalidates any general zero-walker absence claim. General walker presence is
+`UNKNOWN` because the model does not track MOV/register-copy, ORR, shift,
+extend, mask or load taint.
+
+That is a bounded claim. The loop test accepts a backward branch within 24
+instructions whose target lies within 64 instructions before the store, so a
+walker with a longer back edge, an indirect branch, or a test-before-store
+shape falls outside it. A walker would also be missed if a DCB key were a word
+index rather than a byte offset, since the scaled store form is excluded — the
+keys decoded in Experiment 019 are byte offsets, but not every section was
+decoded.
+
+The exact image contains a discovered narrow-model false negative at store
+`0x14868a50`, in range `[0x148689c8,0x14868a60)`. The pinned bytes include
+the preheader `W9=0`, `W10=6` and branch into the loop, followed by the direct
+six-byte-record offset/value store shape `UMADDL` index, LDRH offset, LDRB
+value, LDR base, `STR W14,[X15,X13]`, induction increment, compare and back
+edge. The exact `0x98`-byte range hash is
+`02248b786ffb501a5fa9242aa3952e1e4d783f47464952e96ca2704a9f94341e`. Full
+record semantics, DCB identity, runtime base and execution remain `UNKNOWN`;
+the complete six-byte-record interpretation is reserved for Experiment 024.
+
+## The other store idiom, and AOP
+
+A store need not name its offset at all. `ADD Xd,Xn,Xm` feeding `STR Wt,[Xd]`
+reaches any address while the store itself carries a zero immediate. Experiment
+018 counts unsigned-immediate stores but flags only the three ranked offsets, so
+a zero-offset store is invisible to it in a different way; the register-offset
+census above does not see it either. The XBL DCB loader itself uses the idiom,
+at `0x1489fab8`, to form a section's source address.
+
+The exact XBL contains **8** such sites, of which 3 sit in a backward-branch
+loop: one is a function epilogue and two take the added operand from an
+induction variable. `PROVED`: **0** walkers under this narrow computed-address
+model as well; general MOV/shift/extend/load dataflow remains `UNKNOWN`.
+
+The varying operand here is the `ADD`'s `Xm`, not a field of the store — bits
+16..20 of `STR Wt,[Xd,#0]` are part of its immediate field, and reading them as
+a register number reports a walker that does not exist.
+
+`aop--sdd7.bin` is **ELF32 ARM**, not a raw image. An AArch64 program-header
+walk reads its header as garbage and silently finds nothing, which is how an
+earlier pass in this work mis-recorded it as "not an ELF"; it is parsed here on
+its own terms. Its four `PT_LOAD`s are two executable regions at `0x0b000000`
+and `0x0b0e0000` and two data regions at `0x85f00000` and `0x85f1c000`.
+
+Cortex-M literal scanning proves only that AOP contains **no aligned U32 literal**
+equal to any of the four ranked MC bases, in any file-backed PT_LOAD. Thumb-2
+MOVW/MOVT and computed constructions remain `UNKNOWN`. Its only DCB
+directory-read pairs are two isolated sections, 2 and 21, without the
+consecutive-index run that separates the XBL dispatcher from coincidence.
+
+`UNKNOWN`: whether AOP consumes the DCB base-relative tables or references the
+ranked controller instances indirectly, through a pointer it receives rather
+than a literal it holds.
+
+Read with the section-consumer result below, the checksum/bounds consumers are
+not evidence that the exact XBL does or does not consume the DCB base-relative
+tables. `UNKNOWN`:
+whether the consumer lives in another image; `abl--sdd8.bin` is also ELF32 ARM
+and is not covered here, and neither is the SHRM co-processor.
+
+## The DCB loader, re-derived from code
+
+`tools/xbl_dcb_inventory.py` carries `LOADER_CONSUMED_SECTIONS` as a hardcoded
+constant restating a prior finding; nothing in the repository checked it against
+the instruction stream. This experiment locates the loader independently, by
+the cluster of size constants only it carries, and re-derives the list.
+
+The window is `0x1489f9e8..0x1489fbe8`, holding `0x3404`, `0x77c`, `0x3dc` and
+`0x108`. Its structure per section is a directory read followed by a bounded
+copy:
+
+```text
+0x1489faac  LDRH W9,[X13,#0xc]      section 0 data_offset
+0x1489fab0  LDRH W3,[X13,#0xe]      section 0 size
+0x1489fab4  ADD  X0,X14,#0x2b0      destination xbl_context+0x2b0
+0x1489fabc  BL   0x1483ab24         bounded copy, limit W1 = 0x77c
+```
+
+The sections derived this way are `{0, 1, 2, 15, 16}`, which **matches** the
+recorded constant exactly. `PROVED`: the recorded loader-consumption value is
+correct. This is an independent check of a load-bearing repository constant, not
+a new claim about it.
+
+## Other DCB consumers
+
+This scan searches for a directory-slot pair of `LDRH` at
+`0x0c + index*4` and `+2` from one base register. That specific pattern finds a
+contiguous run in `xbl--sdb1.bin` at `0x1485f0f8`, `0x1485f13c`, `0x1485f17c`,
+`0x1485f1c0`, `0x1485f200` and `0x1485f23c` — sections 5 through 10 in six code
+blocks of equal size, reached by a `BR` jump table at `0x1485f0dc`.
+
+Each block calls the same routine at `0x148312b0` and accumulates its result in
+`W0`. That shape is a per-section checksum accumulation over the DCB, not a
+register programmer. A second section-10 reader at `0x148ab138` compares a value
+against the section's offset and size and branches to an error path; it is a
+bounds check, also not a programmer.
+
+`UNKNOWN`: no DCB consumer that programs controller registers was identified.
+Isolated matches for sections 7, 10, 11 and 12 in `tz--sdd5.bin` and
+`hyp--sdd33.bin` are recorded but not promoted: those directory offsets are
+common structure offsets, and unlike the XBL run there is no consecutive-index
+pattern to separate them from coincidence.
+
+## Why this complements the search
+
+Three bounded observations now complement one another. Experiment 019 records
+candidate address/offset-value pair arrays, including a base-relative syntactic
+domain; consumer identity, base recovery and register semantics remain
+`UNKNOWN`. A consumer hypothesis could use a register-offset store, which Stage
+1A does not count. Separately, the scoped candidate-segment observations find
+runtime arguments and zero-initialised globals, but do not establish which
+consumer or absolute destination they serve.
+
+Taken together these do not show that a writer exists or is absent. They show
+that additional register-offset, computed-address and dataflow-aware analysis is
+needed before interpreting the accumulated negatives. The ranked-candidate
+evidence from Experiments 014, 017 and 019 is unaffected; Experiment 020 adds a
+bounded complement and an exact false-negative control.
+
+## Limits
+
+The loop test accepts any backward branch within 24 instructions whose target
+lies within 64 instructions before the store. It is a shape filter, not a proof
+of iteration, and its zero is only within the narrow direct-last-definition
+model. MOV/shift/extend/mask/load taint, indirect control flow and walkers
+outside that window remain `UNKNOWN`. The setter is pinned by
+address after reading its disassembly rather than discovered by a rule, so it
+is exact for this image and carries no claim of being the only such setter. The
+`0x9fc00000` segment is selected as the largest-RWE candidate by size and
+content, which is `SUPPORTED` inference, not an identity claim or symbol.
+
+## Evidence
+
+- `evidence/manifests/020-xbl-dcb-consumer-xref-20260826-01.manifest.json`
+
+The manifest contains hashes, addresses, counts and classifications only. It
+contains no raw firmware bytes and no private paths.
+
+## Reproduce
+
+```sh
+python3 tools/sm8150_xbl_dcb_consumer_xref.py \
+  --output "$(mktemp -d /tmp/exp020.XXXXXX)/result.json"
+python3 -m unittest -v tests.test_sm8150_xbl_dcb_consumer_xref
+```
+
+## Provenance
+
+- Tool SHA-256:
+  `49fa50dd45d768b01b865ad4dcd1dcc97132ac2e6245eb951b1950e5d9788df3`.
+- Focused-test SHA-256:
+  `5fe1c94ae7009d4965a1f96989b68970cdaa79c590b5d8d4f98b6b44b3725d94`.
+- Public manifest SHA-256:
+  `31e8dd6791f07d007447600969326a86466f20a0cb263a58885c1489bd284c9a`.
+- Focused result: 62 tests pass; combined Experiment 019/020 result: 105 tests
+  pass. Full repository unittest discovery is `NOT_RERUN_IN_THIS_INTEGRATION`;
+  primary validation remains responsible for that accounting.
+- Regeneration is byte-identical; manifest mode is `0644`.
+- Date: 2026-08-26 KST.
+- Mode: `HOST_ONLY_READ_ONLY`; device, SMC and MMIO access: none.
+- Produced on branch `research/xbl-config-cdt` in a separate worktree,
+  concurrently with Experiment 018 Stage 2D on `main`. `STATUS.md`,
+  `docs/EXPERIMENT_MATRIX.md` and `docs/RESEARCH_LOG.md` are deliberately
+  untouched here and are reconciled at integration.
