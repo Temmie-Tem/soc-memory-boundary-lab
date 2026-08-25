@@ -1,0 +1,176 @@
+{
+ "abl_searchability": {
+  "aarch64_ret_count": 0,
+  "available": true,
+  "elf_class": 32,
+  "payload_entropy_bits_per_byte": 8.0,
+  "payload_size": 2293760,
+  "program_headers": [
+   {
+    "file_size": 148,
+    "type": 0,
+    "vaddr": "0x00000000"
+   },
+   {
+    "file_size": 6712,
+    "type": 0,
+    "vaddr": "0x9fc30000"
+   },
+   {
+    "file_size": 2293760,
+    "type": 1,
+    "vaddr": "0x9fa00000"
+   }
+  ],
+  "reason": "COMPRESSED_UEFI_FIRMWARE_VOLUME: a literal-absence result over these bytes is void",
+  "searchable": false,
+  "uefi_firmware_volume": true
+ },
+ "bounded_copy_probe_sha256": "9cf4ae37942180041e4cbb78c3a1d91a877a5ac732e6099f6224ef7fc6ca6c14",
+ "claims": {
+  "PROVED": [
+   "The loader's bounded copy has a finite call graph, and the DCB sections reached through it are exactly the five Experiment 004 records.",
+   "No other DCB section is copied out of the block by that routine, so the base-relative programming tables have no delivery path through it.",
+   "The embedded SHRM Xtensa blob holds aligned literals inside the first ranked MC instance block, and none equal to any of the twelve ranked target addresses.",
+   "abl is a UEFI firmware volume whose payload is incompressible, so a literal search over it cannot produce a meaningful result either way."
+  ],
+  "REFUTED": [
+   "The DCB base-relative tables are delivered to a consumer by the XBL bounded copy."
+  ],
+  "UNKNOWN": [
+   "Whether abl consumes the DCB tables: its payload is not searchable without decompressing the firmware volume, which this does not attempt.",
+   "Whether SHRM reaches a ranked target by computing an offset from the base literal it does hold, rather than storing the target address.",
+   "Whether a copy path exists through a routine other than this one.",
+   "Register semantics, the relation to the Experiment 014 GF(2) bank relation, post-boot writability, alias and boundary bypass."
+  ]
+ },
+ "dcb_copy_paths": {
+  "bounded_copy_va": "0x1483ab24",
+  "call_site_count": 7,
+  "call_sites": [
+   {
+    "call_va": "0x1489fabc",
+    "dcb_section": 0,
+    "segment": "RWE"
+   },
+   {
+    "call_va": "0x1489fadc",
+    "dcb_section": 1,
+    "segment": "RWE"
+   },
+   {
+    "call_va": "0x1489fafc",
+    "dcb_section": 2,
+    "segment": "RWE"
+   },
+   {
+    "call_va": "0x1489fb2c",
+    "dcb_section": 15,
+    "segment": "RWE"
+   },
+   {
+    "call_va": "0x1489fb4c",
+    "dcb_section": 16,
+    "segment": "RWE"
+   },
+   {
+    "call_va": "0x148a0684",
+    "dcb_section": null,
+    "segment": "RWE"
+   },
+   {
+    "call_va": "0x148b3e08",
+    "dcb_section": null,
+    "segment": "RWE"
+   }
+  ],
+  "matches_recorded_loader_sections": true,
+  "sections_copied": [
+   0,
+   1,
+   2,
+   15,
+   16
+  ],
+  "sections_with_no_copy_path": [
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   17
+  ]
+ },
+ "device_access": "none",
+ "experiment_id": "021-dcb-delivery-paths",
+ "image": "xbl--sdb1.bin",
+ "image_sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+ "mode": "HOST_ONLY_READ_ONLY",
+ "schema": "sm8150-dcb-delivery-paths-v1",
+ "shrm_blob_literal_audit": {
+  "aperture_aligned_words": 116,
+  "aperture_blocks": 39,
+  "blob_sha256": "421824b417ab28e6c0d1802c05d7ce5422e93b116973ce7f039321fb5a01a1fd",
+  "blob_size": 23776,
+  "blob_vaddr": "0x148bbe98",
+  "ranked_base_blocks": {
+   "0x09260000": [
+    {
+     "blob_offset": "0x003bc",
+     "offset_from_base": "0x0",
+     "shrm_vaddr": "0x283bc",
+     "value": "0x09260000"
+    },
+    {
+     "blob_offset": "0x003b0",
+     "offset_from_base": "0x200",
+     "shrm_vaddr": "0x283b0",
+     "value": "0x09260200"
+    },
+    {
+     "blob_offset": "0x004e4",
+     "offset_from_base": "0x5200",
+     "shrm_vaddr": "0x284e4",
+     "value": "0x09265200"
+    },
+    {
+     "blob_offset": "0x0052c",
+     "offset_from_base": "0x5600",
+     "shrm_vaddr": "0x2852c",
+     "value": "0x09265600"
+    },
+    {
+     "blob_offset": "0x001a4",
+     "offset_from_base": "0x5a00",
+     "shrm_vaddr": "0x281a4",
+     "value": "0x09265a00"
+    },
+    {
+     "blob_offset": "0x003b4",
+     "offset_from_base": "0x6200",
+     "shrm_vaddr": "0x283b4",
+     "value": "0x09266200"
+    },
+    {
+     "blob_offset": "0x00520",
+     "offset_from_base": "0x9124",
+     "shrm_vaddr": "0x28520",
+     "value": "0x09269124"
+    }
+   ],
+   "0x092e0000": [],
+   "0x09360000": [],
+   "0x093e0000": []
+  },
+  "ranked_target_literals": {},
+  "reaches_a_ranked_instance": true,
+  "reaches_a_ranked_target": false
+ }
+}
