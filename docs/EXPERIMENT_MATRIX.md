@@ -21,7 +21,7 @@
 | 017 | Does exact XBL expose a table-driven MC read-copy path that independently covers the ranked MC candidates? | The pinned u64 table parses to 122 entries plus a zero terminator; the exact helper's static flow conditionally loads each table-derived address and stores results to a distinct buffer. | Exact XBL size/hash, PT_LOAD mapping, inclusive table/helper hashes, AArch64 word pins, direct-BL scan limited to file-backed executable PT_LOADs, SHRM-plan address-list cross-check; host-only, no device/SMC/MMIO. | `PROVED`: 30×4 MC groups + 2 globals, all 12 qhs_mc candidates covered, helper read-copy store-base dataflow, exactly two direct BL callsites. `REFUTED`: helper as candidate-register writer and independent hard 122-entry cap. Runtime completion/coherence/currentness, mutable table state, indirect reachability and writer semantics `UNKNOWN`; 015/016 remain `NOT ELIGIBLE`. |
 | 018 | Does exact XBL contain literal and syntactic store-offset evidence for the 12 ranked MC targets, and do the non-SP RX candidates resolve through narrow direct-definition models? | Each target's single 8-byte table encoding yields one aligned u64 match and the overlapping aligned u32 match at the same file offset; strict STR W/X unsigned-immediate offsets enumerate candidates. Stage 2A resolves only 64-bit MOVZ/MOVK or same-register `ADRP Xn; ADD Xn,Xn,#imm` within 128 instructions; Stage 2B extends only its two X8 window-limit candidates with same-register W MOVZ/MOVK within 512 instructions; Stage 2C analyzes one X8 writer through its unique direct caller and 48-row retained table; Stage 2D analyzes the remaining X19 store under explicit dispatch, normal-return, and initialized-slot conditions; Stage 2E analyzes only the seven RX SP-base stores against exact F1/F2 local frame allocations. | Exact XBL size/SHA-256, PT_LOAD RX/RWE/RW/OTHER census, scalar STR decoder negatives, literal mapping/table membership, exact candidate/code/table/initializer pins, exact target instruction-class/write-set audit, exact SP-write/site manifest bound to both function hashes, explicit memory-writeback, BR/BLR, all-file-backed executable PT_LOAD-word direct-entry, direct BL/B and success-path cutoffs, unsupported/mixed-width definition negatives; host-only, no device/SMC/MMIO. | `PROVED`: the two aligned matches per target are views of one table entry, not independent literals, with no separate target literal elsewhere; outside-table aligned u32 only for base `0x09260000` at file `0x80154` / VA `0x148bc254` in RWE; 14 matching offsets (RX11/RWE3), seven RX SP-based; Stage 2A has two window-limit no-definitions, one unsupported LDR, one BL control boundary, zero resolved bases/hits. Stage 2B resolves two W-wide-move bases to XBL virtual-address values `0x1489f000`, computing `0x1489f400`/`0x1489f4d0`, with zero numeric target hits. Stage 2C proves one direct BL, the 56/108/272-byte code-range hashes, and 48 unique ID/pointer rows with zero numeric target matches; these are a descriptor-eligibility-dependent possible-value superset. Stage 2D proves the remaining caller/function/initializer/target static pins, exact target no-call/no-saved-register audit, dispatch and normal-return pins, and computes `0x85e9e970` only within explicit runtime/slot conditions; its conditional value has zero numeric target matches. Stage 2E proves all seven SP forms, both frame ranges/hashes and callers, four recognized explicit writeback sites per function (two SP frame updates and two non-SP writebacks), zero recognized BR/BLR transfers, one external direct BL to each function start with zero external entries to interiors, and in-allocation bounds. The same-function immediate-control CFG (BL modeled as fallthrough) has no recognized SP-write-class instruction after allocation on a path to each candidate; unsupported instruction effects remain `UNKNOWN`; absolute stack address and runtime destination remain `UNKNOWN`. `REFUTED` only: the supported Stage 2A direct-definition path, Stage 2B/2C/2D numeric target equality in their stated models, and static absolute/controller-base interpretation of these seven stores within the normal frame model. Physical destination, runtime execution, writer identity outside scoped paths and all SP/RWE/unsupported/dynamic paths remain `UNKNOWN`; 015/016 remain `NOT ELIGIBLE`. |
 
-## Integrated host-only rows 019–022
+## Integrated host-only rows 019–022 and 024
 
 | ID | Question | Bounded result | Classification and boundary |
 |---:|---|---|---|
@@ -29,16 +29,21 @@
 | 020 | Which register-offset/computed-address shapes are outside the 018 immediate-offset models? | `PROVED`: bounded census of 719 register-offset stores (488 unscaled; 67 loop-shaped) and bounded computed-address audit. `SUPPORTED`: largest RWE segment is a candidate segment only. The narrow classifier has a pinned false negative at `0x14868a50`. | General walker, DCB consumer, runtime base, writer and semantic identity remain `UNKNOWN`; the false negative refutes a general zero-walker claim. |
 | 021 | Does one pinned bounded-copy target receive DCB section data through direct edges? | `PROVED`: 7 direct `BL`, 0 direct `B`; five local labels `{0,1,2,15,16}`, two direct `BL` sites unlabelled. | Other-section/global/indirect delivery is `UNKNOWN`, not refuted. Only the local label-completeness claim is `REFUTED`. |
 | 022 | How dense are two retained-evidence address channels around ranked MC instances? | `PROVED`: set-0/union/XBL-table/union counts `430/470/122/492`, with sparse observed-span density. | Completeness of the two enumerated channels is `REFUTED` by known `0x09248080`; implemented-register denominator/coverage is `UNKNOWN`. |
+| 024 | Does the exact false-negative loop from 020 resolve as an XBL-resident six-byte table walker and a conditional UFS-PHY path? | `PROVED`: walker `[0x148689a0,0x14868a64)` uses six-byte records, exact `0x8000`/`B.EQ` return-before-store, and conditional 32-bit storage of the zero-extended byte; exactly three direct callers select five XBL-resident alternatives plus provider3's selector-`0xf` zero-count/no-pointer path. The selector unions contain 53 and 127 unique offsets, a 170-offset syntactic superset, and 221 nonterminator records. The two pinned design-source UFS blocks are byte-identical; under initialized-base retention all 170 symbolic destinations lie in broader `ufshc` `ufs_phy`. | `SUPPORTED`: table-driven UFS interpretation only under base retention and store reach. `UNKNOWN`: current base, selector/runtime execution, reached-store subset, flag semantics, live-DTB equality, DCB semantic alias/global consumer/writer, DDR/MC relation, GF(2), alias/bypass, and actual current destinations. All mappings are conditional symbolic supersets. |
 
 The integrated results remain `CLASS C (TRANSFORM ONLY)`, with Experiments 015
-and 016 `NOT ELIGIBLE`. Independent validation is 157 focused and 504 full
-unittest PASS, four byte-identical regenerations, and cached-tree review PASS.
-Experiment 023 is `WITHHELD/NO-GO`, not integrated or public. Its protocol is
-not comparable to 014, physical-allocation PA provenance is missing, the full
-GF(2) matrix is non-unique, and `PA24=b1^b2` is `SUPPORTED` only. Experiment
-024 is the highest-information next host-only step; its design observations
-remain `HYPOTHESIS`/next-stage until a qualified, independently reviewed 024
-manifest is committed and integrated. See
+and 016 `NOT ELIGIBLE`. Independent validation is 30 focused and 534 full
+unittest PASS, 64 public JSON manifests, byte-identical regeneration, and two
+independent review PASS results recorded in
+[EXP024_INTEGRATION_REVIEW_2026-08-26.md](EXP024_INTEGRATION_REVIEW_2026-08-26.md).
+Experiment 023 is `WITHHELD/NO-GO`, not
+integrated or public. Its protocol is not comparable to 014, physical-
+allocation PA provenance is missing, the full GF(2) matrix is non-unique, and
+`PA24=b1^b2` is `SUPPORTED` only. The next highest-information host-only step
+is Experiment 025: bound registry/attach/factory/vtable/callback reach,
+write cross-references, and boot-order evidence for runtime BSS slot
+`0x14890590` and registry `[0x14890e50,0x14890f50)`. Do not promote before a
+qualified, independently reviewed committed 025 manifest. See
 [docs/NEXT_EXPERIMENT_SCORECARD.md](NEXT_EXPERIMENT_SCORECARD.md).
 
 The Stage 2E row's writeback result is an exact audit of all recognized
@@ -934,15 +939,65 @@ preserve the already allocated Experiment 014–016 sequence.
   `4e44f2a1801f85d20bce762b4278e394f7bfc958f6eb13a30afc564773580feb` /
   `8218b3084a89c39d2b64841f72e425a51bfdf951be346c149f2be63ab9a50390`.
 
+## Experiment 024 exact XBL six-byte walker metadata
+
+- Experiment ID: `024-xbl-six-byte-walker-20260826-01`; commit: `c62c33e`.
+- Scope: host-only, read-only static analysis of exact XBL and two pinned design
+  sources; no device, SMC, MMIO, protected-memory, normal-RAM, or activation
+  action.
+- `PROVED`: walker range `[0x148689a0,0x14868a64)` is 196 bytes with SHA-256
+  `08265307d79c5f82b85266613f241ae160151dcfe51b19da108f9ad6c4e15021`; it
+  uses six-byte records, exact `0x8000` terminator and `B.EQ` return-before-
+  store, and conditionally writes the zero-extended byte as a 32-bit word.
+- `PROVED`: direct callers are exactly `0x14868640`, `0x1486867c`, and
+  `0x14868698`; five nonzero provider alternatives select XBL-resident tables,
+  while provider3 on selector `== 0xf` returns count zero without a pointer.
+  The alternatives contain 221 nonterminator records and 170 unique aligned
+  offsets in the cross-alternative syntactic superset (selector unions 53 and
+  127). The five table starts/counts/hashes are:
+  `0x14880bee/43/f7b7ca7dae26320d69c87c9b4c59472eb0933aa7216936ed7564f78b770f643c`,
+  `0x14880e70/90/8c26948bb9e7e24ae9c2d950412e851dd1e60e412aa4f82d7936c247103ac240`,
+  `0x14880ba0/13/eac051599765de4842c6ecf7a6076813eac93a07cd052d829787b1095fa353b1`,
+  `0x14880cf0/64/7c0fb81701455fb380cf4a2d1af4120a444a6be66235c2a87dad5ca2c932711f`,
+  `0x14880b40/16/1c596a44cbec1cdbcc5b23e81eccde1c20556b17ab3c434ef393c29ab63aa015`.
+- `PROVED`: under initialized-base retention, the two pinned design-source UFS
+  blocks are byte-identical (4,464 bytes, SHA-256
+  `cea31db3785be5916a1ff08d1c99b92155a7914b07d09ecb6c3638d8c16ff10a`).
+  Under initialized-base retention, all 170 symbolic destinations are within
+  `ufshc` `ufs_phy` `[0x01d87000,0x01d87e00)`; 167 are within standalone
+  `ufsphy_mem` `[0x01d87000,0x01d87da8)`, with `0x7dc4`, `0x7dd8`, and `0x7de0`
+  beyond that narrower resource. The Experiment 019 dependency pins the
+  separate 8-byte representation; semantic DCB identity is `UNKNOWN`.
+- `SUPPORTED`: the table-driven positive control is conditional on initialized
+  base retention and flag-gated store reach. `UNKNOWN`: current base,
+  selector/runtime execution, reached-store subset, flag semantics, live-DTB
+  equality, DCB semantic alias/global consumer/writer, DDR/MC relation, GF(2),
+  aliases, bypass, and actual current destinations. Class C remains unchanged;
+  Experiments 015/016 remain `NOT ELIGIBLE`.
+- Tool/test/manifest SHA-256:
+  `f0ccb5648b2cce4ab2b835e23c4658c976df9779b0ae6273767b59cc7b6a58bf` /
+  `97c58a22c5c3e7e6cd5b7bc4f8d181c74050b2b530afac03eba3fbb946577f6d` /
+  `f9ac896d396650075ca9e66d8d805a2deaf40b0207e819cd94f8d638c8121b01`.
+- Public manifest: `evidence/manifests/024-xbl-six-byte-walker-20260826-01.manifest.json`
+  (30,400 bytes, mode `0644`).
+- Host verification: 30 focused and 534 full unittest-discovery tests pass;
+  all 64 public JSON manifests parse, regeneration is byte-identical, and two
+  independent reviews pass as recorded in
+  [EXP024_INTEGRATION_REVIEW_2026-08-26.md](EXP024_INTEGRATION_REVIEW_2026-08-26.md).
+
 ## Integration validation and withheld Experiment 023
 
-Independent integration validation is 157 focused and 504 full repository
-unittest PASS, four byte-identical manifest regenerations, and cached-tree
-review PASS. Experiment 023 is explicitly `WITHHELD/NO-GO`, not integrated or
-public: its timing protocol is not comparable to 014, physical-allocation PA
-provenance is missing, the full GF(2) matrix is non-unique, and `PA24=b1^b2`
-is `SUPPORTED` only. Raw evidence remains private. Experiment 024 is the
-highest-information next host-only step; its design observations are
-`HYPOTHESIS`/next-stage until a qualified, independently reviewed 024 manifest
-is committed and integrated. See
+Independent integration validation is 30 focused and 534 full repository
+unittest PASS, 64 public JSON manifests, byte-identical regeneration, and two
+independent review PASS results recorded in
+[EXP024_INTEGRATION_REVIEW_2026-08-26.md](EXP024_INTEGRATION_REVIEW_2026-08-26.md).
+Experiment 023 is explicitly
+`WITHHELD/NO-GO`, not integrated or public: its timing protocol is not
+comparable to 014, physical-allocation PA provenance is missing, the full
+GF(2) matrix is non-unique, and `PA24=b1^b2` is `SUPPORTED` only. Raw evidence
+remains private. Experiment 025 is the next highest-information host-only
+step: bound registry/attach/factory/vtable/callback reach, write
+cross-references, and boot-order evidence for runtime BSS slot `0x14890590`
+and registry `[0x14890e50,0x14890f50)`. Do not promote before a qualified,
+independently reviewed committed 025 manifest. See
 [NEXT_EXPERIMENT_SCORECARD.md](NEXT_EXPERIMENT_SCORECARD.md).

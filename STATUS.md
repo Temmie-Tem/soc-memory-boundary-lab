@@ -142,17 +142,38 @@ completeness is `REFUTED` by known `0x09248080`, while implemented-register
 coverage remains `UNKNOWN`. Class C is unchanged; Experiments 015/016 remain
 `NOT ELIGIBLE`.
 
-Integration validation is independently recorded as 157 focused and 504 full
-unittest PASS, four byte-identical regenerations, and a passing cached-tree
-review. Experiment 023 is `WITHHELD/NO-GO`, not integrated or public: its
-timing protocol is not comparable to Experiment 014 (fixed order, half
-warmup, `ISB`, summed reopen without `/2`), physical-allocation PA provenance
-is missing so a `+0x1000` countermodel fits the labels, and the full GF(2)
-matrix is non-unique. `PA24=b1^b2` is `SUPPORTED` only; raw evidence remains
-private. Experiment 024 is the highest-information next host-only step; its
-design observations are `HYPOTHESIS`/next-stage until a qualified,
-independently reviewed 024 manifest is committed and integrated.
-See [the scorecard](docs/NEXT_EXPERIMENT_SCORECARD.md).
+Integration validation for the current host-only record is independently
+recorded as 30 focused and 534 full unittest PASS, 64 public JSON manifests,
+byte-identical regeneration, and two independent review PASS results in the
+[Experiment 024 integration review](docs/EXP024_INTEGRATION_REVIEW_2026-08-26.md).
+Experiment 023 is `WITHHELD/NO-GO`, not integrated or public: its timing
+protocol is not comparable to Experiment 014 (fixed order, half warmup,
+`ISB`, summed reopen without `/2`), physical-allocation PA provenance is
+missing so a `+0x1000` countermodel fits the labels, and the full GF(2) matrix
+is non-unique. `PA24=b1^b2` is `SUPPORTED` only; raw evidence remains private.
+
+Experiment 024 is `COMPLETED` and integrated. `PROVED`: the exact
+`[0x148689a0,0x14868a64)` walker uses six-byte records, compares flags with
+`0x8000`, branches `B.EQ` to return before the store, and conditionally stores
+the zero-extended byte as a 32-bit word. Exactly three direct callers select
+five XBL-resident table alternatives; selector unions are 53 and 127 unique
+offsets with a 170-offset cross-alternative syntactic superset and 221
+nonterminator records. The two pinned UFS design blocks are byte-identical;
+under initialized-base retention all 170 symbolic destinations lie in the
+broader `ufshc` `ufs_phy` resource. `SUPPORTED`: the table-driven positive
+control is conditional on base retention and store reach. `UNKNOWN`: current
+base because helper `0x1486abec` reaches unresolved `BLR X9` at `0x1486ac1c`,
+selector/runtime execution, reached-store subset, flag semantics, live-DTB
+equality, DCB semantic alias/global consumer/writer, DDR/MC relation, GF(2),
+and alias/bypass. All mappings are conditional symbolic supersets, not current
+destinations. Class C remains unchanged and Experiments 015/016 remain
+`NOT ELIGIBLE`.
+
+The next highest-information host-only step is bounded Experiment 025 proof
+for runtime-BSS slot `0x14890590` and registry `[0x14890e50,0x14890f50)`:
+registry/attach/factory/vtable/callback reach, write cross-references, and
+boot-order evidence. Do not promote before a qualified, independently
+reviewed committed 025 manifest. See [the scorecard](docs/NEXT_EXPERIMENT_SCORECARD.md).
 
 ## A. 현재까지 PROVED
 
@@ -486,9 +507,10 @@ See [the scorecard](docs/NEXT_EXPERIMENT_SCORECARD.md).
   density for two enumerated retained-evidence channels only. The known
   `0x09248080` counterexample refutes completeness of those channels;
   implemented-register coverage remains `UNKNOWN`.
-- The integrated host-only validation record is 157 focused and 504 full
-  unittest PASS, four byte-identical regenerations, and cached-tree review
-  PASS.
+- The integrated host-only validation record is 30 focused and 534 full
+  unittest PASS, 64 public JSON manifests, byte-identical regeneration, and
+  two independent review PASS results recorded in the
+  [Experiment 024 integration review](docs/EXP024_INTEGRATION_REVIEW_2026-08-26.md).
 
 ## B. 현재 HYPOTHESIS
 
@@ -504,13 +526,15 @@ See [the scorecard](docs/NEXT_EXPERIMENT_SCORECARD.md).
 - One or more coherent set-0 MC/MCCC words may encode geometry, channel
   selection, or a hidden transform term. Their repeated/two-by-two structure
   makes this testable, but no semantic assignment is presently proved.
-- Experiment 024's design observations are next-stage `HYPOTHESIS`, not final
-  `PROVED`: resolve the exact six-byte walker behind the 020 false negative,
-  its three direct callers/table providers, runtime-base provenance and
-  XBL-local table alternatives, then cross-check the two pinned A90
-  design-source snapshots; live-DTB identity remains `UNKNOWN`.
-  The information target is UFS-PHY versus DDR/MC/DCB; no device action is
-  part of the design.
+- Experiment 025 is a bounded `HYPOTHESIS` test of whether the runtime-BSS
+  object/registry path can keep the initialized base current through the
+  unresolved success-path callback. Its design inputs are the seed
+  `[0x1482ee38,0x1482ee4c)`, registry/attach `[0x1482d7ec,0x1482d948)`,
+  wrappers `[0x1482e7bc,0x1482e834)`, record `0x14875590` ID `0x02000139`,
+  descriptor/vtable `0x14824ab8..0x14824b40`, factory
+  `[0x1484a880,0x1484a8fc)`, callback `[0x1484a9d4,0x1484aa0c)`, runtime BSS
+  slot `0x14890590`, and registry `[0x14890e50,0x14890f50)`. No device action
+  is part of the design.
 - Experiment 023R is a later candidate only after a comparable timing
   protocol, physical-allocation PA provenance and a unique full GF(2) matrix
   are available. Until then `PA24=b1^b2` is `SUPPORTED`, not `PROVED`.
@@ -691,10 +715,10 @@ See [the scorecard](docs/NEXT_EXPERIMENT_SCORECARD.md).
   is not global search coverage.
 - Experiment 023 remains withheld/`NO-GO`; its protocol comparability, PA
   provenance, and unique full GF(2) matrix are unresolved, and its raw
-  evidence is private. Experiment 024's unqualified, pre-integration design
-  observations,
-  including the UFS-PHY versus DDR/MC/DCB interpretation, remain
-  `HYPOTHESIS`/next-stage.
+  evidence is private. Experiment 024 does not refute a DDR/MC/DCB path,
+  current base, runtime execution, reached-store subset, flag semantics,
+  live-DTB equality, DCB semantic alias/global consumer/writer, DDR/MC
+  relation, GF(2), or alias/bypass; those boundaries remain `UNKNOWN`.
 
 ## E. SDM855 physical→DRAM pipeline 후보
 
@@ -799,16 +823,26 @@ ordering remain `UNKNOWN`, so this is not yet a structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-Do not repeat the fixed protected load. Experiments 019–022 have completed the
-current bounded host-only static follow-up and leave consumer/base/writer
-identity `UNKNOWN` where stated above. The highest-information next step is
-Experiment 024: resolve Experiment 020's exact six-byte walker, its three
-direct callers/table providers, runtime-base provenance and XBL-local table
-alternatives, then cross-check the two pinned A90 design-source snapshots;
-live-DTB identity remains `UNKNOWN`. Its unqualified, pre-integration
-design observations remain `HYPOTHESIS`; the goal is to distinguish a UFS-PHY
-path from a DDR/MC/DCB path. This step is host-only and requires no device,
-SMC, MMIO or write action.
+Do not repeat the fixed protected load. Experiments 019–022 and 024 have
+completed the current bounded host-only static follow-up. Experiment 024
+`PROVED` the exact six-byte walker, three direct callers, five XBL-resident
+table alternatives, 53/127 selector offset unions, 170-offset conditional
+superset and 221 nonterminator records; it `SUPPORTED` the table-driven UFS
+positive control only under initialized-base retention and store reach. Current
+base, runtime execution, reached-store subset, flag semantics, live-DTB
+equality, DCB semantic alias/global consumer/writer, DDR/MC relation, GF(2),
+and alias/bypass remain `UNKNOWN`.
+
+The highest-information next step is bounded Experiment 025: registry/attach/
+factory/vtable/callback reach, write cross-references, and boot-order proof for
+runtime BSS slot `0x14890590` and registry `[0x14890e50,0x14890f50)`. Its
+pre-integration design inputs are seed `[0x1482ee38,0x1482ee4c)`,
+registry/attach `[0x1482d7ec,0x1482d948)`, wrappers `[0x1482e7bc,0x1482e834)`,
+record `0x14875590` ID `0x02000139`, descriptor/vtable
+`0x14824ab8..0x14824b40`, factory `[0x1484a880,0x1484a8fc)`, and callback
+`[0x1484a9d4,0x1484aa0c)`. Do not promote before a qualified, independently
+reviewed committed 025 manifest. This remains host-only and requires no
+device, SMC, MMIO or write action.
 
 Experiment 023R is later and remains withheld until its timing protocol is
 comparable to Experiment 014, physical-allocation PA provenance is present,

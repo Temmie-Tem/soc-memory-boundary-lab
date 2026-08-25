@@ -229,17 +229,30 @@ remain `NOT ELIGIBLE`.
 Experiment 023 is explicitly `WITHHELD/NO-GO`, not integrated or public. Its
 protocol is not comparable to Experiment 014, physical-allocation PA
 provenance is missing, its full GF(2) matrix is non-unique, and
-`PA24=b1^b2` is `SUPPORTED` only. Experiment 024 is the highest-information
-next host-only step: resolve the exact six-byte walker, its three direct
-callers/table providers, runtime-base provenance and XBL-local table
-alternatives, then cross-check the two pinned A90 design-source snapshots;
-live-DTB identity remains `UNKNOWN`. Those design
-observations remain `HYPOTHESIS`/next-stage until a qualified, independently
-reviewed 024 manifest is committed and integrated.
-Every-success-path base preservation is currently `UNKNOWN` because helper
-`0x1486abec` reaches unresolved `BLR X9` at `0x1486ac1c`; absence of main/local
-direct-store overwrite does not prove current-base preservation. No device action
-or MMIO write is part of this next step.
+`PA24=b1^b2` is `SUPPORTED` only. Experiment 024 is now `COMPLETED` and
+integrated as host-only, read-only static evidence. `PROVED`: its exact
+`[0x148689a0,0x14868a64)` walker has six-byte records, the exact `0x8000`
+terminator and `B.EQ` return-before-store, and a conditional 32-bit store of
+the zero-extended byte; exactly three direct callers select five XBL-resident
+table alternatives plus the selector-`0xf` zero-count/no-pointer path. The
+selector unions contain 53 and 127 unique offsets, a 170-offset
+cross-alternative syntactic superset, and 221 nonterminator records. The two
+pinned design-source UFS blocks are byte-identical, and under initialized-base
+retention all 170 symbolic destinations lie in the broader `ufshc` `ufs_phy`
+resource. `SUPPORTED`: this is a table-driven positive control only under base
+retention and store reach. Current base, selector/runtime execution,
+reached-store subset, flag semantics, live-DTB equality, DCB semantic
+alias/global consumer/writer, DDR/MC relation, GF(2), and alias/bypass remain
+`UNKNOWN`; the mappings are conditional symbolic supersets, not current
+destinations. Class C remains unchanged and Experiments 015/016 remain
+`NOT ELIGIBLE`.
+
+The next highest-information host-only step is bounded Experiment 025 proof
+for runtime-BSS slot `0x14890590` and registry `[0x14890e50,0x14890f50)`:
+registry/attach/factory/vtable/callback reach, write cross-references, and
+boot-order evidence. Do not promote before a qualified, independently
+reviewed committed 025 manifest. No device action or MMIO write is part of
+this next step.
 
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside

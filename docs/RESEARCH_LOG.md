@@ -787,8 +787,9 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
    overall state remains Class C transform observation only. The earlier
    symbolic AArch64 store xref/backward-slice discriminator is covered by
    Experiments 018–022; unresolved dynamic bases, consumers and writers remain
-   `UNKNOWN`, and no broad MMIO scan/device action is authorized. The current
-   next host-only step is Experiment 024.
+   `UNKNOWN`, and no broad MMIO scan/device action is authorized. The
+   subsequent Experiment 024 integration records the bounded resolution of
+   the false-negative path; current follow-up is tracked as Experiment 025.
 
 ## 2026-08-25 — Experiment 018 XBL MC writer cross-reference Stage 1A
 
@@ -1075,14 +1076,73 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
    provenance is missing so a `+0x1000` countermodel fits the labels; and the
    full GF(2) matrix is non-unique. `PA24=b1^b2` is `SUPPORTED` only. Raw
    evidence remains private.
-7. Experiment 024 is selected as the highest-information next host-only step.
-   Unqualified, pre-integration design observations remain
-   `HYPOTHESIS`/next-stage: resolve
-   the exact six-byte walker behind 020's false negative, its three direct
-   callers/table providers, runtime-base provenance and XBL-local table
-   alternatives, then cross-check the two pinned A90 design-source snapshots;
-   live-DTB identity remains `UNKNOWN`. Every-success-
-   path base preservation is still `UNKNOWN` because helper `0x1486abec`
-   reaches unresolved `BLR X9` at `0x1486ac1c`; main/local direct-store
-   non-overwrite does not prove current-base preservation. No device action or
-   MMIO write is part of this step. See `docs/NEXT_EXPERIMENT_SCORECARD.md`.
+7. Experiment 024 was subsequently completed and integrated from commit
+   `c62c33e`; its qualified static result is recorded below. The remaining
+   current-base, runtime, semantic, and destination boundaries are
+   `UNKNOWN`, including the unresolved `BLR X9` at `0x1486ac1c`. No device
+   action or MMIO write occurred. See `docs/NEXT_EXPERIMENT_SCORECARD.md`.
+
+## 2026-08-26 — Experiment 024 exact XBL six-byte walker integration
+
+1. Integrated commit `c62c33e` as a host-only, read-only static analysis. The
+   exact XBL input, two design-source snapshots, and Experiment 019 dependency
+   are hash-pinned; no device, SMC, MMIO, protected-memory, normal-RAM, or
+   activation action occurred. Class C remains `TRANSFORM ONLY`, and
+   Experiments 015/016 remain `NOT ELIGIBLE`.
+2. `PROVED`: the exact walker `[0x148689a0,0x14868a64)` is 196 bytes with
+   range SHA-256
+   `08265307d79c5f82b85266613f241ae160151dcfe51b19da108f9ad6c4e15021`.
+   `UMADDL` uses a six-byte stride; flags/offset/value are loaded at `+0/+2/+4`;
+   `0x8000` is the exact terminator; `B.EQ` returns before the conditional
+   `STR W14,[X15,X13]`; and `LDRB` zero-extends the stored byte to a 32-bit
+   word. Other nonterminator flag combinations may skip the store and flag
+   semantics are `UNKNOWN`.
+3. `PROVED`: an all-file-backed executable PT_LOAD census finds exactly three
+   direct callers, `0x14868640`, `0x1486867c`, and `0x14868698`. Five nonzero
+   provider alternatives select XBL-resident tables. Selector `== 0xf` has
+   53 unique offsets; selector `!= 0xf` has 127; their cross-alternative
+   syntactic union has 170 aligned offsets spanning `0x7000..0x7de0`; and
+   the five alternatives contain 221 nonterminator records. Provider3 on
+   selector `== 0xf` writes no pointer, returns count zero, and the pinned
+   zero-count path reaches `RET` before table dereference.
+4. `PROVED`: the five table alternatives are starts/counts/hashes
+   `0x14880bee/43/f7b7ca7dae26320d69c87c9b4c59472eb0933aa7216936ed7564f78b770f643c`,
+   `0x14880e70/90/8c26948bb9e7e24ae9c2d950412e851dd1e60e412aa4f82d7936c247103ac240`,
+   `0x14880ba0/13/eac051599765de4842c6ecf7a6076813eac93a07cd052d829787b1095fa353b1`,
+   `0x14880cf0/64/7c0fb81701455fb380cf4a2d1af4120a444a6be66235c2a87dad5ca2c932711f`,
+   and `0x14880b40/16/1c596a44cbec1cdbcc5b23e81eccde1c20556b17ab3c434ef393c29ab63aa015`.
+   Counts include the exact `0x8000/0/0/0` terminator.
+5. `PROVED`: the two design-source UFS blocks are byte-identical (4,464
+   bytes, SHA-256
+   `cea31db3785be5916a1ff08d1c99b92155a7914b07d09ecb6c3638d8c16ff10a`).
+   Under initialized-base retention, all 170 symbolic `BASE+offset`
+   destinations lie in broader `ufshc` `ufs_phy` `[0x01d87000,0x01d87e00)`;
+   167 lie in standalone `ufsphy_mem` `[0x01d87000,0x01d87da8)`, and
+   `0x7dc4`, `0x7dd8`, `0x7de0` are the three beyond that narrower resource.
+   The separate Experiment 019 eight-byte representation is structurally
+   distinct; semantic DCB identity remains `UNKNOWN`.
+6. `SUPPORTED`: the direct-call positive control supports a table-driven UFS
+   interpretation only under initialized-base retention and store reach. The
+   base is `UNKNOWN` because helper `0x1486abec` reaches runtime-BSS `BLR X9`
+   at `0x1486ac1c`; selector/runtime execution, reached-store subset, flag
+   semantics, live-DTB equality, DCB semantic alias/global consumer/writer,
+   DDR/MC relation, GF(2), alias/bypass, and actual current destinations are
+   also `UNKNOWN`. All 170 mappings are conditional symbolic supersets, not
+   one execution/current destination set. No unconditional UFS or DDR
+   refutation is made.
+7. Tool/test/manifest SHA-256 values are
+   `f0ccb5648b2cce4ab2b835e23c4658c976df9779b0ae6273767b59cc7b6a58bf`,
+   `97c58a22c5c3e7e6cd5b7bc4f8d181c74050b2b530afac03eba3fbb946577f6d`, and
+   `f9ac896d396650075ca9e66d8d805a2deaf40b0207e819cd94f8d638c8121b01`.
+   Validation is 30 focused and 534 full unittest-discovery tests, 64 public
+   JSON manifests, byte-identical regeneration, and two independent review
+   `PASS` results recorded in
+   `docs/EXP024_INTEGRATION_REVIEW_2026-08-26.md`. The public manifest is
+   30,400 bytes, mode `0644`, at
+   `evidence/manifests/024-xbl-six-byte-walker-20260826-01.manifest.json`.
+8. The next highest-information host-only step is Experiment 025: bound
+   registry/attach/factory/vtable/callback reach, write cross-references, and
+   boot-order evidence for runtime BSS slot `0x14890590` and registry
+   `[0x14890e50,0x14890f50)`. Do not promote before a qualified,
+   independently reviewed committed 025 manifest; no device action or MMIO
+   write is part of that design.

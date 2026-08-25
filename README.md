@@ -225,20 +225,40 @@ retained-evidence channels and sparse observed density; completeness is
 `REFUTED` by known `0x09248080`, while implemented-register coverage remains
 `UNKNOWN`. Class C is unchanged and Experiments 015/016 remain `NOT ELIGIBLE`.
 
-Integration validation is independently recorded as 157 focused and 504 full
-unittest PASS, four byte-identical regenerations, and a passing cached-tree
-review. Experiment 023 is explicitly `WITHHELD/NO-GO`, not integrated or
-public: its timing protocol is not comparable to Experiment 014, PA
-provenance is missing, and its full GF(2) matrix is non-unique. `PA24=b1^b2`
-is `SUPPORTED` only; raw evidence remains private. Experiment 024 is the
-highest-information next host-only step: resolve Experiment 020's exact
-six-byte walker, three direct callers/table providers, runtime-base provenance
-and XBL-local table alternatives, then cross-check the two pinned A90
-design-source snapshots. Live-DTB identity remains `UNKNOWN`.
-Those design observations are `HYPOTHESIS`/next-stage until a qualified,
-independently reviewed 024 manifest is committed and integrated. See [the
-scorecard](docs/NEXT_EXPERIMENT_SCORECARD.md) and [the
-integration review](docs/CONFIG_CDT_INTEGRATION_REVIEW_2026-08-26.md).
+Integration validation for the current host-only record is 30 focused and 534
+full unittest PASS, 64 public JSON manifests, byte-identical regeneration,
+and two independent review PASS results recorded in the
+[Experiment 024 integration review](docs/EXP024_INTEGRATION_REVIEW_2026-08-26.md).
+Experiment 023 remains
+`WITHHELD/NO-GO`, not integrated or public: its timing protocol is not
+comparable to Experiment 014, PA provenance is missing, and its full GF(2)
+matrix is non-unique. `PA24=b1^b2` is `SUPPORTED` only; raw evidence remains
+private.
+
+Experiment 024 is `COMPLETED` and integrated. `PROVED`: the exact
+`[0x148689a0,0x14868a64)` six-byte XBL walker has the `0x8000` terminator,
+`B.EQ` return-before-store, and a conditional 32-bit store of the
+zero-extended `LDRB` value; exactly three direct callers select five
+XBL-resident table alternatives plus a selector-`0xf` zero-count/no-pointer
+path. The selector unions contain 53 and 127 unique offsets, 170 in their
+cross-alternative syntactic superset, and 221 nonterminator records. The two
+pinned design-source UFS blocks are byte-identical, and under initialized-base
+retention the 170 symbolic destinations lie in the broader `ufshc` `ufs_phy`
+resource. `SUPPORTED`: this is a table-driven positive control conditional on
+base retention and store reach. `UNKNOWN`: current base due to the unresolved
+runtime-BSS `BLR X9` at `0x1486ac1c`, selector/runtime execution, reached-store
+subset, flag semantics, live-DTB equality, DCB semantic alias/global
+consumer/writer, DDR/MC relation, GF(2), and alias/bypass. All mappings are
+conditional symbolic supersets, not current destinations. Class C is
+unchanged; Experiments 015/016 remain `NOT ELIGIBLE`.
+
+The next highest-information host-only step is bounded Experiment 025 proof
+for runtime-BSS slot `0x14890590` and registry `[0x14890e50,0x14890f50)`:
+registry/attach/factory/vtable/callback reach, write cross-references, and
+boot-order evidence. Do not promote before a qualified, independently
+reviewed committed 025 manifest. See the
+[scorecard](docs/NEXT_EXPERIMENT_SCORECARD.md) and the historical
+[CONFIG/CDT review](docs/CONFIG_CDT_INTEGRATION_REVIEW_2026-08-26.md).
 
 Claim vocabulary is deliberately closed:
 
