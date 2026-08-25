@@ -1,0 +1,1024 @@
+{
+ "address_census": {
+  "complete_arbitrary_write_absence": false,
+  "decoder_coverage": [
+   "BL_TARGETS",
+   "ADRP_PAGE",
+   "ADD_X_IMMEDIATE",
+   "ORR_XZR_REGISTER_COPY",
+   "LDR_STR_UNSIGNED_IMMEDIATE",
+   "LDR_POSTINDEX",
+   "LDR_STR_UNSCALED_IMMEDIATE",
+   "PINNED_BASIC_BLOCK_ADRP_LOOP_MODEL"
+  ],
+  "recognized_direct_call_targets": {
+   "platform_query": [
+    {
+     "target": "0x1486abec",
+     "va": "0x1486847c",
+     "word": "0x940009dc"
+    }
+   ],
+   "registry_attach": [
+    {
+     "target": "0x1482d858",
+     "va": "0x1482d9e0",
+     "word": "0x97ffff9e"
+    },
+    {
+     "target": "0x1482d858",
+     "va": "0x1482f10c",
+     "word": "0x97fff9d3"
+    },
+    {
+     "target": "0x1482d858",
+     "va": "0x1482f400",
+     "word": "0x97fff916"
+    },
+    {
+     "target": "0x1482d858",
+     "va": "0x1482f6ec",
+     "word": "0x97fff85b"
+    },
+    {
+     "target": "0x1482d858",
+     "va": "0x148311e8",
+     "word": "0x97fff19c"
+    },
+    {
+     "target": "0x1482d858",
+     "va": "0x14839e88",
+     "word": "0x97ffce74"
+    },
+    {
+     "target": "0x1482d858",
+     "va": "0x14843e1c",
+     "word": "0x97ffa68f"
+    },
+    {
+     "target": "0x1482d858",
+     "va": "0x14843e64",
+     "word": "0x97ffa67d"
+    },
+    {
+     "target": "0x1482d858",
+     "va": "0x14843eac",
+     "word": "0x97ffa66b"
+    },
+    {
+     "target": "0x1482d858",
+     "va": "0x1484ad34",
+     "word": "0x97ff8ac9"
+    },
+    {
+     "target": "0x1482d858",
+     "va": "0x1484b008",
+     "word": "0x97ff8a14"
+    },
+    {
+     "target": "0x1482d858",
+     "va": "0x14851c8c",
+     "word": "0x97ff6ef3"
+    },
+    {
+     "target": "0x1482d858",
+     "va": "0x1485aaf8",
+     "word": "0x97ff4b58"
+    },
+    {
+     "target": "0x1482d858",
+     "va": "0x14869890",
+     "word": "0x97ff0ff2"
+    },
+    {
+     "target": "0x1482d858",
+     "va": "0x1486ac44",
+     "word": "0x97ff0b05"
+    }
+   ],
+   "seed": []
+  },
+  "registry_bss": {
+   "alternate_mutation": "UNKNOWN",
+   "direct_address_xrefs": [
+    {
+     "kind": "ADRP_PAGE",
+     "target_page": "0x14890000",
+     "va": "0x1482d7ec",
+     "word": "0xf000030a"
+    },
+    {
+     "kind": "ADD_ADDRESS",
+     "target": "0x14890e50",
+     "va": "0x1482d7f8",
+     "word": "0x9139414a"
+    }
+   ],
+   "dynamic_insertion_write": {
+    "possible_target_range": {
+     "end_exclusive": "0x14890f50",
+     "selection": "runtime list index",
+     "start": "0x14890e50"
+    },
+    "recognized_sites": [
+     {
+      "address_model": "PINNED_BASIC_BLOCK_ADRP_LOOP",
+      "base_register": "X10",
+      "kind": "STR",
+      "offset": -8,
+      "target": "0x14890e50",
+      "va": "0x1482d814",
+      "width": "X",
+      "word": "0xf81f8140"
+     }
+    ]
+   },
+   "end_exclusive": "0x14890f50",
+   "recognized_direct_accesses": [
+    {
+     "address_model": "PINNED_BASIC_BLOCK_ADRP_LOOP",
+     "base_register": "X10",
+     "kind": "LDR_POSTINDEX",
+     "offset": 0,
+     "post_index": 8,
+     "target": "0x14890e50",
+     "va": "0x1482d804",
+     "width": "X",
+     "word": "0xf840854b"
+    },
+    {
+     "address_model": "PINNED_BASIC_BLOCK_ADRP_LOOP",
+     "base_register": "X10",
+     "kind": "STR",
+     "offset": -8,
+     "target": "0x14890e50",
+     "va": "0x1482d814",
+     "width": "X",
+     "word": "0xf81f8140"
+    },
+    {
+     "address_model": "PINNED_BASIC_BLOCK_ADRP_LOOP",
+     "base_register": "X10",
+     "kind": "LDR_POSTINDEX",
+     "offset": 0,
+     "post_index": 8,
+     "target": "0x14890e50",
+     "va": "0x1482d83c",
+     "width": "X",
+     "word": "0xf840854b"
+    },
+    {
+     "address_model": "PINNED_BASIC_BLOCK_ADRP_LOOP",
+     "base_register": "X10",
+     "kind": "STR",
+     "offset": -8,
+     "target": "0x14890e50",
+     "va": "0x1482d850",
+     "width": "X",
+     "word": "0xf81f815f"
+    },
+    {
+     "address_model": "PINNED_BASIC_BLOCK_ADRP_LOOP",
+     "base_register": "X10",
+     "kind": "LDR_POSTINDEX",
+     "offset": 0,
+     "post_index": 8,
+     "target": "0x14890e50",
+     "va": "0x1482d884",
+     "width": "X",
+     "word": "0xf840854b"
+    }
+   ],
+   "recognized_direct_writes": [
+    {
+     "address_model": "PINNED_BASIC_BLOCK_ADRP_LOOP",
+     "base_register": "X10",
+     "kind": "STR",
+     "offset": -8,
+     "target": "0x14890e50",
+     "va": "0x1482d814",
+     "width": "X",
+     "word": "0xf81f8140"
+    },
+    {
+     "address_model": "PINNED_BASIC_BLOCK_ADRP_LOOP",
+     "base_register": "X10",
+     "kind": "STR",
+     "offset": -8,
+     "target": "0x14890e50",
+     "va": "0x1482d850",
+     "width": "X",
+     "word": "0xf81f815f"
+    }
+   ],
+   "start": "0x14890e50"
+  },
+  "runtime_slot": {
+   "address": "0x14890590",
+   "alternate_mutation": "UNKNOWN",
+   "direct_address_xrefs": [
+    {
+     "kind": "LOAD",
+     "va": "0x1486ac04",
+     "word": "0xf942ca88"
+    },
+    {
+     "kind": "ADDRESS_FOR_ATTACH_OUTPUT",
+     "va": "0x1486ac40",
+     "word": "0x91164021"
+    },
+    {
+     "kind": "RELOAD",
+     "va": "0x1486aca4",
+     "word": "0xf942ca88"
+    }
+   ],
+   "recognized_direct_accesses": [
+    {
+     "address_model": "PINNED_BASIC_BLOCK_ADRP_LOOP",
+     "base_register": "X20",
+     "kind": "LDR",
+     "offset": 1424,
+     "target": "0x14890590",
+     "va": "0x1486ac04",
+     "width": "X",
+     "word": "0xf942ca88"
+    },
+    {
+     "address_model": "PINNED_BASIC_BLOCK_ADRP_LOOP",
+     "base_register": "X20",
+     "kind": "LDR",
+     "offset": 1424,
+     "target": "0x14890590",
+     "va": "0x1486aca4",
+     "width": "X",
+     "word": "0xf942ca88"
+    }
+   ],
+   "recognized_direct_writes": []
+  },
+  "scan_scope": "ALL_FILE_BACKED_EXECUTABLE_PT_LOAD_WORDS",
+  "status": "PROVED_RECOGNIZED_DIRECT_XREFS_ONLY",
+  "word_count": 847465
+ },
+ "base_audit": {
+  "full_base_preservation": "UNKNOWN",
+  "initializer_base": "0x01d80000",
+  "intended_binding_can_write_context_plus_8": "SUPPORTED_NO",
+  "main_context_base_store": {
+   "count": 1,
+   "instruction": "STR X0,[X19,#8]",
+   "va": "0x14868468"
+  },
+  "reason": "static callback output flow is distinct from caller X19; runtime registration/order, indirect effects, and alternate/global aliases remain unresolved"
+ },
+ "boundary_bypass": "NO_BOUNDARY_BYPASS_OBSERVED",
+ "callback_write_audit": {
+  "callback": {
+   "callback_pointer": "0x1484a9d4",
+   "callee": "0x1484a730",
+   "direct_write_target": "X1 output argument; under platform query this is SP+0xc",
+   "direct_writes": [
+    {
+     "base_register": "X19",
+     "base_source": "callback X1 output argument",
+     "instruction": "STR W8,[X19]",
+     "va": "0x1484a9f4",
+     "word": "0xb9000268"
+    }
+   ],
+   "output_copy": {
+    "instruction": "ORR X19,XZR,X1",
+    "va": "0x1484a9e0"
+   }
+  },
+  "callback_callee": {
+   "direct_bss_read": {
+    "address": "0x14890ba0",
+    "instruction": "LDR W0,[X8,#0x10]",
+    "va": "0x1484a744"
+   },
+   "direct_writes": [],
+   "nested_call": {
+    "arguments": {
+     "X0": "unchanged callback object"
+    },
+    "effects": "BOUNDED_BELOW",
+    "target": "0x1484a824"
+   },
+   "range": {
+    "end_exclusive": "0x1484a750",
+    "file_offset": "0x31730",
+    "sha256": "1cadeda59529ce5399201e398c6e0a99f9a8d5efdab5f88099b6c1db2b060586",
+    "size": 32,
+    "start": "0x1484a730"
+   }
+  },
+  "entry_arguments": {
+   "X0": "constructed runtime object candidate",
+   "X1": "actual output pointer (helper SP+0xc)",
+   "caller_context_pointer": "not passed"
+  },
+  "lazy_init": {
+   "bootstrap": {
+    "range": {
+     "end_exclusive": "0x1484aa74",
+     "file_offset": "0x31a30",
+     "sha256": "1fb73c03710d2acc52a1330804dcb6605d34f16bf8a84dd49902470b4edd8bf8",
+     "size": 68,
+     "start": "0x1484aa30"
+    },
+    "ret": {
+     "va": "0x1484aa70",
+     "word": "0xd65f03c0"
+    }
+   },
+   "call_graph": [
+    {
+     "from": "0x1484a840",
+     "kind": "BL",
+     "to": "0x1484aa30"
+    },
+    {
+     "from": "0x1484aa3c",
+     "kind": "BL_RECURSIVE_GUARD",
+     "to": "0x1484a824"
+    },
+    {
+     "from": "0x1484aa54",
+     "kind": "BL",
+     "to": "0x1484a854"
+    }
+   ],
+   "flag": {
+    "address": "0x1488f3f9",
+    "segment_index": 5,
+    "storage": "MEMORY_ONLY_PT_LOAD_ZERO_FILL",
+    "write": {
+     "kind": "STRB",
+     "role": "lazy-init recursion guard",
+     "target": "0x1488f3f9",
+     "va": "0x1484a83c",
+     "word": "0x390fe50a"
+    }
+   },
+   "range": {
+    "end_exclusive": "0x1484a854",
+    "file_offset": "0x31824",
+    "sha256": "6a0ddccd34648eec5163ba46a0b98c1525c74288eab08934d012162463f29bfd",
+    "size": 48,
+    "start": "0x1484a824"
+   },
+   "status_bss": {
+    "end_exclusive": "0x14890ba4",
+    "start": "0x14890b90",
+    "storage": "MEMORY_ONLY_PT_LOAD_ZERO_FILL",
+    "writes": [
+     {
+      "kind": "STR",
+      "role": "cached status",
+      "target": "0x14890ba0",
+      "va": "0x1484aa58",
+      "word": "0xb9001260"
+     },
+     {
+      "kind": "STRB",
+      "role": "lazy-init complete flag",
+      "target": "0x14890b90",
+      "va": "0x1484aa60",
+      "word": "0x3900026a"
+     }
+    ]
+   },
+   "status_helper": {
+    "mmio_read": {
+     "address": "0x01fc8004",
+     "va": "0x1484a860",
+     "word": "0xb9400108"
+    },
+    "mmio_writes": 0,
+    "range": {
+     "end_exclusive": "0x1484a880",
+     "file_offset": "0x31854",
+     "sha256": "72e021ef3e66bfc25523ae4d00a60270ee55fa9f01df7366326bc2f5bad62da1",
+     "size": 44,
+     "start": "0x1484a854"
+    }
+   }
+  },
+  "range": {
+   "end_exclusive": "0x1484aa0c",
+   "file_offset": "0x319d4",
+   "sha256": "8de96d5c209dbd9a6747d7f91072a3ab279e47aefba1506e3123cb5258e05e9d",
+   "size": 56,
+   "start": "0x1484a9d4"
+  },
+  "status": "PROVED_CALLBACK_DIRECT_OUTPUT_TARGET_SUPPORTED_NO_CONTEXT_ARGUMENT",
+  "write_classification": {
+   "arbitrary_or_nested_writes": "UNKNOWN_BEYOND_PINNED_LAZY_INIT_AND_STATUS_HELPER",
+   "context_plus_8_write": "NOT_REACHED_BY_RECOGNIZED_CALLBACK_WRITES",
+   "recognized_direct_bss_writes_in_nested_lazy_init": 3,
+   "recognized_direct_global_alias_writes": 0,
+   "recognized_direct_mmio_reads_in_nested_status_helper": 1,
+   "recognized_direct_mmio_writes": 0,
+   "recognized_direct_output_writes": 1
+  }
+ },
+ "claims": {
+  "HYPOTHESIS": [],
+  "PROVED": [
+   "The exact pinned XBL places runtime slot 0x14890590 in a zero-fill PT_LOAD and the platform-query caller passes X0=SP+0x10, not the main context X19.",
+   "The exact seed derives X0=0x14875668 and X1=0x14875590; record 0x14875590 has five entries and its descriptor ID table contains 0x02000139.",
+   "The descriptor's factory pointer, inline vtable at 0x14824ad0, and +0x48 callback pointer form the pinned factory-to-callback chain; the factory's constructed-object candidate is 0x1488f418.",
+   "The callback itself has one recognized direct store through its X1 output pointer; its bounded lazy-init callees have separately pinned direct writes only to recursion/status BSS and one MMIO read, with no recognized context+8 write.",
+   "The address census scans every file-backed executable PT_LOAD word and reports exact recognized runtime-slot xrefs and registry-list insertion writes."
+  ],
+  "REFUTED": [],
+  "SUPPORTED": [
+   "The intended binding can populate the platform-query output slot and feed a callback result back to the helper's stack output, conditional on runtime registration/object binding.",
+   "The callback direct-write shape supports that the intended binding does not write the caller's context+8 field on the recognized path."
+  ],
+  "UNKNOWN": [
+   "Runtime registration execution/order, runtime-BSS slot value, object identity, and whether alternate initialization or mutation changes the slot.",
+   "Effects beyond the pinned callback/lazy-init/status-helper graph, indirect/computed/unrecognized memory forms, global aliases, and complete arbitrary-write absence.",
+   "Full preservation/currentness of the initialized 0x01d80000 base and any live mapping or device authority."
+  ]
+ },
+ "classification": "CLASS C (TRANSFORM ONLY)",
+ "definition_of_done": {
+  "date": "2026-08-26",
+  "deterministic_repetition_validation": {
+   "repetition_count": 2,
+   "repetition_result": "BYTE_IDENTICAL",
+   "repetition_unit": "fresh host manifest generations",
+   "validation_checks": [
+    "exact firmware size/SHA-256 binding",
+    "dependency size/SHA-256 and key-claim validation",
+    "exact range/word/call-target and conservative decoder checks",
+    "focused synthetic and exact-image test suite",
+    "public JSON, publication mode, safety scan, and fresh-generation byte comparison"
+   ],
+   "validation_count": 5,
+   "validation_description": "Two fresh generations are compared byte-for-byte; the five listed checks cover input binding, semantic dependency, static proof, tests, and publication integrity."
+  },
+  "dmesg": {
+   "reason": "NOT_APPLICABLE: host-only static analysis; no live device observation or device artifact was used",
+   "status": "NOT_APPLICABLE"
+  },
+  "firmware": {
+   "binding": "PROVED_EXACT_XBL_SIZE_AND_SHA256",
+   "build": "UNKNOWN",
+   "build_reason": "No firmware build identifier is derived by this bounded ELF/static decoder; identity is bound by exact size and SHA-256.",
+   "filename": "xbl--sdb1.bin",
+   "sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+   "size": 4194304
+  },
+  "live_repetitions": {
+   "reason": "No live device execution or observation is part of this host-only static experiment.",
+   "status": "NOT_APPLICABLE"
+  },
+  "log": {
+   "reason": "NOT_APPLICABLE: host-only static analysis; no live device observation or device artifact was used",
+   "status": "NOT_APPLICABLE"
+  },
+  "negative_controls": {
+   "description": "Synthetic decoder mutations, dependency semantic mutation, unsupported/computed address forms, no-clobber publication, and public-output checks fail closed or preserve the original output.",
+   "failure_state": "Any exact input/range/word/dependency mismatch raises BindingError before publication; existing output paths are never clobbered.",
+   "status": "PASS"
+  },
+  "non_applicable_artifacts": {
+   "boot": {
+    "reason": "NOT_APPLICABLE: host-only static analysis; no live device observation or device artifact was used",
+    "sha256": "NOT_APPLICABLE"
+   },
+   "dtb": {
+    "reason": "NOT_APPLICABLE: host-only static analysis; no live device observation or device artifact was used",
+    "sha256": "NOT_APPLICABLE"
+   },
+   "kernel": {
+    "reason": "NOT_APPLICABLE: host-only static analysis; no live device observation or device artifact was used",
+    "sha256": "NOT_APPLICABLE"
+   },
+   "research_kernel": {
+    "reason": "NOT_APPLICABLE: host-only static analysis; no live device observation or device artifact was used",
+    "sha256": "NOT_APPLICABLE"
+   }
+  },
+  "precondition": {
+   "dependency_sha256": "f9ac896d396650075ca9e66d8d805a2deaf40b0207e819cd94f8d638c8121b01",
+   "device_access": "none",
+   "exact": "Use only the exact SM-A908N/A90 5G SM8150 XBL input named above, with the pinned Experiment 024 manifest semantically validated before publication; perform no device action.",
+   "firmware_sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+   "status": "PROVED"
+  },
+  "recovery": {
+   "reason": "No device, boot, transport, or runtime state was touched; recovery is outside this static iteration.",
+   "status": "NOT_APPLICABLE"
+  },
+  "reproducible_command_template": "python3 tools/sm8150_xbl_platform_query_binding.py --firmware-dir <exact-firmware-dir> --output <public-manifest-path>",
+  "result": {
+   "classification": "CLASS C (TRANSFORM ONLY)",
+   "proved": "Registry record/descriptor/factory/vtable/callback chain and recognized direct write/dataflow pins are exact.",
+   "status": "PROVED_INTENDED_STATIC_BINDING_SUPPORTED_NO_CONTEXT_PLUS_8_WRITE_UNKNOWN_RUNTIME",
+   "supported": "The recognized callback output flow does not write caller context+8.",
+   "unknown": "Runtime registration/order, runtime slot/object identity, alternate BSS mutation/global aliases, and full base preservation remain UNKNOWN."
+  },
+  "rollback": {
+   "reason": "No device or persistent state was changed; there is no effect to roll back.",
+   "status": "NOT_APPLICABLE"
+  },
+  "target": {
+   "binding": "PROVED_EXACT_FIRMWARE_INPUT_HASH",
+   "marketing_name": "A90 5G",
+   "model": "SM-A908N",
+   "soc": "SM8150",
+   "soc_name": "Snapdragon 855"
+  },
+  "timestamp": {
+   "reason": "Deterministic host-only publication intentionally does not embed a wall-clock timestamp.",
+   "value": "NOT_APPLICABLE"
+  },
+  "tool_and_build": {
+   "build": "NOT_APPLICABLE",
+   "build_reason": "The host-only analyzer is interpreted Python source and has no firmware/kernel build output.",
+   "tool": "sm8150_xbl_platform_query_binding.py schema v1"
+  }
+ },
+ "dependencies": {
+  "experiment_024": {
+   "base_currentness": "UNKNOWN",
+   "conditional_mapping": true,
+   "conditional_mapping_status": "SUPPORTED",
+   "experiment_id": "024-xbl-six-byte-walker",
+   "filename": "024-xbl-six-byte-walker-20260826-01.manifest.json",
+   "sha256": "f9ac896d396650075ca9e66d8d805a2deaf40b0207e819cd94f8d638c8121b01",
+   "size": 30400,
+   "unresolved_blr": {
+    "target": "UNKNOWN",
+    "target_register": "X9",
+    "va": "0x1486ac1c"
+   },
+   "validation": "KEY_CLAIMS_PARSED_AND_PINNED"
+  }
+ },
+ "device_access": "none",
+ "elf": {
+  "file_backed_executable_aligned_word_count": 847465,
+  "file_backed_executable_pt_load_count": 6,
+  "file_backed_pt_load_count": 9,
+  "format": "ELF64_LITTLE_AARCH64",
+  "pt_load_count": 14,
+  "pt_loads": [
+   {
+    "file_offset": "0x3000",
+    "file_size": 323032,
+    "flags": 5,
+    "kind": "RX",
+    "mem_size": 323032,
+    "segment_index": 2,
+    "vaddr": "0x1481c000"
+   },
+   {
+    "file_offset": "0x51de0",
+    "file_size": 0,
+    "flags": 6,
+    "kind": "RW",
+    "mem_size": 12288,
+    "segment_index": 3,
+    "vaddr": "0x1486f400"
+   },
+   {
+    "file_offset": "0x51de0",
+    "file_size": 66560,
+    "flags": 6,
+    "kind": "RW",
+    "mem_size": 66560,
+    "segment_index": 4,
+    "vaddr": "0x14872400"
+   },
+   {
+    "file_offset": "0x621e0",
+    "file_size": 0,
+    "flags": 6,
+    "kind": "RW",
+    "mem_size": 117760,
+    "segment_index": 5,
+    "vaddr": "0x14882800"
+   },
+   {
+    "file_offset": "0x621e0",
+    "file_size": 0,
+    "flags": 6,
+    "kind": "RW",
+    "mem_size": 169792,
+    "segment_index": 6,
+    "vaddr": "0x85e00000"
+   },
+   {
+    "file_offset": "0x621e0",
+    "file_size": 3264,
+    "flags": 5,
+    "kind": "RX",
+    "mem_size": 3264,
+    "segment_index": 7,
+    "vaddr": "0x146ae000"
+   },
+   {
+    "file_offset": "0x62ea0",
+    "file_size": 2132,
+    "flags": 6,
+    "kind": "RW",
+    "mem_size": 2132,
+    "segment_index": 8,
+    "vaddr": "0x146b1000"
+   },
+   {
+    "file_offset": "0x63700",
+    "file_size": 145608,
+    "flags": 7,
+    "kind": "RWX",
+    "mem_size": 145608,
+    "segment_index": 9,
+    "vaddr": "0x1489f800"
+   },
+   {
+    "file_offset": "0x86fd0",
+    "file_size": 0,
+    "flags": 6,
+    "kind": "RW",
+    "mem_size": 12804,
+    "segment_index": 10,
+    "vaddr": "0x146b2000"
+   },
+   {
+    "file_offset": "0x86fd0",
+    "file_size": 2359296,
+    "flags": 7,
+    "kind": "RWX",
+    "mem_size": 2359296,
+    "segment_index": 11,
+    "vaddr": "0x9fc00000"
+   },
+   {
+    "file_offset": "0x2c6fd0",
+    "file_size": 90112,
+    "flags": 83886085,
+    "kind": "F83886085",
+    "mem_size": 90112,
+    "segment_index": 12,
+    "vaddr": "0x14698000"
+   },
+   {
+    "file_offset": "0x2dcfd0",
+    "file_size": 468548,
+    "flags": 5,
+    "kind": "RX",
+    "mem_size": 468548,
+    "segment_index": 13,
+    "vaddr": "0x14900000"
+   },
+   {
+    "file_offset": "0x34f620",
+    "file_size": 276000,
+    "flags": 6,
+    "kind": "RW",
+    "mem_size": 417848,
+    "segment_index": 14,
+    "vaddr": "0x85e44000"
+   },
+   {
+    "file_offset": "0x392c40",
+    "file_size": 0,
+    "flags": 6,
+    "kind": "RW",
+    "mem_size": 8176,
+    "segment_index": 15,
+    "vaddr": "0x85e34000"
+   }
+  ],
+  "runtime_bss": {
+   "end_exclusive": "0x1489f400",
+   "file_backed": false,
+   "start": "0x14882800",
+   "storage": "MEMORY_ONLY_PT_LOAD_ZERO_FILL"
+  },
+  "scan_scope": "ALL_FILE_BACKED_EXECUTABLE_PT_LOAD_WORDS"
+ },
+ "eligibility": {
+  "class": "C",
+  "device_action": "NONE",
+  "experiments_015_016": "NOT_ELIGIBLE"
+ },
+ "experiment_id": "025-xbl-platform-query-binding",
+ "inputs": {
+  "firmware": {
+   "filename": "xbl--sdb1.bin",
+   "sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+   "size": 4194304
+  }
+ },
+ "mode": "HOST_ONLY_READ_ONLY",
+ "order_and_authority": {
+  "base_preservation": "UNKNOWN",
+  "boot_order": "UNKNOWN",
+  "conditional_static_edges": [
+   {
+    "from": "0x1482ee48",
+    "kind": "BL",
+    "status": "PROVED",
+    "to": "0x1482e7bc"
+   },
+   {
+    "from": "0x1482e810",
+    "kind": "B_FROM_WRAPPER_INIT_PATH",
+    "status": "PROVED",
+    "to": "0x1482d7ec",
+    "word": "0x17fffbf7"
+   },
+   {
+    "from": "0x1486847c",
+    "kind": "BL",
+    "status": "PROVED",
+    "to": "0x1486abec"
+   }
+  ],
+  "platform_query_direct_bl_callers": [
+   "0x1486847c"
+  ],
+  "reason": "seed has no direct BL caller; wrapper initialization and runtime registration/slot mutation are not closed by exact caller/control-flow pins",
+  "seed_direct_bl_callers": [],
+  "status": "UNKNOWN_RUNTIME_ORDER_AND_GLOBAL_ALIAS",
+  "wrapper_direct_bl_callers": [
+   "0x1482ee48"
+  ]
+ },
+ "platform_query": {
+  "attach_path": {
+   "call": {
+    "target": "0x1482d858",
+    "va": "0x1486ac44",
+    "word": "0x97ff0b05"
+   },
+   "id_materialization": {
+    "high": 512,
+    "instruction_pins": [
+     {
+      "va": "0x1486ac34",
+      "word": "0x52802720"
+     },
+     {
+      "va": "0x1486ac3c",
+      "word": "0x72a04000"
+     }
+    ],
+    "low": 313,
+    "source": "MOVZ_W0_PLUS_MOVK_W0",
+    "value": "0x02000139"
+   },
+   "output_argument": "X1=0x14890590",
+   "retry_reload": {
+    "target": "0x14890590",
+    "va": "0x1486aca4"
+   }
+  },
+  "context_base_write": {
+   "context_field_offset": 8,
+   "helper_direct_store_to_context_plus_8": false,
+   "helper_input": "SP+0x10",
+   "intended_context": "X19 in the main initializer",
+   "status": "NOT_ON_PINNED_BINDING_ARGUMENT_FLOW"
+  },
+  "direct_caller": {
+   "caller_context_register": "X19",
+   "context_register_forwarded": false,
+   "input": "X0=SP+0x10",
+   "input_instruction": {
+    "va": "0x14868470",
+    "word": "0x910043e0"
+   },
+   "target": "0x1486abec",
+   "va": "0x1486847c",
+   "word": "0x940009dc"
+  },
+  "helper_arguments": {
+   "callback_object_argument": "X0=X8",
+   "callback_output_argument": "X1=SP+0xc",
+   "indirect_call": {
+    "register": "X9",
+    "target": "UNKNOWN_UNTIL_RUNTIME_OBJECT_BINDING",
+    "va": "0x1486ac1c",
+    "word": "0xd63f0120"
+   },
+   "output_reload": {
+    "source": "[SP,#0xc]",
+    "va": "0x1486ac20",
+    "word": "0xb9400fe8"
+   },
+   "runtime_object": "X8=*(X20+0x590)",
+   "vtable_load": {
+    "offset": 72,
+    "register": "X9",
+    "va": "0x1486ac18",
+    "word": "0xf9402549"
+   }
+  },
+  "range": {
+   "end_exclusive": "0x1486acac",
+   "file_offset": "0x51bec",
+   "sha256": "679384b78fab5cf3903f5c7a34e5efa45552c983b4d2bb1fcc8dc12e66d555c2",
+   "size": 192,
+   "start": "0x1486abec"
+  },
+  "runtime_slot": {
+   "address": "0x14890590",
+   "segment_file_size": 0,
+   "segment_index": 5,
+   "segment_mem_size": 117760,
+   "segment_vaddr": "0x14882800",
+   "storage": "MEMORY_ONLY_PT_LOAD_ZERO_FILL",
+   "xrefs": [
+    {
+     "kind": "LOAD",
+     "target": "0x14890590",
+     "va": "0x1486ac04",
+     "word": "0xf942ca88"
+    },
+    {
+     "kind": "ADDRESS_FOR_ATTACH_OUTPUT",
+     "target": "0x14890590",
+     "va": "0x1486ac40",
+     "word": "0x91164021"
+    },
+    {
+     "kind": "RELOAD",
+     "target": "0x14890590",
+     "va": "0x1486aca4",
+     "word": "0xf942ca88"
+    }
+   ]
+  },
+  "status": "PROVED_INTENDED_ARGUMENT_AND_SLOT_FLOW"
+ },
+ "registry_binding": {
+  "attach": {
+   "dispatch": {
+    "register": "X9",
+    "target": "0x1484a880",
+    "va": "0x1482d8f4",
+    "word": "0xd63f0120"
+   },
+   "factory_call_arguments": {
+    "W1": "0x02000139",
+    "X0": "0",
+    "X2": "X19(output pointer)"
+   },
+   "function_range": {
+    "end_exclusive": "0x1482d948",
+    "file_offset": "0x147ec",
+    "sha256": "3ddb7bb677e84915c4f11e4ed05a01ef3ecf5ef0b71542b92a641714c05bce2a",
+    "size": 348,
+    "start": "0x1482d7ec"
+   },
+   "output_flow": "factory stores constructed object through X2 -> attach X19 -> caller X1",
+   "output_register": "X19=caller_X1",
+   "registry_list_range": {
+    "end_exclusive": "0x14890f50",
+    "start": "0x14890e50",
+    "storage": "MEMORY_ONLY_PT_LOAD_ZERO_FILL"
+   },
+   "requested_id": "0x02000139"
+  },
+  "binding_chain": [
+   "runtime BSS slot 0x14890590",
+   "registry record 0x14875590 ID 0x02000139",
+   "descriptor 0x14824ab8",
+   "factory 0x1484a880",
+   "constructed object candidate 0x1488f418",
+   "inline vtable 0x14824ad0 + 0x48 -> callback 0x1484a9d4"
+  ],
+  "descriptor": {
+   "address": "0x14824ab8",
+   "callback_pointer": "0x1484a9d4",
+   "factory_pointer": "0x1484a880",
+   "id_count": 1,
+   "id_table": "0x14877fa4",
+   "vtable_callback_offset": 72,
+   "vtable_start": "0x14824ad0"
+  },
+  "factory": {
+   "constructed_object_candidate": "0x1488f418",
+   "object_candidate_derivation": "X20=0x1488f400; STR W8,[X22,#24]! advances X22 to 0x1488f418",
+   "object_layout_write": {
+    "va": "0x1484a8dc",
+    "vtable": "0x14824ad0",
+    "vtable_at": "0x1488f420"
+   },
+   "object_storage_base": "0x1488f400",
+   "output_store": {
+    "X19_source": "X2",
+    "instruction": "STR X22,[X19]",
+    "va": "0x1484a8e4"
+   },
+   "range": {
+    "end_exclusive": "0x1484a8fc",
+    "file_offset": "0x31880",
+    "sha256": "ada8e99bb7d9d072fb7a259e25aab844a26bcedb583edd400d75f19bccaa9611",
+    "size": 124,
+    "start": "0x1484a880"
+   },
+   "vtable_materialization": {
+    "target": "0x14824ad0",
+    "va": "0x1484a8d0"
+   }
+  },
+  "ranges": {
+   "callback": {
+    "end_exclusive": "0x1484aa0c",
+    "file_offset": "0x319d4",
+    "sha256": "8de96d5c209dbd9a6747d7f91072a3ab279e47aefba1506e3123cb5258e05e9d",
+    "size": 56,
+    "start": "0x1484a9d4"
+   },
+   "descriptor_vtable": {
+    "end_exclusive": "0x14824b40",
+    "file_offset": "0xbab8",
+    "sha256": "2517a5d35a83576933f304be0598812ea5bc266630de78ea69ec22b6b6f67177",
+    "size": 136,
+    "start": "0x14824ab8"
+   },
+   "factory": {
+    "end_exclusive": "0x1484a8fc",
+    "file_offset": "0x31880",
+    "sha256": "ada8e99bb7d9d072fb7a259e25aab844a26bcedb583edd400d75f19bccaa9611",
+    "size": 124,
+    "start": "0x1484a880"
+   },
+   "record_data": {
+    "end_exclusive": "0x148755a8",
+    "file_offset": "0x54f48",
+    "sha256": "ee220905e80f44aa482f60e0a49416a06c6665e1b9e7b0ba949693de8136327c",
+    "size": 64,
+    "start": "0x14875568"
+   },
+   "registry_attach": {
+    "end_exclusive": "0x1482d948",
+    "file_offset": "0x147ec",
+    "sha256": "3ddb7bb677e84915c4f11e4ed05a01ef3ecf5ef0b71542b92a641714c05bce2a",
+    "size": 348,
+    "start": "0x1482d7ec"
+   },
+   "seed": {
+    "end_exclusive": "0x1482ee4c",
+    "file_offset": "0x15e38",
+    "sha256": "91c63be151b9639a487ab226a6b923a92b8cc4833ffc5bb24b32192c6804e2d5",
+    "size": 20,
+    "start": "0x1482ee38"
+   },
+   "wrappers": {
+    "end_exclusive": "0x1482e834",
+    "file_offset": "0x157bc",
+    "sha256": "7d7ee2aafd88f6a8e67b4a9a55b983d5831a9fd79057b897f6df53bace7b1609",
+    "size": 120,
+    "start": "0x1482e7bc"
+   }
+  },
+  "record": {
+   "address": "0x14875590",
+   "count": 5,
+   "descriptor_index": 1,
+   "descriptor_pointers": [
+    "0x148243b8",
+    "0x14824ab8",
+    "0x148244d8",
+    "0x1481f1f8",
+    "0x14824dc8"
+   ],
+   "service_id": "0x02000139",
+   "service_id_source": {
+    "descriptor": "0x14824ab8",
+    "id_table": "0x14877fa4",
+    "values": [
+     "0x02000139"
+    ]
+   },
+   "table_pointer": "0x14875568"
+  },
+  "runtime_status": "UNKNOWN_RUNTIME_REGISTRATION_ORDER_AND_OBJECT_IDENTITY",
+  "seed": {
+   "arguments": {
+    "X0": "0x14875668",
+    "X1": "0x14875590",
+    "X1_role": "registry_record_pointer"
+   },
+   "call": {
+    "target": "0x1482e7bc",
+    "va": "0x1482ee48",
+    "word": "0x97fffe5d"
+   },
+   "derived_from": "ADRP_PLUS_ADD_IMMEDIATE",
+   "va": "0x1482ee38"
+  },
+  "static_status": "PROVED_INTENDED_REGISTRY_FACTORY_VTABLE_CALLBACK_CHAIN"
+ },
+ "schema": "sm8150-xbl-platform-query-binding-v1"
+}
