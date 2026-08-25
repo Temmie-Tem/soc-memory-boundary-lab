@@ -82,7 +82,7 @@ Experiment 006 adds exact firmware-backed physical landmarks:
 | Range/address | Role | Evidence/status |
 |---|---|---|
 | `0x09050000` | `qhs_shrm_csr` | `PROVED` exact XBL topology. |
-| `0x09060000` | `qhs_shrm_mem` | `PROVED`; DCB section 16 lands at `0x09065100` (`+0x5100`). Both exact TZ branches place its complete `0xf00` workspace in three TZ-owned regions with no HLOS grant. Fixed word `0x0906566c` map/unmap passed; one load returned no value and ended in non-secure watchdog reset. |
+| `0x09060000` | `qhs_shrm_mem` | `PROVED`; DCB section 16 lands at `0x09065100` (`+0x5100`). Both exact TZ branches place its complete `0xf00` workspace in three TZ-owned regions with no HLOS grant. Fixed word `0x0906566c` map/unmap passed; one load returned no value and ended in non-secure watchdog reset. Exact XBL raw-dump record 19 separately covers `0x09060000..0x0906ffff` as `SHRM_MEM.BIN`; retail eligibility/preservation are `UNKNOWN`. |
 | `0x090b0000` | `qhs_mccc_master` | `PROVED` exact `qhm_shrm` topology and matching section-16 base token `0x90b0`; token address semantics `SUPPORTED`. |
 | `0x090c0000` | `qhs_ddrss_regs` | `PROVED` exact `qhm_shrm` topology and matching section-16 base token `0x90c0`; token address semantics `SUPPORTED`. |
 | `0x090e0000` | TZ `DC_NOC_BROADCAST_MPU` configuration base | `PROVED` exact consumed registry and both static-policy descriptors. |

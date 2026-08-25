@@ -6,8 +6,9 @@ Current class: `A/B CANDIDATE — static controller-aperture policy and secure
 initializer paths proved; exact XBL diagnostic mapping is bijective and
 non-aliasing; section-16 is a read-only SHRM snapshot path whose complete
 workspace has no static HLOS grant and whose fixed direct EL1 read path ended
-in watchdog reset; indirect write paths, hidden transform and protection
-ordering remain unresolved`
+in watchdog reset; exact XBL has a gated crash/download `SHRM_MEM.BIN` export
+covering the workspace, but normal-HLOS visibility, indirect write paths,
+hidden transform and protection ordering remain unresolved`
 
 Platform provenance: the A90 runtime, ACM bridge, REPL primitive, TWRP
 code-boot and boot-prefix rollback used throughout are supplied by the upstream
@@ -25,7 +26,8 @@ MMIO, SCM, EL2, EL3, or protected-memory write; it attempted one fixed 32-bit
 MMIO load.
 Experiment 004 created and removed fixed temporary block-device nodes under
 `/dev`; Experiment 005 created and removed one fixed temporary character node.
-Experiments 008, 009, 010, 011, 012, and Experiment 013 preparation were
+Experiments 008, 009, 010, 011, 012, Experiment 013 preparation, and
+Verifications 001–002 were
 entirely host-only. Experiment 013 then wrote exact control/read boot candidates
 and V2321 rollbacks with full-prefix readback. It performed no controller,
 memory, SCM, EL2, EL3, or protected-memory write and attempted one fixed
@@ -171,6 +173,22 @@ memory, SCM, EL2, EL3, or protected-memory write and attempted one fixed
   `0xf0000000/0xf0000000`, so the write denial is deliberate, not a default.
 - The audit checks static facts only. It does not verify their security
   interpretation, and every `UNKNOWN` in section D stands unchanged.
+- Verification 002 proves exact XBL has a consumed 26-record raw-dump table at
+  `0x14961730`. Index 19 is a 32-byte descriptor for physical
+  `0x09060000..0x0906ffff`, description `SHRM MEM region`, filename
+  `SHRM_MEM.BIN`; that range contains the complete section-16 workspace and
+  both snapshot destinations.
+- Its exact primary loop at `0x14917ca8` loads each record as base/size and
+  description/filename, advances by `0x20`, and calls registrar `0x14917670`.
+  The pinned dload call chain is `0x14902cc4 -> 0x14917740 -> 0x14917c60`.
+- The embedded Xtensa blob has one direct `0x25100` literal, referenced by the
+  two direction-zero producers. It has no direct u32 literal for `0x25330`,
+  `0x259e8`, or their physical addresses. This is a bounded direct/literal
+  negative, not proof against dynamically derived consumers.
+- A read-only check of mounted `ANDROIDLABSD` found no `SHRM_MEM.BIN`,
+  `rawdump.bin`, or exact Experiment-004 A90 firmware filename. Its only A908
+  item is the Samsung open-source kernel archive/directory; the exact firmware
+  input remains the private live capture in this repository.
 
 ## B. 현재 HYPOTHESIS
 
@@ -181,6 +199,9 @@ memory, SCM, EL2, EL3, or protected-memory write and attempted one fixed
 - The retained watchdog may be the XPU denial's downstream fabric response.
   Static policy coverage and lack of an HLOS grant support this; the encrypted
   or unparsed TZ log prevents a causal syndrome match.
+- A successful XBL raw-dump collection may preserve the 430/64 controller
+  words populated before reset. This predicts a 64-KiB `SHRM_MEM.BIN` whose
+  workspace header and staged ranges validate against the pinned layout.
 
 ## C. REFUTED
 
@@ -233,6 +254,11 @@ memory, SCM, EL2, EL3, or protected-memory write and attempted one fixed
 - “The purpose-built direct EL1 path can observe staged MCCC snapshot word
   `0x0906566c` on this boot.” The only eligible one-load attempt returned no
   value and ended in a non-secure watchdog reset.
+- “No exact firmware export path covers the protected SHRM workspace.” XBL's
+  consumed raw-dump descriptor covers the full enclosing 64-KiB region.
+- “The exact SHRM blob directly exports either derived snapshot through a
+  literal HLOS mailbox path.” Neither destination/local physical literal exists
+  in the complete blob; the proved export consumer is external XBL code.
 
 ## D. UNKNOWN
 
@@ -256,6 +282,9 @@ memory, SCM, EL2, EL3, or protected-memory write and attempted one fixed
 - Protection ordering and existence of a post-transform security check.
 - Any deterministic normal-RAM DRAM alias or protected-boundary consequence.
 - Live boot-image and live-DTB byte hashes.
+- Whether current retail FMM/debug-level/token policy permits the exact XBL
+  raw-dump path; whether populated SHRM state survives entry; the operative
+  SD/USB transport; and any normal-boot HLOS-readable export of the same words.
 
 ## E. SDM855 physical→DRAM pipeline 후보
 
@@ -311,7 +340,8 @@ source-visible PA inputs. `REFUTED`: current-kernel userland `/dev/mem` access.
 fixed inline map/unmap control can return safely; a paired one-load execution
 returned no value and ended in watchdog reset. `PROVED`: its PA is in a
 TZ-owned static XPU region with no HLOS grant. `SUPPORTED`: XPU/fabric denial;
-final runtime policy and decode register values remain `UNKNOWN`.
+final runtime policy and decode register values remain `UNKNOWN`. Exact XBL's
+post-reset raw-dump catalog is `PROVED`, but it is not an EL1/HLOS runtime API.
 
 ## I. EL2/QHEE가 담당하는 것으로 보이는 부분
 
@@ -349,11 +379,12 @@ this difference is not yet a complete structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-Do not repeat the fixed load. The next cheapest step is host-only recovery of
-downstream consumers of the two SHRM snapshot buffers at workspace offsets
-`0x230` and `0x8e8`. The discriminating question is whether secure firmware
-copies a bounded snapshot through an existing HLOS-readable diagnostic/shared
-buffer. If no export path exists, direct snapshot visibility remains blocked.
+Do not repeat the fixed load. Static consumer recovery is complete: XBL has a
+gated raw-dump export covering the full region, while normal-HLOS export is
+unproved. The next cheapest step is a read-only current-state inventory of A90
+FMM/debug-level/RDX eligibility and any existing rawdump headers. Only if that
+gate is positive should one already-understood reset source test whether XBL
+actually emits a 64-KiB `SHRM_MEM.BIN` and preserves the staged words.
 
 ## N. 가장 위험한 아직 금지된 실험
 
@@ -413,6 +444,9 @@ Evidence against a presently usable bypass:
 - The purpose-built paired test separated mapping from access: map/unmap passed,
   while the sole extra load produced no value and a retained non-secure watchdog
   reset. This is strong evidence against usable direct EL1 visibility.
+- Exact XBL's alternative is a gated crash/download raw-dump catalog, not a
+  normal-world register or shared-memory primitive. Its existence improves
+  observability but does not supply transform mutation or an alias.
 - Secure ownership, boot-time locking, or a post-transform check could each
   independently make the AMD attack class fail.
 - Exact TrustZone firmware names multiple BIMC/MEMNOC/LLCC MPUs, increasing the
@@ -423,12 +457,13 @@ Evidence against a presently usable bypass:
 - Exact devcfg leaves XPU access control enabled (`disable_xpu_ac=0`), and the
   boot path consumes the selected static policy table.
 
-Critical unknowns are a secure snapshot-export path, runtime snapshot values,
+Critical unknowns are retail eligibility and preservation for the proved XBL
+snapshot-dump path, any normal-HLOS runtime export, runtime snapshot values,
 lock state, indirect
 reverse-direction use, runtime source-base/interleave state, final
 XPU/remapper/MCCC/MC readback, dynamic BIMC policy inputs, protection ordering,
 any transform hidden from the diagnostic, and deterministic alias behavior. The
 defensible current conclusion is `SECURE CONTROLLER-APERTURE POLICY/INITIALIZER
 PROVED / SHRM SECTION-16 READ-ONLY SNAPSHOT PROVED FOR DIRECT CONSUMERS / XBL
-DIAGNOSTIC MAP NON-ALIASING / HIDDEN FINAL TRANSFORM UNKNOWN / NO BYPASS
-OBSERVED`.
+RAWDUMP EXPORT PRESENT BUT HLOS RUNTIME EXPORT UNPROVED / XBL DIAGNOSTIC MAP
+NON-ALIASING / HIDDEN FINAL TRANSFORM UNKNOWN / NO BYPASS OBSERVED`.

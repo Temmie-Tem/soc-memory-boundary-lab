@@ -75,6 +75,20 @@ into a SHRM snapshot buffer. Both direct consumers pass direction zero, so the
 observed path is a read inventory, not a write command stream. The selected
 lists produce 430 and 64 register-word reads.
 
+`PROVED` by Verification 002: the complete Xtensa image has one direct
+workspace-base literal (`0x25100`) referenced by the two producers and no
+direct u32 literal for derived destinations `0x25330`/`0x259e8` or their
+physical addresses. Exact XBL nevertheless contains an external consumer: a
+26-record raw-dump table at `0x14961730` whose index 19 maps
+`0x09060000..0x0906ffff` to `SHRM_MEM.BIN`. Its AArch64 loop and dload call
+chain are instruction-pinned, so the descriptor is consumed rather than
+orphaned data.
+
+`SUPPORTED`: this is a bootloader crash/download diagnostic export, not a
+normal-HLOS runtime interface. `UNKNOWN`: current FMM/debug-level/token
+eligibility, reset-time preservation of the staged words, and successful
+collection on the exact retail target.
+
 `SUPPORTED`: base tokens are 4-KiB page numbers for exact SHRM topology targets.
 `UNKNOWN`: runtime values, lock state, whether any readback register controls
 final address decode, and whether an indirect reverse-direction invocation

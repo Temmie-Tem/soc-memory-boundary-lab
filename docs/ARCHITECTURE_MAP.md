@@ -102,6 +102,16 @@ restored and passed final health. `SUPPORTED`: the load caused a protected
 fabric stall and XPU policy explains it. A decoded XPU syndrome is absent, so
 the causal root remains below `PROVED`.
 
+`PROVED` by Verification 002: exact XBL independently contains and consumes a
+26-record crash/download raw-dump catalog. Record 19 covers
+`0x09060000..0x0906ffff` as `SHRM_MEM.BIN`, including the entire section-16
+workspace and both snapshot destinations. The AArch64 loop at `0x14917ca8`
+loads each `{base,size,description,filename}` record and calls registrar
+`0x14917670`; its pinned call chain begins in the dload path. `SUPPORTED`: this
+is a post-reset bootloader diagnostic path, not a normal HLOS runtime mapping.
+FMM/debug-level/token eligibility, reset-time preservation and successful
+retail extraction remain `UNKNOWN`.
+
 `UNKNOWN`: numeric boot register words. XBL consumes runtime per-channel source
 bases and a rank-interleave mask not present in the retained firmware/log
 artifacts.
@@ -251,7 +261,7 @@ all protection ordering relative to DRAM decode remain `UNKNOWN`.
 | Which block owns the final mapping? | `PROVED`: qhs_llcc ICB windows own boot region remapping and XBL exposes a bijective intended coordinate model. MCCC/MC/DDRSS token families are now exact candidates; final hardware decode owner remains `UNKNOWN`. |
 | Who programs it? | `PROVED`: XBL programs the region remapper through `icbcfg` and copies section 16 to SHRM. `PROVED`: the exact SHRM section-16 consumers read listed controller words into a snapshot buffer; the observed section-16 paths do not write those addresses. AOP runtime DDR management is `PROVED`; final-decode writer remains `UNKNOWN`. |
 | At what stage? | Region-remap programming during XBL DDR initialization before HLOS is `PROVED`; later mutability remains `UNKNOWN`. |
-| Can EL1 observe it? | Register contents remain `UNKNOWN`. `/dev/mem` and generic REPL routes are `REFUTED`; the fixed load returned no value. `PROVED`: both static branches cover all four remapper/BIMC apertures with no HLOS grant. `SUPPORTED`: XPU/fabric denial. |
+| Can EL1 observe it? | Register contents remain `UNKNOWN`. `/dev/mem` and generic REPL routes are `REFUTED`; the fixed load returned no value. `PROVED`: both static branches cover all four remapper/BIMC apertures with no HLOS grant. XBL has a separate raw-dump catalog covering the staged buffers, but it is not an EL1 runtime interface. `SUPPORTED`: XPU/fabric denial. |
 | Can EL1 modify it? | No mutation is proved. The exact HLOS-visible XPU-disable allowlist has zero entries, and all known configuration apertures have branch-invariant TZ-owned coverage. Final runtime policy/lock readback is `UNKNOWN`. |
 | Does EL2/EL3 lock it? | `PROVED`: QHEE applies ownership/stage-2/SMMU enforcement and TZ dynamically programs BIMC policies. `UNKNOWN`: final hardware write-disable bit and exact dispatcher/lock ordering. |
 | Is there a post-transform security check? | `UNKNOWN`; the diagnostic coordinate formula and configuration-aperture coverage do not locate the data-path check. Dynamic BIMC MPU policy makes a later check plausible but does not place it relative to hidden/final decode. |

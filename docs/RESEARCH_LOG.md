@@ -524,4 +524,49 @@
 14. Result is `INDEPENDENT AUDIT — 7/7 CHECKED CLAIMS CONFIRMED / NO
     SUBSTANTIVE ERROR FOUND`. The security interpretation is explicitly not
     audited: the confirmed evidence concerns reachability, and protection
-    ordering relative to the final DRAM transform remains `UNKNOWN`.
+ordering relative to the final DRAM transform remains `UNKNOWN`.
+
+## 2026-08-25 — Verification 002 exact SHRM dump export
+
+1. Continued from Experiment 013 without another device command or protected
+   load. Temporarily unpacked `binutils-xtensa-lx106` under `/tmp` and used it
+   only for reconnaissance; the retained tool and manifest do not depend on
+   that package or retain disassembly output.
+2. Re-extracted the exact embedded SHRM blob from XBL and verified SHA-256
+   `421824b4…`. The first extraction used the wrong ELF LOAD segment and failed
+   the pin (`4bf8daac…`); it was discarded before analysis. The corrected
+   `0x1489f800` segment mapping reproduced the exact pin.
+3. Independently decoded the two Xtensa streams. `0x288a9` and `0x28e15` both
+   load the sole local workspace literal at `0x2819c` (`0x25100`) into `a4`,
+   set `a2=0`, and call helper `0x2d8dc` at `0x288c4`/`0x28e30`.
+4. `PROVED`, bounded: the complete SHRM instruction blob has no direct u32
+   literal for local destinations `0x25330`/`0x259e8` or physical destinations
+   `0x09065330`/`0x090659e8`. A dynamically derived consumer remains
+   `UNKNOWN`; this is not a global no-export claim.
+5. Found exact XBL strings `SHRM MEM region` and `SHRM_MEM.BIN`, then recovered
+   their unique 32-byte descriptor at VA `0x14961990`/file offset `0x33e960`:
+   base `0x09060000`, size `0x10000`. It is index 19 in a contiguous 26-record
+   table at `0x14961730`.
+6. `PROVED`: AArch64 loop `0x14917ca8..0x14917cf4` resolves that table, compares
+   against count `0x1a`, loads `{base,size,description,filename}`, advances by
+   `0x20`, and calls registrar `0x14917670`. Pinned calls show
+   `0x14902cc4 -> 0x14917740 -> 0x14917c60`, placing the consumer in the exact
+   dload/rawdump path. Nearby exact strings name
+   `boot_raw_partition_ramdump.c` and explicit FMM/debug-level gates.
+7. `REFUTED`: no exact firmware export path covers the protected SHRM
+   workspace. `SUPPORTED`: `SHRM_MEM.BIN` is a gated bootloader crash/download
+   path, not normal Android/HLOS runtime visibility.
+8. Read-only host enumeration showed `/dev/sda1` label `ANDROIDLABSD` mounted at
+   `/mnt/android-lab-sd`. Exact searches found no `SHRM_MEM.BIN`, `rawdump.bin`,
+   or Experiment-004 A90 partition filename. The only A908 path is Samsung's
+   open-source kernel archive/directory; unrelated S22+ material was untouched.
+9. Implemented `tools/sm8150_shrm_dump_export_inventory.py` and ten focused
+   tests, generated a private/public manifest pair, and documented the result
+   in `experiments/verification-002-shrm-dump-export/README.md`. All 135 tests
+   pass, all 34 public manifests parse, consecutive generations are
+   byte-identical, and modes are `0600/0644`. No device, SMC, MMIO, controller,
+   partition, EL2/EL3 runtime or protected-memory action occurred.
+10. Classification is
+    `BOOTLOADER_RAWDUMP_EXPORT_PRESENT_HLOS_RUNTIME_EXPORT_UNPROVED`. The next
+    discriminator is read-only A90 FMM/debug-level/RDX eligibility and existing
+    dump-header inventory, not repetition of the denied EL1 load.

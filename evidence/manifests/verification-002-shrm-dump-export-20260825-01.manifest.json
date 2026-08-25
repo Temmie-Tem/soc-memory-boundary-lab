@@ -1,0 +1,193 @@
+{
+  "claims": {
+    "HYPOTHESIS": [
+      "A successfully collected SHRM_MEM.BIN may retain the 430/64 staged controller words populated before the fatal reset."
+    ],
+    "PROVED": [
+      "Exact XBL contains a 26-record raw-dump table whose index 19 covers physical 0x09060000..0x0906ffff and names the output SHRM_MEM.BIN.",
+      "The exact AArch64 loop loads each 32-byte record as physical base, size, description and filename, then calls the region registrar at 0x14917670.",
+      "The static dload call chain is 0x14902cc4 -> 0x14917740 -> 0x14917c60; the consumer contains the 26-record loop at 0x14917ca8.",
+      "The dump range contains the complete section-16 workspace and both staged snapshot destinations.",
+      "The exact Xtensa blob uses one workspace-base literal through two direction-zero calls to helper 0x2d8dc and has no direct u32 literal for either derived snapshot destination."
+    ],
+    "REFUTED": [
+      "No firmware export path covers the protected SHRM snapshot workspace.",
+      "The exact embedded SHRM blob itself contains a direct/literal HLOS mailbox consumer for either snapshot destination."
+    ],
+    "SUPPORTED": [
+      "SHRM_MEM.BIN is a bootloader crash/download raw-dump export path, not a normal Android HLOS runtime interface.",
+      "If the retail dump gates permit collection and SHRM state survives the reset path, this catalog is a safer observation candidate than another direct EL1 read."
+    ],
+    "UNKNOWN": [
+      "Whether FMM/debug-level/token policy enables this dump path on the exact retail A90 state.",
+      "Whether the snapshot helpers ran before a given reset and whether their data remains valid when XBL collects the region.",
+      "Whether an existing SD/rawdump artifact contains SHRM_MEM.BIN and which transport exposes the catalog on this target.",
+      "Whether any normal-boot HLOS-readable diagnostic or shared-memory interface exports the same words without entering the bootloader dump path.",
+      "The runtime values, lock state and final-decode meaning of the staged controller words."
+    ]
+  },
+  "classification": "BOOTLOADER_RAWDUMP_EXPORT_PRESENT_HLOS_RUNTIME_EXPORT_UNPROVED",
+  "device_access": false,
+  "embedded_shrm": {
+    "bounded_negative": "The exact SHRM instruction blob contains no direct u32 literal for either snapshot destination or its physical address. This excludes a direct/literal consumer, not a dynamically derived pointer.",
+    "direct_u32_literal_hits": {
+      "0x25100": [
+        "0x2819c"
+      ],
+      "0x25330": [],
+      "0x259e8": [],
+      "0x9065100": [],
+      "0x9065330": [],
+      "0x90659e8": []
+    },
+    "section16_read_callsites": [
+      {
+        "direction_argument": 0,
+        "direction_pc": "0x288af",
+        "function_entry": "0x287f4",
+        "function_stream": "conditional fatal/exception path",
+        "helper_call_pc": "0x288c4",
+        "helper_target": "0x2d8dc",
+        "l32r_pc": "0x288a9",
+        "name": "set0",
+        "register_word_count": 430,
+        "snapshot_local": "0x25330",
+        "snapshot_physical": "0x9065330",
+        "workspace_literal_vaddr": "0x2819c",
+        "workspace_local_value": "0x25100"
+      },
+      {
+        "direction_argument": 0,
+        "direction_pc": "0x28e1b",
+        "function_entry": "0x28dbc",
+        "function_stream": "conditional fatal/exception path",
+        "helper_call_pc": "0x28e30",
+        "helper_target": "0x2d8dc",
+        "l32r_pc": "0x28e15",
+        "name": "set1",
+        "register_word_count": 64,
+        "snapshot_local": "0x259e8",
+        "snapshot_physical": "0x90659e8",
+        "workspace_literal_vaddr": "0x2819c",
+        "workspace_local_value": "0x25100"
+      }
+    ],
+    "sha256": "421824b417ab28e6c0d1802c05d7ce5422e93b116973ce7f039321fb5a01a1fd",
+    "size": 23776,
+    "workspace": {
+      "local_start": "0x25100",
+      "physical_start": "0x9065100",
+      "size": 3840
+    },
+    "xbl_virtual_address": "0x148bbe98",
+    "xtensa_code_base": "0x28000"
+  },
+  "firmware_bytes_emitted": false,
+  "input": {
+    "filename": "xbl--sdb1.bin",
+    "pin_verified": true,
+    "sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+    "size": 4194304
+  },
+  "mmio_access": false,
+  "mode": "HOST_ONLY_READ_ONLY",
+  "raw_dump_descriptor": {
+    "base": "0x09060000",
+    "description": "SHRM MEM region",
+    "descriptor_file_offset": "0x33e960",
+    "descriptor_vaddr": "0x14961990",
+    "end_exclusive": "0x09070000",
+    "filename": "SHRM_MEM.BIN",
+    "index": 19,
+    "size": 65536,
+    "snapshot_set0_covered": true,
+    "snapshot_set1_covered": true,
+    "table_record_count": 26,
+    "table_record_size": 32,
+    "table_sha256": "5f075f4850460326b5e7ef08f43cbddcf4f5b88835bed9ab2908e18eee01a641",
+    "table_vaddr": "0x14961730",
+    "workspace_covered": true
+  },
+  "schema": "sdm855-shrm-dump-export-inventory-public-v1",
+  "smc_access": false,
+  "xbl_consumer": {
+    "call_chain": [
+      {
+        "label": "dload_path_to_catalog_builder",
+        "pc": "0x14902cc4",
+        "target": "0x14917740",
+        "word": "0x9400529f"
+      },
+      {
+        "label": "catalog_builder_to_consumer",
+        "pc": "0x1491777c",
+        "target": "0x14917c60",
+        "word": "0x94000139"
+      },
+      {
+        "label": "table_loop_to_region_registrar",
+        "pc": "0x14917cdc",
+        "target": "0x14917670",
+        "word": "0x97fffe65"
+      }
+    ],
+    "code_pins": [
+      {
+        "end_exclusive": "0x14902ce8",
+        "sha256": "9b4cc75011cd7be22a5f4bd3c1b5981172a710b0b00315a922679d8b41505741",
+        "size": 48,
+        "start": "0x14902cb8"
+      },
+      {
+        "end_exclusive": "0x14917850",
+        "sha256": "acbe214bd36145a85b1589aa304f70c0a2622f2a88ea045ff56835e1ad8ae8cd",
+        "size": 272,
+        "start": "0x14917740"
+      },
+      {
+        "end_exclusive": "0x14918120",
+        "sha256": "2fab065997d82497eb15a591cc0249f0ac59686306bf67c0eb7fff782e20f84a",
+        "size": 1216,
+        "start": "0x14917c60"
+      },
+      {
+        "end_exclusive": "0x14917cf4",
+        "sha256": "b7e02af33970d81ed6a38c643f96141ae88ad478efc53900317f4465f2138857",
+        "size": 76,
+        "start": "0x14917ca8"
+      }
+    ],
+    "module_evidence": {
+      "source_string": "boot_raw_partition_ramdump.c",
+      "source_string_vaddr": "0x14961150",
+      "static_gate_strings": [
+        {
+          "string": "@ FMM Lock is On, Ramdump is not Allowed! Hard Reset...",
+          "vaddr": "0x1494bcdf"
+        },
+        {
+          "string": "DebugLevel : %d, ForceUploadFlag : %d",
+          "vaddr": "0x1494bd17"
+        },
+        {
+          "string": "@ Debug level LOW && ram dump not allowed, skip dump summary !",
+          "vaddr": "0x1494bdae"
+        }
+      ],
+      "success_string": "RawDump successfully, Reset the device",
+      "success_string_vaddr": "0x1496116d"
+    },
+    "primary_loop": {
+      "loads": [
+        "x1=physical_base, x2=size",
+        "x3=description_pointer, x4=filename_pointer"
+      ],
+      "mode_argument_w0": 1,
+      "record_count": 26,
+      "record_stride": 32,
+      "registrar": "0x14917670",
+      "start": "0x14917ca8",
+      "table_vaddr": "0x14961730"
+    }
+  }
+}

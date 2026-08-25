@@ -83,6 +83,16 @@ The audit also records a fact the experiments underweighted: the remapper and
 SHRM policy regions deny write to **every** client class, not merely to ordinary
 HLOS. It verifies static facts only, not their security interpretation.
 
+Host-only Verification 002 then traced consumers beyond the blocked EL1 path.
+Exact XBL contains and actively enumerates a 26-record crash/download raw-dump
+table whose index 19 exports the full `0x09060000..0x0906ffff` SHRM range as
+`SHRM_MEM.BIN`, covering both snapshot buffers. This refutes “no firmware
+export path exists,” but does **not** prove a normal Android/HLOS interface:
+FMM/debug-level/token eligibility, reset-time preservation, and actual retail
+collection remain `UNKNOWN`. A read-only mounted-SD check found neither
+`SHRM_MEM.BIN` nor `rawdump.bin`; the exact A90 firmware used here remains the
+private Experiment-004 live capture, not an SD-card artifact.
+
 Claim vocabulary is deliberately closed:
 
 - `PROVED`: directly demonstrated by named source, artifact, or repeated result.
@@ -123,6 +133,9 @@ are in
 Verification 001's independent re-derivation of the load-bearing static claims
 is in
 [experiments/verification-001-independent-claim-audit/README.md](experiments/verification-001-independent-claim-audit/README.md).
+Verification 002's exact XBL `SHRM_MEM.BIN` descriptor and raw-dump consumer
+chain are in
+[experiments/verification-002-shrm-dump-export/README.md](experiments/verification-002-shrm-dump-export/README.md).
 The exact A90 TWRP code-only System transition is documented in
 [docs/A90_TWRP_CODE_BOOT.md](docs/A90_TWRP_CODE_BOOT.md).
 
@@ -148,7 +161,7 @@ entire platform this repository observes from; none of it originates here.
 Upstream device-action risk tiers (`H0` host-only, `D0` connected read-only,
 `D1` attended non-partition, `F1` boot-only transfer, `R1` privileged
 root-data) are the vocabulary behind this repository's experiment design. In
-upstream terms, Experiments 008–012 and Verification 001 are `H0`;
+upstream terms, Experiments 008–012 and Verifications 001–002 are `H0`;
 Experiments 001/005/006 live capture is `D0`; and the boot-candidate
 transitions in Experiments 007 and 013 are `F1`.
 

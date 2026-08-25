@@ -102,3 +102,10 @@ watchdog reset. This refutes direct EL1 visibility through the tested path.
 address decode, any indirect reverse-direction invocation, and where the
 data-path check sits relative to hidden/final decode. Repeating the denied
 configuration-aperture load cannot answer these questions.
+
+`PROVED` by Verification 002: exact XBL's consumed crash/download raw-dump
+catalog covers the entire enclosing SHRM 64-KiB region as `SHRM_MEM.BIN`.
+This supplies a concrete post-reset observation candidate without changing
+controller state. It does not change the direct-EL1 result: the catalog is not
+a normal-HLOS runtime API, and retail eligibility, state preservation and
+actual extraction are `UNKNOWN`.

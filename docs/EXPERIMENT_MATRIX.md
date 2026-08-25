@@ -400,3 +400,43 @@ Experiment number because 014–016 are already allocated above.
   byte-identical; public mode `0644`
 - Private record: none; the audit emits no firmware bytes
 - Device/SMC/MMIO/controller/partition writes: none; device access: none
+
+## Verification 002 SHRM dump-export metadata
+
+This is a forward static discriminator but takes a Verification number to
+preserve the already allocated Experiment 014–016 sequence.
+
+- Verification ID: `verification-002-shrm-dump-export-20260825-01`
+- Question: does exact firmware have a downstream consumer/export covering the
+  two protected SHRM snapshot buffers after direct EL1 access was blocked?
+- Input: exact Experiment-004 XBL, 4,194,304 bytes, SHA-256
+  `e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37`
+- Timestamp: `2026-08-25 KST`
+- Exact action:
+  `python3 tools/sm8150_shrm_dump_export_inventory.py --replace`
+- Result: exact XBL consumes a 26-record crash/download raw-dump table whose
+  index 19 maps `0x09060000..0x0906ffff` to `SHRM_MEM.BIN`, covering the full
+  section-16 workspace and both snapshot destinations
+- Consumer proof: loop `0x14917ca8..0x14917cf4`, record stride `0x20`, count
+  `0x1a`, registrar `0x14917670`; pinned call chain
+  `0x14902cc4 -> 0x14917740 -> 0x14917c60`
+- Bounded SHRM negative: one direct `0x25100` literal feeds both direction-zero
+  producers; no direct u32 literal for either derived destination or physical
+  address; dynamically derived consumers remain possible
+- Mounted-SD result: exact filenames `SHRM_MEM.BIN`, `rawdump.bin` and the
+  Experiment-004 A90 partition dumps were absent; the only A908 item was the
+  Samsung open-source kernel archive/directory
+- Classification:
+  `BOOTLOADER_RAWDUMP_EXPORT_PRESENT_HLOS_RUNTIME_EXPORT_UNPROVED`
+- Public manifest SHA-256:
+  `63e93c1908ef4139adf7bca73bfb15a74a7c9c5eb58411bbb2eb3fdc7d4a9d25`
+- Private derived record SHA-256:
+  `8821dfeec2c771e3b3dd66caac81d7b3112391efe148a8675ef0e0c3792d53a4`
+- Tool SHA-256:
+  `5317f7c689935b94659a923edfff18fc90ba121cae87521ee51de2e538f152c4`
+- Focused-test SHA-256:
+  `cb7c947520a7aa3a6ea6a400c68f08db050a1c586ab12e58bfd30d581ba9e97d`
+- Host verification: ten focused tests and all 135 repository tests pass; all
+  34 public manifests parse; consecutive private/public generations are
+  byte-identical; private mode `0600`, public mode `0644`
+- Device/SMC/MMIO/controller/partition writes: none; device access: none
