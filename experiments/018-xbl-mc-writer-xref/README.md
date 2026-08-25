@@ -1,4 +1,4 @@
-# Experiment 018 — XBL MC writer cross-reference, Stage 1A + Stage 2A + Stage 2B + Stage 2C
+# Experiment 018 — XBL MC writer cross-reference, Stage 1A + Stage 2A + Stage 2B + Stage 2C + Stage 2D
 
 ## Scope and eligibility
 
@@ -8,8 +8,9 @@ protected-memory or runtime-register access. Stage 2A resolves only the four
 pinned non-SP RX candidates through a deliberately small direct-definition
 model; Stage 2B extends only the two Stage 2A window-limit X8 candidates with a
 deliberately small W-wide-move model; Stage 2C covers the remaining X8 writer
-candidate through its unique direct caller and retained table. None of these
-stages identifies a writer outside its model.
+candidate through its unique direct caller and retained table; Stage 2D covers
+the remaining X19 candidate under explicit callee-preservation conditions. None
+of these stages identifies a writer outside its model.
 
 Conceptual Experiment 015 (controlled normal-RAM alias) and Experiment 016
 (protected-boundary reach through that alias) remain reserved and `NOT
@@ -178,6 +179,74 @@ to the 12 targets in this model. The remaining non-SP RX static candidate count
 is one (`X19`); this does not eliminate other X8 writer paths. Classification:
 `NO_NUMERIC_TARGET_ADDRESS_MATCH_WITHIN_STAGE2C_UNIQUE_DIRECT_CALLER_TABLE_MODEL`.
 
+## Stage 2D conditional X19 direct-BL path
+
+Stage 2D covers the remaining non-SP RX candidate at VA/file
+`0x14935bf4`/`0x312bc4`, `STR X9,[X19,#0x400]`. Its containing function is
+`[0x14935960,0x14935edc)` / file `0x312930`, 1,404 bytes, SHA-256
+`68739df6f843f790376eb0af47da22f0af5ebeb2421f05d29c3b5a8673983fd9`.
+The executable PT_LOAD census finds exactly one direct BL caller at
+`0x14949eec` / file `0x326ebc` and zero direct B callers; indirect callers
+remain `UNKNOWN`.
+
+The caller pins W0=0, takes the CBZ success edge to `0x14949ee4`, sets
+`X1=SP+0xe0` and W2=0, then calls the function. The callee pins W20=W0,
+W0≤7/X1-nonzero guards, the W20≤1 path, X23 selection, X24=`0x85e9e570`,
+and `MADD X19,X23,0x600,X24`. The dispatch pins
+`SUB W12,W20,#2; CMP W12,#3; B.CS 0x14935aac`, which is the W20≤1 path
+entry. Its intrinsic W0 domain is `{0,1}`, giving pre-call bases
+`{0x85e9e570,0x85e9eb70}` and possible effective values
+`{0x85e9e970,0x85e9ef70}`. The call at `0x14935abc` is followed by
+`CBNZ W0,0x14935ce8`; reaching the MADD requires that direct callee to return
+W0=0, which is a runtime result and therefore `UNKNOWN`.
+
+Stage 2D additionally pins the initializer
+`[0x14844580,0x14844dac)` / file `0x2b580`, 2,092 bytes, SHA-256
+`65e117b99fd109cbb01531bd70fc2befe70c0b672a01afe6dd523bbebf1486cb`.
+It statically forms X8=`0x1489f000`, X5=`0x1483c904`, and stores X5 at
+`[X8,#0x3b0]`, resolving slot `0x1489f3b0`; initializer execution and later
+slot mutation remain `UNKNOWN`. The resolved target
+`[0x1483c904,0x1483c9e8)` / file `0x23904`, 228 bytes, SHA-256
+`5c979955c6d1cdfd541766ca3ea6964460803d61aa3d07bed0c74f60d3eec34e`, has
+zero BL/BLR/BR transfers, exactly one RET, only in-range direct branch
+targets, and zero X19–X29 definitions under an exact instruction-class/write-
+set manifest bound to that range hash. That audit includes post-index STR base
+writeback and the intervening LDP W6/W16 two-register destination. The pre-MADD
+direct callee
+`[0x1493641c,0x1493697c)` / file `0x3133ec`, 1,376 bytes, SHA-256
+`43fa9c70453b7ad1d8ff88d4ca07b375d2dc6b3b06e805339b2ad1927e4487e0`, has a
+unique direct-BL caller at `0x14935abc`, saves X24/X23 at `0x14936428`,
+restores them at `0x149365a8`, and has one RET at `0x149365b4`; normal-return
+preservation is pinned, while execution/non-returning behavior remains
+`UNKNOWN`.
+
+The wrapper/thunk ranges are `[0x149396f4,0x14939704)` and
+`[0x14900254,0x14900264)`; the thunk loads the current runtime import-slot
+pointer at `0x1489f3b0` and branches through it. The initializer statically
+assigns `0x1483c904` to that slot, but current runtime slot target/currentness
+is `UNKNOWN`. Under the explicit `STATIC_INITIALIZED_SLOT_UNCHANGED` model
+(normal return from the pinned pre-MADD direct callee plus preservation across
+the two pre-MADD import-wrapper calls), the direct-caller effective value is
+`0x85e9e970`; under the generic conforming-AAPCS64 callee-preservation model,
+the same conditional value follows. Both models have zero numeric matches to
+the 12 targets. The values lie in the memory-only tail of RW PT_LOAD
+`0x85e44000` (`filesz=0x43620`, `memsz=0x66038`, `p_vaddr=p_paddr`); physical
+destination/ownership and VA-to-PA identity are `UNKNOWN`.
+
+The AAPCS64 statement is only a conditional ABI model based on Arm's
+callee-saved register convention; see the [primary AAPCS64 source](https://github.com/ARM-software/abi-aa/blob/main/aapcs64/aapcs64.rst).
+It does not establish conformance of any current runtime import target.
+
+`PROVED`: static bytes, paths, initializer assignment, exact target audit,
+normal-return save/restore pins, and the mathematical results of explicitly
+stated models. `SUPPORTED`: AAPCS64 callee-saved preservation as a conditional
+ABI model. `HYPOTHESIS`: runtime initializer execution, unchanged slot and
+successful callee returns make the static import target govern the path.
+`REFUTED` only: numeric equality in the stated conditional models; no
+writer-absence or runtime-execution claim is made. Seven SP RX and three RWE
+candidates remain `UNKNOWN`. Classification:
+`NO_NUMERIC_TARGET_ADDRESS_MATCH_WITHIN_STAGE2D_UNIQUE_DIRECT_CALLER_CONDITIONAL_CALLEE_SAVED_PRESERVATION_MODEL`.
+
 ## Reproduction and provenance
 
 ```sh
@@ -193,6 +262,9 @@ python3 -m unittest -v tests.test_sm8150_xbl_mc_writer_stage2b
 python3 tools/sm8150_xbl_mc_writer_stage2c.py \
   --output evidence/manifests/018-xbl-mc-writer-xref-stage2c-20260825-01.manifest.json
 python3 -m unittest -v tests.test_sm8150_xbl_mc_writer_stage2c
+python3 tools/sm8150_xbl_mc_writer_stage2d.py \
+  --output evidence/manifests/018-xbl-mc-writer-xref-stage2d-20260826-01.manifest.json
+python3 -m unittest -v tests.test_sm8150_xbl_mc_writer_stage2d
 ```
 
 - Tool SHA-256:
@@ -236,6 +308,21 @@ python3 -m unittest -v tests.test_sm8150_xbl_mc_writer_stage2c
 - Public manifest inventory: all 57 manifests parse as JSON; regeneration is
   byte-identical; mode is `0644`.
 - Date: 2026-08-25 KST.
+- Mode: `HOST_ONLY_READ_ONLY`; device, SMC and MMIO access: none.
+
+## Stage 2D provenance
+
+- Tool SHA-256:
+  `95e53e25f288ba1ef09996ff73919c2ad1dd4186c4fec41dc84216d715ee8b26`.
+- Focused-test SHA-256:
+  `23c91a14c16706b920b4c3556e85844543dc99545a2b7b6d864a8c09d35f6136`.
+- Public manifest SHA-256:
+  `48c7aa83d30844f1d42094fcb0f8d7dd13cf44265f9961167912792d014661c4`.
+- Focused result: 14 tests pass; full repository unittest discovery: 334 tests
+  pass.
+- Public manifest inventory: all 58 manifests parse as JSON; regeneration is
+  byte-identical; mode is `0644`.
+- Date: 2026-08-26 KST.
 - Mode: `HOST_ONLY_READ_ONLY`; device, SMC and MMIO access: none.
 
 The public manifest contains hashes, addresses, counts, segment classes and

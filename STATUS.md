@@ -93,6 +93,18 @@ static candidate remains (`X19`). Classification is
 this is not a no-writer claim. Experiments 015 and 016 remain reserved and
 `NOT ELIGIBLE`.
 
+Stage 2D examines the remaining non-SP RX X19 store at `0x14935bf4`. One
+direct-BL caller at `0x14949eec` statically supplies W0=0; exact dispatch and
+`CBNZ W0,0x14935ce8` pins make the pre-MADD success result an explicit runtime
+precondition. The exact initializer statically assigns `0x1483c904` to the
+import slot, and an exact instruction-class/write-set audit proves the
+resolved target has no X19-X29 definitions. Under explicit normal-return and
+slot-preservation conditions, the direct effective value is `0x85e9e970`, with
+zero target matches. Runtime initializer execution, slot currentness, import
+conformance, VA-to-PA identity and physical ownership remain `UNKNOWN`; no
+writer absence is claimed. Classification is
+`NO_NUMERIC_TARGET_ADDRESS_MATCH_WITHIN_STAGE2D_UNIQUE_DIRECT_CALLER_CONDITIONAL_CALLEE_SAVED_PRESERVATION_MODEL`.
+
 ## A. 현재까지 PROVED
 
 - Exact A90 source, defconfig, System.map, independently extracted stock
@@ -383,6 +395,15 @@ this is not a no-writer claim. Experiments 015 and 016 remain reserved and
   9 focused and 320 full unittest-discovery tests pass; all 57 public manifests
   parse as JSON; regeneration is byte-identical; mode `0644`; device/SMC/MMIO
   access: none.
+- Experiment 018 Stage 2D command was
+  `python3 tools/sm8150_xbl_mc_writer_stage2d.py --output evidence/manifests/018-xbl-mc-writer-xref-stage2d-20260826-01.manifest.json`.
+  Tool/test/manifest SHA-256 values are
+  `95e53e25f288ba1ef09996ff73919c2ad1dd4186c4fec41dc84216d715ee8b26`,
+  `23c91a14c16706b920b4c3556e85844543dc99545a2b7b6d864a8c09d35f6136`, and
+  `48c7aa83d30844f1d42094fcb0f8d7dd13cf44265f9961167912792d014661c4`;
+  14 focused and 334 full unittest-discovery tests pass; all 58 public manifests
+  parse as JSON; regeneration is byte-identical; mode `0644`; device/SMC/MMIO
+  access: none.
 
 ## B. 현재 HYPOTHESIS
 
@@ -537,6 +558,12 @@ this is not a no-writer claim. Experiments 015 and 016 remain reserved and
   writer identity outside the unique direct path, semantics, mutability/lock,
   GF(2), alias and bypass `UNKNOWN`. Its 48 rows are a possible-value superset,
   not proof that every store executes.
+- Experiment 018 Stage 2D leaves initializer execution, later slot mutation,
+  current runtime import-slot target/currentness, the two pre-MADD import-wrapper
+  preservation conditions, pre-MADD success result, post-call values without
+  explicit conditions, VA-to-PA identity, physical
+  destination/ownership, indirect callers, runtime semantics, mutability/lock,
+  alias, bypass and writer identity outside the scoped path `UNKNOWN`.
 
 ## E. SDM855 physical→DRAM pipeline 후보
 
@@ -641,12 +668,14 @@ ordering remain `UNKNOWN`, so this is not yet a structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-Do not repeat the fixed protected load. Experiment 018 Stage 2C completed the
-cheap host-only unique-direct-caller/retained-table discriminator for the
-remaining X8 candidate; all 48 possible `+0x400` values miss the 12 numeric
-targets. One non-SP RX candidate remains (`X19`), while seven SP candidates
-remain runtime-derived and three RWE candidates remain ambiguous. Descriptor
-eligibility, dynamic/cross-block/call and unsupported paths remain `UNKNOWN`.
+Do not repeat the fixed protected load. Experiment 018 Stage 2D completed the
+cheap host-only direct-BL and exact initialized-slot discriminator for the
+remaining X19 candidate; its conditional effective value misses the 12 numeric
+targets.
+All four non-SP RX candidates are now examined, but the X19 result remains
+conditional. Seven SP candidates remain runtime-derived and three RWE candidates
+remain ambiguous; initializer execution, import conformance and dynamic paths
+remain `UNKNOWN`.
 Any future writer xref must stay host-only and explicitly scoped; do not perform
 a broad MMIO scan or device action. A cold-boot repetition is not a substitute
 for this writer xref.
@@ -714,6 +743,12 @@ Evidence for the attack class being relevant:
   execution, physical destination, writer identity outside this path, mutation,
   alias, protected reach or bypass. Experiments 015 and 016 remain `NOT
   ELIGIBLE`.
+- Experiment 018 Stage 2D adds static function/caller/initializer/import-target
+  confidence only. It refutes numeric equality only under explicit
+  callee-preservation or static-initialized-slot conditions; it does not prove
+  initializer execution, slot currentness, runtime conformance, physical
+  destination, writer identity, mutation, alias, protected reach or bypass.
+  Experiments 015 and 016 remain `NOT ELIGIBLE`.
 
 Evidence against a presently usable bypass:
 

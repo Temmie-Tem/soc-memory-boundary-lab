@@ -286,3 +286,39 @@ destination/ownership, runtime mutation/currentness, indirect callers, other
 X8 writers, execution and writer identity outside this path remain `UNKNOWN`.
 Classification:
 `NO_NUMERIC_TARGET_ADDRESS_MATCH_WITHIN_STAGE2C_UNIQUE_DIRECT_CALLER_TABLE_MODEL`.
+
+## Experiment 018 Stage 2D — conditional X19 direct-BL path
+
+Host-only Stage 2D covers the remaining non-SP RX X19 store at
+`0x14935bf4/0x312bc4`, inside function
+`[0x14935960,0x14935edc)` / file `0x312930` (1,404 bytes,
+SHA-256 `68739df6f843f790376eb0af47da22f0af5ebeb2421f05d29c3b5a8673983fd9`).
+Exactly one direct BL caller exists at `0x14949eec/0x326ebc`; direct B callers
+are zero and indirect callers remain `UNKNOWN`. Its success path zeroes W0,
+takes CBZ to `0x14949ee4`, supplies X1=SP+0xe0 and W2=0, then calls the
+function.
+
+The callee pins W20=W0, W0≤7/X1-nonzero guards, the exact
+`SUB W12,W20,#2; CMP W12,#3; B.CS 0x14935aac` dispatch, W20≤1 path, X23
+selection, X24=`0x85e9e570`, and `MADD X19,X23,0x600,X24`. The `CBNZ
+W0,0x14935ce8` after the pre-MADD direct call makes W0=0 a runtime success
+precondition. The intrinsic W0 domain is `{0,1}`, with pre-call bases
+`{0x85e9e570,0x85e9eb70}` and possible effective values
+`{0x85e9e970,0x85e9ef70}`. The initializer
+`[0x14844580,0x14844dac)` stores `0x1483c904` into slot `0x1489f3b0`; its
+runtime execution and later slot mutation are `UNKNOWN`. The exact resolved
+target range `[0x1483c904,0x1483c9e8)` has zero BL/BLR/BR transfers, one RET,
+in-range direct branches, and zero X19-X29 definitions under an exact
+instruction-class/write-set audit. The pre-MADD direct callee range
+`[0x1493641c,0x1493697c)` has SHA-256
+`43fa9c70453b7ad1d8ff88d4ca07b375d2dc6b3b06e805339b2ad1927e4487e0`, a unique
+direct caller at `0x14935abc`, and pinned X24/X23 save/restore on its one
+normal RET.
+
+Under explicit normal-return and `STATIC_INITIALIZED_SLOT_UNCHANGED` conditions,
+the direct effective value is `0x85e9e970`, with zero numeric matches to the 12
+targets. It lies in the memory-only tail of RW PT_LOAD
+`0x85e44000` (`filesz=0x43620`, `memsz=0x66038`, `p_vaddr=p_paddr`). This is
+conditional static evidence only: import conformance, runtime execution,
+slot currentness, VA-to-PA identity and physical destination/ownership remain
+`UNKNOWN`; no writer absence is claimed.

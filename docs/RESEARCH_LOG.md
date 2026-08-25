@@ -947,3 +947,49 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
    Nine focused and 320 full unittest-discovery tests pass; all 57 public
    manifests parse as JSON, regeneration is byte-identical and mode is
    `0644`. Date: 2026-08-25 KST.
+
+## 2026-08-26 — Experiment 018 XBL MC writer cross-reference Stage 2D
+
+1. Kept the stage host-only/read-only over the exact XBL
+   (`e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37`).
+   The remaining non-SP RX candidate is `0x14935bf4/0x312bc4`, and no device,
+   SMC or MMIO action occurred.
+2. Pinned function `[0x14935960,0x14935edc)` / file `0x312930`, 1,404 bytes,
+   SHA-256 `68739df6f843f790376eb0af47da22f0af5ebeb2421f05d29c3b5a8673983fd9`;
+   the candidate is `STR X9,[X19,#0x400]`. The executable PT_LOAD census found
+   one direct BL caller at `0x14949eec/0x326ebc` and zero direct B callers.
+3. The caller pins W0=0, CBZ W0 to `0x14949ee4`, X1=SP+0xe0, W2=0 and the
+   direct call. The callee pins W20=W0, W0≤7/X1-nonzero guards, the exact
+   `SUB W12,W20,#2; CMP W12,#3; B.CS 0x14935aac` dispatch, W20≤1,
+   X23 selection, X24=`0x85e9e570`, and MADD X19 with multiplier `0x600`.
+   The `CBNZ W0,0x14935ce8` after the pre-MADD direct call makes W0=0 a
+   runtime success precondition. Intrinsic bases are
+   `0x85e9e570`/`0x85e9eb70`; the direct caller narrows W0 to zero.
+4. The initializer `[0x14844580,0x14844dac)` / file `0x2b580`, 2,092 bytes,
+   SHA-256 `65e117b99fd109cbb01531bd70fc2befe70c0b672a01afe6dd523bbebf1486cb`
+   statically forms X8=`0x1489f000`, X5=`0x1483c904`, and stores X5 at
+   `[X8,#0x3b0]`, resolving slot `0x1489f3b0`. Its runtime execution/later
+   mutation remain `UNKNOWN`. The resolved target range
+   `[0x1483c904,0x1483c9e8)` / file `0x23904` has SHA-256
+   `5c979955c6d1cdfd541766ca3ea6964460803d61aa3d07bed0c74f60d3eec34e`, zero
+   BL/BLR/BR transfers, one RET, in-range direct branches, and zero X19-X29
+   definitions under an exact instruction-class/write-set audit. The
+   pre-MADD direct callee range `[0x1493641c,0x1493697c)` has SHA-256
+   `43fa9c70453b7ad1d8ff88d4ca07b375d2dc6b3b06e805339b2ad1927e4487e0`, a
+   unique direct caller at `0x14935abc`, and pinned X24/X23 save/restore on
+   its one normal RET.
+5. Under explicit normal-return and static-initialized-slot conditions, the
+   direct effective value is `0x85e9e970`; the intrinsic second value is
+   `0x85e9ef70`; neither matches the 12 targets. The values lie in the
+   memory-only tail of RW PT_LOAD `0x85e44000` (`filesz=0x43620`,
+   `memsz=0x66038`, `p_vaddr=p_paddr`). Runtime import target/currentness,
+   VA-to-PA/identity and physical destination/ownership remain `UNKNOWN`.
+6. Generated the manifest with
+   `python3 tools/sm8150_xbl_mc_writer_stage2d.py --output evidence/manifests/018-xbl-mc-writer-xref-stage2d-20260826-01.manifest.json`.
+   Tool/test/manifest SHA-256 values are
+   `95e53e25f288ba1ef09996ff73919c2ad1dd4186c4fec41dc84216d715ee8b26`,
+   `23c91a14c16706b920b4c3556e85844543dc99545a2b7b6d864a8c09d35f6136`, and
+   `48c7aa83d30844f1d42094fcb0f8d7dd13cf44265f9961167912792d014661c4`.
+   Fourteen focused and 334 full unittest-discovery tests pass; all 58 public
+   manifests parse as JSON, regeneration is byte-identical and mode is
+   `0644`. Date: 2026-08-26 KST.

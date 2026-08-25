@@ -178,6 +178,17 @@ matches the 12 targets. Descriptor `+0x20` eligibility, per-entry execution,
 VA-to-PA translation and physical ownership remain `UNKNOWN`; this does not
 eliminate other X8 writer paths. Its classification is
 `NO_NUMERIC_TARGET_ADDRESS_MATCH_WITHIN_STAGE2C_UNIQUE_DIRECT_CALLER_TABLE_MODEL`.
+Stage 2D examines the remaining X19 store at `0x14935bf4` through one direct-BL
+caller. The caller statically supplies W0=0; the callee pins the W20 dispatch
+and the `CBNZ W0,0x14935ce8` success precondition before constructing
+conditional X19 bases. The exact initializer statically assigns `0x1483c904`
+to the import slot, and an exact instruction-class audit proves the resolved
+target has no X19–X29 definitions. Under explicit normal-return/slot
+preservation models, effective value `0x85e9e970` has no numeric match to the
+12 targets. Runtime initializer execution, slot currentness, import target
+conformance, VA-to-PA identity and physical ownership remain `UNKNOWN`.
+Its classification is
+`NO_NUMERIC_TARGET_ADDRESS_MATCH_WITHIN_STAGE2D_UNIQUE_DIRECT_CALLER_CONDITIONAL_CALLEE_SAVED_PRESERVATION_MODEL`.
 Experiment 018 broadens no AOP/TZ scope and does not satisfy reserved/`NOT
 ELIGIBLE` Experiments 015 or 016. See [Experiment 018](experiments/018-xbl-mc-writer-xref/README.md).
 

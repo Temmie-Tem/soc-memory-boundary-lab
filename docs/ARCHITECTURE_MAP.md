@@ -166,6 +166,19 @@ equality in this model; physical destination, runtime execution, indirect
 callers, other X8 writers and writer identity outside this path remain
 `UNKNOWN`.
 
+`PROVED` by host-only Experiment 018 Stage 2D: the remaining X19 store has one
+direct-BL caller and the caller supplies W0=0 on its pinned success edge. Exact
+dispatch and `CBNZ W0,0x14935ce8` pins make the pre-MADD success result an
+explicit runtime precondition. The callee constructs X23/X24 and MADD X19; the
+initializer statically assigns import-slot value `0x1483c904`, and the
+resolved target range has zero BL/BLR/BR transfers, one RET, and zero X19-X29
+definitions under an exact instruction-class/write-set audit. Under explicit
+normal-return and initialized-slot conditions, the computed effective value is
+`0x85e9e970`, outside the file-backed portion of the RW PT_LOAD and numerically
+outside the 12 targets. Runtime initialization, slot currentness, import
+conformance, physical destination and indirect paths remain `UNKNOWN`; no
+writer absence is claimed.
+
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside
 `DC_NOC_NON_BROADCAST_MPU`, `MEMNOC_MS_MPU`, and `CNOC_SNOC_MS_MPU` regions.
@@ -365,7 +378,7 @@ all protection ordering relative to DRAM decode remain `UNKNOWN`.
 | Question | Current answer |
 |---|---|
 | Which block owns the final mapping? | `PROVED`: qhs_llcc ICB windows own boot region remapping; live timing proves a distinct low-24 XOR bank-selection relation. MCCC/MC/DDRSS token families are exact candidates; final hardware decode owner remains `UNKNOWN`. |
-| Who programs it? | `PROVED`: XBL programs the region remapper through `icbcfg` and copies section 16 to SHRM. `PROVED`: the exact SHRM section-16 consumers read listed controller words into a read-copy buffer; the observed section-16 paths do not write those addresses. Experiment 017 independently proves the exact XBL helper's store-base dataflow does not program candidate registers. Experiment 018 Stage 1A adds only literal/offset census evidence, Stage 2A refutes only its supported direct-definition path for four RX candidates, Stage 2B refutes only numeric target equality for two W-wide-move-resolved values, and Stage 2C refutes only numeric target equality for a 48-row possible-value superset; none proves writer absence or physical destination. AOP runtime DDR management is `PROVED`; final-decode writer remains `UNKNOWN`. |
+| Who programs it? | `PROVED`: XBL programs the region remapper through `icbcfg` and copies section 16 to SHRM. `PROVED`: the exact SHRM section-16 consumers read listed controller words into a read-copy buffer; the observed section-16 paths do not write those addresses. Experiment 017 independently proves the exact XBL helper's store-base dataflow does not program candidate registers. Experiment 018 Stage 1A adds only literal/offset census evidence, Stage 2A refutes only its supported direct-definition path for four RX candidates, Stage 2B refutes only numeric target equality for two W-wide-move-resolved values, Stage 2C refutes only numeric target equality for a 48-row possible-value superset, and Stage 2D refutes only numeric target equality under explicit preservation/slot conditions; none proves writer absence or physical destination. AOP runtime DDR management is `PROVED`; final-decode writer remains `UNKNOWN`. |
 | At what stage? | Region-remap programming during XBL DDR initialization before HLOS is `PROVED`; later mutability remains `UNKNOWN`. |
 | Can EL1 observe it? | `PROVED` behaviorally: non-secure ION/CNTVCT timing exposes the low-24 bank-equivalence relation. Direct register routes remain `REFUTED`: `/dev/mem` is absent and the fixed protected load returned no value. After reset, Samsung Upload exports coherent set-0 words, but is not an EL1 runtime interface and omits remapper controls. Experiment 017 adds host-only static XBL read-copy evidence, not current-boot EL1 observability. |
 | Can EL1 modify it? | No mutation is proved. The exact HLOS-visible XPU-disable allowlist has zero entries, and all known configuration apertures have branch-invariant TZ-owned coverage. Final runtime policy/lock readback is `UNKNOWN`. |
