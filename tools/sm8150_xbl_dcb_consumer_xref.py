@@ -312,6 +312,7 @@ def register_offset_store_census(image: Image) -> dict:
                         "segment": kind,
                         "store_va": f"0x{vaddr:08x}",
                         "loop_head_va": f"0x{target:08x}",
+                        "back_edge_va": f"0x{ahead:08x}",
                         "width": store["width"],
                     }
                 )
@@ -322,6 +323,111 @@ def register_offset_store_census(image: Image) -> dict:
         "unscaled_total": sum(unscaled.values()),
         "inside_backward_branch_loop": len(in_loop),
         "loop_sites": in_loop,
+    }
+
+
+RET_WORD = 0xD65F03C0
+
+
+def _load_operands(word: int) -> tuple[int, int, bool] | None:
+    """(destination, address base, writes_back) for the scalar load forms.
+
+    Fields are extracted by name rather than matched against a packed mask: the
+    load/store bit is ``opc[0]`` at bit 22, and folding it into a mask constant
+    silently accepts stores as loads.
+    """
+    rt, rn = word & 0x1F, (word >> 5) & 0x1F
+
+    # Load/store pair: opcode 101 0 at bits 29..26, L at bit 22.
+    if (word >> 27) & 0x7 == 0b101 and (word >> 26) & 1 == 0:
+        pair_class = (word >> 23) & 0x7          # 001 post, 010 offset, 011 pre
+        if pair_class in (0b001, 0b010, 0b011) and (word >> 22) & 1:
+            return rt, rn, pair_class in (0b001, 0b011)
+
+    # Load/store register: 111 at bits 29..27, V at 26, class at 25..24.
+    if (word >> 27) & 0x7 != 0b111 or (word >> 26) & 1:
+        return None
+    if not (word >> 22) & 1:                     # opc[0] clear -> a store
+        return None
+    register_class = (word >> 24) & 0x3
+    if register_class == 0b01:                   # unsigned immediate offset
+        return rt, rn, False
+    if register_class == 0b00:
+        if (word >> 21) & 1 and (word >> 10) & 0x3 == 0b10:
+            return rt, rn, False                 # register offset
+        indexing = (word >> 10) & 0x3
+        if indexing == 0b01:
+            return rt, rn, True                  # post-index
+        if indexing == 0b11:
+            return rt, rn, True                  # pre-index
+    return None
+
+
+def _modified_register(word: int) -> int | None:
+    if (word & 0x1F000000) in (0x11000000, 0x51000000, 0x0B000000, 0x4B000000):
+        return word & 0x1F                                # ADD/SUB immediate or register
+    load = _load_operands(word)
+    if load and load[2]:
+        return load[1]                                    # indexed forms write the base back
+    return None
+
+
+def table_walker_analysis(image: Image, loop_sites: list[dict]) -> dict:
+    """Decide which looping register-offset stores actually walk a key/value table.
+
+    A DCB walker reads its store offset out of the table, so the offset must
+    change every pass.  Two shapes imitate that and are excluded on principle
+    rather than by inspection:
+
+    * a loop-invariant ``LDR Xd,[Xn,#imm]`` whose base is never modified in the
+      body loads the same displacement each iteration -- an array write; and
+    * a body containing ``RET`` is a function epilogue restoring callee-saved
+      registers from SP, which a backward conditional branch on a return path
+      can make look like a loop.
+    """
+    classes: dict[str, int] = {}
+    walkers = []
+    epilogues = 0
+    for site in loop_sites:
+        store_va = int(site["store_va"], 16)
+        head = int(site["loop_head_va"], 16)
+        back_edge = int(site["back_edge_va"], 16)
+        word = image.word(store_va)
+        if word is None:
+            continue
+        # The body runs to the back edge, not to the store: a definition placed
+        # after the store still applies on the next pass.
+        body = [(a, w) for a in range(head, back_edge + 4, 4) if (w := image.word(a)) is not None]
+        if any(w == RET_WORD for _a, w in body):
+            epilogues += 1
+            classes["EPILOGUE_NOT_A_LOOP"] = classes.get("EPILOGUE_NOT_A_LOOP", 0) + 1
+            continue
+        modified = {m for _a, w in body if (m := _modified_register(w)) is not None}
+        offset_register = (word >> 16) & 0x1F
+        kind = "DEFINED_OUTSIDE_THE_LOOP"
+        detail = None
+        before_store = [(a, w) for a, w in body if a < store_va]
+        after_store = [(a, w) for a, w in body if a > store_va]
+        for address, instruction in list(reversed(before_store)) + list(reversed(after_store)):
+            load = _load_operands(instruction)
+            if load and load[0] == offset_register:
+                varies = load[2] or load[1] in modified
+                kind = "LOADED_VARYING" if varies else "LOADED_LOOP_INVARIANT"
+                detail = {"definition_va": f"0x{address:08x}", "address_base": f"X{load[1]}"}
+                break
+            if _modified_register(instruction) == offset_register:
+                kind = "INDUCTION_OR_COMPUTED"
+                detail = {"definition_va": f"0x{address:08x}"}
+                break
+        classes[kind] = classes.get(kind, 0) + 1
+        if kind == "LOADED_VARYING":
+            walkers.append({**site, **(detail or {})})
+    return {
+        "loop_sites_examined": len(loop_sites),
+        "offset_definition_classes": dict(sorted(classes.items())),
+        "epilogues_excluded": epilogues,
+        "table_walker_count": len(walkers),
+        "table_walkers": walkers,
     }
 
 
@@ -467,6 +573,7 @@ def build_manifest(firmware_dir: Path) -> dict:
         )
     readers = section_directory_readers(image)
     census = register_offset_store_census(image)
+    walkers = table_walker_analysis(image, census["loop_sites"])
     ddr = ddr_driver_segment(image)
     setter = pinned_base_setter(image)
     globals_census = global_store_census(image, int(ddr["vaddr"], 16)) if ddr["found"] else {}
@@ -489,6 +596,7 @@ def build_manifest(firmware_dir: Path) -> dict:
         "recorded_constant": {str(k): f"0x{v:x}" for k, v in EXPECTED_LOADER_SECTIONS.items()},
         "section_directory_readers": readers,
         "register_offset_store_census": census,
+        "table_walker_analysis": walkers,
         "ddr_driver_segment": ddr,
         "ddr_driver_global_store_census": globals_census,
         "pinned_base_setter": setter,
@@ -505,6 +613,9 @@ def build_manifest(firmware_dir: Path) -> dict:
                 "control aperture, and none equal to a ranked MC base.",
                 "The driver's controller base pointers are written into zero-initialised "
                 "globals from function arguments, not from constants.",
+                "No register-offset store in the exact XBL walks a key/value table under "
+                "this model: every looping candidate takes its offset from an induction "
+                "variable, from a loop-invariant load, or sits in a function epilogue.",
             ],
             "REFUTED": [
                 "Experiment 018's negative result is evidence that no controller writer "
@@ -515,7 +626,10 @@ def build_manifest(firmware_dir: Path) -> dict:
             "UNKNOWN": [
                 "The runtime origin of the base arguments, and therefore the absolute "
                 "addresses any DDR-driver store reaches.",
-                "Which register-offset store, if any, consumes a DCB table.",
+                "Whether a DCB table walker exists outside this loop model -- one whose "
+                "back edge lies further than the search window, that branches indirectly, "
+                "or that tests before it stores -- and whether any consumer of the DCB "
+                "base-relative tables lives outside the exact XBL at all.",
                 "The implicit base of DCB sections 10, 11 and 12.",
                 "Register semantics, the relation to the Experiment 014 GF(2) bank "
                 "relation, post-boot writability, alias and boundary bypass.",

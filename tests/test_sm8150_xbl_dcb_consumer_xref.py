@@ -58,6 +58,22 @@ def branch(vaddr: int, target: int) -> int:
     return 0x14000000 | (((target - vaddr) // 4) & 0x03FFFFFF)
 
 
+def ldr_x_imm(rt: int, rn: int, byte_offset: int) -> int:
+    return 0xF9400000 | ((byte_offset // 8) << 10) | (rn << 5) | rt
+
+
+def ldr_x_postindex(rt: int, rn: int, imm9: int) -> int:
+    return 0xF8400400 | ((imm9 & 0x1FF) << 12) | (rn << 5) | rt
+
+
+def add_imm(rd: int, rn: int, imm: int) -> int:
+    return 0x91000000 | (imm << 10) | (rn << 5) | rd
+
+
+def assemble(base: int, words: list[int]) -> xref.Image:
+    return xref.Image(build_elf([(base, 5, b"".join(struct.pack("<I", w) for w in words))]))
+
+
 class DecoderTests(unittest.TestCase):
     def test_ldrh_immediate_round_trips_its_byte_offset(self):
         self.assertEqual(xref.is_ldrh_immediate(ldrh(3, 19, 0x34)), (0x34, 19, 3))
@@ -183,6 +199,84 @@ class CensusTests(unittest.TestCase):
         self.assertEqual(xref.register_offset_store_census(image)["inside_backward_branch_loop"], 0)
 
 
+class TableWalkerTests(unittest.TestCase):
+    """The discriminator: does the store offset change on every pass?"""
+
+    def _analyse(self, image):
+        census = xref.register_offset_store_census(image)
+        return xref.table_walker_analysis(image, census["loop_sites"])
+
+    def test_an_offset_read_through_an_advancing_pointer_is_a_walker(self):
+        base = 0x1000
+        words = [
+            ldr_x_postindex(13, 9, 8),        # key = *table++, writes X9 back
+            str_reg_offset(10, 11, 13),       # STR W10,[X11,X13]
+            branch(base + 8, base),
+        ]
+        result = self._analyse(assemble(base, words))
+        self.assertEqual(result["table_walker_count"], 1)
+        self.assertEqual(result["offset_definition_classes"], {"LOADED_VARYING": 1})
+
+    def test_a_loop_invariant_load_is_not_a_walker(self):
+        base = 0x1000
+        words = [
+            ldr_x_imm(13, 9, 0xEE8),          # same displacement every pass
+            str_reg_offset(10, 11, 13),
+            branch(base + 8, base),
+        ]
+        result = self._analyse(assemble(base, words))
+        self.assertEqual(result["table_walker_count"], 0)
+        self.assertEqual(result["offset_definition_classes"], {"LOADED_LOOP_INVARIANT": 1})
+
+    def test_a_load_whose_base_advances_in_the_body_is_a_walker(self):
+        base = 0x1000
+        words = [
+            ldr_x_imm(13, 9, 0x0),
+            str_reg_offset(10, 11, 13),
+            add_imm(9, 9, 8),                 # the address base advances
+            branch(base + 12, base),
+        ]
+        self.assertEqual(self._analyse(assemble(base, words))["table_walker_count"], 1)
+
+    def test_an_induction_variable_offset_is_not_a_walker(self):
+        base = 0x1000
+        words = [
+            add_imm(13, 13, 4),
+            str_reg_offset(10, 11, 13),
+            branch(base + 8, base),
+        ]
+        result = self._analyse(assemble(base, words))
+        self.assertEqual(result["offset_definition_classes"], {"INDUCTION_OR_COMPUTED": 1})
+
+    def test_a_body_containing_ret_is_excluded_as_an_epilogue(self):
+        base = 0x1000
+        words = [
+            ldr_x_postindex(13, 9, 8),
+            xref.RET_WORD,
+            str_reg_offset(10, 11, 13),
+            branch(base + 12, base),
+        ]
+        result = self._analyse(assemble(base, words))
+        self.assertEqual(result["epilogues_excluded"], 1)
+        self.assertEqual(result["table_walker_count"], 0)
+
+    def test_a_definition_after_the_store_still_counts_for_the_next_pass(self):
+        base = 0x1000
+        words = [
+            str_reg_offset(10, 11, 13),
+            ldr_x_postindex(13, 9, 8),        # defined after the store
+            branch(base + 8, base),
+        ]
+        result = self._analyse(assemble(base, words))
+        self.assertEqual(result["table_walker_count"], 1)
+
+    def test_an_offset_defined_outside_the_loop_is_reported_as_such(self):
+        base = 0x1000
+        words = [str_reg_offset(10, 11, 13), branch(base + 4, base)]
+        result = self._analyse(assemble(base, words))
+        self.assertEqual(result["offset_definition_classes"], {"DEFINED_OUTSIDE_THE_LOOP": 1})
+
+
 class DdrSegmentTests(unittest.TestCase):
     def test_selects_the_largest_rwe_segment(self):
         image = xref.Image(build_elf([(0x1000, 7, bytes(16)), (0x2000, 7, bytes(64)), (0x3000, 5, bytes(128))]))
@@ -241,6 +335,16 @@ class ExactImageTests(unittest.TestCase):
         census = self.manifest["register_offset_store_census"]
         self.assertGreater(census["unscaled_total"], 0)
         self.assertGreater(census["inside_backward_branch_loop"], 0)
+
+    def test_no_register_offset_store_walks_a_key_value_table(self):
+        walkers = self.manifest["table_walker_analysis"]
+        self.assertEqual(walkers["table_walker_count"], 0)
+        self.assertEqual(walkers["table_walkers"], [])
+        self.assertGreater(walkers["loop_sites_examined"], 0)
+
+    def test_every_loop_site_is_classified(self):
+        walkers = self.manifest["table_walker_analysis"]
+        self.assertEqual(sum(walkers["offset_definition_classes"].values()), walkers["loop_sites_examined"])
 
     def test_the_ddr_segment_holds_no_aperture_constant(self):
         ddr = self.manifest["ddr_driver_segment"]

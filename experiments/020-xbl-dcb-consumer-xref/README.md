@@ -73,6 +73,50 @@ CLASS C (TRANSFORM ONLY)
 NO_BOUNDARY_BYPASS_OBSERVED
 ```
 
+## Does any of those stores walk a table?
+
+Counting the class Stage 1A cannot see is only useful if one of its members is
+a DCB consumer. A walker reads its store offset out of the table, so the offset
+must change on every pass. That is decidable from the last definition of the
+offset register inside the loop body, where the body runs from the loop head to
+the back edge — a definition placed after the store still applies on the next
+pass, and cutting the body at the store misclassifies those.
+
+Two shapes imitate a walker and are excluded on principle rather than by
+inspection. A loop-invariant `LDR Xd,[Xn,#imm]` whose base is never modified in
+the body loads the same displacement each iteration; that is an array write.
+And a body containing `RET` is a function epilogue restoring callee-saved
+registers from `SP`, which a backward conditional branch on a return path can
+make look like a loop.
+
+Of the 67 looping candidates:
+
+| Offset register definition | Count |
+|---|---:|
+| induction variable or computed | 37 |
+| defined outside the loop | 12 |
+| function epilogue, not a loop | 12 |
+| loaded, but loop-invariant | 6 |
+| **loaded through an advancing pointer** | **0** |
+
+`PROVED`: no register-offset store in the exact XBL walks a key/value table
+under this model. Every real loop takes its offset from an induction variable
+or from a value that cannot change between passes.
+
+That is a bounded claim. The loop test accepts a backward branch within 24
+instructions whose target lies within 64 instructions before the store, so a
+walker with a longer back edge, an indirect branch, or a test-before-store
+shape falls outside it. A walker would also be missed if a DCB key were a word
+index rather than a byte offset, since the scaled store form is excluded — the
+keys decoded in Experiment 019 are byte offsets, but not every section was
+decoded.
+
+Read with the section-consumer result below, the more economical reading is
+that the exact XBL does not consume the DCB base-relative tables at all. The
+consumers it does contain compute a checksum and check bounds. `UNKNOWN`:
+whether the consumer lives in another image. `aop--sdd7.bin` is not an ELF and
+targets a different core, so nothing here covers it.
+
 ## The DCB loader, re-derived from code
 
 `tools/xbl_dcb_inventory.py` carries `LOADER_CONSUMED_SECTIONS` as a hardcoded
@@ -160,12 +204,12 @@ python3 -m unittest -v tests.test_sm8150_xbl_dcb_consumer_xref
 ## Provenance
 
 - Tool SHA-256:
-  `641025b541b689dade04a45164903cbc8c197822ea681bbf7dce27b6597517ac`.
+  `e1f8e3ae31c583adaaf50a01ad07c7718f3646d8fc6dcb14ba19ff711539b8f0`.
 - Focused-test SHA-256:
-  `153078d6000d02341df29800d97b15858d0ad9c4b48d53dbd5743f38257e2bfc`.
+  `0ac445046bfd26c0045df11dffd419424e44159f8ee6e0557d9ea01e1fd999ea`.
 - Public manifest SHA-256:
-  `c80b4e8ef5f379f26ab5a4cf51025b367dcece2ab7a1e92fea876d96e3da048d`.
-- Focused result: 37 tests pass.
+  `1b5697ff8a56f3c90146793af10fb7c3ca97d59303da76c60af9e19f50884a66`.
+- Focused result: 46 tests pass.
 - Regeneration is byte-identical; manifest mode is `0644`.
 - Date: 2026-08-26 KST.
 - Mode: `HOST_ONLY_READ_ONLY`; device, SMC and MMIO access: none.

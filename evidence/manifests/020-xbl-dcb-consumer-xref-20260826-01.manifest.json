@@ -4,14 +4,15 @@
    "The XBL DCB loader is located by its size-constant cluster, and the five sections it copies, re-derived from its directory reads, match the value Experiment 004 records as a hardcoded constant.",
    "The exact XBL contains register-offset stores in executable segments. Experiment 018 Stage 1A counts only unsigned-immediate stores, so this class is outside its census by construction.",
    "The DDR driver segment contains no file-backed 64-bit value inside the SoC control aperture, and none equal to a ranked MC base.",
-   "The driver's controller base pointers are written into zero-initialised globals from function arguments, not from constants."
+   "The driver's controller base pointers are written into zero-initialised globals from function arguments, not from constants.",
+   "No register-offset store in the exact XBL walks a key/value table under this model: every looping candidate takes its offset from an induction variable, from a loop-invariant load, or sits in a function epilogue."
   ],
   "REFUTED": [
    "Experiment 018's negative result is evidence that no controller writer exists. Its four models all terminate in a constant, and the base values are not constants in this image, so the negative is structurally guaranteed for those models."
   ],
   "UNKNOWN": [
    "The runtime origin of the base arguments, and therefore the absolute addresses any DDR-driver store reaches.",
-   "Which register-offset store, if any, consumes a DCB table.",
+   "Whether a DCB table walker exists outside this loop model -- one whose back edge lies further than the search window, that branches indirectly, or that tests before it stores -- and whether any consumer of the DCB base-relative tables lives outside the exact XBL at all.",
    "The implicit base of DCB sections 10, 11 and 12.",
    "Register semantics, the relation to the Experiment 014 GF(2) bank relation, post-boot writability, alias and boundary bypass."
   ]
@@ -136,402 +137,469 @@
   "inside_backward_branch_loop": 67,
   "loop_sites": [
    {
+    "back_edge_va": "0x1483bf20",
     "loop_head_va": "0x1483bef4",
     "segment": "RX",
     "store_va": "0x1483bf18",
     "width": "X"
    },
    {
+    "back_edge_va": "0x14842f8c",
     "loop_head_va": "0x14842e84",
     "segment": "RX",
     "store_va": "0x14842f38",
     "width": "X"
    },
    {
+    "back_edge_va": "0x14842f8c",
     "loop_head_va": "0x14842e84",
     "segment": "RX",
     "store_va": "0x14842f4c",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14844fb8",
     "loop_head_va": "0x14844f30",
     "segment": "RX",
     "store_va": "0x14844f68",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14844fb8",
     "loop_head_va": "0x14844f30",
     "segment": "RX",
     "store_va": "0x14844f7c",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14844fb8",
     "loop_head_va": "0x14844f30",
     "segment": "RX",
     "store_va": "0x14844f88",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14844fb8",
     "loop_head_va": "0x14844f30",
     "segment": "RX",
     "store_va": "0x14844f90",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14844fb8",
     "loop_head_va": "0x14844f30",
     "segment": "RX",
     "store_va": "0x14844f94",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14844fb8",
     "loop_head_va": "0x14844f30",
     "segment": "RX",
     "store_va": "0x14844f98",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14844fb8",
     "loop_head_va": "0x14844f30",
     "segment": "RX",
     "store_va": "0x14844f9c",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14844fb8",
     "loop_head_va": "0x14844f30",
     "segment": "RX",
     "store_va": "0x14844fac",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14845080",
     "loop_head_va": "0x14844fd8",
     "segment": "RX",
     "store_va": "0x14845030",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14845080",
     "loop_head_va": "0x14844fd8",
     "segment": "RX",
     "store_va": "0x1484503c",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14845080",
     "loop_head_va": "0x14844fd8",
     "segment": "RX",
     "store_va": "0x1484504c",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14845080",
     "loop_head_va": "0x14844fd8",
     "segment": "RX",
     "store_va": "0x14845058",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14845080",
     "loop_head_va": "0x14844fd8",
     "segment": "RX",
     "store_va": "0x14845064",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14845080",
     "loop_head_va": "0x14844fd8",
     "segment": "RX",
     "store_va": "0x14845074",
     "width": "W"
    },
    {
+    "back_edge_va": "0x148458bc",
     "loop_head_va": "0x1484588c",
     "segment": "RX",
     "store_va": "0x148458a8",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14846384",
     "loop_head_va": "0x1484636c",
     "segment": "RX",
     "store_va": "0x1484636c",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14846638",
     "loop_head_va": "0x1484661c",
     "segment": "RX",
     "store_va": "0x1484661c",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14846638",
     "loop_head_va": "0x1484661c",
     "segment": "RX",
     "store_va": "0x14846624",
     "width": "W"
    },
    {
+    "back_edge_va": "0x148468d8",
     "loop_head_va": "0x14846878",
     "segment": "RX",
     "store_va": "0x148468a4",
     "width": "W"
    },
    {
+    "back_edge_va": "0x148468d8",
     "loop_head_va": "0x14846878",
     "segment": "RX",
     "store_va": "0x148468c8",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14846a5c",
     "loop_head_va": "0x14846a08",
     "segment": "RX",
     "store_va": "0x14846a40",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14846a5c",
     "loop_head_va": "0x14846a08",
     "segment": "RX",
     "store_va": "0x14846a4c",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14846d4c",
     "loop_head_va": "0x14846d24",
     "segment": "RX",
     "store_va": "0x14846d24",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14846d4c",
     "loop_head_va": "0x14846d24",
     "segment": "RX",
     "store_va": "0x14846d2c",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14846d4c",
     "loop_head_va": "0x14846d24",
     "segment": "RX",
     "store_va": "0x14846d34",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14846d4c",
     "loop_head_va": "0x14846d24",
     "segment": "RX",
     "store_va": "0x14846d38",
     "width": "W"
    },
    {
+    "back_edge_va": "0x1484a078",
     "loop_head_va": "0x1484a058",
     "segment": "RX",
     "store_va": "0x1484a068",
     "width": "W"
    },
    {
+    "back_edge_va": "0x1484abe8",
     "loop_head_va": "0x1484abb4",
     "segment": "RX",
     "store_va": "0x1484abc8",
     "width": "W"
    },
    {
+    "back_edge_va": "0x1484fa38",
     "loop_head_va": "0x1484f954",
     "segment": "RX",
     "store_va": "0x1484f9e0",
     "width": "X"
    },
    {
+    "back_edge_va": "0x14850b90",
     "loop_head_va": "0x14850b14",
     "segment": "RX",
     "store_va": "0x14850b38",
     "width": "X"
    },
    {
+    "back_edge_va": "0x14850c38",
     "loop_head_va": "0x14850bbc",
     "segment": "RX",
     "store_va": "0x14850be0",
     "width": "X"
    },
    {
+    "back_edge_va": "0x14867708",
     "loop_head_va": "0x1486765c",
     "segment": "RX",
     "store_va": "0x14867700",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14867d24",
     "loop_head_va": "0x14867c90",
     "segment": "RX",
     "store_va": "0x14867cfc",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14867d8c",
     "loop_head_va": "0x14867c90",
     "segment": "RX",
     "store_va": "0x14867d80",
     "width": "W"
    },
    {
+    "back_edge_va": "0x148683e8",
     "loop_head_va": "0x14868384",
     "segment": "RX",
     "store_va": "0x148683b0",
     "width": "W"
    },
    {
+    "back_edge_va": "0x148688dc",
     "loop_head_va": "0x14868864",
     "segment": "RX",
     "store_va": "0x148688d8",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14868a5c",
     "loop_head_va": "0x148689dc",
     "segment": "RX",
     "store_va": "0x14868a50",
     "width": "W"
    },
    {
+    "back_edge_va": "0x148a3274",
     "loop_head_va": "0x148a3174",
     "segment": "RWE",
     "store_va": "0x148a321c",
     "width": "W"
    },
    {
+    "back_edge_va": "0x148aa778",
     "loop_head_va": "0x148aa748",
     "segment": "RWE",
     "store_va": "0x148aa758",
     "width": "W"
    },
    {
+    "back_edge_va": "0x148ab550",
     "loop_head_va": "0x148ab49c",
     "segment": "RWE",
     "store_va": "0x148ab4f8",
     "width": "W"
    },
    {
+    "back_edge_va": "0x148ac790",
     "loop_head_va": "0x148ac74c",
     "segment": "RWE",
     "store_va": "0x148ac770",
     "width": "W"
    },
    {
+    "back_edge_va": "0x148ac790",
     "loop_head_va": "0x148ac74c",
     "segment": "RWE",
     "store_va": "0x148ac778",
     "width": "W"
    },
    {
+    "back_edge_va": "0x148ac790",
     "loop_head_va": "0x148ac74c",
     "segment": "RWE",
     "store_va": "0x148ac77c",
     "width": "W"
    },
    {
+    "back_edge_va": "0x148ac790",
     "loop_head_va": "0x148ac74c",
     "segment": "RWE",
     "store_va": "0x148ac780",
     "width": "W"
    },
    {
+    "back_edge_va": "0x9fc02b88",
     "loop_head_va": "0x9fc02aec",
     "segment": "RWE",
     "store_va": "0x9fc02b7c",
     "width": "X"
    },
    {
+    "back_edge_va": "0x9fc05dcc",
     "loop_head_va": "0x9fc05d80",
     "segment": "RWE",
     "store_va": "0x9fc05db4",
     "width": "W"
    },
    {
+    "back_edge_va": "0x9fc05df0",
     "loop_head_va": "0x9fc05db8",
     "segment": "RWE",
     "store_va": "0x9fc05dec",
     "width": "W"
    },
    {
+    "back_edge_va": "0x9fc05e04",
     "loop_head_va": "0x9fc05d5c",
     "segment": "RWE",
     "store_va": "0x9fc05e00",
     "width": "W"
    },
    {
+    "back_edge_va": "0x9fc061d8",
     "loop_head_va": "0x9fc061c8",
     "segment": "RWE",
     "store_va": "0x9fc061d4",
     "width": "X"
    },
    {
+    "back_edge_va": "0x9fc061f8",
     "loop_head_va": "0x9fc061e4",
     "segment": "RWE",
     "store_va": "0x9fc061f4",
     "width": "W"
    },
    {
+    "back_edge_va": "0x9fc0c050",
     "loop_head_va": "0x9fc0c040",
     "segment": "RWE",
     "store_va": "0x9fc0c044",
     "width": "X"
    },
    {
+    "back_edge_va": "0x1490c63c",
     "loop_head_va": "0x1490c5b0",
     "segment": "RX",
     "store_va": "0x1490c5fc",
     "width": "X"
    },
    {
+    "back_edge_va": "0x1490ccf8",
     "loop_head_va": "0x1490ccd8",
     "segment": "RX",
     "store_va": "0x1490cce8",
     "width": "W"
    },
    {
+    "back_edge_va": "0x1490cda0",
     "loop_head_va": "0x1490cd7c",
     "segment": "RX",
     "store_va": "0x1490cd98",
     "width": "W"
    },
    {
+    "back_edge_va": "0x1491c72c",
     "loop_head_va": "0x1491c700",
     "segment": "RX",
     "store_va": "0x1491c724",
     "width": "X"
    },
    {
+    "back_edge_va": "0x14931394",
     "loop_head_va": "0x14931380",
     "segment": "RX",
     "store_va": "0x1493138c",
     "width": "W"
    },
    {
+    "back_edge_va": "0x1493f358",
     "loop_head_va": "0x1493f330",
     "segment": "RX",
     "store_va": "0x1493f354",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14941668",
     "loop_head_va": "0x14941570",
     "segment": "RX",
     "store_va": "0x14941658",
     "width": "X"
    },
    {
+    "back_edge_va": "0x14942ac8",
     "loop_head_va": "0x149429a4",
     "segment": "RX",
     "store_va": "0x14942a88",
     "width": "X"
    },
    {
+    "back_edge_va": "0x14945a18",
     "loop_head_va": "0x149459dc",
     "segment": "RX",
     "store_va": "0x149459e8",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14945a44",
     "loop_head_va": "0x14945a2c",
     "segment": "RX",
     "store_va": "0x14945a38",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14948cc4",
     "loop_head_va": "0x14948bb0",
     "segment": "RX",
     "store_va": "0x14948c74",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14948cc4",
     "loop_head_va": "0x14948bb0",
     "segment": "RX",
     "store_va": "0x14948c7c",
     "width": "W"
    },
    {
+    "back_edge_va": "0x14949b30",
     "loop_head_va": "0x14949af8",
     "segment": "RX",
     "store_va": "0x14949b18",
@@ -730,5 +798,17 @@
    "segment": "RWE",
    "size_read_va": "0x9fc2a2c8"
   }
- ]
+ ],
+ "table_walker_analysis": {
+  "epilogues_excluded": 12,
+  "loop_sites_examined": 67,
+  "offset_definition_classes": {
+   "DEFINED_OUTSIDE_THE_LOOP": 12,
+   "EPILOGUE_NOT_A_LOOP": 12,
+   "INDUCTION_OR_COMPUTED": 37,
+   "LOADED_LOOP_INVARIANT": 6
+  },
+  "table_walker_count": 0,
+  "table_walkers": []
+ }
 }
