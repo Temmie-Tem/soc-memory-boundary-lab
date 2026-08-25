@@ -646,10 +646,10 @@ def analyze(xbl_data: bytes) -> dict[str, object]:
             ],
             "SUPPORTED": [
                 "SHRM_MEM.BIN is a bootloader crash/download raw-dump export path, not a normal Android HLOS runtime interface.",
-                "If the retail dump gates permit collection and SHRM state survives the reset path, this catalog is a safer observation candidate than another direct EL1 read.",
+                "If the retail dump gates permit collection and the snapshot workspace is populated at collection time, this catalog is a safer observation candidate than another direct EL1 read.",
             ],
             "HYPOTHESIS": [
-                "A successfully collected SHRM_MEM.BIN may retain the 430/64 staged controller words populated before the fatal reset.",
+                "A successfully collected SHRM_MEM.BIN may contain the 430/64 controller words populated by collection time; prior-boot preservation is not required.",
             ],
             "REFUTED": [
                 "No firmware export path covers the protected SHRM snapshot workspace.",
@@ -657,7 +657,7 @@ def analyze(xbl_data: bytes) -> dict[str, object]:
             ],
             "UNKNOWN": [
                 "Whether FMM/debug-level/token policy enables this dump path on the exact retail A90 state.",
-                "Whether the snapshot helpers ran before a given reset and whether their data remains valid when XBL collects the region.",
+                "Whether the snapshot helpers have populated the workspace by XBL collection time; stale or zero words are also measurable outcomes.",
                 "Whether an existing SD/rawdump artifact contains SHRM_MEM.BIN and which transport exposes the catalog on this target.",
                 "Whether any normal-boot HLOS-readable diagnostic or shared-memory interface exports the same words without entering the bootloader dump path.",
                 "The runtime values, lock state and final-decode meaning of the staged controller words.",

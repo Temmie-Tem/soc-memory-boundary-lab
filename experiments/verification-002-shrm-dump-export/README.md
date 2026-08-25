@@ -144,13 +144,13 @@ BOOTLOADER_RAWDUMP_EXPORT_PRESENT_HLOS_RUNTIME_EXPORT_UNPROVED
 ### SUPPORTED
 
 - `SHRM_MEM.BIN` is a post-reset bootloader diagnostic route, not normal HLOS.
-- If retail gates permit it and SHRM state survives, it is safer and more
+- If retail gates permit it and SHRM is populated at collection time, it is safer and more
   informative than retrying the denied EL1 load.
 
 ### HYPOTHESIS
 
-- A successful dump may contain the 430/64 controller words populated before
-  the fatal reset.
+- A successful dump may contain the 430/64 controller words populated by
+  collection time. Prior-boot preservation is not required.
 
 ### REFUTED
 
@@ -161,20 +161,35 @@ BOOTLOADER_RAWDUMP_EXPORT_PRESENT_HLOS_RUNTIME_EXPORT_UNPROVED
 ### UNKNOWN
 
 - Current A90 FMM/debug-level/token eligibility.
-- Whether a reset that enters this path preserves populated snapshot words.
+- Whether the workspace is populated when XBL collects it. Stale or zero words
+  are themselves measurable outcomes.
 - The exact transport and whether a collection produces `SHRM_MEM.BIN` on this
   retail target.
 - Any normal-boot HLOS-readable export of the same data.
 - Controller-word values, lock state, and final-decode semantics.
 
+## Prepared host decoder
+
+Commit `9fdd5d6` added `tools/shrm_dump_decode.py`. With no dump it emits the
+ordered register plan from the committed Experiment-012 manifest; with a dump
+it validates the exact 64-KiB size and section-16 header before attaching
+values to all `430 + 64 = 494` source-register labels. It rejects a zero-filled
+file instead of misreporting 494 zero values.
+
+`PROVED`: the decoder's staged inventory does not include any remapper control
+window at `qhs_llcc + 0x8080`; it therefore cannot answer remapper enable,
+active-slot, or lock-state questions. No real `SHRM_MEM.BIN` has been supplied,
+so all controller values remain `UNKNOWN`.
+
 ## Next discriminator
 
-The cheapest next action is a read-only eligibility/inventory pass over the
-current A90 boot/debug state and any existing RDX/rawdump headers. It should not
-repeat the blocked EL1 load. Only after eligibility is proved should one
-already-understood watchdog/reset source be used to test whether XBL exports
-the 64-KiB region, with hash/size validation and no secure-memory bulk dump
-beyond this named region.
+Verifications 003/004 completed the read-only eligibility inventory and found
+`debug_level=LOW`, `force_upload=0`, and dload master `1`; visible entry signals
+are incomplete and actual FMM/token eligibility remains `UNKNOWN`. The cheapest
+next action is host-only recovery of those producers and their reversible
+control path. It should not repeat the blocked EL1 load or trigger a reset from
+the current state. The eventual discriminator is collection-time population,
+not the stronger requirement that a prior boot's bytes survive reset.
 
 ## Reproduce
 
@@ -182,4 +197,6 @@ beyond this named region.
 python3 tools/sm8150_shrm_dump_export_inventory.py
 python3 tools/sm8150_shrm_dump_export_inventory.py --replace
 python3 -m unittest tests.test_sm8150_shrm_dump_export_inventory -v
+python3 tools/shrm_dump_decode.py
+python3 -m unittest tests.test_shrm_dump_decode -v
 ```

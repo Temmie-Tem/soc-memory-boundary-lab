@@ -86,8 +86,21 @@ orphaned data.
 
 `SUPPORTED`: this is a bootloader crash/download diagnostic export, not a
 normal-HLOS runtime interface. `UNKNOWN`: current FMM/debug-level/token
-eligibility, reset-time preservation of the staged words, and successful
+eligibility, collection-time population of the staged words, and successful
 collection on the exact retail target.
+
+`PROVED` host-only by decoder commit `9fdd5d6`: a valid 64-KiB export can be
+mapped immediately to 430 and 64 ordered source-register labels using the
+committed section-16 inventory. The covered words do not include the remapper
+window at `qhs_llcc + 0x8080`; remapper enable/slot/lock state stays outside
+this route. No real dump values have yet been decoded.
+
+`PROVED` live by Verifications 003/004: current V2321 is `LOW` with
+`androidboot.force_upload=0`, while the exact A90 4.14 source-backed dload
+master parameter is `1`. The S22+ `qcom_dload_mode` module path does not exist
+on this kernel; `msm_poweroff` is the exact owner. These values classify the
+current visible entry signals as incomplete, so no reset/dump collection was
+attempted. FMM/token state remains `UNKNOWN`.
 
 `SUPPORTED`: base tokens are 4-KiB page numbers for exact SHRM topology targets.
 `UNKNOWN`: runtime values, lock state, whether any readback register controls

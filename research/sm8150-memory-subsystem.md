@@ -107,5 +107,11 @@ configuration-aperture load cannot answer these questions.
 catalog covers the entire enclosing SHRM 64-KiB region as `SHRM_MEM.BIN`.
 This supplies a concrete post-reset observation candidate without changing
 controller state. It does not change the direct-EL1 result: the catalog is not
-a normal-HLOS runtime API, and retail eligibility, state preservation and
+a normal-HLOS runtime API, and retail eligibility, collection-time population and
 actual extraction are `UNKNOWN`.
+
+`PROVED` host-only by decoder commit `9fdd5d6`: the two staged ranges resolve
+deterministically to 430 and 64 ordered source-register labels, and neither
+range reaches the remapper control window at `+0x8080`. No real dump values
+have been decoded, so register contents and final-decode meaning remain
+`UNKNOWN`.

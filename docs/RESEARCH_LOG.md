@@ -570,3 +570,43 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
     `BOOTLOADER_RAWDUMP_EXPORT_PRESENT_HLOS_RUNTIME_EXPORT_UNPROVED`. The next
     discriminator is read-only A90 FMM/debug-level/RDX eligibility and existing
     dump-header inventory, not repetition of the denied EL1 load.
+
+## 2026-08-25 — Verifications 003/004 A90 raw-dump eligibility
+
+1. Reused only the read-surface concept from upstream
+   `s22plus_reset_reason_readonly_probe.py`. A90 profile, binding and transport
+   remained separate; `getprop` and ADB were excluded because V2321 has no
+   Android property service.
+2. Implemented `tools/a90_rawdump_eligibility_probe.py`. It first requires exact
+   V2321 `0.9.285 / v2321-usb-clean-identity-rodata` and exact kernel, then
+   issues only fixed `cat` reads through the pinned loopback A90P1 bridge. Ten
+   focused tests cover the allowlist, target-first stop, redaction, no-clobber,
+   cmdline parsing and conservative classification.
+3. Verification 003 read the five S22+ precedent surfaces. `/proc/cmdline`
+   returned `debug_level=0x4f4c`, `force_upload=0x0`, and `boot_recovery=0`.
+   The S22+ `qcom_dload_mode` and ramoops `max_reason` module paths returned
+   `rc=-2`; `panic=-1`, `panic_on_warn=0`.
+4. Host analysis corrected the generation-specific path. Exact A90
+   `msm-poweroff.c` SHA-256 `0a2b20ec…` declares default `download_mode=1` and
+   `module_param_call`; Makefile builds `msm-poweroff.o`. The retained exact
+   live config has `CONFIG_QCOM_DLOAD_MODE=y`, `CONFIG_QCOM_MINIDUMP=n`,
+   `CONFIG_PSTORE=y`, `CONFIG_PSTORE_RAM=y`, and `CONFIG_PANIC_TIMEOUT=-1`.
+5. Verification 004 added only fixed read
+   `/sys/module/msm_poweroff/parameters/download_mode`; it returned `1`.
+   Final observable signals are debug `NEGATIVE`, force-upload `NEGATIVE`,
+   dload master `POSITIVE`.
+6. Classification is `DUMP_ENTRY_SIGNALS_INCOMPLETE`; actual XBL eligibility
+   stays `UNKNOWN` because FMM/policy/token/transport joins are unresolved.
+   No reset, write, service action, MMIO, SMC, payload or retry occurred. The
+   separate Samsung `04e8:6860` endpoint received no command.
+7. Reframed the Verification-002 unknown from prior-boot preservation to
+   collection-time population. Freshly populated, stale or zero staged words
+   are all measurable; only availability at collection time matters.
+8. Independently completed the host-only `SHRM_MEM.BIN` decoder in commit
+   `9fdd5d6`. Its plan resolves all 430/64 staged words back to 494 source
+   register labels and rejects wrong-size, wrong-header, and zero-filled
+   inputs. The proved staged inventory does not reach the remapper `+0x8080`
+   control window. No real dump values have been decoded.
+9. Next work is host-only producer/control-path recovery for debug-level,
+   force-upload and FMM/token. Experiment 014's timing model proceeds as the
+   complementary behavioural track; it is host-ready but has no device phase.

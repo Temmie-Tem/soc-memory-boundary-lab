@@ -88,10 +88,26 @@ Exact XBL contains and actively enumerates a 26-record crash/download raw-dump
 table whose index 19 exports the full `0x09060000..0x0906ffff` SHRM range as
 `SHRM_MEM.BIN`, covering both snapshot buffers. This refutes “no firmware
 export path exists,” but does **not** prove a normal Android/HLOS interface:
-FMM/debug-level/token eligibility, reset-time preservation, and actual retail
+FMM/debug-level/token eligibility, collection-time population, and actual retail
 collection remain `UNKNOWN`. A read-only mounted-SD check found neither
 `SHRM_MEM.BIN` nor `rawdump.bin`; the exact A90 firmware used here remains the
 private Experiment-004 live capture, not an SD-card artifact.
+
+Live Verifications 003/004 then implemented the property-free A90 eligibility
+counterpart. Exact V2321 reported `debug_level=LOW`, `force_upload=0`, and the
+A90 source-backed `msm_poweroff` dload master switch `1`; the newer S22+
+`qcom_dload_mode` path is absent on this 4.14 kernel. Current classification is
+`DUMP_ENTRY_SIGNALS_INCOMPLETE`, while actual XBL/FMM/token eligibility remains
+`UNKNOWN`. No reset was attempted. Experiment 014's host-ready conflict-timing
+model remains a complementary transform-side track.
+
+The host-only `SHRM_MEM.BIN` decoder is also complete. It derives, rather than
+duplicates, Experiment 012's ordered plan and labels all `430 + 64 = 494`
+staged words as soon as a structurally valid 64-KiB dump is supplied. It
+rejects wrong-size, wrong-header, and zero-filled inputs. The staged list does
+not reach the separate remapper window at `qhs_llcc + 0x8080`, so the decoder
+cannot recover remapper enable/slot/lock state. No real dump values have yet
+been decoded.
 
 Claim vocabulary is deliberately closed:
 
@@ -136,6 +152,8 @@ is in
 Verification 002's exact XBL `SHRM_MEM.BIN` descriptor and raw-dump consumer
 chain are in
 [experiments/verification-002-shrm-dump-export/README.md](experiments/verification-002-shrm-dump-export/README.md).
+Verifications 003/004's live A90 property-free dump-gate inventory is in
+[experiments/verification-003-a90-rawdump-eligibility/README.md](experiments/verification-003-a90-rawdump-eligibility/README.md).
 The exact A90 TWRP code-only System transition is documented in
 [docs/A90_TWRP_CODE_BOOT.md](docs/A90_TWRP_CODE_BOOT.md).
 
@@ -162,6 +180,7 @@ Upstream device-action risk tiers (`H0` host-only, `D0` connected read-only,
 `D1` attended non-partition, `F1` boot-only transfer, `R1` privileged
 root-data) are the vocabulary behind this repository's experiment design. In
 upstream terms, Experiments 008–012 and Verifications 001–002 are `H0`;
+Verifications 003–004 are `D0`;
 Experiments 001/005/006 live capture is `D0`; and the boot-candidate
 transitions in Experiments 007 and 013 are `F1`.
 

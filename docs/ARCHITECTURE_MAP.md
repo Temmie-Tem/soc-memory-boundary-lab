@@ -109,8 +109,18 @@ workspace and both snapshot destinations. The AArch64 loop at `0x14917ca8`
 loads each `{base,size,description,filename}` record and calls registrar
 `0x14917670`; its pinned call chain begins in the dload path. `SUPPORTED`: this
 is a post-reset bootloader diagnostic path, not a normal HLOS runtime mapping.
-FMM/debug-level/token eligibility, reset-time preservation and successful
+FMM/debug-level/token eligibility, collection-time population and successful
 retail extraction remain `UNKNOWN`.
+
+`PROVED` live by Verifications 003/004: exact V2321 exposes
+`debug_level=0x4f4c` (`LOW`), `force_upload=0`, A90 source-backed
+`msm_poweroff.download_mode=1`, `panic=-1`, and `panic_on_warn=0`. The newer
+S22+ `qcom_dload_mode` and ramoops `max_reason` paths are absent. Exact A90
+source and live config explain both differences: `msm-poweroff.c` owns the
+dload module parameter, `CONFIG_QCOM_DLOAD_MODE=y`, and
+`CONFIG_QCOM_MINIDUMP=n`. `REFUTED`: current observable dump-entry signals are
+all positive. Actual XBL FMM/token eligibility remains `UNKNOWN`; no reset was
+attempted.
 
 `UNKNOWN`: numeric boot register words. XBL consumes runtime per-channel source
 bases and a rank-interleave mask not present in the retained firmware/log

@@ -8,7 +8,8 @@ non-aliasing; section-16 is a read-only SHRM snapshot path whose complete
 workspace has no static HLOS grant and whose fixed direct EL1 read path ended
 in watchdog reset; exact XBL has a gated crash/download `SHRM_MEM.BIN` export
 covering the workspace, but normal-HLOS visibility, indirect write paths,
-hidden transform and protection ordering remain unresolved`
+hidden transform and protection ordering remain unresolved; current V2321 dump
+entry signals are incomplete (`LOW`, force-upload 0, dload master 1)`
 
 Platform provenance: the A90 runtime, ACM bridge, REPL primitive, TWRP
 code-boot and boot-prefix rollback used throughout are supplied by the upstream
@@ -189,6 +190,27 @@ memory, SCM, EL2, EL3, or protected-memory write and attempted one fixed
   `rawdump.bin`, or exact Experiment-004 A90 firmware filename. Its only A908
   item is the Samsung open-source kernel archive/directory; the exact firmware
   input remains the private live capture in this repository.
+- Verifications 003/004 bound exact V2321 before every read and used no
+  property service. Live `/proc/cmdline` reports
+  `androidboot.debug_level=0x4f4c` (`LOW`),
+  `androidboot.force_upload=0x0`, and normal boot-recovery value `0`.
+- The S22+ precedent path
+  `/sys/module/qcom_dload_mode/parameters/download_mode` is absent on A90.
+  Exact A90 4.14 source instead binds `module_param_call(download_mode, ...)`
+  to `msm-poweroff.o`; its source-backed live path
+  `/sys/module/msm_poweroff/parameters/download_mode` returns `1`.
+- Live `panic=-1` and `panic_on_warn=0`. Exact A90 `kernel/panic.c` proves a
+  negative nonzero timeout skips delay then calls `emergency_restart()`.
+  The newer ramoops `max_reason` parameter is absent, while the retained live
+  config independently has `CONFIG_PSTORE=y` and `CONFIG_PSTORE_RAM=y`.
+- No reset/dump attempt followed these reads. A separate Samsung `04e8:6860`
+  endpoint received no command; only the pinned A90P1 `04e8:6861` bridge was
+  used.
+- Host-only decoder commit `9fdd5d6` loads the committed Experiment-012 plan
+  and labels all 494 staged words in a structurally valid `SHRM_MEM.BIN`.
+  Twenty focused tests prove the `430/64` shape, ordering, bounds, value
+  placement, header/size rejection and zero-dump rejection. `PROVED`: the
+  staged inventory does not reach the remapper window at `+0x8080`.
 
 ## B. 현재 HYPOTHESIS
 
@@ -199,9 +221,11 @@ memory, SCM, EL2, EL3, or protected-memory write and attempted one fixed
 - The retained watchdog may be the XPU denial's downstream fabric response.
   Static policy coverage and lack of an HLOS grant support this; the encrypted
   or unparsed TZ log prevents a causal syndrome match.
-- A successful XBL raw-dump collection may preserve the 430/64 controller
-  words populated before reset. This predicts a 64-KiB `SHRM_MEM.BIN` whose
-  workspace header and staged ranges validate against the pinned layout.
+- A successful XBL raw-dump collection may contain 430/64 controller words
+  populated by collection time. Prior-boot preservation is not required;
+  stale or zero words are themselves measurable outcomes. This predicts a
+  64-KiB `SHRM_MEM.BIN` whose workspace header and staged ranges validate
+  against the pinned layout.
 
 ## C. REFUTED
 
@@ -259,6 +283,10 @@ memory, SCM, EL2, EL3, or protected-memory write and attempted one fixed
 - “The exact SHRM blob directly exports either derived snapshot through a
   literal HLOS mailbox path.” Neither destination/local physical literal exists
   in the complete blob; the proved export consumer is external XBL code.
+- “The S22+ `qcom_dload_mode` sysfs path transfers unchanged to A90.” The exact
+  path is absent; the source-backed A90 owner is `msm_poweroff`.
+- “Current V2321 has positive observable raw-dump entry signals.” Debug level
+  and force-upload are both negative despite the positive dload master switch.
 
 ## D. UNKNOWN
 
@@ -283,8 +311,11 @@ memory, SCM, EL2, EL3, or protected-memory write and attempted one fixed
 - Any deterministic normal-RAM DRAM alias or protected-boundary consequence.
 - Live boot-image and live-DTB byte hashes.
 - Whether current retail FMM/debug-level/token policy permits the exact XBL
-  raw-dump path; whether populated SHRM state survives entry; the operative
+  raw-dump path; whether SHRM is populated at collection time; the operative
   SD/USB transport; and any normal-boot HLOS-readable export of the same words.
+- Which exact persistent/boot producer supplies `androidboot.debug_level` and
+  `androidboot.force_upload`, whether a reversible bounded control exists, and
+  how FMM/token policy joins those values.
 
 ## E. SDM855 physical→DRAM pipeline 후보
 
@@ -342,6 +373,8 @@ returned no value and ended in watchdog reset. `PROVED`: its PA is in a
 TZ-owned static XPU region with no HLOS grant. `SUPPORTED`: XPU/fabric denial;
 final runtime policy and decode register values remain `UNKNOWN`. Exact XBL's
 post-reset raw-dump catalog is `PROVED`, but it is not an EL1/HLOS runtime API.
+EL1 can observe property-free gate inputs: current values are `LOW`,
+force-upload `0`, dload master `1`, panic `-1`, and panic-on-warn `0`.
 
 ## I. EL2/QHEE가 담당하는 것으로 보이는 부분
 
@@ -379,12 +412,13 @@ this difference is not yet a complete structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-Do not repeat the fixed load. Static consumer recovery is complete: XBL has a
-gated raw-dump export covering the full region, while normal-HLOS export is
-unproved. The next cheapest step is a read-only current-state inventory of A90
-FMM/debug-level/RDX eligibility and any existing rawdump headers. Only if that
-gate is positive should one already-understood reset source test whether XBL
-actually emits a 64-KiB `SHRM_MEM.BIN` and preserves the staged words.
+Do not repeat the fixed load or trigger a reset: the read-only eligibility
+inventory is complete and current visible signals are negative. The next
+cheapest step is host-only recovery of the exact producers and reversible
+control path for `androidboot.debug_level` and `androidboot.force_upload`, plus
+the FMM/token join. In parallel, Experiment 014 remains host-ready for a
+normal-RAM timing implementation. The SHRM decoder is already ready for the
+first valid dump; controller values remain `UNKNOWN` until such a file exists.
 
 ## N. 가장 위험한 아직 금지된 실험
 
@@ -447,6 +481,8 @@ Evidence against a presently usable bypass:
 - Exact XBL's alternative is a gated crash/download raw-dump catalog, not a
   normal-world register or shared-memory primitive. Its existence improves
   observability but does not supply transform mutation or an alias.
+- The current boot supplies `LOW` and `force_upload=0`; therefore the proved
+  catalog is not presently backed by positive observable entry signals.
 - Secure ownership, boot-time locking, or a post-transform check could each
   independently make the AMD attack class fail.
 - Exact TrustZone firmware names multiple BIMC/MEMNOC/LLCC MPUs, increasing the
@@ -457,7 +493,8 @@ Evidence against a presently usable bypass:
 - Exact devcfg leaves XPU access control enabled (`disable_xpu_ac=0`), and the
   boot path consumes the selected static policy table.
 
-Critical unknowns are retail eligibility and preservation for the proved XBL
+Critical unknowns are the reversible producer/control path for current negative
+gate values, FMM/token eligibility, collection-time population for the proved XBL
 snapshot-dump path, any normal-HLOS runtime export, runtime snapshot values,
 lock state, indirect
 reverse-direction use, runtime source-base/interleave state, final

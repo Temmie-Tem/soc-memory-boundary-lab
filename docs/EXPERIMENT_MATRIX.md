@@ -287,6 +287,51 @@
   deterministic host verification
 - Device/SMC/MMIO/controller/partition writes: none; device access: none
 
+## Verifications 003/004 A90 raw-dump eligibility metadata
+
+- Verification IDs:
+  `verification-003-a90-rawdump-eligibility-20260825-01` and
+  `verification-004-a90-rawdump-eligibility-sourcebacked-20260825-01`
+- Question: do current exact V2321 property-free proc/sys surfaces positively
+  qualify a later XBL `SHRM_MEM.BIN` collection attempt?
+- Target: exact `SM-A908N` / `SM8150`, V2321 `0.9.285`, kernel
+  `4.14.190-25818860-abA908NKSU5EWA3`
+- Transport: existing operator-pinned A90P1 loopback bridge to A90
+  `04e8:6861`; the separate Samsung `04e8:6860` endpoint received no command
+- Verification 003 result: `debug_level=0x4f4c` (`LOW`), `force_upload=0`,
+  S22+ `qcom_dload_mode` path absent, ramoops `max_reason` path absent,
+  `panic=-1`, `panic_on_warn=0`
+- Source correction: exact A90 `msm-poweroff.c` SHA-256 `0a2b20ec…` owns
+  `module_param_call(download_mode, ...)`; retained live config has
+  `CONFIG_QCOM_DLOAD_MODE=y` and `CONFIG_QCOM_MINIDUMP=n`
+- Verification 004 result: A90 source-backed
+  `/sys/module/msm_poweroff/parameters/download_mode=1`
+- Final signal vector: debug `NEGATIVE`, force-upload `NEGATIVE`, dload master
+  `POSITIVE`; classification `DUMP_ENTRY_SIGNALS_INCOMPLETE`; actual XBL
+  FMM/token eligibility `UNKNOWN`
+- Public manifest SHA-256 values: V003
+  `bbd1da19fa8b7d2b56c6a8f8683ba49fac34aa9fc96d9f05727cb8e58672f856`,
+  V004 `a0e5b047ea95169b009c962bf8b445b6f757edebebf4401746d5f0751367bd37`
+- Private record SHA-256 values: V003
+  `1a5b4b981c2eeb9f6a0fd9683062c8405db55dbe4db7f7ebe23d8c8e0f1365d5`,
+  V004 `02cf1474b74d8befca9ea1be192fbd8667e4fc94870d42be0c19bc322a5de8b2`
+- Final tool SHA-256:
+  `9386c03e444ceb3196ea300371cc6ff0cdfb67ffa38dca570c834bd34c1d5fec`
+- Final focused-test SHA-256:
+  `9239e68e1351ee1d92e192bf2182717348a9697a2e422832d8df9f91860772a7`
+- Host verification: ten focused tests and all 195 repository tests pass; all
+  36 public manifests parse; private records mode `0600`, public manifests
+  mode `0644`
+- Device commands: two exact target binds plus 11 fixed `cat` reads across both
+  passes; no getprop, ADB, write, reboot, MMIO, SMC, service action, payload,
+  partition action or automatic retry
+- Complementary decoder: commit `9fdd5d6`, tool SHA-256
+  `1cf33c9292890c2479c20c8f9470c05058348046a49dc2280d061a64e224b5a7`,
+  test SHA-256
+  `e20cea3fc518b6ee56c4f74e4b1cfbffb72e78e782e8ce3d55680e6d24ad40e8`;
+  20 focused tests pass and plan-only output reports `430/64` words with no
+  remapper-window coverage
+
 ## Experiment 013 SHRM snapshot boundary/live metadata
 
 - Experiment IDs: `013-shrm-snapshot-boundary-20260825-01`,
@@ -429,11 +474,11 @@ preserve the already allocated Experiment 014–016 sequence.
 - Classification:
   `BOOTLOADER_RAWDUMP_EXPORT_PRESENT_HLOS_RUNTIME_EXPORT_UNPROVED`
 - Public manifest SHA-256:
-  `63e93c1908ef4139adf7bca73bfb15a74a7c9c5eb58411bbb2eb3fdc7d4a9d25`
+  `7f35e4e6dd3ede0c1bc2f398d3148656ac95b948a257ad19e8ab6d030c20e635`
 - Private derived record SHA-256:
-  `8821dfeec2c771e3b3dd66caac81d7b3112391efe148a8675ef0e0c3792d53a4`
+  `205960e837a0a2d58dd416ee4bf89e6f4e182a5dcfcbd358f2722dbbf78d739a`
 - Tool SHA-256:
-  `5317f7c689935b94659a923edfff18fc90ba121cae87521ee51de2e538f152c4`
+  `a9e0b9e27cb12c8ec3e12d2324b7c32d7eabb7450741767528d54a18a65565ed`
 - Focused-test SHA-256:
   `cb7c947520a7aa3a6ea6a400c68f08db050a1c586ab12e58bfd30d581ba9e97d`
 - Host verification: ten focused tests and all 135 repository tests pass; all

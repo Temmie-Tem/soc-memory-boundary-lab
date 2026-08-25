@@ -1,0 +1,142 @@
+{
+  "claims": {
+    "PROVED": [
+      "Exact V2321 and its expected kernel were bound before the five surface reads.",
+      "The probe used no Android property service; all eligibility observations came from /proc/cmdline and fixed sysfs parameters.",
+      "No device write, reboot, MMIO, SMC, service action, payload, or automatic retry occurred."
+    ],
+    "REFUTED": [],
+    "SUPPORTED": [
+      "The observed debug-level, force-upload and qcom_dload_mode signals indicate whether a dump-entry attempt is worth designing; they do not bypass XBL policy."
+    ],
+    "UNKNOWN": [
+      "Actual XBL raw-dump eligibility because FMM/policy/token and transport gates are not fully represented by these five surfaces.",
+      "Whether SHRM is populated at collection time and whether a successful path emits SHRM_MEM.BIN."
+    ]
+  },
+  "classification": "DUMP_ENTRY_SIGNALS_INCOMPLETE",
+  "completed_utc": "2026-08-25T01:32:23+00:00",
+  "eligibility": {
+    "actual_xbl_rawdump_eligibility": "UNKNOWN",
+    "classification": "DUMP_ENTRY_SIGNALS_INCOMPLETE",
+    "debug_level": {
+      "label": "LOW",
+      "numeric": 20300,
+      "raw": "0x4f4c"
+    },
+    "fmm_cmdline_observations": {},
+    "force_upload": {
+      "enabled": false,
+      "raw": "0x0"
+    },
+    "qcom_download_mode": {
+      "enabled": null,
+      "raw": null
+    },
+    "reason": "At least one observable entry signal is negative; do not trigger a reset for dump collection from this state.",
+    "signals": {
+      "debug_level": "NEGATIVE",
+      "force_upload": "NEGATIVE",
+      "qcom_download_mode": "UNKNOWN"
+    }
+  },
+  "experiment_id": "verification-003-a90-rawdump-eligibility-20260825-01",
+  "identity": {
+    "build": "v2321-usb-clean-identity-rodata",
+    "identity_exact": true,
+    "kernel": "Linux 4.14.190-25818860-abA908NKSU5EWA3 aarch64",
+    "version": "0.9.285"
+  },
+  "raw_snapshot_sha256": "1a5b4b981c2eeb9f6a0fd9683062c8405db55dbe4db7f7ebe23d8c8e0f1365d5",
+  "raw_snapshot_size": 10035,
+  "records": [
+    {
+      "command": "version",
+      "evidence_id": "version",
+      "identity": {
+        "build": "v2321-usb-clean-identity-rodata",
+        "identity_exact": true,
+        "kernel": "Linux 4.14.190-25818860-abA908NKSU5EWA3 aarch64",
+        "version": "0.9.285"
+      },
+      "payload_sha256": "816e84c0c429cffacc2fd6efbdd166bf53a59c5b5fcf39cc59bd9788eb3b329a",
+      "payload_size": 240,
+      "rc": 0,
+      "status": "ok"
+    },
+    {
+      "available": true,
+      "command": "cat /proc/cmdline",
+      "evidence_id": "proc_cmdline",
+      "parsed": {
+        "raw_sha256": "e326100bfec8cb595a413c968dc565bbab47327324423ba5420b3a75b41fbf23",
+        "raw_size": 2513,
+        "selected": {
+          "androidboot.boot_recovery": "0",
+          "androidboot.debug_level": "0x4f4c",
+          "androidboot.force_upload": "0x0"
+        },
+        "selected_key_count": 3,
+        "token_count": 93
+      },
+      "payload_sha256": "e326100bfec8cb595a413c968dc565bbab47327324423ba5420b3a75b41fbf23",
+      "payload_size": 2513,
+      "rc": 0,
+      "status": "ok"
+    },
+    {
+      "available": false,
+      "command": "cat /sys/module/qcom_dload_mode/parameters/download_mode",
+      "evidence_id": "qcom_download_mode",
+      "payload_sha256": "99d450b8289c76aa41596ffd70682f7960a91e4bdbf66feeef926a690ac396c9",
+      "payload_size": 84,
+      "rc": -2,
+      "status": "error"
+    },
+    {
+      "available": false,
+      "command": "cat /sys/module/ramoops/parameters/max_reason",
+      "evidence_id": "ramoops_max_reason",
+      "payload_sha256": "2b374a8f993a4951d59755a98168e944fdc47675f073387ce5059e0a1c087767",
+      "payload_size": 73,
+      "rc": -2,
+      "status": "error"
+    },
+    {
+      "available": true,
+      "command": "cat /sys/module/kernel/parameters/panic",
+      "evidence_id": "kernel_panic",
+      "numeric": -1,
+      "payload_sha256": "ee3aa64bb94a50845d5024cd4bd20202a4567aed5cd5328c0d97e9920775fc28",
+      "payload_size": 3,
+      "rc": 0,
+      "status": "ok",
+      "value": "-1"
+    },
+    {
+      "available": true,
+      "command": "cat /sys/module/kernel/parameters/panic_on_warn",
+      "evidence_id": "kernel_panic_on_warn",
+      "numeric": 0,
+      "payload_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "payload_size": 2,
+      "rc": 0,
+      "status": "ok",
+      "value": "0"
+    }
+  ],
+  "safety": {
+    "automatic_retries": false,
+    "device_commands": "one fixed version plus five fixed cat reads",
+    "device_writes": false,
+    "getprop_or_property_service": false,
+    "mmio_access": false,
+    "reboots": false,
+    "smc_access": false,
+    "transport": "operator-pinned loopback A90P1 bridge"
+  },
+  "schema": "sdm855-a90-rawdump-eligibility-public-v1",
+  "soc": "SM8150",
+  "started_utc": "2026-08-25T01:32:23+00:00",
+  "target_model": "SM-A908N"
+}
