@@ -175,3 +175,35 @@ cross-reference/backward slice for the 12 exact qhs_mc targets (four bases ×
 `+0x400`, `+0x404`, `+0x4d0`), resolving MOVZ/MOVK, ADRP+ADD, literal/table
 loads, arithmetic and argument provenance. Unresolved dynamic bases remain
 `UNKNOWN`; no broad MMIO scan or device action is authorized by this result.
+
+## Experiment 018 — exact XBL MC writer cross-reference Stage 1A
+
+Host-only Experiment 018 Stage 1A inventories the exact XBL literals and the
+strict scalar STR W/X unsigned-immediate offsets for the 12 ranked MC targets.
+Each target's single 8-byte table encoding yields both the one aligned u64 match
+and overlapping one aligned u32 match at the same file offset; these are two
+views of one table entry, not independent literals, with no separate target
+literal elsewhere. Only base `0x09260000` has an aligned outside-table u32
+literal, at file `0x80154` / VA
+`0x148bc254` in RWE; the other bases have zero aligned u32 and all bases have
+zero aligned u64 occurrences. Unaligned incidental byte matches are not
+treated as aligned literals.
+
+The exact file-backed PT_LOAD census is RX4/RWE2/RW3/OTHER0. Strict STR W/X
+recognition is RX6945/RWE5169. Matching offsets are RX
+`{0x400:7,0x404:2,0x4d0:2}` and RWE
+`{0x400:1,0x404:1,0x4d0:1}`, 14 total; seven RX candidates use SP and the
+three RWE decodes remain ambiguous code/data. Stage 1A performs no
+base/effective-address resolution, so its public resolved hit count is JSON
+`null`, not zero. Literal/offset equality is not writer attribution, and no
+writer hypothesis is refuted by this stage.
+
+This remains Class C transform observation only. The actual writer, unsupported
+store forms, dynamic/cross-block/cross-call paths, AOP/TZ paths, runtime
+semantics/mutability, alias and bypass remain `UNKNOWN`; Experiments 015 and
+016 remain reserved and `NOT ELIGIBLE`. The next exact discriminator is Stage
+2A over only the four non-SP RX candidates, while the seven SP candidates are
+runtime-derived and the three RWE candidates remain ambiguous. An independent
+Luna raw-byte feasibility scan agreed on the 14 candidates and found no
+resolved target in its broader model but emitted no artifact; it is supportive
+review, not manifest `PROVED` evidence.

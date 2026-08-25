@@ -788,3 +788,44 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
    discriminator is a host-only symbolic AArch64 store xref/backward slice for
    the 12 exact qhs_mc targets; unresolved dynamic bases remain `UNKNOWN`, and
    no broad MMIO scan/device action is authorized.
+
+## 2026-08-25 — Experiment 018 XBL MC writer cross-reference Stage 1A
+
+1. Kept the phase host-only and read-only. The exact XBL input is 4,194,304
+   bytes with SHA-256
+   `e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37`;
+   no device, SMC or MMIO action occurred. Experiments 015 (normal-RAM alias)
+   and 016 (protected-boundary reach) remain reserved and `NOT ELIGIBLE`.
+2. Inventoried the four exact bases and 12 target addresses as little-endian
+   u32/u64 views with file offsets, mapped VAs, alignment and PT_LOAD class.
+   Each target's single 8-byte table encoding yields both the one aligned u64
+   match and overlapping one aligned u32 match at the same file offset; these
+   are two views of one table entry, not independent literals, with no separate
+   target literal elsewhere. Only base
+   `0x09260000` has an aligned outside-table u32, at file `0x80154` / VA
+   `0x148bc254` in RWE; all bases have zero aligned u64 occurrences.
+3. The exact file-backed PT_LOAD census is RX4/RWE2/RW3/OTHER0. Strict scalar
+   STR W/X unsigned-immediate recognition is RX6945/RWE5169. Matching offsets
+   are RX `{0x400:7,0x404:2,0x4d0:2}` and RWE
+   `{0x400:1,0x404:1,0x4d0:1}`, 14 total; seven RX candidates are SP-based and
+   the RWE three remain ambiguous code/data.
+4. Stage 1A performs no base/effective-address resolution. The public
+   resolved hit count is JSON `null`, not zero, and literal/offset equality is
+   not a writer proof. No REFUTED writer claim is made; writer identity,
+   unsupported/other store forms, dynamic/cross-block paths, AOP/TZ paths,
+   runtime semantics/mutability, alias and bypass remain `UNKNOWN`.
+5. The next discriminator is Stage 2A, limited to the four non-SP RX
+   candidates (X8/X19); the seven SP candidates remain runtime-derived and the
+   three RWE candidates remain ambiguous. An independent Luna raw-byte
+   feasibility scan agreed on the 14 candidates and found no resolved target
+   in its broader model, but emitted no artifact; this is supportive review,
+   not manifest `PROVED` evidence.
+6. Generated the public manifest with
+   `python3 tools/sm8150_xbl_mc_writer_xref.py --output evidence/manifests/018-xbl-mc-writer-xref-stage1a-20260825-01.manifest.json`.
+   Tool/ focused-test/manifest SHA-256 values are
+   `9806b64c01f9965161966c88bbf5b943d953e790664c3136b2a116da63f8dc57`,
+   `b5fbf50e545b9df86d45ac012106d8905af231d9e94b0b2dd1927ec365da13d8`, and
+   `8861a5626576fac32a83c295c34be63f91fd5e3f4b434490d567fb2984bb192d`;
+   8 focused and all 287 repository unittest-discovery tests pass. All 54
+   public manifests parse as JSON, regeneration is byte-identical and the
+   manifest mode is `0644`. Date: 2026-08-25 KST.

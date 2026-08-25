@@ -45,6 +45,18 @@ and helper read-copy path. It made no device, SMC or MMIO access and does not
 satisfy reserved/`NOT ELIGIBLE` Experiments 015 (normal-RAM alias) or 016
 (protected-boundary reach).
 
+Host-only Experiment 018 Stage 1A now inventories exact XBL literals and a
+strict STR W/X store-offset census for the 12 ranked MC targets. The exact
+file-backed PT_LOAD census is RX4/RWE2/RW3, with 6945/5169 recognized forms
+and 14 matching offsets (RX11, RWE3; seven RX candidates are SP-based). Each
+target's single 8-byte table encoding yields both the one aligned u64 match
+and the overlapping one aligned u32 match at the same file offset; these are
+two views of one table entry, not independent stored literals, and there is no
+separate target literal elsewhere. Only base `0x09260000` has an aligned u32
+outside it, at file `0x80154` / VA `0x148bc254` in RWE. Stage 1A performs no base/effective-
+address resolution, so its hit count is `null`, not zero, and makes no writer
+claim. Experiments 015 and 016 remain reserved and `NOT ELIGIBLE`.
+
 ## A. 현재까지 PROVED
 
 - Exact A90 source, defconfig, System.map, independently extracted stock
@@ -283,6 +295,25 @@ satisfy reserved/`NOT ELIGIBLE` Experiments 015 (normal-RAM alias) or 016
   unittest-discovery tests pass. An
   independent read-only raw-byte review accepted the result and emitted no
   artifact or artifact hash. Date: 2026-08-25 KST; device/SMC/MMIO access: none.
+- Experiment 018 Stage 1A proves the exact XBL literal and strict store-offset
+  census only: each target's single 8-byte table encoding yields the one
+  aligned u32/u64 matches at the same file offset (two views of one entry, not
+  independent literals), with no separate target literal elsewhere; the one
+  aligned outside-table base literal is the RWE `0x80154`/`0x148bc254` fact,
+  and matching offsets total 14. The public resolved hit count is `null` and
+  classification is `STAGE1A_LITERAL_AND_STORE_OFFSET_CENSUS_WRITER_UNKNOWN`;
+  literal or offset equality is not a writer proof. Stage 2A is the next
+  discriminator for only four non-SP RX candidates; seven SP candidates remain
+  runtime-derived and three RWE candidates remain ambiguous.
+- Experiment 018 command was
+  `python3 tools/sm8150_xbl_mc_writer_xref.py --output evidence/manifests/018-xbl-mc-writer-xref-stage1a-20260825-01.manifest.json`.
+  Public manifest/tool/focused-test SHA-256 are respectively
+  `8861a5626576fac32a83c295c34be63f91fd5e3f4b434490d567fb2984bb192d`,
+  `9806b64c01f9965161966c88bbf5b943d953e790664c3136b2a116da63f8dc57`, and
+  `b5fbf50e545b9df86d45ac012106d8905af231d9e94b0b2dd1927ec365da13d8`;
+  8 focused and all 287 repository unittest-discovery tests pass. All 54
+  public manifests parse as JSON and the generated manifest is mode 0644.
+  Date: 2026-08-25 KST; device/SMC/MMIO access: none.
 
 ## B. 현재 HYPOTHESIS
 
@@ -417,6 +448,12 @@ satisfy reserved/`NOT ELIGIBLE` Experiments 015 (normal-RAM alias) or 016
   coherent/atomic/current status, MMIO read side effects or faults, mutable
   runtime table contents/lock, indirect BLR/tail-call reachability, and any
   other writer/programmer for these candidates.
+- Experiment 018 Stage 1A's base/effective-address resolution, writer identity,
+  all unsupported store forms, dynamic/cross-block/cross-call paths, AOP/TZ
+  paths, runtime execution/semantics/mutability, alias/bypass, and the meaning
+  of the literal/offset matches remain `UNKNOWN`. The RWE three are ambiguous;
+  the seven SP-based RX candidates are runtime-derived. No REFUTED writer claim
+  is made.
 
 ## E. SDM855 physical→DRAM pipeline 후보
 
@@ -521,13 +558,14 @@ ordering remain `UNKNOWN`, so this is not yet a structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-Do not repeat the fixed protected load. The cheapest next discriminator is a
-host-only symbolic AArch64 store cross-reference/backward slice for the 12
-exact `qhs_mc` targets (four bases × `+0x400`, `+0x404`, `+0x4d0`). Resolve
-effective addresses through `MOVZ/MOVK`, `ADRP+ADD`, literal/table loads,
-arithmetic and argument provenance; accept only exact target matches and keep
-unresolved dynamic bases `UNKNOWN`. Do not perform a broad MMIO scan or device
-action. A cold-boot repetition is not a substitute for this writer xref.
+Do not repeat the fixed protected load. Following Experiment 018 Stage 1A, the
+cheapest next discriminator is Stage 2A: a host-only same-block direct-
+definition slice for only the four non-SP RX candidates (X8/X19). The seven
+SP candidates remain runtime-derived and the three RWE candidates remain
+ambiguous. Resolve only exact direct definitions and keep all dynamic,
+cross-block/call and unsupported paths `UNKNOWN`; do not perform a broad MMIO
+scan or device action. A cold-boot repetition is not a substitute for this
+writer xref.
 
 ## N. 가장 위험한 아직 금지된 실험
 
@@ -547,7 +585,8 @@ a post-reset snapshot, exact semantics are unknown, and no live readback path
 can verify or restore a mutation. They remain low-yield blind writes.
 
 Experiments 015 (normal-RAM alias) and 016 (protected-boundary reach) remain
-reserved and `NOT ELIGIBLE`; Experiment 017 does not satisfy either gate.
+reserved and `NOT ELIGIBLE`; Experiments 017 and 018 do not satisfy either
+gate.
 
 ## O. 현재 취약점 가능성 평가
 
@@ -568,8 +607,14 @@ Evidence for the attack class being relevant:
   controls. The transform side of the question is therefore real, rather than
   inferred from patents or diagnostic strings.
 - Experiment 017 adds exact-XBL table/read-copy observation confidence for the
-  three qhs_mc candidate groups, but proves no writer, mutation, alias,
-  protected reach or bypass. Experiments 015 and 016 remain `NOT ELIGIBLE`.
+  three qhs_mc candidate groups, but does not prove any writer, mutation,
+  alias, protected reach or bypass. Experiments 015 and 016 remain `NOT
+  ELIGIBLE`.
+- Experiment 018 Stage 1A adds exact-XBL literal and syntactic store-offset
+  census confidence only: 14 matching offsets (RX11/RWE3), seven SP-based RX
+  candidates, and no base/effective-address resolution. It does not prove any
+  writer, mutation, alias, protected reach or bypass; 015 and 016 remain `NOT
+  ELIGIBLE`.
 
 Evidence against a presently usable bypass:
 

@@ -120,6 +120,19 @@ coherence/currentness, MMIO side effects/faults, mutable table contents,
 indirect reachability and current-boot execution remain `UNKNOWN`. This is
 independent static observation confidence, not semantic likelihood.
 
+`PROVED` by host-only Experiment 018 Stage 1A: the exact XBL literal inventory
+finds, for each of the 12 MC targets, one single 8-byte table encoding viewed
+as both the one aligned u64 match and the overlapping one aligned u32 match at
+the same file offset; these are two views of one entry, not independent stored
+literals, and there is no separate target literal elsewhere. Only base `0x09260000`
+has an aligned outside-table u32 literal (file `0x80154`, VA `0x148bc254`) and
+that occurrence is in RWE; all base aligned-u64 counts are zero. The strict
+STR W/X unsigned-immediate census finds 14 matching offsets (RX11/RWE3), with
+seven RX candidates based on SP. Stage 1A performs no base/effective-address
+resolution and makes no writer claim; its classification is
+`STAGE1A_LITERAL_AND_STORE_OFFSET_CENSUS_WRITER_UNKNOWN`. Stage 2A remains the
+next host-only discriminator for only the four non-SP RX candidates.
+
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside
 `DC_NOC_NON_BROADCAST_MPU`, `MEMNOC_MS_MPU`, and `CNOC_SNOC_MS_MPU` regions.
@@ -319,7 +332,7 @@ all protection ordering relative to DRAM decode remain `UNKNOWN`.
 | Question | Current answer |
 |---|---|
 | Which block owns the final mapping? | `PROVED`: qhs_llcc ICB windows own boot region remapping; live timing proves a distinct low-24 XOR bank-selection relation. MCCC/MC/DDRSS token families are exact candidates; final hardware decode owner remains `UNKNOWN`. |
-| Who programs it? | `PROVED`: XBL programs the region remapper through `icbcfg` and copies section 16 to SHRM. `PROVED`: the exact SHRM section-16 consumers read listed controller words into a read-copy buffer; the observed section-16 paths do not write those addresses. Experiment 017 independently proves the exact XBL helper's store-base dataflow does not program candidate registers. AOP runtime DDR management is `PROVED`; final-decode writer remains `UNKNOWN`. |
+| Who programs it? | `PROVED`: XBL programs the region remapper through `icbcfg` and copies section 16 to SHRM. `PROVED`: the exact SHRM section-16 consumers read listed controller words into a read-copy buffer; the observed section-16 paths do not write those addresses. Experiment 017 independently proves the exact XBL helper's store-base dataflow does not program candidate registers. Experiment 018 Stage 1A adds only literal/offset census evidence and performs no base resolution; it makes no writer claim. AOP runtime DDR management is `PROVED`; final-decode writer remains `UNKNOWN`. |
 | At what stage? | Region-remap programming during XBL DDR initialization before HLOS is `PROVED`; later mutability remains `UNKNOWN`. |
 | Can EL1 observe it? | `PROVED` behaviorally: non-secure ION/CNTVCT timing exposes the low-24 bank-equivalence relation. Direct register routes remain `REFUTED`: `/dev/mem` is absent and the fixed protected load returned no value. After reset, Samsung Upload exports coherent set-0 words, but is not an EL1 runtime interface and omits remapper controls. Experiment 017 adds host-only static XBL read-copy evidence, not current-boot EL1 observability. |
 | Can EL1 modify it? | No mutation is proved. The exact HLOS-visible XPU-disable allowlist has zero entries, and all known configuration apertures have branch-invariant TZ-owned coverage. Final runtime policy/lock readback is `UNKNOWN`. |
