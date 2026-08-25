@@ -1,0 +1,167 @@
+{
+  "capture_experiment_id": "004-live-firmware-readonly-20260825-01",
+  "claims": {
+    "PROVED": [
+      "The seven non-zero masks in the recovered three-row bank-selection span have no aligned little-endian u32 occurrence in the nine exact captured A90 firmware images.",
+      "The same seven masks have no occurrence at any alignment in the pinned real 64-KiB SHRM_MEM.BIN snapshot.",
+      "All four raw substring hits are offset-mod-4 one and lie inside monotonic u64 address tables with a 0x200000 step."
+    ],
+    "REFUTED": [
+      "A raw substring hit for 0x009d2000, 0x00a74000, or 0x003a6000 in the exact TrustZone image directly attributes the recovered bank hash to TrustZone configuration data."
+    ],
+    "UNKNOWN": [
+      "Whether the bank hash appears in encoded, split, compressed, generated, or register-field form rather than as one of these literal row masks.",
+      "Which MC/MCCC/remapper register owns the bank hash and which boot stage writes or locks it."
+    ]
+  },
+  "classification": "DIRECT_LITERAL_ATTRIBUTION_REFUTED",
+  "firmware_artifacts": [
+    {
+      "byte_size": 4194304,
+      "filename": "abl--sdd8.bin",
+      "sha256": "1db19d11a5ce6865e3fbcabadfbdaa9045e75f144b8bc8593a58338c20a3120c"
+    },
+    {
+      "byte_size": 524288,
+      "filename": "aop--sdd7.bin",
+      "sha256": "eadd6c78daca52221e1e3419f34a53eac7c1e2c2bb46c9b663325df1998b9c7c"
+    },
+    {
+      "byte_size": 131072,
+      "filename": "devcfg--sdd22.bin",
+      "sha256": "0399578253dd293dfc961c6a1077f660834df3ae5e1d65555f4225e327a03d14"
+    },
+    {
+      "byte_size": 1048576,
+      "filename": "hyp--sdd33.bin",
+      "sha256": "646f8fca08b0eff56b1d8415d81c3041a775c1871400dc57448cb5103405a8e1"
+    },
+    {
+      "byte_size": 4194304,
+      "filename": "tz--sdd5.bin",
+      "sha256": "a5e6c574e18e2e576a25df6274b20bdb142386811dfda6383f86d7b1b3c102ab"
+    },
+    {
+      "byte_size": 4194304,
+      "filename": "xbl--sdb1.bin",
+      "sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37"
+    },
+    {
+      "byte_size": 4194304,
+      "filename": "xbl--sdc1.bin",
+      "sha256": "ae1191b5d70e6de9fd67c6d629bc93aa567296605d30b5c9196ff58fcc26cb50"
+    },
+    {
+      "byte_size": 4149248,
+      "filename": "xbl_config--sdb2.bin",
+      "sha256": "0e9dfac1ddd0f9acc2cc899213e621490308f0cadf329814048edb7712e2484c"
+    },
+    {
+      "byte_size": 4149248,
+      "filename": "xbl_config--sdc2.bin",
+      "sha256": "1b34aaaab314d22eaf25e0efa708df96dba9a3ecf731fde2461efdb214c1bb24"
+    }
+  ],
+  "generated_utc": "2026-08-25T05:33:16+00:00",
+  "literal_hits": [
+    {
+      "aligned_u32_literal": false,
+      "file_offset": "0x30e99",
+      "filename": "tz--sdd5.bin",
+      "mask": "0x003a6000",
+      "misaligned_u64_address_progression": {
+        "current": "0x000000003a600000",
+        "entry_file_offset": "0x30e98",
+        "following": "0x000000003a800000",
+        "previous": "0x000000003a400000",
+        "step": "0x200000"
+      },
+      "offset_mod_4": 1,
+      "offset_mod_8": 1
+    },
+    {
+      "aligned_u32_literal": false,
+      "file_offset": "0x18be99",
+      "filename": "tz--sdd5.bin",
+      "mask": "0x003a6000",
+      "misaligned_u64_address_progression": {
+        "current": "0x000000003a600000",
+        "entry_file_offset": "0x18be98",
+        "following": "0x000000003a800000",
+        "previous": "0x000000003a400000",
+        "step": "0x200000"
+      },
+      "offset_mod_4": 1,
+      "offset_mod_8": 1
+    },
+    {
+      "aligned_u32_literal": false,
+      "file_offset": "0x18c749",
+      "filename": "tz--sdd5.bin",
+      "mask": "0x009d2000",
+      "misaligned_u64_address_progression": {
+        "current": "0x000000009d200000",
+        "entry_file_offset": "0x18c748",
+        "following": "0x000000009d400000",
+        "previous": "0x000000009d000000",
+        "step": "0x200000"
+      },
+      "offset_mod_4": 1,
+      "offset_mod_8": 1
+    },
+    {
+      "aligned_u32_literal": false,
+      "file_offset": "0x18c9d1",
+      "filename": "tz--sdd5.bin",
+      "mask": "0x00a74000",
+      "misaligned_u64_address_progression": {
+        "current": "0x00000000a7400000",
+        "entry_file_offset": "0x18c9d0",
+        "following": "0x00000000a7600000",
+        "previous": "0x00000000a7200000",
+        "step": "0x200000"
+      },
+      "offset_mod_4": 1,
+      "offset_mod_8": 1
+    }
+  ],
+  "schema": "a90_bank_hash_literal_audit_v1",
+  "scope": {
+    "controller_write": false,
+    "device_access": false,
+    "firmware_write": false,
+    "host_only": true,
+    "protected_memory_access": false
+  },
+  "searched_bank_row_basis": [
+    "0x009d2000",
+    "0x00a74000",
+    "0x004e8000"
+  ],
+  "searched_nonzero_row_space": [
+    "0x003a6000",
+    "0x004e8000",
+    "0x0074e000",
+    "0x009d2000",
+    "0x00a74000",
+    "0x00d3a000",
+    "0x00e9c000"
+  ],
+  "shrm_experiment_id": "verification-012-a90-samsung-upload-shrm-20260825-01",
+  "shrm_snapshot": {
+    "byte_size": 65536,
+    "filename": "SHRM_MEM.BIN",
+    "literal_hits": 0,
+    "sha256": "409550ad226443271a39b6bc060f0e8fb3224111cc03f07a6ee563eaa7098bb7"
+  },
+  "soc": "SM8150",
+  "summary": {
+    "aligned_u32_hits": 0,
+    "firmware_images": 9,
+    "misaligned_u64_address_table_hits": 4,
+    "raw_substring_hits": 4,
+    "shrm_snapshots": 1,
+    "unexplained_hits": 0
+  },
+  "target_model": "SM-A908N"
+}

@@ -2,11 +2,10 @@
 
 Current research state: `NO_BOUNDARY_BYPASS_OBSERVED`
 
-Current class: `A/B CANDIDATE — direct EL1 controller/SHRM reads are blocked;
-exact XBL diagnostic mapping is bijective and non-aliasing; a gated post-reset
-Samsung Upload path exported one real SHRM snapshot whose set 0 is coherent;
-no runtime transform write, deterministic alias, protection-order mismatch, or
-boundary bypass has been observed`
+Current class: `CLASS C (TRANSFORM ONLY) — live normal-RAM timing proves a
+hidden low-24-bit XOR bank-selection relation; direct EL1 controller/SHRM reads
+remain blocked; no transform write, complete-coordinate alias,
+protection-order mismatch, or boundary bypass has been observed`
 
 Platform provenance: the A90 runtime, ACM bridge, REPL primitive, TWRP
 code-boot and boot-prefix rollback used throughout are supplied by the upstream
@@ -36,6 +35,10 @@ collected only `SHRM_MEM.BIN`, restored the original full partition hash, and
 proved a subsequent LOW boot with selftest `fail=0`. Force-upload, FMM, and dump
 sink remained zero. No controller, XPU, SMMU, SCM, EL2, EL3, firmware, GPT,
 RPMB, QFPROM, or protected-memory write occurred.
+Experiment 014 used only non-secure ION `user_contig` RAM and temporary files
+below `/tmp/a90-native`. The temporary character node and probe were removed;
+the final exact-target receipt reports V2321 `0.9.285`, selftest `fail=0`, and
+battery 100%. No partition or hardware-control register was written.
 
 ## A. 현재까지 PROVED
 
@@ -236,20 +239,38 @@ RPMB, QFPROM, or protected-memory write occurred.
   its four MC `+0x80` values all differ, and 0/24 shared addresses match set 0.
 - The original full `param` SHA-256 was restored. A subsequent new boot proved
   LOW, force-upload 0, dump-sink 0, dload master 1, and selftest `fail=0`.
+- Experiment 014 bound a single-SG, write-combine, non-secure ION allocation to
+  stable PA `0xf0400000..0xf13fffff`. A unique `/proc/kpageflags` transition
+  window and a pinned dma-buf showed all 4096 pages with zero changed/lost
+  pages; secure heaps were never selected.
+- Live row-conflict timing proves that rank-relative PA bits `16..23` contribute
+  XOR terms to a three-dimensional bank-selection row space generated from
+  PA13..PA15. Four held-out kernel vectors and four one-bank-bit negatives have
+  a 314 milli-tick p10/p90 separation gap; same-row `D=0x800` controls remain
+  centred near zero.
+- One equivalent observed bank basis is
+  `0x9d2000, 0xa74000, 0x4e8000`. This basis is not a claim about named hardware
+  BA-bit order; it identifies the invariant GF(2) row space.
+- Literal audit searched all seven non-zero combinations across the nine pinned
+  Experiment-004 images and the real 64-KiB SHRM snapshot. SHRM has no hit at
+  any alignment; firmware has zero aligned u32 hits. All four raw TZ substring
+  hits are one-byte-shifted pieces of monotonic 64-bit address tables, not
+  direct hash-mask constants.
 
 ## B. 현재 HYPOTHESIS
 
-- Final hardware PA-to-coordinate state may extend beyond the now-proved,
-  bijective XBL diagnostic formula through SHRM/MCCC/MC logic not yet decoded.
-- One or more section-16 readback registers may expose hidden XOR, interleave,
-  or swizzle state not represented by the diagnostic formula.
+- One or more section-16 readback registers may expose or derive the now-proved
+  XOR bank-selection state not represented by the XBL diagnostic formula.
+- The final bank-selection owner is MCCC/MC or closely coupled DDRSS logic
+  initialized before HLOS. Prediction: exact init stores or register semantics
+  will encode a row space equivalent to `0x9d2000/0xa74000/0x4e8000`, although
+  not necessarily as those literal masks.
 - The retained watchdog may be the XPU denial's downstream fabric response.
   Static policy coverage and lack of an HLOS grant support this; the encrypted
   or unparsed TZ log prevents a causal syndrome match.
 - One or more coherent set-0 MC/MCCC words may encode geometry, channel
-  selection, or a hidden transform term. Prediction: exact semantic recovery
-  or Experiment 014 timing will correlate with their repeated/two-by-two value
-  structure. No such semantic assignment is presently proved.
+  selection, or a hidden transform term. Their repeated/two-by-two structure
+  makes this testable, but no semantic assignment is presently proved.
 
 ## C. REFUTED
 
@@ -321,11 +342,21 @@ RPMB, QFPROM, or protected-memory write occurred.
   and cross-set consistency checks fail.
 - “The dump contains the remapper control window at `+0x8080`.” All staged
   same-page words are below that window.
+- “The XBL diagnostic `bank=PA[15:13]` formula is the complete silicon
+  bank-selection function.” Experiment 014's held-out live timing requires row
+  bits `16..23` in the bank-selection row space.
+- “Anonymous cached RAM plus EL0 `DC CIVAC` alone is a valid DRAM classifier on
+  this target.” Its result remained LLCC-confounded; the retained proof uses a
+  write-combine ION mapping instead.
+- “Raw `0x009d2000`, `0x00a74000`, or `0x003a6000` byte matches in the exact TZ
+  image directly attribute the hash to TrustZone.” All are unaligned windows
+  inside 64-bit address tables advancing by `0x200000`.
 
 ## D. UNKNOWN
 
-- Whether hardware adds any transform beyond the exact XBL diagnostic
-  channel/rank/bank/row/column model.
+- Contributions from rank-relative PA bits `24..31`, exact physical channel
+  equations beyond independent PA9/PA10 components, and the reason PA4/PA5
+  produce intermediate timing.
 - Exact semantic names, bitfields, and lock/writability state of coherent set-0
   section-16 registers; any indirect helper invocation with reverse direction;
   and final-decode meaning.
@@ -340,8 +371,8 @@ RPMB, QFPROM, or protected-memory write occurred.
 - Final boot/runtime `BIMC_MPU0..3` policy and control-register values. The TZ
   dynamic initializer is proved, but its runtime inputs, topology selector and
   post-programming readback are not.
-- Exact hidden/final channel/bank/row decode state, if any, after the proved
-  region-remapper call graph.
+- Which exact MCCC/MC/DDRSS register represents or derives the proved bank hash,
+  who writes it, and whether it is writable or locked after boot.
 - Protection ordering and existence of a post-transform security check.
 - Any deterministic normal-RAM DRAM alias or protected-boundary consequence.
 - Live boot-image and live-DTB byte hashes.
@@ -356,14 +387,14 @@ RPMB, QFPROM, or protected-memory write occurred.
 CPU VA -> ARM stage-1 -> system PA -> NoC/interconnect
        -> four qhs_llcc ICB region-remap windows
        -> XBL intended rank/row/bank/channel/column model
-       -> possible additional SHRM/MCCC/MC hardware transform (UNKNOWN)
+       -> observed low-24 XOR bank selection (PROVED relation; owner UNKNOWN)
        -> PHY -> LPDDR4X coordinate
 ```
 
 The CPU/MMU, source-visible interconnect endpoints, LLCC/EBI direction, XBL's
-four-window region-remap programming, and diagnostic coordinate formula are
-`PROVED`; additional hardware decode and precise protection ordering remain
-`HYPOTHESIS/UNKNOWN`.
+four-window region-remap programming, diagnostic formula, and a distinct live
+bank-selection relation are `PROVED`. The exact block/register implementing
+that relation and precise protection ordering remain `UNKNOWN`.
 
 ## F. protection pipeline 후보
 
@@ -404,6 +435,8 @@ returned no value and ended in watchdog reset. `PROVED`: its PA is in a
 TZ-owned static XPU region with no HLOS grant. `SUPPORTED`: XPU/fabric denial;
 final runtime policy remains `UNKNOWN`. Exact XBL's post-reset raw-dump catalog
 and one real export are `PROVED`, but they are not an EL1/HLOS runtime API.
+`PROVED`: EL1-visible `/proc/kpageflags`, non-secure ION CMA, CNTVCT and normal
+RAM timing expose the low-24 bank equivalence relation without controller MMIO.
 After final restoration, EL1 observes LOW, force-upload `0`, dump-sink `0`,
 dload master `1`, and selftest `fail=0`.
 
@@ -427,26 +460,30 @@ check is after final DRAM decode.
 
 ## K. AMD Skitter 공격과 구조적으로 같은 부분
 
-`SUPPORTED`: Both research questions contain system PA, a protection/ownership
-decision, a later DRAM coordinate mapping, possible controller state, and the
-need to distinguish cache/virtual aliases from actual physical-to-DRAM aliases.
+`PROVED`: both platforms have an XOR-expressible bank-selection relation that
+can be reasoned about over GF(2). `SUPPORTED`: both attack questions contain a
+system PA, a protection/ownership decision, later DRAM-coordinate selection,
+controller state, and the need to distinguish cache/virtual effects from an
+actual physical-to-DRAM alias.
 
 ## L. AMD와 구조적으로 다른 부분
 
 `PROVED`: AMD's exact Family 16h registers and PCI/MSR access method have no
-identified SM8150 equivalent. The recovered SM8150 XBL diagnostic formula is a
-direct bit partition with no XOR and no alias, unlike AMD's demonstrated
-mutable bank-map primitive. `SUPPORTED`: Qualcomm's LLCC/NoC/AOP/QHEE/SCM
-partitioning creates different owners and potential later enforcement layers.
-Hidden hardware state, mutability, lock state and ordering remain `UNKNOWN`, so
-this difference is not yet a complete structural impossibility proof.
+identified SM8150 equivalent. AMD demonstrates Normal-World transform-state
+mutation and a resulting alias; SM8150 currently demonstrates only passive
+normal-RAM observation of a bank row space. `SUPPORTED`: Qualcomm's
+LLCC/NoC/AOP/QHEE/SCM partitioning creates different owners and potential later
+enforcement layers. SM8150 register identity, mutability, lock state and
+ordering remain `UNKNOWN`, so this is not yet a structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-Do not repeat the fixed protected load. The cheapest independent discriminator
-is Experiment 014's normal-RAM conflict-timing device phase, followed by a
-GF(2) comparison against the coherent set-0 patterns. A second cold-boot
-`SHRM_MEM.BIN` is a useful repeatability control, but no longer blocks timing.
+Do not repeat the fixed protected load. The cheapest next discriminator is
+host-only exact XBL/AOP/SHRM code-data xref recovery for writes to the ranked
+MC/MCCC words, followed by a semantic comparison with the proved GF(2) row
+space. In parallel, one independent cold-boot repetition can test whether the
+same SHRM set-0 values and timing relations survive retraining; neither step
+requires a controller write.
 
 ## N. 가장 위험한 아직 금지된 실험
 
@@ -479,6 +516,10 @@ Evidence for the attack class being relevant:
   final decoded DRAM coordinates.
 - A real post-reset snapshot now exposes coherent MC/MCCC value patterns that
   can be cross-checked independently against normal-RAM timing.
+- Live write-combine normal-RAM timing now proves a hidden low-24 XOR
+  bank-selection relation with held-out positive and one-bank-bit negative
+  controls. The transform side of the question is therefore real, rather than
+  inferred from patents or diagnostic strings.
 
 Evidence against a presently usable bypass:
 
@@ -492,11 +533,13 @@ Evidence against a presently usable bypass:
   firewall.
 - The live kernel has `CONFIG_DEVMEM=n`; both default and temporary-node
   userland read paths stop before reaching MMIO.
-- No SM8150 Linux code programming such a transform was found.
+- No SM8150 Linux code programming such a transform was found, and no exact
+  firmware register write has yet been attributed to the recovered row space.
 - No normal-RAM physical-to-DRAM alias exists in evidence.
-- The exact XBL diagnostic coordinate formula is bijective, contains no XOR,
-  and cannot itself create an alias. Any analogue now requires hidden hardware
-  state not represented by that formula.
+- The recovered bank hash alone does not create a complete-coordinate alias;
+  its conflict witnesses intentionally share a bank while selecting different
+  rows. The exact XBL diagnostic coordinate formula is also bijective and
+  cannot itself create an alias.
 - Exact QHEE ownership/stage-2/SMMU enforcement is separate from TZ's dynamic
   BIMC policy, adding a second boundary rather than exposing generic control.
 - Every known remapper/BIMC configuration aperture is covered in both static
@@ -525,11 +568,10 @@ Evidence against a presently usable bypass:
   boot path consumes the selected static policy table.
 
 Critical unknowns are exact set-0 register semantics, any normal-HLOS runtime
-export, lock/writability state, indirect reverse-direction use, runtime
-source-base/interleave state, final
-XPU/remapper/MCCC/MC readback, dynamic BIMC policy inputs, protection ordering,
-any transform hidden from the diagnostic, and deterministic alias behavior. The
-defensible current conclusion is `SECURE CONTROLLER-APERTURE POLICY/INITIALIZER
-PROVED / REAL POST-RESET SHRM SNAPSHOT ACQUIRED / COHERENT SET-0 VALUES
-OBSERVED / HLOS RUNTIME EXPORT AND TRANSFORM MUTATION UNPROVED / XBL DIAGNOSTIC
-MAP NON-ALIASING / HIDDEN FINAL TRANSFORM UNKNOWN / NO BYPASS OBSERVED`.
+export, hash-register identity and encoding, lock/writability state, indirect
+reverse-direction use, PA24..31 contributions, final XPU/remapper/MCCC/MC
+readback, dynamic BIMC policy inputs, protection ordering, and deterministic
+complete-coordinate alias behavior. The defensible current conclusion is
+`NORMAL-RAM LOW-24 XOR BANK HASH PROVED / SECURE CONTROLLER APERTURES PROVED /
+TRANSFORM MUTATION AND COMPLETE-COORDINATE ALIAS UNPROVED / NO BOUNDARY BYPASS
+OBSERVED`.

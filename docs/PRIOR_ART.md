@@ -69,14 +69,15 @@ basis and deliberately encodes no Qualcomm-specific bit assignment.
 
 - `PROVED`: exact XBL's Quest DDR reporter models the retained target with a
   direct, bijective rank-relative bit partition and no XOR. This proves the
-  firmware diagnostic model, not necessarily every silicon transform.
-- `HYPOTHESIS`: SM8150 has additional final transform state in MCCC/MC or
-  closely coupled logic that the diagnostic omits. Prediction: an exact
-  consumer or independent coordinate observation requires terms absent from
-  the recovered contiguous-bit model.
-- `HYPOTHESIS`: any such hidden state may use XOR/hash logic. Qualcomm patent
-  text remains design-class evidence only; the exact diagnostic is evidence
-  against assuming XOR without another observation.
+  firmware diagnostic model. `REFUTED`: it is the complete silicon bank map.
+- `PROVED` by live Experiment 014, within rank-relative PA bits `0..23`: SM8150
+  has a three-dimensional XOR bank-selection row space containing terms from
+  row bits `16..23`. Four held-out kernel relations and four one-bank-bit
+  negatives cross-validate it. Qualcomm patent text is no longer the evidence
+  for existence on this target; the live timing is.
+- `HYPOTHESIS`: the observed hash state is owned by MCCC/MC or closely coupled
+  DDRSS logic initialized before HLOS. The exact register, encoding, writer and
+  lock remain unproved.
 - `PROVED`: selected DCB section-16 base tokens numerically match exact
   SHRM-visible MCCC/MC/MCCC-master/DDRSS pages. `SUPPORTED`: they are register-
   inventory page numbers.
@@ -86,6 +87,9 @@ basis and deliberately encodes no Qualcomm-specific bit assignment.
 - `UNKNOWN`: runtime values, reset value, boot value, lock bit, whether any
   token is final-transform state, and whether an indirect reverse-direction
   invocation exists.
+- `REFUTED`: apparent raw TrustZone substring matches for recovered row masks
+  directly encode the hash. They are unaligned bytes inside monotonic u64
+  address tables; encoded, split or computed representations remain possible.
 - `UNKNOWN`: Whether any relevant state remains writable from EL1 after boot.
 - `UNKNOWN`: Whether security enforcement occurs before or after the final
   transform, or is repeated after it.

@@ -8,6 +8,7 @@ CPU virtual address
   -> system physical address
   -> SM8150 interconnect path
   -> LLCC-facing / memory-controller-facing path
+  -> observed XOR bank-selection relation (exact owner unknown)
   -> DDRSS memory controller + PHY
   -> LPDDR4X channel/rank/bank/row/column
 ```
@@ -74,9 +75,27 @@ column=PAoff[12:11]||PAoff[8:1], byte=PAoff[0]
 
 The bit partition is complete, non-overlapping, and invertible. `REFUTED`: this
 bounded diagnostic formula itself contains an XOR/hash or admits two PAs for
-one coordinate. `SUPPORTED`: it is the intended hardware coordinate model
-because it is used by the actual DDR failure path. An additional silicon-only
-transform remains `UNKNOWN`.
+one coordinate. It is a `PROVED` diagnostic model used by the real failure
+path, but Experiment 014 `REFUTES` it as the complete silicon bank-selection
+model.
+
+`PROVED` live by Experiment 014, for rank-relative PA bits `0..23`: a
+write-combine non-secure ION allocation at stable PA
+`0xf0400000..0xf13fffff` exposes a three-dimensional XOR bank-selection row
+space. One equivalent basis is:
+
+```text
+b0 = PA13 xor PA16 xor PA18 xor PA19 xor PA20 xor PA23
+b1 = PA14 xor PA16 xor PA17 xor PA18 xor PA21 xor PA23
+b2 = PA15 xor PA17 xor PA18 xor PA19 xor PA22
+```
+
+Four held-out kernel vectors and four one-bank-bit negatives have a 314
+milli-tick p10/p90 non-overlap gap; same-row controls centre near zero. The
+basis is defined only up to an invertible output-basis change and therefore
+does not label physical BA pins. PA9 and PA10 are `SUPPORTED` as two further
+independent channel-like selection components. PA24..31, exact block/register
+ownership, and complete-coordinate alias behaviour remain `UNKNOWN`.
 
 `PROVED`: selected DCB section 16 parses exactly into two base-token/offset-token
 sets. The exact Xtensa SHRM helper at `0x2d8dc` computes
@@ -137,9 +156,17 @@ partition was restored and a new LOW boot passed health.
 post-reset snapshot. `UNKNOWN`: their exact bitfield meanings, the remapper
 control words, runtime per-channel source bases, and the rank-interleave mask.
 
+`PROVED` by the Experiment-014 exact-firmware audit: none of the seven non-zero
+linear combinations of the recovered bank rows appears anywhere in the real
+SHRM snapshot or as an aligned u32 in the nine captured firmware images. Four
+apparent TZ byte matches are misaligned pieces of monotonic u64 address tables.
+`REFUTED`: those substring hits directly attribute the bank hash to TZ data.
+Encoded/computed forms remain `UNKNOWN`.
+
 `SUPPORTED`: This four-instance block owns system-PA region placement/remapping
-during DDR bring-up. `UNKNOWN`: whether it also owns final channel/bank/row
-hashing, or whether that finer decode occurs later in SHRM/MCCC/MC logic.
+during DDR bring-up. A finer bank hash now exists as a `PROVED` behavioral
+relation; whether the remapper also owns it or it occurs later in MCCC/MC logic
+is `UNKNOWN`.
 
 `PROVED`: Experiment 007's verified generic-REPL call to `__ioremap` returned a
 mapping for the first fixed range, then the device produced a non-secure
@@ -279,10 +306,10 @@ all protection ordering relative to DRAM decode remain `UNKNOWN`.
 
 | Question | Current answer |
 |---|---|
-| Which block owns the final mapping? | `PROVED`: qhs_llcc ICB windows own boot region remapping and XBL exposes a bijective intended coordinate model. MCCC/MC/DDRSS token families are now exact candidates; final hardware decode owner remains `UNKNOWN`. |
+| Which block owns the final mapping? | `PROVED`: qhs_llcc ICB windows own boot region remapping; live timing proves a distinct low-24 XOR bank-selection relation. MCCC/MC/DDRSS token families are exact candidates; final hardware decode owner remains `UNKNOWN`. |
 | Who programs it? | `PROVED`: XBL programs the region remapper through `icbcfg` and copies section 16 to SHRM. `PROVED`: the exact SHRM section-16 consumers read listed controller words into a snapshot buffer; the observed section-16 paths do not write those addresses. AOP runtime DDR management is `PROVED`; final-decode writer remains `UNKNOWN`. |
 | At what stage? | Region-remap programming during XBL DDR initialization before HLOS is `PROVED`; later mutability remains `UNKNOWN`. |
-| Can EL1 observe it? | Direct runtime routes remain `REFUTED`: `/dev/mem` is absent and the fixed protected load returned no value. `PROVED`: after reset, Samsung Upload exported coherent set-0 controller words through XBL; this is not an EL1 runtime interface and does not cover remapper controls. `SUPPORTED`: XPU/fabric denial. |
+| Can EL1 observe it? | `PROVED` behaviorally: non-secure ION/CNTVCT timing exposes the low-24 bank-equivalence relation. Direct register routes remain `REFUTED`: `/dev/mem` is absent and the fixed protected load returned no value. After reset, Samsung Upload exports coherent set-0 words, but is not an EL1 runtime interface and omits remapper controls. |
 | Can EL1 modify it? | No mutation is proved. The exact HLOS-visible XPU-disable allowlist has zero entries, and all known configuration apertures have branch-invariant TZ-owned coverage. Final runtime policy/lock readback is `UNKNOWN`. |
 | Does EL2/EL3 lock it? | `PROVED`: QHEE applies ownership/stage-2/SMMU enforcement and TZ dynamically programs BIMC policies. `UNKNOWN`: final hardware write-disable bit and exact dispatcher/lock ordering. |
 | Is there a post-transform security check? | `UNKNOWN`; the diagnostic coordinate formula and configuration-aperture coverage do not locate the data-path check. Dynamic BIMC MPU policy makes a later check plausible but does not place it relative to hidden/final decode. |

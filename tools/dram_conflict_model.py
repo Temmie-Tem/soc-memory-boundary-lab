@@ -227,18 +227,31 @@ def suspect_bits(
     return tuple(sorted(set(suspects)))
 
 
-def refinement_probe_set(suspects: Iterable[int]) -> tuple[int, ...]:
-    """Phase 2 of the device protocol: pair probes among the phase-1 suspects.
+def refinement_probe_set(
+    suspects: Iterable[int], pivot_bit: int
+) -> tuple[int, ...]:
+    """Phase 2: row-qualified pair probes among the phase-1 suspects.
 
     A hash such as ``bank[0] = PA[13] ^ PA[17]`` hides from phase 1 because
-    neither bit is individually in the kernel, but their XOR is. Only pairing
+    neither bit is individually in the kernel, but their XOR is. Pairing the
     suspects exposes it.
+
+    Every pair also includes the already-verified row ``pivot_bit``. Without
+    that qualifier, a pair made only of bank/channel bits can select the same
+    bank *and the same row*. Such a row hit is fast and is observationally
+    indistinguishable from a different-bank result in conflict timing. Since
+    the pivot is in the kernel, XORing it into the pair does not alter the
+    selection test; it only guarantees that a kernel pair changes row.
     """
+    if pivot_bit not in DIAGNOSTIC_ROW_BITS:
+        raise ModelError("pivot must be a row bit or no probe can conflict")
     bit_list = sorted(set(suspects))
+    if pivot_bit in bit_list:
+        raise ModelError("verified pivot cannot also be a suspect")
     out = []
     for index, low in enumerate(bit_list):
         for high in bit_list[index + 1 :]:
-            out.append((1 << low) | (1 << high))
+            out.append((1 << pivot_bit) | (1 << low) | (1 << high))
     return tuple(out)
 
 
@@ -324,7 +337,7 @@ def protocol_complete(observations: Sequence[Observation], pivot_bit: int) -> bo
     if not set(pivot_probe_set(pivot_bit)) <= measured:
         return False
     suspects = suspect_bits(observations, pivot_bit)
-    return set(refinement_probe_set(suspects)) <= measured
+    return set(refinement_probe_set(suspects, pivot_bit)) <= measured
 
 
 def cross_validate(

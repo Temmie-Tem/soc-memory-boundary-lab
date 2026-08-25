@@ -46,6 +46,10 @@ DMA remap, or stale cache observation is not sufficient.
   protected SHRM snapshot without granting direct EL1 access. One exact dump
   contains coherent set-0 MC/MCCC state; this is observation after reset, not a
   Normal-World runtime primitive.
+- `PROVED`: Normal World can behaviorally observe a low-24 XOR bank-selection
+  relation through stable non-secure ION PA and write-combine timing. This is
+  observation of bank equality, not register access, state mutation, or a
+  complete-coordinate alias.
 - `UNKNOWN`: Arbitrary read/write access to QHEE private runtime memory.
 - `UNKNOWN`: Arbitrary read/write access to TrustZone private runtime memory.
 - `REFUTED`: “EL2 interfaces and reserved ranges are mapped, therefore EL2
@@ -82,9 +86,9 @@ notes become active.
 
 ## Decision classes
 
-Current class: `A/B CANDIDATE — known direct EL1 paths are blocked and the
-transform-adjacent snapshot is observable only through a post-reset diagnostic;
-immutability and post-transform enforcement are not yet proved`.
+Current class: `CLASS C (TRANSFORM ONLY) — a normal-RAM bank hash is observed;
+known direct EL1 register paths are blocked; mutation, complete-coordinate
+alias and protected-boundary effect remain unproved`.
 
 - Class A: structurally blocked.
 - Class B: observable but immutable.

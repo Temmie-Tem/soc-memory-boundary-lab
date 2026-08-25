@@ -12,7 +12,7 @@ This is a derived project. See [Upstream](#upstream) for the platform it
 observes from and the safety method it inherits.
 
 Current phase: source reconstruction plus bounded, source-backed live
-observation. Experiment 007 first retired a generic REPL mapping path after a
+normal-RAM observation. Experiment 007 first retired a generic REPL mapping path after a
 watchdog before its intended MMIO read. A fixed inline no-load control later
 passed; the paired candidate's single fixed 32-bit load produced no value and
 was followed by a retained `Non Secure Watchdog Bark`. `SUPPORTED`, not
@@ -116,6 +116,19 @@ refuted as a coherent current snapshot. The staged list does not reach the
 separate remapper window at `qhs_llcc + 0x8080`, and no alias or bypass was
 observed. The device is restored to LOW and passed a new-boot selftest.
 
+Live Experiment 014 now proves the first silicon-side transform result. A
+single-SG non-secure ION CMA allocation was bound to stable PA
+`0xf0400000..0xf13fffff` and mapped write-combine. Symmetric row-reopen timing
+over 64 PA pairs recovers a three-dimensional GF(2) bank row space in which
+rank-relative PA bits `16..23` are XORed with PA13..PA15. Four held-out kernel
+vectors and four one-bank-bit negatives remain separated by a 314 milli-tick
+p10/p90 gap. This refutes the XBL no-XOR diagnostic formula as the complete
+silicon bank mapping, but does not demonstrate a complete-coordinate alias,
+transform writability, protected-memory reach or isolation bypass. A literal
+audit of the real SHRM snapshot and all nine exact firmware images finds no
+direct mask in SHRM and refutes the apparent TrustZone matches as unaligned
+bytes inside 64-bit address tables.
+
 Claim vocabulary is deliberately closed:
 
 - `PROVED`: directly demonstrated by named source, artifact, or repeated result.
@@ -153,6 +166,9 @@ in
 Experiment 013's exact SHRM workspace policy and fixed live-probe preparation
 are in
 [experiments/013-shrm-snapshot-boundary/README.md](experiments/013-shrm-snapshot-boundary/README.md).
+Experiment 014's live ION timing, recovered GF(2) bank row space, controls and
+literal-attribution audit are in
+[experiments/014-dram-conflict-timing/README.md](experiments/014-dram-conflict-timing/README.md).
 Verification 001's independent re-derivation of the load-bearing static claims
 is in
 [experiments/verification-001-independent-claim-audit/README.md](experiments/verification-001-independent-claim-audit/README.md).

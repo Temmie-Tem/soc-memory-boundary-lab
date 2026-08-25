@@ -12,10 +12,10 @@
 | 008 | Exact retained boot evidence resolves the live DCB/remapper row and TZ protection adjacency. | One DCB and table row match; exact TZ registry binds same-instance MPU configuration bases. | Four SHA-256-pinned private inputs; consistent repeated boot values; structural ELF/registry validation; no device access. | `PROVED`: `/6003_0200_1_dcb.bin`, row 7, six 36-bit slots, and `BIMC_MPU0..3` at matching `qhs_llcc+0xe000`; runtime register words/coverage `UNKNOWN`. |
 | 009 | Static TZ/XBL/AOP consumers distinguish remapper security ownership from sub-aperture clock/fault gating. | Registry consumers, access policy, clock vote, or fault-response path names `+0x8080`/same window. | Host-only exact bytes; code/data xrefs; no MMIO retry or inferred register semantics. | `PROVED` static coverage: both TZ policy branches place `0x09248080` in TZ-owned `DC_NOC_BROADCAST_MPU` region 11 with no HLOS grant; `SUPPORTED` XPU/fabric denial; causal syndrome/runtime readback `UNKNOWN`. |
 | 010 | Identify BIMC_MPU0..3 initialization and separate QHEE ownership enforcement from TZ XPU control. | Exact secure paths supply BIMC policies; any HLOS XPU-control SMC has a bounded allowlist; all known controller apertures can be checked against both policy branches. | Host-only exact XBL/TZ/hyp/devcfg bytes; function/data/SMC-record pins; comparative names separated from exact claims; no device/SMC/MMIO access. | `PROVED`: QHEE `hyp_assign` uses local stage-2/SMMU AC; separate TZ fallback dynamically reconfigures BIMC_MPU0..3; XPU-disable allowlist count 0; all eight apertures have broad branch-invariant no-HLOS coverage. Final data-path ordering `UNKNOWN`; no bypass. |
-| 011 | Exact XBL exposes a PA-to-DRAM-coordinate model and selected DCB section 16 identifies candidate controller state. | A real DDR failure path computes rank/row/bank/channel/column; section tokens match SHRM-visible MCCC/MC pages. | Three exact SHA-256 pins, bounded function/word hashes, inverse-coordinate control, structural two-set parser, no device/SMC/MMIO. | `PROVED`: current formula is linear, complete, and bijective with no XOR/alias; section tokens match five controller families. Hidden hardware transform and token semantics `UNKNOWN`; no bypass. |
+| 011 | Exact XBL exposes a PA-to-DRAM-coordinate model and selected DCB section 16 identifies candidate controller state. | A real DDR failure path computes rank/row/bank/channel/column; section tokens match SHRM-visible MCCC/MC pages. | Three exact SHA-256 pins, bounded function/word hashes, inverse-coordinate control, structural two-set parser, no device/SMC/MMIO. | `PROVED`: the diagnostic formula is linear, complete and bijective with no XOR/alias; section tokens match five controller families. Experiment 014 later `REFUTED` it as the complete silicon bank map; token semantics remain `UNKNOWN`. |
 | 012 | Exact SHRM section-16 consumer establishes token scaling and direction. | Xtensa helper computes controller addresses and stages reads/writes according to a direction argument; exact callsites reveal the observed mode. | Exact XBL/SHRM blob hashes, parser/callsite fingerprints, offset formula, capacity/count checks, no device/SMC/MMIO. | `PROVED`: `(base_page<<12)+(offset<<2)`; both direct consumers pass read direction and produce 430/64 snapshot reads. Section-16 write primitive `REFUTED` for observed paths; runtime values/locks/indirect paths `UNKNOWN`. |
 | 013 | Does either exact TZ branch grant HLOS access to the SHRM snapshot workspace? | Every covering policy region can be resolved and permission-decoded; a fixed snapshot word can then be tested with a paired no-load control. | Exact TZ hash, complete `0xf00` range, both selector branches, candidates differing by one instruction, no retry/address/write input, verified V2321 rollback. | `PROVED`: three TZ-owned regions per branch exclude HLOS; no-load control returned `0xc071`; one-load read returned no value and retained `Non Secure Watchdog Bark`/`TZBSP_ERR_FATAL_NON_SECURE_WDT`. Direct EL1 path `REFUTED`; XPU root cause `SUPPORTED`; no bypass. |
-| 014 | Normal-RAM bank/channel relationships fit a stable GF(2) model not already explained by the exact diagnostic formula. | Two-phase XOR-difference probing recovers `ker(f)`; suspects beyond `{9,10,13,14,15}` or a conflicting suspect pair indicate a term the diagnostic formula cannot express. | Row-bit pivot verified in kernel, row-hit differences excluded, coverage-based completeness check, contradiction reporting, XOR-injection negative control, PA proof, cache control, one-core and frequency pinning. | `HOST_READY / DEVICE PHASE NOT RUN`: model, protocol and recovery implemented and validated against synthetic ground truth in both directions; 30 focused tests pass. The prior `NOT ELIGIBLE` rationale conflated reading the mapping out of controller registers with inferring it from timing — only the former is XPU-blocked. |
+| 014 | Normal-RAM bank/channel relationships fit a stable GF(2) model not already explained by the exact diagnostic formula. | XOR-difference row-reopen timing recovers the selector kernel; row-bit relations and held-out combinations must agree while one-bank-bit perturbations leave the class. | Exact non-secure single-SG ION CMA PA binding; write-combine mapping; symmetric reopen/baseline directions; 64 PA pairs; 1001 repetitions; same-row, held-out and one-bit controls; CPU/DDR pinning. | `PROVED`, observed low-24 scope: row bits 16..23 contribute XOR terms to the rank-five selection space; PA9/PA10 independence `SUPPORTED`; diagnostic no-XOR bank formula `REFUTED` as complete silicon mapping. No complete-coordinate alias, mutation or bypass. |
 | 015 | A controlled transform state creates physical-to-DRAM alias. | `PA_A != PA_B` but writes through one are observed through the other after cache-neutral independent reads. | Prove distinct PTE/PAs; CPU and DMA controls; cache maintenance; reboot/state restoration; unchanged-state negative control. | `NOT ELIGIBLE`: candidate tokens exist, but operation semantics, readback/lock state, safe restore, and an alias-producing state are not proved. |
 | 016 | A normal-RAM alias reaches a protected boundary. | Only after 015, a minimal non-secret marker/boundary test differs between normal and alias path. | No dump, exact ordering proof, secondary enforcement control. | `NOT ELIGIBLE`. |
 
@@ -385,7 +385,8 @@
 - Result: exact Quest reporter's rank boundary equals remapper row 7;
   rank-relative coordinate formula is complete, bijective and contains no XOR;
   section 16 supplies exact MCCC/MC/MCCC-master/DDRSS/SHRM-CSR token matches;
-  hidden hardware transform and token semantics remain `UNKNOWN`
+  hidden hardware transform was `UNKNOWN` at this phase and was later proved
+  by Experiment 014; token semantics remain `UNKNOWN`
 - Log reference: retained last-kmsg SHA-256 `8701d073…`; six consistent
   3072+3072 MiB topology observations
 - Public manifest SHA-256:
@@ -552,3 +553,35 @@ preserve the already allocated Experiment 014–016 sequence.
 - Analysis tool/test SHA-256: `a93e1478…` / `138c504b…`
 - Security result: `NO_ALIAS_OR_BOUNDARY_BYPASS_OBSERVED`
 - Repetition count: one exact file acquisition; one host decode/qualification
+
+## Experiment 014 live DRAM-timing metadata
+
+- Target model/SoC: `SM-A908N` / `SM8150`
+- Firmware/kernel/runtime: `A908NKSU5EWA3` / Linux `4.14.190-25818860` /
+  V2321 `0.9.285` build `v2321-usb-clean-identity-rodata`
+- Boot state: LOW, force-upload 0, dump-sink 0
+- Probe source SHA-256: `f5788486…`
+- Probe binary SHA-256: `552432c1…`
+- Backing: non-secure ION `user_contig`, flags 0, one SG entry,
+  write-combine mapping
+- Physical interval: rank-0 PA `0xf0400000..0xf13fffff`, 4096 pages; unique
+  `/proc/kpageflags` transition window and zero changed/lost pages while pinned
+- Timing controls: CPU7 at 2,841,600 kHz; DDR BW governor `performance` at
+  reported `7980`; CNTFRQ 19.2 MHz; 64 PA pairs; normally 1001 repetitions per
+  pair; symmetric reopen and same-address baselines
+- Recovered bank row basis: `0x9d2000`, `0xa74000`, `0x4e8000` over observed
+  rank-relative bits `0..23`; basis order is arbitrary
+- Holdout: four unfit kernel vectors have minimum p10 536 milli-ticks; four
+  one-bank-bit negatives have maximum p90 222; non-overlap gap 314
+  milli-ticks
+- Same-row control: ten `D=0x800` median deltas remain within +/-6
+  milli-ticks
+- Static attribution: zero aligned u32 mask hits in nine exact firmware images;
+  all four raw TZ matches are misaligned monotonic u64 address-table bytes
+- Timing manifest SHA-256: `7dc5050c…`
+- Literal-audit manifest SHA-256: `50cdec42…`
+- Final-health manifest SHA-256: `e8219a53…`; selftest `fail=0`, battery 100%
+- Device mutation: temporary `/tmp/a90-native` probe and ION node only; both
+  removed. No MMIO/SMC/partition/firmware/protected-memory write.
+- Security result:
+  `NORMAL_RAM_HIDDEN_BANK_HASH_PROVED_NO_ALIAS_OR_BYPASS`

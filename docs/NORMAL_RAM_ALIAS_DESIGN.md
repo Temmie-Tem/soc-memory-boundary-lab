@@ -1,7 +1,9 @@
 # Normal-RAM Physical-to-DRAM Alias Design
 
-State: `DESIGNED / NOT RUN`. A transform-register candidate and write gate are
-missing, so the mutation phase is ineligible.
+State: `PHYSICAL-POOL AND PASSIVE-TRANSFORM PHASE PROVED / MUTATION NOT RUN`.
+Experiment 014 proves a stable non-secure physical pool and low-24 XOR bank row
+space. A transform-register identity, current-state readback and restorable
+mutation are still missing, so an alias-producing state trial is ineligible.
 
 ## Required proposition
 
@@ -19,7 +21,9 @@ sufficient.
 
 1. Allocate physically distinct, pinned pages from an experiment-owned pool.
    Record PFNs from inside the kernel, PTEs, `struct page` identity and allocation
-   lifetime. `PROVED` distinct PFNs are a precondition.
+   lifetime. `PROVED` distinct PFNs are a precondition. Experiment 014 supplies
+   a reusable single-SG ION CMA method bound by `/proc/kpageflags`; the final
+   alias trial must still record its own fresh allocation identity.
 2. Under unchanged state `S0`, alternate nonsecret 256-bit markers and their
    inverses in A/B for many trials. Clean to the point of coherency, fence,
    invalidate, and independently reread. A and B must remain distinct.

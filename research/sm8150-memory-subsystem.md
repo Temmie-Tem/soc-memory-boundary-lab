@@ -19,13 +19,21 @@ bases `0x80000000` and `0x140000000`.
 `PROVED` by Experiment 011: the exact XBL Quest DDR failure reporter uses the
 same rank boundary and maps every rank-relative PA bit once into
 row/bank/channel/column/byte. The formula is linear and bijective, contains no
-XOR, and cannot itself create a PA alias. `SUPPORTED`: it is the intended
-hardware coordinate model. A hidden silicon transform remains `UNKNOWN`.
+XOR, and cannot itself create a PA alias. `REFUTED` by live Experiment 014: it
+is the complete silicon bank-selection model.
+
+`PROVED` live by Experiment 014, within rank-relative PA bits `0..23`: the
+silicon bank-equivalence relation has rank three and XORs PA16..PA23 with the
+PA13..PA15 basis. One equivalent row basis is
+`0x9d2000/0xa74000/0x4e8000`. PA9 and PA10 are `SUPPORTED` as two further
+independent channel-like selection components. Register ownership, PA24..31
+terms, mutability and complete-coordinate aliasing remain `UNKNOWN`.
 
 `SUPPORTED`: The decisive state is in memory-controller/PHY-coupled DDRSS logic
 initialized by XBL/DDR DSF/DCB before general RAM becomes usable. Exact live XBL
 proves DDR initialization, DCB loading and channel/rank training; the specific
-decode writes remain unidentified.
+decode writes remain unidentified. Exact-firmware literal search finds no
+aligned recovered row mask, so the state may be encoded, split or computed.
 
 ## Candidate block/register inventory
 
@@ -115,3 +123,11 @@ deterministically to 430 and 64 ordered source-register labels, and neither
 range reaches the remapper control window at `+0x8080`. Verification 012 later
 acquired one real dump and qualified set 0; no remapper control value was
 recovered.
+
+`PROVED` by Experiment 014: normal-world behavior can expose the low-24 bank
+row space without reading any configuration aperture. This upgrades the
+existence of a finer XOR transform from hypothesis to measured fact while
+leaving its register-level attribution and writability `UNKNOWN`. The real SHRM
+snapshot has no instance of the seven non-zero recovered row-space masks; the
+exact firmware audit found zero aligned u32 instances, and four raw TZ hits
+were refuted as misaligned bytes inside 64-bit address tables.

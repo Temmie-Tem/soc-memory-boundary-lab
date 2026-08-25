@@ -103,7 +103,9 @@ class ProtocolTests(unittest.TestCase):
     def run_protocol(self, truth) -> tuple:
         phase1 = model.synthesize(truth, model.pivot_probe_set(self.PIVOT))
         suspects = model.suspect_bits(phase1, self.PIVOT)
-        phase2 = model.synthesize(truth, model.refinement_probe_set(suspects))
+        phase2 = model.synthesize(
+            truth, model.refinement_probe_set(suspects, self.PIVOT)
+        )
         return phase1 + phase2, suspects
 
     def test_pivot_must_be_a_row_bit(self) -> None:
@@ -112,6 +114,29 @@ class ProtocolTests(unittest.TestCase):
 
     def test_phase_one_costs_one_probe_per_address_bit(self) -> None:
         self.assertEqual(len(model.pivot_probe_set(self.PIVOT)), model.WIDTH)
+
+    def test_phase_two_always_carries_the_verified_row_pivot(self) -> None:
+        probes = model.refinement_probe_set((9, 10, 13), self.PIVOT)
+        self.assertEqual(len(probes), 3)
+        self.assertTrue(all(probe & (1 << self.PIVOT) for probe in probes))
+        self.assertTrue(all(probe & model.ROW_MASK for probe in probes))
+
+    def test_phase_two_rejects_a_suspect_pivot(self) -> None:
+        with self.assertRaises(model.ModelError):
+            model.refinement_probe_set((9, self.PIVOT), self.PIVOT)
+
+    def test_pivot_qualifies_selection_only_pair_for_timing(self) -> None:
+        # A deliberately rank-deficient selector makes 13^14 a kernel vector.
+        # Without the pivot it is a same-row hit; with the pivot it is a
+        # measurable different-row conflict.
+        rows = list(model.diagnostic_selection_rows())
+        rows[0] = (1 << 13) | (1 << 14)
+        rows[1] = rows[0]
+        pair_only = (1 << 13) | (1 << 14)
+        qualified = model.refinement_probe_set((13, 14), self.PIVOT)[0]
+        self.assertTrue(model.same_selection(rows, pair_only))
+        self.assertFalse(model.predicts_conflict(rows, pair_only))
+        self.assertTrue(model.predicts_conflict(rows, qualified))
 
     def test_diagnostic_suspects_are_exactly_bank_and_channel_bits(self) -> None:
         truth = model.diagnostic_selection_rows()

@@ -142,8 +142,9 @@ SHRM_MEM.BIN decoder/export     -> direct 494 controller-word values
 Experiment 014 conflict timing -> behavioural PA-to-bank/channel row space
 ```
 
-Experiment 014 is already `HOST_READY / DEVICE PHASE NOT RUN`; its model and
-synthetic controls are committed independently. Commit `9fdd5d6` completed the
+At this verification's capture time Experiment 014 was
+`HOST_READY / DEVICE PHASE NOT RUN`; it has since completed and proved a
+low-24 XOR bank-selection row space with no alias or bypass. Commit `9fdd5d6` completed the
 host-only decoder: its 20 focused tests prove the `430/64` plan, ordered labels,
 bounds, value placement and invalid/zero-dump rejection. The plan does not
 cover the separate remapper `+0x8080` window. Verification 012 later decoded a

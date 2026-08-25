@@ -114,10 +114,10 @@ REAL_SHRM_DUMP_ACQUIRED_SET0_QUALIFIED_NO_BYPASS
 
 ## Cheapest next discriminator
 
-Run Experiment 014's normal-RAM conflict-timing probe and compare its inferred
-GF(2) channel/bank row space with set-0 candidates. A second cold-boot
-`SHRM_MEM.BIN` is also useful as a low-cost repeatability control, but it is not
-required to begin the independent timing track.
+Experiment 014 has now proved a low-24 GF(2) bank row space. The cheapest next
+discriminator is host-only exact XBL/AOP/SHRM xref recovery for writes to the
+ranked MC/MCCC words and a semantic comparison with that row space. A second
+cold-boot `SHRM_MEM.BIN` remains a low-cost repeatability control.
 
 Unknown MC/MCCC/remapper writes remain outside this verification.
 

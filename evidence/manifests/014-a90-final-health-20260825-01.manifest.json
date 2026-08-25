@@ -1,0 +1,24 @@
+{
+  "all_status_ok": true,
+  "battery_capacity_percent": 100,
+  "completed_utc": "2026-08-25T05:20:49+00:00",
+  "device_write": false,
+  "experiment_id": "014-a90-final-health-20260825-01",
+  "raw_snapshot_sha256": "34bc53b858f28737c05deefd0a4ff0a04c1948891932aaddf8c9f8b19be05b22",
+  "raw_snapshot_size": 2763,
+  "schema": "sdm855-a90-runtime-health-public-v1",
+  "selftest": {
+    "duration": 36,
+    "entries": 12,
+    "fail": 0,
+    "passed": 11,
+    "warn": 1
+  },
+  "soc": "SM8150",
+  "started_utc": "2026-08-25T05:20:49+00:00",
+  "target_model": "SM-A908N",
+  "version": {
+    "build": "v2321-usb-clean-identity-rodata",
+    "version": "0.9.285"
+  }
+}

@@ -75,6 +75,19 @@ RKP can impose runtime permission changes independently of `no-map`.
 `PROVED`: live `MemTotal` was `5,504,940 kB`; this is a point-in-time software
 accounting observation, not proof of physical DRAM topology.
 
+## Experiment 014 transient normal-RAM window
+
+`PROVED`: one non-secure ION `user_contig` allocation produced a single-SG,
+write-combine mapping over PA `0xf0400000..0xf13fffff` (16 MiB, 4096 pages).
+A unique `/proc/kpageflags` buddy-transition window bound VA offsets to that
+interval; a second scan while the dma-buf stayed pinned found zero changed or
+lost pages. This is an experiment-owned allocation, not a permanent carveout.
+
+`PROVED`, within rank-relative PA bits `0..23`: row-conflict timing on this
+window recovers an XOR bank-selection row space distinct from the XBL
+diagnostic `bank=PA[15:13]` model. It does not show two PAs reaching one full
+DRAM coordinate, and therefore is not an alias range.
+
 ## Boot-time SHRM and remapper landmarks
 
 Experiment 006 adds exact firmware-backed physical landmarks:
@@ -122,4 +135,5 @@ row `[31:16]`, bank `[15:13]`, channel `[10:9]`, column
 `[12:11] || [8:1]`, and byte `[0]`. Thus its current diagnostic ranges are
 rank 0 `0x80000000–0x13fffffff` and rank 1
 `0x140000000–0x1ffffffff`. This proves the firmware's diagnostic model, not
-the absence of additional silicon-only hashing.
+the real bank-selection relation. Experiment 014 proves additional XOR terms
+from PA16..PA23 in the observed low-24 row space.

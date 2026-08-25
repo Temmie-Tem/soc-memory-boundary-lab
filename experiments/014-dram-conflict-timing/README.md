@@ -1,129 +1,182 @@
-# Experiment 014 — DRAM Conflict Timing
+# Experiment 014 — Live DRAM Conflict Timing
 
 ## Question
 
-Does the real PA-to-bank/channel selection function equal the exact Experiment
-011 diagnostic model, or does it contain additional GF(2) terms that no static
-firmware artifact represents?
+Does the real SM-A908N/SM8150 PA-to-bank/channel selection relation equal the
+no-XOR diagnostic formula recovered in Experiment 011, or does silicon apply a
+finer GF(2) transform that the diagnostic omits?
 
-This is the first experiment in this repository to attack the transform side of
-the question. Experiments 006–013 and Verification 001 all resolved
-*reachability*: whether Normal World can reach the controller apertures. The
-answer there is consistently no. Whether a mutable transform sits downstream of
-the protection decision has never been tested.
+## Result
 
-## Why this route exists
+`PROVED`, for rank-relative PA bits `0..23` in the observed rank-0 window: the
+real bank-selection equivalence relation contains XOR terms from row bits
+`16..23`. It is not the diagnostic `bank = PA[15:13]` relation.
 
-Every direct read has been denied. `CONFIG_DEVMEM` is off, the fixed EL1 load in
-Experiment 007 ended in a non-secure watchdog, and Experiment 013's fixed SHRM
-snapshot load did the same. Verification 001 confirmed why: the target apertures
-sit in enabled, TZ-owned XPU regions whose write access word is `0x00000000` and
-whose read word grants no ordinary HLOS VMID.
+`SUPPORTED`: PA9 and PA10 are two further independent selection components
+consistent with channel selection. The experiment does not assign physical
+channel labels to them.
 
-Row-buffer conflict timing needs none of that. Two addresses that select the
-same channel, rank and bank but different rows force a precharge and activate,
-which is measurably slower than two addresses in different banks. The selection
-function is therefore observable through ordinary loads on ordinary RAM, and is
-blocked by neither the XPU nor `CONFIG_DEVMEM`.
+`REFUTED`: Experiment 011's direct bit partition is the complete silicon
+bank-selection mapping. It remains a proved XBL diagnostic formula, but not a
+complete model of the observed hardware relation.
 
-`docs/EXPERIMENT_MATRIX.md` previously gated this experiment as `NOT ELIGIBLE`
-because "a safe independent DRAM-coordinate observation path remains
-unresolved." That conflates reading the mapping out of controller registers with
-inferring it from timing. Only the first is blocked; the timing *is* the
-observation.
+`UNKNOWN`: the responsible MC/MCCC/remapper register, its encoding, writer,
+post-boot writability and lock owner; contributions from PA bits `24..31`;
+protection ordering; and any physical-to-DRAM alias or protected-memory effect.
 
-## The reduction that makes it cheap
+Current classification:
 
-For a linear selection function `f`, two addresses collide exactly when
-`f(a) == f(b)`, which is `f(a ^ b) == 0`. The conflict relation depends only on
-the XOR difference, so the experiment is not a search over an unstructured
-address space — it is the recovery of `ker(f)`, a linear subspace, and the
-selection function is that kernel's orthogonal complement.
+```text
+NORMAL_RAM_HIDDEN_BANK_HASH_PROVED_NO_ALIAS_OR_BYPASS
+NO_BOUNDARY_BYPASS_OBSERVED
+```
 
-## Two-phase protocol
+## Exact target and backing
 
-Implemented and validated in `tools/dram_conflict_model.py`.
+- Target: `SM-A908N`, `SM8150`, bootloader `A908NKSU5EWA3`.
+- Runtime: V2321 `0.9.285`, build `v2321-usb-clean-identity-rodata`.
+- Kernel: `Linux 4.14.190-25818860-abA908NKSU5EWA3 aarch64`.
+- Boot state: `debug_level=LOW`, `force_upload=0`, `dump_sink=0`.
+- Probe source SHA-256:
+  `f5788486f7410984bca0c7a31241c10d9a7078f6d1abcb753f6ccbc2ce62fe75`.
+- Static AArch64 probe SHA-256:
+  `552432c1270affcdb9433f3a8aa7a7e0a28d3011abfc1f4ec57aa1f5715910a9`.
+- CPU7 was pinned at 2,841,600 kHz; the
+  `soc:qcom,cpu-llcc-ddr-bw` governor was `performance` at its reported maximum
+  `7980`; `CNTFRQ_EL0 = 19.2 MHz`.
 
-**Phase 1 — one pivot, `WIDTH` probes.** Pick a row bit and confirm it conflicts
-with itself alone; that establishes it lies in the kernel. Probe `pivot ^ bit`
-for every remaining address bit. Because the pivot is in the kernel, such a
-probe conflicts exactly when that bit is also in the kernel, so one sweep
-classifies all 32 bits. Bits that do not conflict are *suspects*: they
-participate in bank or channel selection.
+The final measurements used only the non-secure ION `user_contig` heap with
+flags zero. Exact kernel source maps that allocation write-combine, and the
+heap produced one SG entry. A unique `/proc/kpageflags` buddy transition bound
+the 4096 mapped pages to the stable contiguous PA interval
+`0xf0400000..0xf13fffff`; a second scan while the dma-buf remained pinned found
+zero changed or lost pages. Secure ION heaps were enumerated but never selected.
 
-**Phase 2 — suspect pairs.** A hash such as `bank[0] = PA[13] ^ PA[17]` is
-invisible to phase 1, because neither bit is individually in the kernel while
-their XOR is. Pairing the suspects exposes it.
+Source provenance is upstream A90 kernel commit
+`510d909eff0fe10e48f3bfff573bc17f59f0656a`: `ion.c:493-505` applies
+`pgprot_writecombine` when `ION_FLAG_CACHED` is absent, while
+`ion_cma_heap.c:60-142` allocates contiguous CMA pages and constructs a
+one-entry SG table. Those files have SHA-256 `55dae52a…` and `3687c1c7…` in
+the retained exact source tree. The live heap query independently returned
+`user_contig`, type 4, ID 26.
 
-For the pure diagnostic model the suspects are exactly `{9, 10, 13, 14, 15}` and
-phase 2 costs ten probes. The whole protocol is under 50 measurements.
+## Measurement
 
-## Falsifiable predictions
+For each PA pair `(A,B)`, the probe compares two symmetric reopen sequences:
 
-| Outcome | Meaning |
-|---|---|
-| Suspects are exactly `{9,10,13,14,15}` and no suspect pair conflicts | The diagnostic model is the real selection function. Strong `Class A` evidence: no hidden hash, so no alias can arise from one. |
-| Any additional suspect appears, or a suspect pair conflicts | A term exists that the exact diagnostic formula does not represent. First direct evidence on the transform side. |
-| Recovered row space differs from the diagnostic row space | `REFUTED`: "the XBL diagnostic formula is the complete PA-to-coordinate model." |
+```text
+relation: B -> A -> timed B    and    A -> B -> timed A
+baseline: A -> A -> timed A    and    B -> B -> timed B
+delta   : trimmed_mean(relation) - trimmed_mean(baseline)
+```
 
-`tools/dram_conflict_model.py` also exposes `distinguishing_differences`, which
-returns only those differences where two candidate models disagree. Every other
-pair carries no information and does not need to be measured.
+Each retained difference used 64 physical pairs and normally 1001 repetitions
+per pair. A 10% trimmed mean at 1/1000 counter-tick resolution reduced timer
+quantisation without changing the raw tick samples.
 
-## Controls already encoded
+Same-row control `D=0x800` stayed centred at zero. In the held-out set, the
+kernel-class minimum p10 was 536 milli-ticks and the one-bank-bit negative
+maximum p90 was 222 milli-ticks, leaving a 314 milli-tick non-overlap gap.
 
-- A same-bank, same-row difference is a row *hit*, not a conflict. Probes
-  without a row bit are ignored rather than treated as kernel evidence; a naive
-  timing test would misread them as "different bank".
-- Completeness is checked by probe coverage, not by algebra. Rank-nullity makes
-  `kernel_dimension + selection_rank == WIDTH` hold for any span, complete or
-  not, so a partial probe set still returns a well-formed but oversized row
-  space. `protocol_complete()` checks what was actually measured.
-- Contradictory observations for one difference are reported rather than
-  silently resolved.
-- The XOR-injection negative control is a unit test: an injected
-  `bank[0] = PA[13] ^ PA[17]` must be recovered, must separate from the
-  diagnostic model, and must make the diagnostic model fail cross-validation.
+The earlier anonymous cached mapping plus `DC CIVAC` path is `REFUTED` as a
+sufficient DRAM classifier on this target: its timing remained LLCC-confounded.
+That negative result is retained rather than mixed with the write-combine ION
+dataset.
 
-## Status
+## Recovered GF(2) relation
 
-`HOST_READY / DEVICE PHASE NOT RUN`.
+Using PA13, PA14 and PA15 as an arbitrary three-vector bank basis, the unique
+kernel-class relation for each tested row bit was:
 
-The model, protocol, recovery and controls are implemented and validated against
-synthetic ground truth in both directions. 30 focused tests pass. No device,
-SMC, MMIO, partition, EL2, EL3, or protected-memory access has occurred, and
-this phase performs none.
+| Row bit | Equivalent bank-basis contribution |
+|---:|---|
+| 16 | `13 xor 14` |
+| 17 | `14 xor 15` |
+| 18 | `13 xor 14 xor 15` |
+| 19 | `13 xor 15` |
+| 20 | `13` |
+| 21 | `14` |
+| 22 | `15` |
+| 23 | `13 xor 14` |
 
-## What the device phase still needs
+One equivalent basis for the observed bank-selection row space is therefore:
 
-The measurement runs in kernel context, because all four requirements are EL1:
+```text
+b0 = PA13 xor PA16 xor PA18 xor PA19 xor PA20 xor PA23
+b1 = PA14 xor PA16 xor PA17 xor PA18 xor PA21 xor PA23
+b2 = PA15 xor PA17 xor PA18 xor PA19 xor PA22
+```
 
-1. **Physical address proof** — allocate from an experiment-owned pool and read
-   PFNs from inside the kernel. `docs/NORMAL_RAM_ALIAS_DESIGN.md` step 1 already
-   specifies this.
-2. **Cache bypass** — `DC CIVAC` between probes, or a Normal-NonCacheable
-   mapping. Without it the measurement reports cache behaviour, not DRAM.
-3. **A cycle counter** — `PMCCNTR_EL0` or `CNTVCT_EL0`, with user access
-   configured.
-4. **Determinism** — pin one CPU, bound the critical section, pin DDR frequency.
-   AOP DDR frequency messages are visible to Linux and can move the clock under
-   the measurement.
+These are row-space equations, not claimed hardware `BA0/BA1/BA2` labels. Any
+invertible change of the three output basis vectors represents the same bank
+equivalence relation.
 
-Note that `docs/NORMAL_RAM_ALIAS_DESIGN.md` opens its trial procedure with
-"read and hash exact pre-state register values". That prerequisite belongs to
-the mutation experiment, not to this one. Conflict timing needs no register
-access at all, and inheriting that step is what previously made this line of
-work look blocked.
+## Independent controls
 
-## Risk
+The four held-out kernel vectors were never used to fit the matrix:
 
-Normal RAM reads only. No MMIO, SMC, XPU, partition, or persistent state is
-touched, so this experiment sits well inside the operating constraint recorded
-in `README.md`: it cannot permanently brick the device. The worst realistic
-failure is an unstable measurement, not a reset.
+```text
+0x0003a000  0x0024a000  0x00c84000  0x0095c000
+```
+
+All four re-entered the narrow conflict class. Flipping one bank-basis bit in
+each produced:
+
+```text
+0x00038000  0x00248000  0x00c86000  0x0095e000
+```
+
+All four left that class. Adding PA9 or PA10 to the known kernel witness
+`0x00016000` also left the class. Adding low bits `0..3`, `6..8`, `11` or `12`
+preserved it. PA4/PA5 produced intermediate timing and are deliberately
+excluded; their burst/byte-lane meaning is `UNKNOWN`.
+
+## Why this is not an alias proof
+
+A bank hash selects only part of a DRAM coordinate. Two PAs sharing its bank
+output can still select different rows or columns, as these conflict witnesses
+do. This experiment therefore proves a hidden bank-selection transform, not
+that two distinct physical addresses reach the same complete DRAM cell.
+
+No controller register, XPU, SMMU, SCM, EL2, EL3, partition, firmware or
+protected-memory write occurred. The temporary ION node and remote probe were
+removed; final exact-target health reports `selftest fail=0`.
+
+## Static attribution check
+
+The seven non-zero linear combinations of the three recovered bank rows were
+searched in all nine exact Experiment-004 firmware images and the pinned real
+64-KiB `SHRM_MEM.BIN`. The SHRM snapshot has no match at any alignment, and the
+firmware images have no aligned little-endian 32-bit literal. Four raw
+substring hits in `tz--sdd5.bin` occur
+at file offsets congruent to one modulo four and are bytes inside monotonic
+64-bit address tables such as `0x9d000000, 0x9d200000, 0x9d400000`.
+
+`REFUTED`: those raw TrustZone substring hits directly encode the bank hash.
+Encoded, split, computed or register-field representations remain `UNKNOWN`;
+literal absence does not remove the ranked SHRM register candidates.
+
+## Evidence
+
+- Timing reduction:
+  `evidence/manifests/014-dram-conflict-timing-20260825-01.manifest.json`
+- Exact-firmware literal audit:
+  `evidence/manifests/014-bank-hash-literal-audit-20260825-01.manifest.json`
+- Final native health:
+  `evidence/manifests/014-a90-final-health-20260825-01.manifest.json`
+- Raw timing records, transport transcripts and firmware bytes:
+  `evidence/private/` (mode-restricted and Git-ignored)
 
 ## Reproduce
 
 ```sh
-python3 -m unittest tests.test_dram_conflict_model -v
+python3 tools/a90_dram_timing_analysis.py \
+  --output /tmp/014-dram-conflict-timing.manifest.json
+python3 tools/a90_bank_hash_literal_audit.py \
+  --output /tmp/014-bank-hash-literal-audit.manifest.json
+python3 -m unittest \
+  tests.test_dram_conflict_model \
+  tests.test_a90_dram_timing_live \
+  tests.test_a90_dram_timing_analysis \
+  tests.test_a90_bank_hash_literal_audit -v
 ```
