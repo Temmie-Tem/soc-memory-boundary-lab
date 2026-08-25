@@ -35,6 +35,10 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 FIRMWARE_DIR = REPO_ROOT / "evidence/private/004-live-firmware-readonly-20260825-01"
 SCHEMA = "sm8150-xbl-dcb-consumer-xref-v1"
 
+AOP_NAME = "aop--sdd7.bin"
+AOP_SIZE = 524288
+AOP_SHA256 = "eadd6c78daca52221e1e3419f34a53eac7c1e2c2bb46c9b663325df1998b9c7c"
+
 XBL_NAME = "xbl--sdb1.bin"
 XBL_SIZE = 4194304
 XBL_SHA256 = "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37"
@@ -392,9 +396,12 @@ def table_walker_analysis(image: Image, loop_sites: list[dict]) -> dict:
         store_va = int(site["store_va"], 16)
         head = int(site["loop_head_va"], 16)
         back_edge = int(site["back_edge_va"], 16)
-        word = image.word(store_va)
-        if word is None:
-            continue
+        offset_register = site.get("offset_register")
+        if offset_register is None:
+            word = image.word(store_va)
+            if word is None:
+                continue
+            offset_register = (word >> 16) & 0x1F
         # The body runs to the back edge, not to the store: a definition placed
         # after the store still applies on the next pass.
         body = [(a, w) for a in range(head, back_edge + 4, 4) if (w := image.word(a)) is not None]
@@ -403,7 +410,6 @@ def table_walker_analysis(image: Image, loop_sites: list[dict]) -> dict:
             classes["EPILOGUE_NOT_A_LOOP"] = classes.get("EPILOGUE_NOT_A_LOOP", 0) + 1
             continue
         modified = {m for _a, w in body if (m := _modified_register(w)) is not None}
-        offset_register = (word >> 16) & 0x1F
         kind = "DEFINED_OUTSIDE_THE_LOOP"
         detail = None
         before_store = [(a, w) for a, w in body if a < store_va]
@@ -428,6 +434,132 @@ def table_walker_analysis(image: Image, loop_sites: list[dict]) -> dict:
         "epilogues_excluded": epilogues,
         "table_walker_count": len(walkers),
         "table_walkers": walkers,
+    }
+
+
+def computed_address_store_census(image: Image) -> dict:
+    """The other store idiom: compute the address, then store at offset zero.
+
+    ``ADD Xd,Xn,Xm`` feeding ``STR Wt,[Xd]`` reaches any address without ever
+    naming one.  Experiment 018 counts unsigned-immediate stores but flags only
+    the three ranked offsets, and a computed store uses offset zero; the
+    register-offset census above does not see it either.
+    """
+    sites = []
+    for segment in image.executable():
+        words = {vaddr: word for vaddr, word in image.instructions(segment)}
+        for vaddr, word in sorted(words.items()):
+            if (word & 0xFFE0FC00) != 0x8B000000:          # ADD Xd,Xn,Xm, no shift
+                continue
+            destination = word & 0x1F
+            for ahead in range(vaddr + 4, vaddr + 4 * 6, 4):
+                follower = words.get(ahead)
+                if follower is None:
+                    break
+                if (follower & 0xFFFFFC00) in (0xB9000000, 0xF9000000) and (follower >> 5) & 0x1F == destination:
+                    sites.append(
+                        {
+                            "segment": segment.kind,
+                            "add_va": f"0x{vaddr:08x}",
+                            "store_va": f"0x{ahead:08x}",
+                            "width": "X" if (follower & 0xFFFFFC00) == 0xF9000000 else "W",
+                            # for a computed address the varying operand is the
+                            # ADD's Xm, not a field of the store
+                            "offset_register": (word >> 16) & 0x1F,
+                            "base_register": (word >> 5) & 0x1F,
+                        }
+                    )
+                    break
+                if (follower & 0x1F) == destination:
+                    break                                  # destination overwritten first
+    in_loop = []
+    for site in sites:
+        store_va = int(site["store_va"], 16)
+        add_va = int(site["add_va"], 16)
+        for ahead in range(store_va + 4, store_va + 4 * 24, 4):
+            word = image.word(ahead)
+            if word is None:
+                break
+            target = branch_target(word, ahead)
+            if target is not None and add_va - 4 * 64 <= target <= add_va:
+                in_loop.append({**site, "loop_head_va": f"0x{target:08x}", "back_edge_va": f"0x{ahead:08x}"})
+                break
+    return {"idiom_sites": len(sites), "inside_backward_branch_loop": len(in_loop), "loop_sites": in_loop}
+
+
+def aop_controller_reference_audit(firmware_dir: Path) -> dict:
+    """Does AOP reference the DDR controller at all?
+
+    AOP is ELF32 ARM, not ELF64, so an AArch64 program-header walk reads its
+    header as garbage and silently finds nothing.  It is parsed here on its own
+    terms.  Cortex-M builds 32-bit constants from literal pools, so an address
+    AOP uses appears in the image as a stored word.
+    """
+    path = firmware_dir / AOP_NAME
+    if not path.exists():
+        return {"available": False}
+    data = path.read_bytes()
+    if len(data) != AOP_SIZE or sha256(data) != AOP_SHA256:
+        raise XrefError(f"{AOP_NAME} is not the exact Experiment 004 artifact")
+    if data[:4] != b"\x7fELF" or data[4] != 1:
+        raise XrefError(f"{AOP_NAME} is not ELF32")
+
+    machine = struct.unpack_from("<H", data, 18)[0]
+    ph_offset = struct.unpack_from("<I", data, 28)[0]
+    ph_entry = struct.unpack_from("<H", data, 42)[0]
+    ph_count = struct.unpack_from("<H", data, 44)[0]
+    segments = []
+    for index in range(ph_count):
+        offset = ph_offset + index * ph_entry
+        p_type, file_offset, vaddr, _pa, file_size, _mem, flags, _al = struct.unpack_from(
+            "<IIIIIIII", data, offset
+        )
+        if p_type == 1 and file_size and file_offset + file_size <= len(data):
+            segments.append((file_offset, vaddr, file_size, flags))
+
+    ranked = {base: 0 for base in RANKED_BASES}
+    aperture_words = 0
+    for file_offset, _vaddr, file_size, _flags in segments:
+        for offset in range(0, file_size - 3, 4):
+            value = struct.unpack_from("<I", data, file_offset + offset)[0]
+            if value in ranked:
+                ranked[value] += 1
+            if APERTURE_START <= value < APERTURE_END:
+                aperture_words += 1
+
+    # Thumb LDRH pairs reading a DCB directory slot, T1 and T2 forms.
+    halfwords: dict[int, tuple[int, int]] = {}
+    for file_offset, vaddr, file_size, flags in segments:
+        if not flags & 1:
+            continue
+        for offset in range(0, file_size - 1, 2):
+            half = struct.unpack_from("<H", data, file_offset + offset)[0]
+            if (half >> 11) == 0b10001:                      # LDRH (T1)
+                halfwords[vaddr + offset] = (((half >> 6) & 0x1F) * 2, (half >> 3) & 7)
+            elif (half & 0xFFF0) == 0xF8B0 and offset + 3 < file_size:
+                second = struct.unpack_from("<H", data, file_offset + offset + 2)[0]
+                halfwords[vaddr + offset] = (second & 0xFFF, half & 0xF)
+    directory_pairs = []
+    for vaddr, (byte_offset, base) in halfwords.items():
+        if byte_offset < DIRECTORY_BASE or byte_offset >= DCB_HEADER_SIZE or (byte_offset - DIRECTORY_BASE) % 4:
+            continue
+        for other in range(vaddr - 16, vaddr + 18, 2):
+            entry = halfwords.get(other)
+            if entry and entry == (byte_offset + 2, base) and other != vaddr:
+                directory_pairs.append(
+                    {"section": (byte_offset - DIRECTORY_BASE) // 4, "offset_read_va": f"0x{vaddr:08x}"}
+                )
+                break
+    return {
+        "available": True,
+        "elf_class": 32,
+        "machine": machine,
+        "load_segments": [
+            {"vaddr": f"0x{v:08x}", "file_size": s, "flags": f} for _o, v, s, f in segments
+        ],
+        "ranked_base_literals": {f"0x{b:08x}": n for b, n in ranked.items()},
+        "soc_aperture_aligned_words": aperture_words,
+        "dcb_directory_read_pairs": sorted(directory_pairs, key=lambda d: d["section"]),
     }
 
 
@@ -574,6 +706,9 @@ def build_manifest(firmware_dir: Path) -> dict:
     readers = section_directory_readers(image)
     census = register_offset_store_census(image)
     walkers = table_walker_analysis(image, census["loop_sites"])
+    computed = computed_address_store_census(image)
+    computed_walkers = table_walker_analysis(image, computed["loop_sites"])
+    aop = aop_controller_reference_audit(firmware_dir)
     ddr = ddr_driver_segment(image)
     setter = pinned_base_setter(image)
     globals_census = global_store_census(image, int(ddr["vaddr"], 16)) if ddr["found"] else {}
@@ -597,6 +732,9 @@ def build_manifest(firmware_dir: Path) -> dict:
         "section_directory_readers": readers,
         "register_offset_store_census": census,
         "table_walker_analysis": walkers,
+        "computed_address_store_census": computed,
+        "computed_address_walker_analysis": computed_walkers,
+        "aop_controller_reference_audit": aop,
         "ddr_driver_segment": ddr,
         "ddr_driver_global_store_census": globals_census,
         "pinned_base_setter": setter,
@@ -616,6 +754,13 @@ def build_manifest(firmware_dir: Path) -> dict:
                 "No register-offset store in the exact XBL walks a key/value table under "
                 "this model: every looping candidate takes its offset from an induction "
                 "variable, from a loop-invariant load, or sits in a function epilogue.",
+                "The same holds for the computed-address idiom, ADD Xd,Xn,Xm feeding "
+                "STR Wt,[Xd], which neither Experiment 018 nor the register-offset census "
+                "counts.",
+                "AOP is ELF32 ARM. It contains no literal equal to a ranked MC base, and "
+                "its only DCB directory-read pairs are isolated single sections without "
+                "the consecutive-index run that separates a real dispatcher from "
+                "coincidence.",
             ],
             "REFUTED": [
                 "Experiment 018's negative result is evidence that no controller writer "

@@ -1,11 +1,57 @@
 {
+ "aop_controller_reference_audit": {
+  "available": true,
+  "dcb_directory_read_pairs": [
+   {
+    "offset_read_va": "0x0b00567c",
+    "section": 2
+   },
+   {
+    "offset_read_va": "0x0b006fac",
+    "section": 21
+   }
+  ],
+  "elf_class": 32,
+  "load_segments": [
+   {
+    "file_size": 89996,
+    "flags": 7,
+    "vaddr": "0x0b000000"
+   },
+   {
+    "file_size": 27012,
+    "flags": 7,
+    "vaddr": "0x0b0e0000"
+   },
+   {
+    "file_size": 66952,
+    "flags": 6,
+    "vaddr": "0x85f00000"
+   },
+   {
+    "file_size": 4544,
+    "flags": 6,
+    "vaddr": "0x85f1c000"
+   }
+  ],
+  "machine": 40,
+  "ranked_base_literals": {
+   "0x09260000": 0,
+   "0x092e0000": 0,
+   "0x09360000": 0,
+   "0x093e0000": 0
+  },
+  "soc_aperture_aligned_words": 50
+ },
  "claims": {
   "PROVED": [
    "The XBL DCB loader is located by its size-constant cluster, and the five sections it copies, re-derived from its directory reads, match the value Experiment 004 records as a hardcoded constant.",
    "The exact XBL contains register-offset stores in executable segments. Experiment 018 Stage 1A counts only unsigned-immediate stores, so this class is outside its census by construction.",
    "The DDR driver segment contains no file-backed 64-bit value inside the SoC control aperture, and none equal to a ranked MC base.",
    "The driver's controller base pointers are written into zero-initialised globals from function arguments, not from constants.",
-   "No register-offset store in the exact XBL walks a key/value table under this model: every looping candidate takes its offset from an induction variable, from a loop-invariant load, or sits in a function epilogue."
+   "No register-offset store in the exact XBL walks a key/value table under this model: every looping candidate takes its offset from an induction variable, from a loop-invariant load, or sits in a function epilogue.",
+   "The same holds for the computed-address idiom, ADD Xd,Xn,Xm feeding STR Wt,[Xd], which neither Experiment 018 nor the register-offset census counts.",
+   "AOP is ELF32 ARM. It contains no literal equal to a ranked MC base, and its only DCB directory-read pairs are isolated single sections without the consecutive-index run that separates a real dispatcher from coincidence."
   ],
   "REFUTED": [
    "Experiment 018's negative result is evidence that no controller writer exists. Its four models all terminate in a constant, and the base values are not constants in this image, so the negative is structurally guaranteed for those models."
@@ -16,6 +62,52 @@
    "The implicit base of DCB sections 10, 11 and 12.",
    "Register semantics, the relation to the Experiment 014 GF(2) bank relation, post-boot writability, alias and boundary bypass."
   ]
+ },
+ "computed_address_store_census": {
+  "idiom_sites": 8,
+  "inside_backward_branch_loop": 3,
+  "loop_sites": [
+   {
+    "add_va": "0x1484b990",
+    "back_edge_va": "0x1484b9d0",
+    "base_register": 1,
+    "loop_head_va": "0x1484b980",
+    "offset_register": 9,
+    "segment": "RX",
+    "store_va": "0x1484b9a0",
+    "width": "W"
+   },
+   {
+    "add_va": "0x146aea10",
+    "back_edge_va": "0x146aea68",
+    "base_register": 9,
+    "loop_head_va": "0x146aea08",
+    "offset_register": 11,
+    "segment": "RX",
+    "store_va": "0x146aea20",
+    "width": "W"
+   },
+   {
+    "add_va": "0x9fc05eec",
+    "back_edge_va": "0x9fc05f38",
+    "base_register": 3,
+    "loop_head_va": "0x9fc05ecc",
+    "offset_register": 1,
+    "segment": "RWE",
+    "store_va": "0x9fc05ef4",
+    "width": "W"
+   }
+  ]
+ },
+ "computed_address_walker_analysis": {
+  "epilogues_excluded": 1,
+  "loop_sites_examined": 3,
+  "offset_definition_classes": {
+   "EPILOGUE_NOT_A_LOOP": 1,
+   "INDUCTION_OR_COMPUTED": 2
+  },
+  "table_walker_count": 0,
+  "table_walkers": []
  },
  "dcb_loader": {
   "constants": [

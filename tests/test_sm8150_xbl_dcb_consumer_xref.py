@@ -70,6 +70,14 @@ def add_imm(rd: int, rn: int, imm: int) -> int:
     return 0x91000000 | (imm << 10) | (rn << 5) | rd
 
 
+def add_reg(rd: int, rn: int, rm: int) -> int:
+    return 0x8B000000 | (rm << 16) | (rn << 5) | rd
+
+
+def str_w_imm0(rt: int, rn: int) -> int:
+    return 0xB9000000 | (rn << 5) | rt
+
+
 def assemble(base: int, words: list[int]) -> xref.Image:
     return xref.Image(build_elf([(base, 5, b"".join(struct.pack("<I", w) for w in words))]))
 
@@ -277,6 +285,55 @@ class TableWalkerTests(unittest.TestCase):
         self.assertEqual(result["offset_definition_classes"], {"DEFINED_OUTSIDE_THE_LOOP": 1})
 
 
+class ComputedAddressTests(unittest.TestCase):
+    """ADD Xd,Xn,Xm feeding STR Wt,[Xd] -- in neither existing census."""
+
+    def test_finds_the_idiom(self):
+        image = assemble(0x1000, [add_reg(1, 2, 3), str_w_imm0(4, 1)])
+        self.assertEqual(xref.computed_address_store_census(image)["idiom_sites"], 1)
+
+    def test_records_the_adds_operands_not_the_stores(self):
+        image = assemble(0x1000, [add_reg(1, 2, 3), str_w_imm0(4, 1), branch(0x1008, 0x1000)])
+        loop = xref.computed_address_store_census(image)["loop_sites"][0]
+        self.assertEqual(loop["offset_register"], 3)
+        self.assertEqual(loop["base_register"], 2)
+
+    def test_a_store_through_a_different_register_is_not_the_idiom(self):
+        image = assemble(0x1000, [add_reg(1, 2, 3), str_w_imm0(4, 5)])
+        self.assertEqual(xref.computed_address_store_census(image)["idiom_sites"], 0)
+
+    def test_an_overwritten_destination_breaks_the_pair(self):
+        image = assemble(0x1000, [add_reg(1, 2, 3), movz_w(1, 0), str_w_imm0(4, 1)])
+        self.assertEqual(xref.computed_address_store_census(image)["idiom_sites"], 0)
+
+    def test_a_nonzero_immediate_store_is_not_the_idiom(self):
+        image = assemble(0x1000, [add_reg(1, 2, 3), 0xB9000000 | (1 << 10) | (1 << 5) | 4])
+        self.assertEqual(xref.computed_address_store_census(image)["idiom_sites"], 0)
+
+    def test_the_walker_test_uses_the_supplied_offset_register(self):
+        # X3 is loaded through an advancing pointer; the store's bits 16..20 are
+        # part of its immediate field and must not be read as a register.
+        base = 0x1000
+        words = [
+            ldr_x_postindex(3, 9, 8),
+            add_reg(1, 2, 3),
+            str_w_imm0(4, 1),
+            branch(base + 12, base),
+        ]
+        image = assemble(base, words)
+        census = xref.computed_address_store_census(image)
+        result = xref.table_walker_analysis(image, census["loop_sites"])
+        self.assertEqual(result["table_walker_count"], 1)
+
+
+class AopAuditTests(unittest.TestCase):
+    def test_reports_unavailable_without_the_artifact(self):
+        self.assertEqual(
+            xref.aop_controller_reference_audit(Path("/nonexistent-firmware-dir")),
+            {"available": False},
+        )
+
+
 class DdrSegmentTests(unittest.TestCase):
     def test_selects_the_largest_rwe_segment(self):
         image = xref.Image(build_elf([(0x1000, 7, bytes(16)), (0x2000, 7, bytes(64)), (0x3000, 5, bytes(128))]))
@@ -345,6 +402,22 @@ class ExactImageTests(unittest.TestCase):
     def test_every_loop_site_is_classified(self):
         walkers = self.manifest["table_walker_analysis"]
         self.assertEqual(sum(walkers["offset_definition_classes"].values()), walkers["loop_sites_examined"])
+
+    def test_the_computed_address_idiom_has_no_walker_either(self):
+        self.assertEqual(self.manifest["computed_address_walker_analysis"]["table_walker_count"], 0)
+
+    def test_aop_is_elf32_arm_and_names_no_ranked_base(self):
+        aop = self.manifest["aop_controller_reference_audit"]
+        self.assertTrue(aop["available"])
+        self.assertEqual(aop["elf_class"], 32)
+        self.assertEqual(aop["machine"], 40)          # EM_ARM
+        self.assertEqual(set(aop["ranked_base_literals"].values()), {0})
+
+    def test_aop_has_no_consecutive_run_of_directory_readers(self):
+        sections = sorted(entry["section"] for entry in
+                          self.manifest["aop_controller_reference_audit"]["dcb_directory_read_pairs"])
+        consecutive = any(b - a == 1 for a, b in zip(sections, sections[1:]))
+        self.assertFalse(consecutive)
 
     def test_the_ddr_segment_holds_no_aperture_constant(self):
         ddr = self.manifest["ddr_driver_segment"]

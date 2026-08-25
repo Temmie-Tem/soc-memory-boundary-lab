@@ -111,11 +111,44 @@ index rather than a byte offset, since the scaled store form is excluded — the
 keys decoded in Experiment 019 are byte offsets, but not every section was
 decoded.
 
+## The other store idiom, and AOP
+
+A store need not name its offset at all. `ADD Xd,Xn,Xm` feeding `STR Wt,[Xd]`
+reaches any address while the store itself carries a zero immediate. Experiment
+018 counts unsigned-immediate stores but flags only the three ranked offsets, so
+a zero-offset store is invisible to it in a different way; the register-offset
+census above does not see it either. The XBL DCB loader itself uses the idiom,
+at `0x1489fab8`, to form a section's source address.
+
+The exact XBL contains **8** such sites, of which 3 sit in a backward-branch
+loop: one is a function epilogue and two take the added operand from an
+induction variable. `PROVED`: **0** walkers under this idiom as well.
+
+The varying operand here is the `ADD`'s `Xm`, not a field of the store — bits
+16..20 of `STR Wt,[Xd,#0]` are part of its immediate field, and reading them as
+a register number reports a walker that does not exist.
+
+`aop--sdd7.bin` is **ELF32 ARM**, not a raw image. An AArch64 program-header
+walk reads its header as garbage and silently finds nothing, which is how an
+earlier pass in this work mis-recorded it as "not an ELF"; it is parsed here on
+its own terms. Its four `PT_LOAD`s are two executable regions at `0x0b000000`
+and `0x0b0e0000` and two data regions at `0x85f00000` and `0x85f1c000`.
+
+Cortex-M builds 32-bit constants from literal pools, so an address AOP uses
+appears in the image as a stored word. `PROVED`: AOP contains **no** literal
+equal to any of the four ranked MC bases, in any segment. Its only DCB
+directory-read pairs are two isolated sections, 2 and 21, without the
+consecutive-index run that separates the XBL dispatcher from coincidence.
+
+`REFUTED`: AOP consumes the DCB base-relative tables or references the ranked
+controller instances. `UNKNOWN`: whether AOP reaches them indirectly, through a
+pointer it receives rather than a literal it holds.
+
 Read with the section-consumer result below, the more economical reading is
 that the exact XBL does not consume the DCB base-relative tables at all. The
 consumers it does contain compute a checksum and check bounds. `UNKNOWN`:
-whether the consumer lives in another image. `aop--sdd7.bin` is not an ELF and
-targets a different core, so nothing here covers it.
+whether the consumer lives in another image; `abl--sdd8.bin` is also ELF32 ARM
+and is not covered here, and neither is the SHRM co-processor.
 
 ## The DCB loader, re-derived from code
 
@@ -204,12 +237,12 @@ python3 -m unittest -v tests.test_sm8150_xbl_dcb_consumer_xref
 ## Provenance
 
 - Tool SHA-256:
-  `e1f8e3ae31c583adaaf50a01ad07c7718f3646d8fc6dcb14ba19ff711539b8f0`.
+  `70eb80edb75a01b610072b4a717a9653ee2e3b5ee713f72d97adb7279cdc00f4`.
 - Focused-test SHA-256:
-  `0ac445046bfd26c0045df11dffd419424e44159f8ee6e0557d9ea01e1fd999ea`.
+  `684bda51895cd956382ded8bcb01ee9e882b157f8dc19723e739f63be82d029b`.
 - Public manifest SHA-256:
-  `1b5697ff8a56f3c90146793af10fb7c3ca97d59303da76c60af9e19f50884a66`.
-- Focused result: 46 tests pass.
+  `6901ed062ea598fffdc370c37fe6208f67839c96847b6f69bdefa91576e5c642`.
+- Focused result: 56 tests pass.
 - Regeneration is byte-identical; manifest mode is `0644`.
 - Date: 2026-08-26 KST.
 - Mode: `HOST_ONLY_READ_ONLY`; device, SMC and MMIO access: none.
