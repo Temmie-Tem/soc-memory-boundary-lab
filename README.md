@@ -8,6 +8,9 @@ by one protection layer but later transformed to a different protected DRAM
 destination. This repository does **not** assume the AMD Skitter Creek result
 applies to Qualcomm.
 
+This is a derived project. See [Upstream](#upstream) for the platform it
+observes from and the safety method it inherits.
+
 Current phase: source reconstruction plus bounded, source-backed live
 observation. Experiment 007 first retired a generic REPL mapping path after a
 watchdog before its intended MMIO read. A fixed inline no-load control later
@@ -126,3 +129,63 @@ The exact A90 TWRP code-only System transition is documented in
 Raw dumps, device identifiers, boot/firmware images, and full transcripts are
 kept below `evidence/private/` and ignored by Git. Redacted hash manifests are
 kept in `evidence/manifests/`.
+
+## Upstream
+
+This research is derived from the local **`android-native-init-lab`** project
+(`Temmie-Tem/android-native-init-lab`), which builds a minimal native
+Linux-style userspace on Android vendor kernels. That project supplies the
+entire platform this repository observes from; none of it originates here.
+
+| Used here | Supplied by upstream |
+|---|---|
+| V2321 runtime, `pass=11 warn=1 fail=0` selftest | A90 native init baseline |
+| `A90-LNX` / `04e8:6861` ACM bridge | USB ACM/NCM stack |
+| REPL slide recovery, peek/call, and its call-safety classifier | `workspace/public/src/scripts/revalidation/a90_repl.py` |
+| TWRP code-only boot, 60,882,944-byte boot-prefix readback | F1 boot-only transfer process |
+| Verified rollback, no-replay, target isolation, health closure | `AGENTS.md` safety contract and `DEVICE_ACTION_PROCESS_V2.md` |
+
+Upstream device-action risk tiers (`H0` host-only, `D0` connected read-only,
+`D1` attended non-partition, `F1` boot-only transfer, `R1` privileged
+root-data) are the vocabulary behind this repository's experiment design. In
+upstream terms, Experiments 008–012 and Verification 001 are `H0`;
+Experiments 001/005/006 live capture is `D0`; and the boot-candidate
+transitions in Experiments 007 and 013 are `F1`.
+
+### Operating policy for this derived project
+
+Upstream governance is deliberately **not** inherited wholesale. This project
+runs under a single binding constraint set by the maintainer:
+
+> Anything that cannot permanently brick the device may be implemented and
+> executed quickly, without the upstream per-action approval ladder.
+
+Practically, that draws the line at persistence rather than at hazard:
+
+| Permitted — volatile, recovered by power cycle | Forbidden — irreversible |
+|---|---|
+| Controller/remapper/MCCC/MC MMIO writes | `xbl`, `xbl_config`, `tz`, `hyp`, `devcfg`, `aop`, `abl` partition writes |
+| Any non-persistent register mutation | QFPROM/eFuse writes (one-time programmable) |
+| Watchdog reset and warm reboot | RPMB, secure storage, anti-rollback counters |
+| Boot-partition candidates with verified rollback | GPT/partition-table edits; interrupting a partition write |
+
+The bootloader-class partitions are the real boundary: corrupting them leaves
+no recovery path on this device without an authorized firehose programmer, and
+upstream `AGENTS.md` permanently forbids the `qdl`/Sahara path for the same
+reason.
+
+The recoverable side of that line is empirically demonstrated, not assumed:
+Experiments 007 (twice) and 013 (once) each ended in `Non Secure Watchdog
+Bark`, warm reset, intact V2321 by full-prefix SHA-256, and a passing native
+selftest.
+
+Two consequences are recorded deliberately:
+
+- Some gates in this repository are stricter than the policy above. In
+  particular `STATUS.md` section N withholds a remapper write partly for
+  unknown "watchdog/recovery behavior", which the three retained resets now
+  establish. Where a gate and this policy disagree, the gate is the
+  conservative historical position, not a safety requirement.
+- Device-state history is split. Upstream's `CAMPAIGN_LEDGER_A90.md` does not
+  record this project's device actions, so upstream alone is not a complete
+  account of the A90's physical state.

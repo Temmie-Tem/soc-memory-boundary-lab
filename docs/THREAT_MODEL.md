@@ -53,10 +53,23 @@ weaponization are out of scope.
 
 ## Gates
 
-Phase 0/1 permits host analysis and source-backed read-only device observation.
-Before a controller/XPU/SCM/EL2/EL3 or protected-memory write, create
-`docs/WRITE_GATE_<experiment>.md` with the exact register/address, provenance,
-expected effect, alternatives, brick/data/boundary risk, rollback and recovery.
+The binding constraint for this derived project is persistence, not hazard: any
+action that cannot permanently brick the device may be implemented and executed
+quickly. Volatile controller/remapper/MCCC/MC writes, watchdog resets, and boot
+candidates with verified rollback are inside that bound. Bootloader-class
+partitions (`xbl`, `xbl_config`, `tz`, `hyp`, `devcfg`, `aop`, `abl`),
+QFPROM/eFuse, RPMB, anti-rollback counters, and partition-table edits are
+outside it and stay forbidden. See the Upstream section of `README.md`.
+
+`docs/WRITE_GATE_<experiment>.md` remains the recording mechanism for a
+controller/XPU/SCM/EL2/EL3 or protected-memory write: exact register/address,
+provenance, expected effect, alternatives, brick/data/boundary risk, rollback
+and recovery. It documents a write; it is not an approval ladder, and a write
+inside the brick bound is not blocked by its absence.
+
+Data loss is scoped separately from bricking. A remapper write while DRAM
+traffic is live can corrupt filesystem write-back. That is recoverable and
+therefore permitted, but quiesce and sync first.
 
 If a controlled transform mutation, deterministic protected alias, or normal-PA
 blocked/alias-PA-readable result appears, status becomes

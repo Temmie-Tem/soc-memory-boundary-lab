@@ -9,6 +9,14 @@ workspace has no static HLOS grant and whose fixed direct EL1 read path ended
 in watchdog reset; indirect write paths, hidden transform and protection
 ordering remain unresolved`
 
+Platform provenance: the A90 runtime, ACM bridge, REPL primitive, TWRP
+code-boot and boot-prefix rollback used throughout are supplied by the upstream
+`android-native-init-lab` project; see the Upstream section of `README.md`.
+This derived project runs under a single binding constraint — anything that
+cannot permanently brick the device may proceed quickly — so bootloader-class
+partitions, fuses, RPMB and the partition table stay forbidden while volatile
+controller writes do not.
+
 Device mutation: Experiment 007 temporarily wrote the exact boot-only REPL,
 fixed no-load control, and fixed one-load read candidates. Each transition was
 bounded to the boot partition and verified by a 60,882,944-byte readback.
@@ -356,6 +364,13 @@ the proved `qhs_llcc + 0x8080` map words while memory traffic is active is also
 high risk because it can redirect system PA. Neither is justified without exact
 semantics, boot values, a one-core/cache-safe critical section, restore path,
 and watchdog/recovery behavior.
+
+Reconciled with the operating policy: neither write is brick-capable, so
+neither is forbidden by the binding constraint, and the "watchdog/recovery
+behavior" prerequisite is now met by three retained resets. What still
+withholds them is information, not safety — no boot values are readable from
+EL1, so a write cannot be verified, restored, or interpreted. They are blind
+writes with near-zero yield, not prohibited actions.
 
 ## O. 현재 취약점 가능성 평가
 
