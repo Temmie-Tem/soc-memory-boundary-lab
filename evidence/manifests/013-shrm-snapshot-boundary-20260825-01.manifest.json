@@ -1,0 +1,362 @@
+{
+  "claims": {
+    "PROVED": [
+      "Both exact TZ selector branches place the complete SHRM section-16 workspace inside three enabled TZ-owned XPU regions.",
+      "DC_NOC_NON_BROADCAST_MPU region 5 exactly covers 0x09060000..0x0906ffff and contains 0x09065100..0x09065fff.",
+      "All six branch/region matches exclude the comparative HLOS VMID from read and write masks."
+    ],
+    "REFUTED": [
+      "The SHRM snapshot workspace is statically unprotected or explicitly granted to ordinary HLOS in either embedded policy branch."
+    ],
+    "SUPPORTED": [
+      "A Normal-World EL1 read of the SHRM snapshot workspace is expected to be denied by active XPU policy or its downstream fabric response."
+    ],
+    "UNKNOWN": [
+      "Final runtime XPU register state and the exact fault/reset response to one EL1 read of 0x09065100.",
+      "Whether a secure-world diagnostic interface can export the staged words without granting HLOS direct access."
+    ]
+  },
+  "classification": "CLASS_A_B_CANDIDATE_SHRM_SNAPSHOT_NO_HLOS_STATIC_GRANT",
+  "device_access": false,
+  "firmware_bytes_emitted": false,
+  "input": {
+    "filename": "tz--sdd5.bin",
+    "pin_verified": true,
+    "sha256": "a5e6c574e18e2e576a25df6274b20bdb142386811dfda6383f86d7b1b3c102ab",
+    "size": 4194304
+  },
+  "mmio_access": false,
+  "mode": "HOST_ONLY_READ_ONLY",
+  "policy_branches": [
+    {
+      "all_cover_complete_workspace": true,
+      "all_exclude_hlos_read": true,
+      "all_exclude_hlos_write": true,
+      "covering_xpu_count": 3,
+      "covering_xpu_names": [
+        "CNOC_SNOC_MS_MPU",
+        "DC_NOC_NON_BROADCAST_MPU",
+        "MEMNOC_MS_MPU"
+      ],
+      "label": "selector_result_lt_2",
+      "matches": [
+        {
+          "descriptor": {
+            "configuration_base": "0x090b4000",
+            "flags": "0x1",
+            "index": 25,
+            "name": "DC_NOC_NON_BROADCAST_MPU",
+            "region_count": 16,
+            "resource_id": "0x3d"
+          },
+          "permissions": {
+            "client_permission_bytes": [
+              "0x09",
+              "0x08"
+            ],
+            "client_permission_fields": {
+              "nonsecure_client_ro_vector": 1,
+              "nonsecure_client_wo_vector": 0,
+              "secure_client_ro_vector": 1,
+              "secure_client_wo_vector": 1
+            },
+            "hal_config_type": 0,
+            "hlos_present_in_read_mask": false,
+            "hlos_present_in_write_mask": false,
+            "hlos_vmid_comparative_id": 3,
+            "hlos_vmid_mask": "0x00000008",
+            "multi_vmid_permission_words": [
+              "0x00000000",
+              "0x00000000"
+            ],
+            "owner": "TZ",
+            "read_bit31_maps_to_same_ro_slot_as_msa_owner": false,
+            "runtime_activation": "UNKNOWN_WITH_SUPPORTING_BOOT_EVIDENCE",
+            "standard_vmid_read_bits": "0x40000000",
+            "standard_vmid_write_bits": "0x00000000",
+            "static_policy_interpretation": "TZ-owned; TZ owner read/write; MSA-class read-only; no standard VMID permission and no HLOS VMID bit"
+          },
+          "region": {
+            "end_exclusive": 151453696,
+            "flags": 9,
+            "index": 5,
+            "ordinal": 5,
+            "read_vmid": 1073741824,
+            "size": 65536,
+            "start": 151388160,
+            "write_vmid": 0
+          },
+          "xpu_name": "DC_NOC_NON_BROADCAST_MPU"
+        },
+        {
+          "descriptor": {
+            "configuration_base": "0x096c0000",
+            "flags": "0x1",
+            "index": 34,
+            "name": "MEMNOC_MS_MPU",
+            "region_count": 16,
+            "resource_id": "0x4b"
+          },
+          "permissions": {
+            "client_permission_bytes": [
+              "0x11",
+              "0x0a"
+            ],
+            "client_permission_fields": {
+              "nonsecure_client_ro_vector": 2,
+              "nonsecure_client_wo_vector": 2,
+              "secure_client_ro_vector": 1,
+              "secure_client_wo_vector": 1
+            },
+            "hal_config_type": 0,
+            "hlos_present_in_read_mask": false,
+            "hlos_present_in_write_mask": false,
+            "hlos_vmid_comparative_id": 3,
+            "hlos_vmid_mask": "0x00000008",
+            "multi_vmid_permission_words": [
+              "0x00000000",
+              "0x00000000"
+            ],
+            "owner": "TZ",
+            "read_bit31_maps_to_same_ro_slot_as_msa_owner": true,
+            "runtime_activation": "UNKNOWN_WITH_SUPPORTING_BOOT_EVIDENCE",
+            "standard_vmid_read_bits": "0x00000000",
+            "standard_vmid_write_bits": "0x00000000",
+            "static_policy_interpretation": "TZ-owned; TZ owner read/write; MSA-class read-only; no standard VMID permission and no HLOS VMID bit"
+          },
+          "region": {
+            "end_exclusive": 268435456,
+            "flags": 9,
+            "index": 0,
+            "ordinal": 0,
+            "read_vmid": 2147483648,
+            "size": 268435456,
+            "start": 0,
+            "write_vmid": 2147483648
+          },
+          "xpu_name": "MEMNOC_MS_MPU"
+        },
+        {
+          "descriptor": {
+            "configuration_base": "0x01520000",
+            "flags": "0x1",
+            "index": 35,
+            "name": "CNOC_SNOC_MS_MPU",
+            "region_count": 22,
+            "resource_id": "0x23"
+          },
+          "permissions": {
+            "client_permission_bytes": [
+              "0x39",
+              "0x0f"
+            ],
+            "client_permission_fields": {
+              "nonsecure_client_ro_vector": 7,
+              "nonsecure_client_wo_vector": 7,
+              "secure_client_ro_vector": 1,
+              "secure_client_wo_vector": 1
+            },
+            "hal_config_type": 0,
+            "hlos_present_in_read_mask": false,
+            "hlos_present_in_write_mask": false,
+            "hlos_vmid_comparative_id": 3,
+            "hlos_vmid_mask": "0x00000008",
+            "multi_vmid_permission_words": [
+              "0x00000000",
+              "0x00000000"
+            ],
+            "owner": "TZ",
+            "read_bit31_maps_to_same_ro_slot_as_msa_owner": true,
+            "runtime_activation": "UNKNOWN_WITH_SUPPORTING_BOOT_EVIDENCE",
+            "standard_vmid_read_bits": "0x40000000",
+            "standard_vmid_write_bits": "0x40000000",
+            "static_policy_interpretation": "TZ-owned; TZ owner read/write; MSA-class read-only; no standard VMID permission and no HLOS VMID bit"
+          },
+          "region": {
+            "end_exclusive": 159383552,
+            "flags": 9,
+            "index": 5,
+            "ordinal": 5,
+            "read_vmid": 4026531840,
+            "size": 8388608,
+            "start": 150994944,
+            "write_vmid": 4026531840
+          },
+          "xpu_name": "CNOC_SNOC_MS_MPU"
+        }
+      ]
+    },
+    {
+      "all_cover_complete_workspace": true,
+      "all_exclude_hlos_read": true,
+      "all_exclude_hlos_write": true,
+      "covering_xpu_count": 3,
+      "covering_xpu_names": [
+        "CNOC_SNOC_MS_MPU",
+        "DC_NOC_NON_BROADCAST_MPU",
+        "MEMNOC_MS_MPU"
+      ],
+      "label": "selector_result_ge_2",
+      "matches": [
+        {
+          "descriptor": {
+            "configuration_base": "0x090b4000",
+            "flags": "0x1",
+            "index": 26,
+            "name": "DC_NOC_NON_BROADCAST_MPU",
+            "region_count": 16,
+            "resource_id": "0x3d"
+          },
+          "permissions": {
+            "client_permission_bytes": [
+              "0x09",
+              "0x08"
+            ],
+            "client_permission_fields": {
+              "nonsecure_client_ro_vector": 1,
+              "nonsecure_client_wo_vector": 0,
+              "secure_client_ro_vector": 1,
+              "secure_client_wo_vector": 1
+            },
+            "hal_config_type": 0,
+            "hlos_present_in_read_mask": false,
+            "hlos_present_in_write_mask": false,
+            "hlos_vmid_comparative_id": 3,
+            "hlos_vmid_mask": "0x00000008",
+            "multi_vmid_permission_words": [
+              "0x00000000",
+              "0x00000000"
+            ],
+            "owner": "TZ",
+            "read_bit31_maps_to_same_ro_slot_as_msa_owner": false,
+            "runtime_activation": "UNKNOWN_WITH_SUPPORTING_BOOT_EVIDENCE",
+            "standard_vmid_read_bits": "0x40000000",
+            "standard_vmid_write_bits": "0x00000000",
+            "static_policy_interpretation": "TZ-owned; TZ owner read/write; MSA-class read-only; no standard VMID permission and no HLOS VMID bit"
+          },
+          "region": {
+            "end_exclusive": 151453696,
+            "flags": 9,
+            "index": 5,
+            "ordinal": 5,
+            "read_vmid": 1073741824,
+            "size": 65536,
+            "start": 151388160,
+            "write_vmid": 0
+          },
+          "xpu_name": "DC_NOC_NON_BROADCAST_MPU"
+        },
+        {
+          "descriptor": {
+            "configuration_base": "0x096c0000",
+            "flags": "0x1",
+            "index": 35,
+            "name": "MEMNOC_MS_MPU",
+            "region_count": 16,
+            "resource_id": "0x4b"
+          },
+          "permissions": {
+            "client_permission_bytes": [
+              "0x11",
+              "0x0a"
+            ],
+            "client_permission_fields": {
+              "nonsecure_client_ro_vector": 2,
+              "nonsecure_client_wo_vector": 2,
+              "secure_client_ro_vector": 1,
+              "secure_client_wo_vector": 1
+            },
+            "hal_config_type": 0,
+            "hlos_present_in_read_mask": false,
+            "hlos_present_in_write_mask": false,
+            "hlos_vmid_comparative_id": 3,
+            "hlos_vmid_mask": "0x00000008",
+            "multi_vmid_permission_words": [
+              "0x00000000",
+              "0x00000000"
+            ],
+            "owner": "TZ",
+            "read_bit31_maps_to_same_ro_slot_as_msa_owner": true,
+            "runtime_activation": "UNKNOWN_WITH_SUPPORTING_BOOT_EVIDENCE",
+            "standard_vmid_read_bits": "0x00000000",
+            "standard_vmid_write_bits": "0x00000000",
+            "static_policy_interpretation": "TZ-owned; TZ owner read/write; MSA-class read-only; no standard VMID permission and no HLOS VMID bit"
+          },
+          "region": {
+            "end_exclusive": 268435456,
+            "flags": 9,
+            "index": 0,
+            "ordinal": 0,
+            "read_vmid": 2147483648,
+            "size": 268435456,
+            "start": 0,
+            "write_vmid": 2147483648
+          },
+          "xpu_name": "MEMNOC_MS_MPU"
+        },
+        {
+          "descriptor": {
+            "configuration_base": "0x01520000",
+            "flags": "0x1",
+            "index": 36,
+            "name": "CNOC_SNOC_MS_MPU",
+            "region_count": 23,
+            "resource_id": "0x23"
+          },
+          "permissions": {
+            "client_permission_bytes": [
+              "0x39",
+              "0x0f"
+            ],
+            "client_permission_fields": {
+              "nonsecure_client_ro_vector": 7,
+              "nonsecure_client_wo_vector": 7,
+              "secure_client_ro_vector": 1,
+              "secure_client_wo_vector": 1
+            },
+            "hal_config_type": 0,
+            "hlos_present_in_read_mask": false,
+            "hlos_present_in_write_mask": false,
+            "hlos_vmid_comparative_id": 3,
+            "hlos_vmid_mask": "0x00000008",
+            "multi_vmid_permission_words": [
+              "0x00000000",
+              "0x00000000"
+            ],
+            "owner": "TZ",
+            "read_bit31_maps_to_same_ro_slot_as_msa_owner": true,
+            "runtime_activation": "UNKNOWN_WITH_SUPPORTING_BOOT_EVIDENCE",
+            "standard_vmid_read_bits": "0x40000000",
+            "standard_vmid_write_bits": "0x40000000",
+            "static_policy_interpretation": "TZ-owned; TZ owner read/write; MSA-class read-only; no standard VMID permission and no HLOS VMID bit"
+          },
+          "region": {
+            "end_exclusive": 159383552,
+            "flags": 9,
+            "index": 5,
+            "ordinal": 5,
+            "read_vmid": 4026531840,
+            "size": 8388608,
+            "start": 150994944,
+            "write_vmid": 4026531840
+          },
+          "xpu_name": "CNOC_SNOC_MS_MPU"
+        }
+      ]
+    }
+  ],
+  "private_record": {
+    "filename": "013-shrm-snapshot-boundary-20260825-01.json",
+    "git_ignored": true,
+    "sha256": "226488d22899f262bc3d0befef888174b86b8c42556d43e3cc250881cbedbb2e",
+    "size": 12774
+  },
+  "schema": "sdm855-shrm-snapshot-boundary-public-v1",
+  "smc_access": false,
+  "workspace": {
+    "end_exclusive": "0x09066000",
+    "role": "section-16 register snapshot workspace",
+    "size": 3840,
+    "start": "0x09065100"
+  }
+}

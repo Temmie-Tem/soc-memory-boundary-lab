@@ -93,6 +93,10 @@ because its allowed-disable list count is zero.
 `PROVED` by Experiment 011/012: section 16 binds exact SHRM-visible
 MCCC/MC/DDRSS pages, and the exact SHRM helper scales offsets by four bytes and
 reads the computed words into a snapshot buffer at both direct consumers.
+`PROVED` by Experiment 013: the complete snapshot workspace has no ordinary
+HLOS read/write grant in either exact TZ branch and is covered by three
+TZ-owned policy regions. A fixed no-load control and one-word MCCC snapshot
+candidate are host-built but not yet run.
 `UNKNOWN`: runtime values, lock state, whether any read register controls final
 address decode, any indirect reverse-direction invocation, and where the
 data-path check sits relative to hidden/final decode. Repeating the denied

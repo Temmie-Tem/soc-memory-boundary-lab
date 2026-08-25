@@ -425,3 +425,24 @@
 7. Current result is
    `CLASS A/B CANDIDATE — SECTION-16 READ-ONLY SNAPSHOT / NO TRANSFORM-WRITE OR
    ALIAS PRIMITIVE OBSERVED`.
+
+## 2026-08-25 — Experiment 013 SHRM snapshot protection and live preparation
+
+1. Replayed both exact TrustZone policy branches over the complete section-16
+   workspace `0x09065100..0x09065fff`; no device, SMC, MMIO, partition, EL2 or
+   EL3 action occurred.
+2. `PROVED`: each branch has exactly three covering enabled/TZ-owned regions:
+   `DC_NOC_NON_BROADCAST_MPU` region 5 (`0x09060000..0x0906ffff`),
+   `MEMNOC_MS_MPU` region 0, and `CNOC_SNOC_MS_MPU` region 5.
+3. `PROVED`: all six branch/region matches exclude the comparative HLOS VMID
+   from read and write. The narrow region's `read_vmid=0x40000000` is the exact
+   MSA-class read-only slot, not HLOS; `write_vmid=0`.
+4. `REFUTED`: the SHRM snapshot workspace is statically unprotected or granted
+   to ordinary HLOS. Runtime XPU register state remains `UNKNOWN`.
+5. Built pinned, fixed control/read boot candidates at the previously proved
+   inline hook. Both target only physical `0x0906566c`, section-16 set-0 word
+   207, which maps to source MCCC register `0x09250118`. The control has no bus
+   load; the read has exactly one 32-bit load; neither accepts an address or
+   contains a memory/MMIO store.
+6. Candidate SHA-256 values are `d1d4956b…` (control) and `7ee6a41f…` (read).
+   State is `HOST_READY_CONTROL_ONLY`; no Experiment 013 candidate has run.

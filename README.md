@@ -57,6 +57,13 @@ pass the read direction; the selected lists produce 430 and 64 register-word
 reads and no transform-write stream. Runtime register values and any indirect
 reverse-direction path remain `UNKNOWN`.
 
+Host-only Experiment 013 proves that the complete SHRM snapshot workspace is
+inside three enabled, TZ-owned regions in both exact policy branches. The
+narrow `DC_NOC_NON_BROADCAST_MPU` region is exactly
+`0x09060000..0x0906ffff`; none of the six branch/region matches grants ordinary
+HLOS read or write. A fixed no-load control and one-word MCCC snapshot probe
+are host-built, but no Experiment 013 boot candidate has run yet.
+
 Claim vocabulary is deliberately closed:
 
 - `PROVED`: directly demonstrated by named source, artifact, or repeated result.
@@ -91,6 +98,9 @@ inventory are in
 Experiment 012's exact SHRM interpreter and read-only section-16 conclusion are
 in
 [experiments/012-shrm-section16-interpreter/README.md](experiments/012-shrm-section16-interpreter/README.md).
+Experiment 013's exact SHRM workspace policy and fixed live-probe preparation
+are in
+[experiments/013-shrm-snapshot-boundary/README.md](experiments/013-shrm-snapshot-boundary/README.md).
 The exact A90 TWRP code-only System transition is documented in
 [docs/A90_TWRP_CODE_BOOT.md](docs/A90_TWRP_CODE_BOOT.md).
 

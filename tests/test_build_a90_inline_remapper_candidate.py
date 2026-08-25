@@ -98,6 +98,17 @@ class InlineCandidateTests(unittest.TestCase):
         self.assertEqual(words[14], candidate.encode_movz_x(2, 0x0707))
         self.assertEqual(words[15], candidate.encode_movk_x(2, 0x0068, 48))
 
+    def test_alternate_fixed_profile_is_materialized_without_runtime_input(self) -> None:
+        words = candidate.build_inline_words(
+            FakeLegacy(),
+            candidate.MODE_READ,
+            fixed_phys=0x09065100,
+            fixed_size=0xF00,
+        )
+        self.assertEqual(words[11], candidate.encode_movz_x(0, 0x5100))
+        self.assertEqual(words[12], candidate.encode_movk_x(0, 0x0906, 16))
+        self.assertEqual(words[13], candidate.encode_movz_x(1, 0xF00))
+
     def test_fixed_sequence_unmaps_before_printing(self) -> None:
         words = candidate.build_inline_words(FakeLegacy(), candidate.MODE_READ)
         self.assertEqual(words[22], 0xD5033D9F)

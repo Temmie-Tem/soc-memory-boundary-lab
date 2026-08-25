@@ -1,0 +1,116 @@
+{
+  "base_sha256": "ca978551aabe4b39563abaf529ccf2522054952d8b2ad852e632d26da88168cb",
+  "device_action": false,
+  "hook": {
+    "entry_off": "0x8a73c8",
+    "handler": "kgsl_pwrctrl_force_no_nap_store",
+    "jopp_boundaries_preserved": true,
+    "patch_room": 212
+  },
+  "next_gate": "Run the exact no-load control once and prove V2321 recovery; only a clean control result can make the one-load read candidate eligible",
+  "private_manifest": {
+    "filename": "candidate-manifest.json",
+    "git_ignored": true,
+    "sha256": "666c48843534b1659314487b73504ccab42ed8d142d85a77ef4651fa162aaa79",
+    "size": 3496
+  },
+  "read_candidate_live_eligible": false,
+  "records": [
+    {
+      "body_sha256": "c1283584e3220f6119694c2bc8bf77419e53824875f7f871bf45eee35713a51b",
+      "body_size": 212,
+      "boot_id": "dbc35adb3a71eac64b36ade67db1587adcaa5ec2",
+      "candidate_sha256": "d1d4956b64ae5ca39eb5218d8e84e3da40bc2772e39f2a9d438bfaf778be46e0",
+      "candidate_size": 60882944,
+      "changed_byte_count": 223,
+      "changed_ranges": [
+        [
+          "0x240",
+          "0x254"
+        ],
+        [
+          "0x8a83c8",
+          "0x8a83c9"
+        ],
+        [
+          "0x8a83ca",
+          "0x8a83d2"
+        ],
+        [
+          "0x8a83d4",
+          "0x8a83d6"
+        ],
+        [
+          "0x8a83d7",
+          "0x8a8441"
+        ],
+        [
+          "0x8a8442",
+          "0x8a8498"
+        ]
+      ],
+      "mmio_load_count": 0,
+      "mode": "control"
+    },
+    {
+      "body_sha256": "1349ec040c59d34d1ad90c960f04ab4cdf2b2474e753ee30a2a3c82e138748db",
+      "body_size": 212,
+      "boot_id": "79e39e7b34791eb81e12b3fbdd0c6e3d34fe6048",
+      "candidate_sha256": "7ee6a41f3f55f6eea768a7fd7b66bf011b84e63fa523ee8a0430a50091b02116",
+      "candidate_size": 60882944,
+      "changed_byte_count": 223,
+      "changed_ranges": [
+        [
+          "0x240",
+          "0x254"
+        ],
+        [
+          "0x8a83c8",
+          "0x8a83c9"
+        ],
+        [
+          "0x8a83ca",
+          "0x8a83d2"
+        ],
+        [
+          "0x8a83d4",
+          "0x8a83d6"
+        ],
+        [
+          "0x8a83d7",
+          "0x8a8441"
+        ],
+        [
+          "0x8a8442",
+          "0x8a8498"
+        ]
+      ],
+      "mmio_load_count": 1,
+      "mode": "read"
+    }
+  ],
+  "safety": {
+    "arbitrary_address_input": false,
+    "control_candidate_load_count": 0,
+    "device_write": false,
+    "generic_call_target": false,
+    "mapping_cleanup_precedes_result": true,
+    "memory_or_mmio_store_instruction": false,
+    "read_candidate_load_count": 1,
+    "runtime_address_input": false
+  },
+  "schema": "sdm855-a90-inline-shrm-snapshot-candidate-public-v1",
+  "snapshot": {
+    "destination_offset": "0x56c",
+    "physical_address": "0x0906566c",
+    "set": 0,
+    "source_register": "0x09250118",
+    "width_bits": 32,
+    "word_index": 207,
+    "workspace_base": "0x09065100"
+  },
+  "soc": "SM8150",
+  "source_commit": "f44b34c8f44a9a01c99bb589644494c732a6c3fa",
+  "state": "HOST_READY_CONTROL_ONLY",
+  "target_model": "SM-A908N"
+}

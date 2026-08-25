@@ -168,7 +168,13 @@ def default_output_dir(mode: str) -> Path:
     return Path(f"evidence/private/007-inline-remapper-{mode}-20260825-01")
 
 
-def build_inline_words(legacy: Any, mode: str = MODE_READ) -> list[int]:
+def build_inline_words(
+    legacy: Any,
+    mode: str = MODE_READ,
+    *,
+    fixed_phys: int = FIXED_PHYS,
+    fixed_size: int = FIXED_SIZE,
+) -> list[int]:
     if mode not in MODES:
         raise ValueError(f"unsupported mode: {mode}")
     stage = legacy.stage_c
@@ -188,9 +194,9 @@ def build_inline_words(legacy: Any, mode: str = MODE_READ) -> list[int]:
         legacy.encode_ldrb_w_imm(4, 2, 8),  # 08 fixed op
         legacy.encode_cmp_w_imm(4, OP_FIXED_READ),
         legacy.encode_b_cond_index(10, labels["out"], 0x1),  # 10 b.ne out
-        encode_movz_x(0, FIXED_PHYS & 0xFFFF),
-        encode_movk_x(0, (FIXED_PHYS >> 16) & 0xFFFF, 16),
-        encode_movz_x(1, FIXED_SIZE),
+        encode_movz_x(0, fixed_phys & 0xFFFF),
+        encode_movk_x(0, (fixed_phys >> 16) & 0xFFFF, 16),
+        encode_movz_x(1, fixed_size),
         encode_movz_x(2, PROT_DEVICE_NGNRE & 0xFFFF),
         encode_movk_x(2, (PROT_DEVICE_NGNRE >> 48) & 0xFFFF, 48),
         stage.encode_bl(_site(entry_vaddr, 16), IOREMAP_LINK),
@@ -224,8 +230,16 @@ def build_inline_words(legacy: Any, mode: str = MODE_READ) -> list[int]:
     return words
 
 
-def build_inline_payload(legacy: Any, mode: str = MODE_READ) -> bytes:
-    words = build_inline_words(legacy, mode)
+def build_inline_payload(
+    legacy: Any,
+    mode: str = MODE_READ,
+    *,
+    fixed_phys: int = FIXED_PHYS,
+    fixed_size: int = FIXED_SIZE,
+) -> bytes:
+    words = build_inline_words(
+        legacy, mode, fixed_phys=fixed_phys, fixed_size=fixed_size
+    )
     payload = b"".join(legacy.stage_c.put_u32(word) for word in words)
     payload += struct.pack("<Q", REPL_MAGIC)
     payload += FORMAT

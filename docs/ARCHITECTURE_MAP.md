@@ -87,6 +87,13 @@ the helper's read-to-snapshot path; selected lists contain 430 and 64 reads.
 returned values and any indirect reverse-direction invocation remain
 `UNKNOWN`.
 
+`PROVED` by Experiment 013: both exact TZ policy branches place the complete
+snapshot workspace `0x09065100..0x09065fff` inside
+`DC_NOC_NON_BROADCAST_MPU`, `MEMNOC_MS_MPU`, and `CNOC_SNOC_MS_MPU` regions.
+All six matches are enabled/TZ-owned and exclude the comparative HLOS VMID for
+both read and write. Runtime activation is `SUPPORTED`; final policy-register
+readback and the result of one fixed EL1 load remain `UNKNOWN`.
+
 `UNKNOWN`: numeric boot register words. XBL consumes runtime per-channel source
 bases and a rank-interleave mask not present in the retained firmware/log
 artifacts.

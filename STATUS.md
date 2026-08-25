@@ -4,8 +4,9 @@ Current research state: `NO_BOUNDARY_BYPASS_OBSERVED`
 
 Current class: `A/B CANDIDATE — static controller-aperture policy and secure
 initializer paths proved; exact XBL diagnostic mapping is bijective and
-non-aliasing; section-16 is a read-only SHRM snapshot path; runtime state,
-indirect write paths, hidden transform and protection ordering remain unresolved`
+non-aliasing; section-16 is a read-only SHRM snapshot path whose complete
+workspace has no static HLOS grant; runtime state, indirect write paths, hidden
+transform and protection ordering remain unresolved`
 
 Device mutation: Experiment 007 temporarily wrote the exact boot-only REPL,
 fixed no-load control, and fixed one-load read candidates. Each transition was
@@ -15,8 +16,8 @@ MMIO, SCM, EL2, EL3, or protected-memory write; it attempted one fixed 32-bit
 MMIO load.
 Experiment 004 created and removed fixed temporary block-device nodes under
 `/dev`; Experiment 005 created and removed one fixed temporary character node.
-Experiments 008, 009, 010, 011, and 012 were entirely host-only and performed no
-device, SMC, or MMIO access.
+Experiments 008, 009, 010, 011, 012, and Experiment 013 preparation were
+entirely host-only and performed no device, SMC, or MMIO access.
 
 ## A. 현재까지 PROVED
 
@@ -65,6 +66,11 @@ device, SMC, or MMIO access.
   each 32-bit word into a SHRM snapshot buffer. The two exact section-16
   callsites pass direction zero and produce 430/64 reads; the observed path is
   not a transform-write command stream.
+- Experiment 013 proves both exact TZ selector branches place the complete
+  `0x09065100–0x09065fff` snapshot workspace inside three enabled, TZ-owned
+  regions. The exact narrow region is `DC_NOC_NON_BROADCAST_MPU` region 5 at
+  `0x09060000–0x0906ffff`; all six branch/region matches exclude ordinary HLOS
+  read and write.
 - Exact layout-1 code encodes six 36-bit ranges as low32/high4 fields, disables
   the four instances before programming and enables them afterward. There is no
   distinct lock-register write inside that exact bounded XBL function; later
@@ -186,6 +192,9 @@ device, SMC, or MMIO access.
 - “Section 16's raw offset tokens imply 4-KiB register offsets or an observed
   write primitive.” The exact SHRM helper proves four-byte scaling and read
   direction for both direct consumers.
+- “The SHRM snapshot workspace is statically unprotected or granted to HLOS.”
+  Both exact policy branches cover it with the same three TZ-owned regions and
+  no comparative HLOS VMID bit.
 
 ## D. UNKNOWN
 
@@ -193,6 +202,8 @@ device, SMC, or MMIO access.
   channel/rank/bank/row/column model.
 - Runtime values and lock state of the section-16 readback registers; any
   indirect helper invocation with reverse direction; and final-decode meaning.
+- Final runtime XPU register state and the exact result of one fixed EL1 read of
+  the staged MCCC snapshot word at `0x0906566c`.
 - Numeric boot remapper values, runtime MMIO writability, and lock state.
   Destination regions and rank sizes are known, but runtime per-channel source
   bases and the interleave mask are missing. Static TZ policy ownership is now
@@ -299,11 +310,11 @@ this difference is not yet a complete structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-Do not repeat the same load. The next cheapest host-only phase is to model the
-430/64 SHRM snapshot addresses and decide whether an independent, read-only
-observation route can expose the staged values. That route must remain separate
-from any write experiment; the static interpreter already proves the observed
-section-16 direction and four-byte offset scaling.
+The next experiment is prepared as a fixed pair. First run the exact no-load
+control at `0x0906566c` once. Only a clean control result and verified V2321
+rollback make the paired one-load read eligible. The read targets section-16
+set-0 word 207, which Experiment 012 binds to MCCC register `0x09250118`; it has
+no runtime address or write input.
 
 ## N. 가장 위험한 아직 금지된 실험
 
@@ -350,6 +361,9 @@ Evidence against a presently usable bypass:
 - Every known remapper/BIMC configuration aperture is covered in both static
   TZ policy branches, and the only identified HLOS-visible XPU toggle has a
   zero-entry disable allowlist.
+- The complete SHRM snapshot workspace is independently covered by three
+  enabled TZ-owned regions in both policy branches, with no ordinary HLOS read
+  or write grant.
 - Secure ownership, boot-time locking, or a post-transform check could each
   independently make the AMD attack class fail.
 - Exact TrustZone firmware names multiple BIMC/MEMNOC/LLCC MPUs, increasing the
@@ -360,7 +374,8 @@ Evidence against a presently usable bypass:
 - Exact devcfg leaves XPU access control enabled (`disable_xpu_ac=0`), and the
   boot path consumes the selected static policy table.
 
-Critical unknowns are runtime SHRM snapshot values, lock state, indirect
+Critical unknowns are the fixed SHRM probe's runtime outcome, runtime snapshot
+values, lock state, indirect
 reverse-direction use, runtime source-base/interleave state, final
 XPU/remapper/MCCC/MC readback, dynamic BIMC policy inputs, protection ordering,
 any transform hidden from the diagnostic, and deterministic alias behavior. The
