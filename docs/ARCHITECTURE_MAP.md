@@ -449,6 +449,14 @@ anchor clobbering or trial disagreement.  This is `PROVED` only as
 cross-state permutation and any protected-boundary implication remain
 `UNKNOWN`; it does not promote numbered Experiments 015 or 016.
 
+The Route-2 audit then revalidated the exact 027/029/030/031/032/033/034 public
+manifests.  `SUPPORTED` bounded closure: no promoted DCB-consumer or MC/SHRM
+symbolic target appears in the declared models, the 71-site identities and
+transition counts are stable, and 030 inherits the validated rank-three
+relation.  Q4 remains `UNKNOWN` because those manifests do not contain a
+complete relation-row set; this audit does not establish global writer absence,
+runtime execution, physical mapping or a security-boundary result.
+
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside
 `DC_NOC_NON_BROADCAST_MPU`, `MEMNOC_MS_MPU`, and `CNOC_SNOC_MS_MPU` regions.

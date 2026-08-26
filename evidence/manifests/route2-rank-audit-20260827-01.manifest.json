@@ -1,0 +1,286 @@
+{
+  "claims": {
+    "HYPOTHESIS": [],
+    "PROVED": [
+      "all pinned 029-034 public manifests pass exact byte and JSON semantic validation",
+      "027 and 031-034 bounded outputs contain zero promoted DCB consumer or MC/SHRM symbolic target paths",
+      "031-034 preserve the same 71 site identities and regression-free transition checks",
+      "030 inherits the exact validated rank-3 relation dependency from 023R",
+      "029 rank fields are decoder-candidate ordering metadata rather than a bank-relation row set",
+      "no explicit rank-relation rows occur in 029 or 031-034 declared fields"
+    ],
+    "REFUTED": [],
+    "SUPPORTED": [
+      "bounded static evidence supports a no-promoted-writer-path disposition inside the declared models"
+    ],
+    "UNKNOWN": [
+      "global DCB consumer or transform-register writer presence/absence",
+      "Q4 contradiction status until the complete 029-034 raw row set is independently audited",
+      "runtime execution/order/current destination and indirect aliases",
+      "physical DRAM coordinates, transform mutability and protected-memory reach"
+    ]
+  },
+  "classification": "CLASS C (TRANSFORM ONLY)",
+  "device_access": {
+    "device_contact": false,
+    "mmio": false,
+    "mode": "HOST_ONLY_READ_ONLY",
+    "smc": false,
+    "writes": false
+  },
+  "inputs": {
+    "baseline_027": {
+      "basename": "027-dcb-consumer-writer-complement-20260826-01.manifest.json",
+      "sha256": "d11785969f16ba09155a2305eefd091158abfc515bc64cf94cb34d573a302277",
+      "size_bytes": 334847
+    },
+    "frontier_029": {
+      "basename": "029-dcb-unsupported-frontier-20260826-01.manifest.json",
+      "sha256": "c6d46c382d7c091fffad137adb9491d107ff823ad6c6221f51eb627cc218f634",
+      "size_bytes": 628525
+    },
+    "frontier_031": {
+      "basename": "031-dcb-scalar-frontier-extension-20260826-01.manifest.json",
+      "sha256": "51a187195c16eb609d337305540fc6d20a09297f5ab76b054497c5c58c3a2e86",
+      "size_bytes": 1327118
+    },
+    "frontier_032": {
+      "basename": "032-dcb-arithmetic-frontier-20260826-01.manifest.json",
+      "sha256": "beee3cdaa7d69f240310bed8b574f8dd81b00b48c2383f48dd849ebd36fb4b31",
+      "size_bytes": 1564295
+    },
+    "frontier_033": {
+      "basename": "033-dcb-residual-memory-frontier-20260826-01.manifest.json",
+      "sha256": "606723e5125d661c800b167133f2a9b69a3b8d47361b39176665a49be539e598",
+      "size_bytes": 2017356
+    },
+    "frontier_034": {
+      "basename": "034-dcb-site35-jump-table-20260826-01.manifest.json",
+      "sha256": "75728982e1622f3e807c367baff5cc87d18cff94fa2a9135699f3f836b804b92",
+      "size_bytes": 2241492
+    },
+    "high_bit_016": {
+      "basename": "verification-016-high-bit-relation-20260827-01.manifest.json",
+      "sha256": "72525cf994e52bbee1c3ed685c49a6ace4049cd7b279cb97811f6a0d3f4f773f",
+      "size_bytes": 59504
+    },
+    "low_bit_030": {
+      "basename": "030-low-bit-selector-20260826-01.manifest.json",
+      "sha256": "28f167a67a8d32c56a227e01f93ea243ff9bb2eb1ba4bb1007524b9c71b0a73f",
+      "size_bytes": 25831
+    },
+    "relation_023r": {
+      "basename": "023R-repaired-region-bank-relation-20260826-01.manifest.json",
+      "sha256": "5c3e14ff898c109de740d98260d974bca10751000f85977775cd467ac74aac2e",
+      "size_bytes": 18040
+    }
+  },
+  "q1_writer_route": {
+    "baseline_027": {
+      "discriminator_counts": {
+        "INDIRECT_OR_UNSUPPORTED": 71,
+        "NO_TARGET_WITHIN_MODEL": 2,
+        "SECTION_READER_PROXIMITY_ONLY": 2
+      },
+      "site_count": 73,
+      "writer_absence": "UNKNOWN",
+      "writer_absence_claim": false
+    },
+    "bounded_writer_route": "NO_PROMOTED_PATH_IN_DECLARED_MODELS",
+    "extensions": [
+      {
+        "dcb_consumer_paths": 0,
+        "indirect_or_unsupported": 20,
+        "manifest": "031-dcb-scalar-frontier-extension-20260826-01.manifest.json",
+        "mc_or_shrm_symbolic_target": 0,
+        "no_target_within_model": 51,
+        "site_count": 71
+      },
+      {
+        "dcb_consumer_paths": 0,
+        "indirect_or_unsupported": 16,
+        "manifest": "032-dcb-arithmetic-frontier-20260826-01.manifest.json",
+        "mc_or_shrm_symbolic_target": 0,
+        "no_target_within_model": 55,
+        "site_count": 71
+      },
+      {
+        "dcb_consumer_paths": 0,
+        "indirect_or_unsupported": 1,
+        "manifest": "033-dcb-residual-memory-frontier-20260826-01.manifest.json",
+        "mc_or_shrm_symbolic_target": 0,
+        "no_target_within_model": 70,
+        "site_count": 71
+      },
+      {
+        "dcb_consumer_paths": 0,
+        "indirect_or_unsupported": 0,
+        "manifest": "034-dcb-site35-jump-table-20260826-01.manifest.json",
+        "mc_or_shrm_symbolic_target": 0,
+        "no_target_within_model": 71,
+        "site_count": 71
+      }
+    ],
+    "global_writer_or_consumer_absence": "UNKNOWN",
+    "quadrant_checks": {
+      "frontier_032/transition_quadrants": true,
+      "frontier_033/transition_quadrants": true,
+      "frontier_034/combined_transition_quadrants": true,
+      "frontier_034/transition_quadrants": true,
+      "frontier_034/transition_quadrants_vs_033": true
+    },
+    "row_aggregate_checks": {
+      "frontier_031/actual_delta_vs_027": true,
+      "frontier_032/actual_delta_vs_027": true,
+      "frontier_032/actual_delta_vs_031": true,
+      "frontier_033/actual_delta_vs_027": true,
+      "frontier_033/actual_delta_vs_032": true,
+      "frontier_034/actual_delta_vs_027": true,
+      "frontier_034/actual_delta_vs_032": true,
+      "frontier_034/actual_delta_vs_033": true
+    },
+    "row_transition_checks": {
+      "frontier_031/delta_vs_027": true,
+      "frontier_032/delta_vs_027": true,
+      "frontier_033/delta_vs_027": true,
+      "frontier_034/delta_vs_027": true
+    },
+    "site_identity_stable_031_to_034": true,
+    "status": "SUPPORTED_BOUNDED_CLOSURE_UNKNOWN_GLOBAL",
+    "transition_checks": {
+      "frontier_031": {
+        "actual_delta_count_balance": {
+          "actual_delta_vs_027": true
+        },
+        "actual_delta_transition_identity": {
+          "actual_delta_vs_027": true
+        }
+      },
+      "frontier_032": {
+        "actual_delta_count_balance": {
+          "actual_delta_vs_027": true,
+          "actual_delta_vs_031": true
+        },
+        "actual_delta_transition_identity": {
+          "actual_delta_vs_027": true,
+          "actual_delta_vs_031": true
+        }
+      },
+      "frontier_033": {
+        "actual_delta_count_balance": {
+          "actual_delta_vs_027": true,
+          "actual_delta_vs_032": true
+        },
+        "actual_delta_transition_identity": {
+          "actual_delta_vs_027": true,
+          "actual_delta_vs_032": true
+        }
+      },
+      "frontier_034": {
+        "actual_delta_count_balance": {
+          "actual_delta_vs_027": true,
+          "actual_delta_vs_032": true,
+          "actual_delta_vs_033": true
+        },
+        "actual_delta_transition_identity": {
+          "actual_delta_vs_027": true,
+          "actual_delta_vs_032": true,
+          "actual_delta_vs_033": true
+        }
+      }
+    }
+  },
+  "q4_rank3_contradiction": {
+    "030_inherited_relation": {
+      "contribution": "0b110",
+      "physical_classification": "SUPPORTED_WITHIN_MODEL",
+      "rank": 3,
+      "validated": true
+    },
+    "contradiction_status": "UNKNOWN_NOT_AUDITED_FROM_COMPLETE_RAW_ROW_SET",
+    "decoder_ordering_metadata_count_029": 4,
+    "explicit_relation_rows_in_029_031_034": 0,
+    "inherited_relation_metadata_count_030": 1,
+    "rank_relation_field_inventory": {
+      "frontier_029": [
+        {
+          "kind": "DECODER_ORDERING_METADATA",
+          "path": "/decoder_extension_candidates[0]/rank",
+          "value_type": "int"
+        },
+        {
+          "kind": "DECODER_ORDERING_METADATA",
+          "path": "/decoder_extension_candidates[1]/rank",
+          "value_type": "int"
+        },
+        {
+          "kind": "DECODER_ORDERING_METADATA",
+          "path": "/decoder_extension_candidates[2]/rank",
+          "value_type": "int"
+        },
+        {
+          "kind": "DECODER_ORDERING_METADATA",
+          "path": "/decoder_extension_candidates[3]/rank",
+          "value_type": "int"
+        }
+      ],
+      "frontier_031": [],
+      "frontier_032": [],
+      "frontier_033": [],
+      "frontier_034": [],
+      "low_bit_030": [
+        {
+          "kind": "RANK_OR_RELATION_FIELD",
+          "path": "/relation_coordinate_scope",
+          "value_type": "str"
+        },
+        {
+          "kind": "INHERITED_RELATION_METADATA",
+          "path": "/relation_dependency",
+          "value_type": "dict"
+        },
+        {
+          "kind": "RANK_OR_RELATION_FIELD",
+          "path": "/relation_dependency/rank",
+          "value_type": "int"
+        },
+        {
+          "kind": "RANK_OR_RELATION_FIELD",
+          "path": "/relation_physical_attribution",
+          "value_type": "dict"
+        }
+      ]
+    },
+    "source_rank3": {
+      "rank": 3,
+      "resolved": true,
+      "unique": true
+    },
+    "status": "UNKNOWN_NO_COMPLETE_029_034_RELATION_ROW_SET",
+    "v016_matches": {
+      "PA25": [
+        14,
+        21
+      ],
+      "PA26": [
+        19
+      ],
+      "PA27": [
+        13,
+        20
+      ]
+    }
+  },
+  "reproduction": {
+    "command": "python3 tools/a90_route2_rank_audit.py --output <manifest>",
+    "no_device_action": true
+  },
+  "schema": "a90-route2-rank-audit-v1",
+  "scope": {
+    "global_writer_absence": "UNKNOWN",
+    "physical_mapping": "UNKNOWN",
+    "q1": "BOUNDED_STATIC_MANIFEST_SEMANTICS",
+    "q4": "DECLARED_RANK_RELATION_FIELDS_ONLY",
+    "runtime_execution": "UNKNOWN"
+  }
+}

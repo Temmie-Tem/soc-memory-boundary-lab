@@ -72,11 +72,14 @@ condition 3.
 
 ## Q4 — contradiction with rank three
 
-**`UNKNOWN`.**  This response does not contain the complete 029–034 raw row set
-or an independent comparison manifest.  It therefore does not count “no
-contradiction” by concurrence.  A future audit must reparse those exact rows in
-their declared coordinate domain and compare them with the retained V015/V016
-algebra.  V015/V016/V017 agreement alone is not a review of every 029–034 row.
+**`UNKNOWN`.**  The independent Route-2 audit is now recorded in
+`evidence/manifests/route2-rank-audit-20260827-01.manifest.json`.  It validates
+the exact 029–034 bytes, site/transition metadata, 030's inherited rank-3
+dependency, and the absence of explicit relation rows in the declared fields.
+It still does not contain the complete 029–034 raw relation-row set, so it does
+not count “no contradiction” as a global result.  V015/V016/V017 agreement and
+this bounded field audit are not a review of unretained raw rows; Q4 remains
+open to a retained algebraic counterexample.
 
 ## External integration delta
 

@@ -413,13 +413,28 @@ byte-identical static AArch64 binary is 710,408 bytes / SHA-256
 twice with `aarch64-linux-gnu-gcc` 15.2.0. Host validation is 28 focused
 tests at this iteration; the independent hostile review's P1s were repaired
 by exact source/binary/build pins, bridge serial binding, strict framing and
-receipt/sidecar checks. Class C remains unchanged. The next discriminator is
-the route-2 challenge and its independent response in
-`docs/CODEX_HANDOFF_ROUTE2_TERMINATION_2026-08-27.md` and
-`docs/ROUTE2_TERMINATION_RESPONSE_2026-08-27.md`; V017's audit is complete and
-does not authorize a controller or protection write.
+receipt/sidecar checks. Class C remains unchanged. V017's audit is complete and
+does not authorize a controller or protection write. The bounded Route-2 audit
+recorded below and in
+`docs/ROUTE2_RANK_AUDIT_INTEGRATION_REVIEW_2026-08-27.md` is complete; its Q4
+unknown is retained as a constraint on the next discriminator.
 The detailed integration review is
 `docs/VERIFICATION018_INTEGRATION_REVIEW_2026-08-27.md`.
+
+The Route-2 falsification audit is complete as a separate host-only semantic
+cross-check.  Q1 is `SUPPORTED_BOUNDED_CLOSURE_UNKNOWN_GLOBAL`: the exact
+027/029/031–034 manifests retain zero promoted DCB-consumer or MC/SHRM symbolic
+paths, stable 71-site identities and explicit global writer `UNKNOWN` fields.
+Q4 is deliberately `UNKNOWN`: 030 inherits the validated rank-3 relation, but
+the 029–034 public manifests do not contain a complete relation-row set.  The
+public manifest is
+`evidence/manifests/route2-rank-audit-20260827-01.manifest.json`, 9,607 bytes,
+SHA-256
+`ec3ec693768bf1294366c5650ab9c5e76b27f9bdce049c7a6f2b205a00a72fb8`, mode
+`0644`.  Validation is 19 focused and 1,151 full serial PASS (`skipped=1`, no
+swaps); no device action occurred.  The next candidate is
+the host-only 020A setter/base trace, subject to the same bounded
+no-writer/no-live-authority boundary.
 
 ## A. 현재까지 PROVED
 
@@ -1111,17 +1126,19 @@ ordering remain `UNKNOWN`, so this is not yet a structural impossibility proof.
 ## M. 가장 값싼 다음 실험
 
 Verification 016 is complete, Verification 017 has excluded the narrow
-bank-only enforcement shape, and Verification 018 has supplied the fresh
-allocation-local baseline described above. The highest-information next
-iteration is the route-2 falsification challenge recorded in
-`docs/CODEX_HANDOFF_ROUTE2_TERMINATION_2026-08-27.md` and answered independently
-in `docs/ROUTE2_TERMINATION_RESPONSE_2026-08-27.md`.
+bank-only enforcement shape, Verification 018 has supplied the fresh
+allocation-local baseline, and the Route-2 audit has closed its bounded Q1
+question while retaining Q4 as `UNKNOWN`. The highest-information next
+iteration is the host-only 020A setter/base trace; the Route-2 handoff and
+audit remain the constraints for interpreting it.
 
 The ordered next step is:
 
-1. run the route-2 challenge against 029–034, requiring an exact reachable
-   writer/register path before reopening the mutation route;
-2. retain the V017 result as a bank-only shape exclusion and the V018 one-state
+1. run the 020A setter/base trace as a bounded host-only static analysis,
+   requiring an exact reachable writer/register path before reopening the
+   mutation route;
+2. retain the V017 result as a bank-only shape exclusion, the Route-2 Q4 result
+   as `UNKNOWN`, and the V018 one-state
    result only as a storage-identity baseline; do
    not infer physical PA alias, transform immutability or protected reach;
 3. if a reopen condition appears, select a new bounded discriminator and stop

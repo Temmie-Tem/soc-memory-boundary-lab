@@ -480,8 +480,17 @@ or protected-boundary evidence. The first parser-only target-format incident is
 retained separately and had no allocation or write effect. The canonical public
 manifest is
 [verification-018-a90-20260827-03.manifest.json](evidence/manifests/verification-018-a90-20260827-03.manifest.json).
-The next highest-information work is the route-2 falsification handoff and
-independent response in
+The Route-2 falsification audit is now complete as a host-only semantic
+cross-check.  It finds `SUPPORTED` bounded closure for Q1 (no promoted writer
+path in the declared 027/031–034 models) while preserving global writer absence
+as `UNKNOWN`.  Q4 remains `UNKNOWN`: 030 inherits the validated rank-3 relation,
+but the 029–034 public manifests contain no complete relation-row set to audit.
+The sanitized result is
+[route2-rank-audit-20260827-01.manifest.json](evidence/manifests/route2-rank-audit-20260827-01.manifest.json).
+The audit is 19 focused / 1,151 full serial tests PASS (`skipped=1`, no swaps),
+with manifest SHA-256
+`ec3ec693768bf1294366c5650ab9c5e76b27f9bdce049c7a6f2b205a00a72fb8`.
+The handoff and independent response remain in
 [docs/CODEX_HANDOFF_ROUTE2_TERMINATION_2026-08-27.md](docs/CODEX_HANDOFF_ROUTE2_TERMINATION_2026-08-27.md)
 and
 [docs/ROUTE2_TERMINATION_RESPONSE_2026-08-27.md](docs/ROUTE2_TERMINATION_RESPONSE_2026-08-27.md).
@@ -532,6 +541,10 @@ Verification 017's bank-granularity audit is in
 [experiments/verification-017-protection-bank-granularity/README.md](experiments/verification-017-protection-bank-granularity/README.md),
 with its sanitized result in
 [evidence/manifests/verification-017-protection-bank-granularity-20260827-05.manifest.json](evidence/manifests/verification-017-protection-bank-granularity-20260827-05.manifest.json).
+The Route-2 writer/rank audit is in
+[experiments/verification-route2-rank-audit/README.md](experiments/verification-route2-rank-audit/README.md),
+with its sanitized result in
+[evidence/manifests/route2-rank-audit-20260827-01.manifest.json](evidence/manifests/route2-rank-audit-20260827-01.manifest.json).
 Experiment 018's Stage 1A/Stage 2A/Stage 2B/Stage 2C/Stage 2D/Stage 2E XBL writer cross-reference is in
 [experiments/018-xbl-mc-writer-xref/README.md](experiments/018-xbl-mc-writer-xref/README.md).
 Experiment 019's strict DCB pair-array inventory is in

@@ -1859,10 +1859,9 @@ transform-state mutability, protection ordering and any protected-boundary
 reach.  `REFUTED` only: an alias in the tested candidate pairs for this run.
 
 Class C (`TRANSFORM ONLY`) is unchanged; numbered Experiments 015/016 remain
-`NOT_ELIGIBLE`.  The next scored work is the route-2 falsification challenge,
-with the questions and independent response in
-`docs/CODEX_HANDOFF_ROUTE2_TERMINATION_2026-08-27.md` and
-`docs/ROUTE2_TERMINATION_RESPONSE_2026-08-27.md`.
+`NOT_ELIGIBLE`.  The route-2 falsification challenge selected next is now
+audited in `docs/ROUTE2_RANK_AUDIT_INTEGRATION_REVIEW_2026-08-27.md`; its Q1
+bounded result is `SUPPORTED` and Q4 remains `UNKNOWN`.
 
 # 2026-08-27 — Verification 017 post-decode bank-granularity audit
 
@@ -1921,3 +1920,26 @@ structural possibility.
 `UNKNOWN`: actual enforcement ordering, complete DRAM coordinates, physical
 mapping, PA28+, transform mutability, global writer/register absence, and any
 protected-memory reach or bypass.  Class C remains unchanged.
+
+# 2026-08-27 — Route-2 writer/rank manifest audit
+
+This host-only iteration pins the exact 027/029/030/031/032/033/034 public
+manifests plus 023R and V016.  It verifies the bounded no-promoted-path result,
+all 71 site identities, every transition identity/count balance, 032–034
+quadrant counts, 030's inherited rank-3 dependency, and the distinction between
+029 decoder ranking metadata and a relation row.  No device or controller action
+was performed.
+
+`SUPPORTED_BOUNDED_CLOSURE_UNKNOWN_GLOBAL`: Q1 has no promoted DCB-consumer or
+MC/SHRM symbolic target path inside the declared models, but global writer,
+runtime and indirect state remain `UNKNOWN`.  Q4 is
+`UNKNOWN_NO_COMPLETE_029_034_RELATION_ROW_SET`: no explicit relation rows occur
+in the named public fields, but unretained raw rows were not reconstructed.
+
+The canonical public manifest is
+`evidence/manifests/route2-rank-audit-20260827-01.manifest.json`, 9,607 bytes,
+mode `0644`, SHA-256
+`ec3ec693768bf1294366c5650ab9c5e76b27f9bdce049c7a6f2b205a00a72fb8`.  The
+focused suite is 19/19 PASS; the full serial repository suite is 1,151/1,151
+PASS (`skipped=1`) in 113.671 seconds, maximum RSS 290,844 KiB, with zero swap.
+The hostile-review result is recorded in the integration review.

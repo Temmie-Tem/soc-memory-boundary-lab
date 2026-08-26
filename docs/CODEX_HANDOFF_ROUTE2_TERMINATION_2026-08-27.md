@@ -111,20 +111,24 @@ not device authority.
 
 ### 4. Does any 029–034 result contradict the rank-3 relation?
 
-**Current answer: UNKNOWN until the 029–034 rows are independently audited in
-this line.**  The current handoff does not carry the full raw row set or a
-separate comparison manifest, so it must not count this question as survived by
-concurrence.  V015 preserves cross-condition label invariance, V016 adds model
+**Current answer: UNKNOWN, with a bounded field audit complete.**  The
+independent Route-2 manifest validates the exact 029–034 bytes, stable site and
+transition metadata, 030's inherited rank-three dependency, and the absence of
+explicit relation rows in the declared 029/031–034 fields.  It does not contain
+the complete raw relation-row set, so it must not count “no contradiction” as a
+global result.  V015 preserves cross-condition label invariance, V016 adds model
 bits 25–27 with the same rank-three shape, and V017's source cross-check agrees
-with those equalities; none of those facts is a review of every 029–034 row.
+with those equalities; none of those facts reviews unretained raw rows.
 
-To resolve this question, reparse the exact 029–034 artifacts and compare their
-declared coordinate domain and rank-relevant algebra against the retained
-V015/V016 records.  Provide an exact retained observation or algebraic
-counterexample in the same declared coordinate domain that requires rank four
-or otherwise violates the repaired kernel/match tests.  A different runtime
-environment, a stale unretained sweep, or a semantic guess about one ranked
-register is not a contradiction.
+The audit artifact is
+`evidence/manifests/route2-rank-audit-20260827-01.manifest.json` (9,607 bytes,
+SHA-256
+`ec3ec693768bf1294366c5650ab9c5e76b27f9bdce049c7a6f2b205a00a72fb8`).  To
+reopen Q4, provide an exact retained observation or algebraic counterexample in
+the same declared coordinate domain that requires rank four or otherwise
+violates the repaired kernel/match tests.  A different runtime environment, a
+stale unretained sweep, or a semantic guess about one ranked register is not a
+contradiction.
 
 ## Reopen conditions
 
