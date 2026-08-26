@@ -1204,11 +1204,11 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
    integration review.
 9. The completed Experiment 026 result is recorded below and does not upgrade
    runtime order, slot value, actual `BLR` target, base currentness, or live
-   mapping. The selected next host-only follow-up is Experiment 027, scored
-   `79/100`, a bounded DCB consumer/writer complement over the 020 67
-   register-offset loop sites minus the 024 walker plus all 8 computed-address
-   sites; its exact inputs, exclusions, outcome labels, and rawdump slot
-   boundary are recorded in the current integration sections.
+   mapping. Experiment 027 is now completed and integrated as a bounded DCB
+   consumer/writer complement; its exact result and artifact pins are recorded
+   in the current integration section. The next non-overlapping selection is
+   Experiment 029, scored `76/100`; Experiment 028 is concurrent work outside
+   this integration and is not claimed or reviewed here.
 
 ## 2026-08-26 — Experiment 026 XBL dispatch/order and slot-escape integration
 
@@ -1264,8 +1264,67 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
    literal taint, SP/XZR handling, writeback overlap, conditional list-head
    semantics, symbolic pool addressing, and interval-overlap slot detection.
    Adversarial synthetic controls cover decoder false positives/negatives,
-   clobbers, control flow, and positive/negative slot overlap. The selected
-   next host-only follow-up is Experiment 027, scored `79/100`, a bounded DCB
-   consumer/writer complement with outcomes `DCB_CONSUMER_PATH`,
-   `MC_OR_SHRM_SYMBOLIC_TARGET`, `NO_TARGET_WITHIN_MODEL`, or
-   `INDIRECT_OR_UNSUPPORTED`; no implementation or live action is implied.
+   clobbers, control flow, and positive/negative slot overlap. Experiment 027
+   is now integrated as the completed bounded DCB consumer/writer complement;
+   its 73-site result and validation are recorded in the following section.
+   The next non-overlapping host-only selection is Experiment 029, scored
+   `76/100`; Experiment 028 is concurrent work outside this integration and
+   is not claimed or reviewed here.
+
+## 2026-08-26 — Experiment 027 DCB consumer/writer complement integration
+
+1. Integrated commit `7aa1df7` as a host-only, read-only bounded CFG/dataflow
+   transform over the exact SM8150 XBL, `xbl_config--sdb2.bin`, and semantic
+   public dependency pins. No device, USB, SMC, MMIO, protected-memory,
+   normal-RAM, boot, activation, or write action occurred. Class C remains
+   `TRANSFORM ONLY`; Experiments 015/016 remain `NOT ELIGIBLE`.
+2. `PROVED`: the XBL input is 4,194,304 bytes with SHA-256
+   `e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37` and
+   `xbl_config--sdb2.bin` is 4,149,248 bytes with SHA-256
+   `0e9dfac1ddd0f9acc2cc899213e621490308f0cadf329814048edb7712e2484c`.
+   Experiment 019 sections `{6,7,8,10,11,12}` and section-7 keys `0x400` and
+   `0x404`, each with value `0x10000000`, revalidate across four `0x3404`-byte
+   DCB blocks at file offsets `0x1079c`, `0x13ba0`, `0x16fa4`, and `0x1a3a8`.
+3. `PROVED`: Experiment 020 supplies 67 register-offset loop sites and eight
+   computed-address idioms. Two dependency-owned register sites are excluded;
+   65 register sites plus all 8 computed sites are analyzed, with three
+   computed idioms represented by complete loop contexts and five by local
+   forms, for 73 sites total. The exact candidate setter is
+   `[0x9fc06410,0x9fc0643c)` with direct caller `0x9fc023f0` in
+   `[0x9fc023e0,0x9fc02430)`; runtime object-field arguments and current
+   destination remain `UNKNOWN`.
+4. The implemented census returns 71 `INDIRECT_OR_UNSUPPORTED`, 2
+   `NO_TARGET_WITHIN_MODEL`, zero `DCB_CONSUMER_PATH`, and zero
+   `MC_OR_SHRM_SYMBOLIC_TARGET`. Two nonexclusive
+   `SECTION_READER_PROXIMITY_ONLY` hypotheses are `0x148aa758` to reader
+   `0x148ab138` at signed `-2528`/absolute `2528`, and `0x148ab4f8` to the
+   same reader at signed `960`/absolute `960`; threshold is `0x1000` and
+   `link_proof` is `NONE`. Zero target labels are bounded-model results, not
+   global absence claims. Runtime base/current destination, execution/order,
+   writer/global consumer identity, aliases, register semantics, unsupported
+   forms, indirect targets, and post-boot mutation remain `UNKNOWN`.
+5. Tool/test/README/manifest SHA-256 values are
+   `11a4dab37e9a54e74ec93fba7c89524de1e77c7e71b86f105dd167d77780bcb9`,
+   `683da291f4421b3af0c75be21093b2cad3bbb3bf4933e4f2a70910cde4aa1cda`,
+   `dd722225be2bcc5faf4e0cd08b60b5385d6a9fb9249e5e54d1c2ee6d128cefd0`, and
+   `d11785969f16ba09155a2305eefd091158abfc515bc64cf94cb34d573a302277`.
+   The public manifest is 334,847 bytes, mode `0644`, at
+   `evidence/manifests/027-dcb-consumer-writer-complement-20260826-01.manifest.json`.
+6. Validation is 35 focused and 616 full unittest-discovery PASS in 86.100 s,
+   Python byte-compilation, 67 public JSON manifests parsed, two fresh
+   generations byte-identical, public safety/no-clobber checks, and independent
+   hostile review `PASS` after fixes. The durable integration review is
+   `docs/EXP027_INTEGRATION_REVIEW_2026-08-26.md`.
+7. The next non-overlapping host-only selection is Experiment 029, scored
+   `76/100`. It inventories only the 71 fail-closed site ranges, independently
+   deduplicates unique VAs versus per-site multiplicity, classifies exact
+   unrecognized forms without treating syntactic range membership as
+   reachability, and ranks only source-backed decoder-extension candidates for
+   later semantic review. Its labels are `DECODER_EXTENSION_CANDIDATE`,
+   `FLAG_ONLY_NO_GPR_DEF`, `TAINT_KILL_REQUIRED`,
+   `CONTROL_OR_MEMORY_UNSUPPORTED`, and `UNREACHABLE_OR_OVERLAP_UNKNOWN`.
+   Stage 1 must not upgrade Experiment 027 or claim decoder safety; only a later
+   separately reviewed stage may extend an independently reviewed form. No
+   device, MMIO, or write action is selected. Experiment 028 is concurrent work outside
+   this integration (GF(2) row-space and decoded SHRM register/index-encoding
+   hypotheses); no result, score, authority, or review is claimed here.

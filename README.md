@@ -302,40 +302,43 @@ focused and 581 full unittest PASS, Python byte-compilation, JSON safety,
 byte-identical regeneration, mode `0644`, and exact-XBL plus final decoder
 hostile-review `PASS`, recorded in the
 [Experiment 026 integration review](docs/EXP026_INTEGRATION_REVIEW_2026-08-26.md).
-Class C is unchanged; Experiments 015/016 remain `NOT ELIGIBLE`. The selected
-next host-only follow-up is Experiment 027, scored `79/100`, a bounded DCB
-consumer/writer complement. It binds the exact XBL above plus
-`xbl_config--sdb2.bin` (size 4,149,248, SHA-256
-`0e9dfac1ddd0f9acc2cc899213e621490308f0cadf329814048edb7712e2484c`) and
-four `0x3404`-byte DCB blocks at file offsets `0x1079c`, `0x13ba0`,
-`0x16fa4`, and `0x1a3a8`. The target set is the 020 census's 67
-register-offset loop sites minus the 024 walker (66 new loop candidates), plus
-all 8 computed-address sites; representative loop stores are `0x1484b9a0`,
-`0x146aea20`, and `0x9fc05ef4`. The setter is `[0x9fc06410,0x9fc0643c)` with
-caller `0x9fc023f0`. DCB sections 6/7/8/10/11/12 are candidates; section 5's
-absolute-address table is a negative control only. The XBL loader is
-`[0x1489f9e8,0x1489fbe8)` and section readers begin at
-`0x1485f0f8/0x1485f13c/0x1485f17c/0x1485f1c0/0x1485f200/0x1485f23c`.
+Class C is unchanged; Experiments 015/016 remain `NOT ELIGIBLE`. Experiment
+027 is now `COMPLETED` and integrated from commit `7aa1df7` as a host-only,
+read-only bounded CFG/dataflow result. Across 73 analyzed sites (65 of 67
+register-offset sites after two dependency-owned exclusions, plus all 8
+computed-address idioms), the implemented model returns 71
+`INDIRECT_OR_UNSUPPORTED`, 2 `NO_TARGET_WITHIN_MODEL`, zero
+`DCB_CONSUMER_PATH`, and zero `MC_OR_SHRM_SYMBOLIC_TARGET`. The latter zeros
+are bounded-model results, not global absence claims. Two nonexclusive
+`SECTION_READER_PROXIMITY_ONLY` hypotheses remain non-destination leads:
+`0x148aa758` is signed `-2528`/absolute `2528` from reader `0x148ab138`, and
+`0x148ab4f8` is signed `960`/absolute `960` from the same reader; threshold is
+`0x1000`, with no link proof. Runtime base/current destination, execution,
+writer/global consumer identity, aliases, register semantics, and unsupported
+paths remain `UNKNOWN`.
 
-The full 024 walker `[0x148689a0,0x14868a64)` and overlapping 020 subrange
-`[0x148689c8,0x14868a60)` are excluded positive controls, not new claims; the
-three excluded 024 caller context ranges are
-`[0x14868630,0x14868644)`, `[0x14868668,0x14868680)`, and
-`[0x14868684,0x1486869c)`. Required outcomes are `DCB_CONSUMER_PATH`,
-`MC_OR_SHRM_SYMBOLIC_TARGET`, `NO_TARGET_WITHIN_MODEL`, and
-`INDIRECT_OR_UNSUPPORTED`; unsupported forms, aliases, unresolved computed
-pointers, excluded-range overlap, or any device/MMIO/write action stop the
-analysis and preserve `UNKNOWN`. Runtime base, writer identity/absence,
-semantics, and execution remain `UNKNOWN`. Experiment 023R remains withheld.
+The integrated artifact is
+`evidence/manifests/027-dcb-consumer-writer-complement-20260826-01.manifest.json`
+(334,847 bytes, mode `0644`, SHA-256
+`d11785969f16ba09155a2305eefd091158abfc515bc64cf94cb34d573a302277`).
+Validation is 35 focused and 616 full unittest PASS in 86.100 s, Python
+byte-compilation, 67 public JSON manifests parsed, two fresh byte-identical
+generations, public safety/no-clobber checks, and independent hostile review
+`PASS` after fixes; see the [Experiment 027 integration review](docs/EXP027_INTEGRATION_REVIEW_2026-08-26.md).
 
-The separate runtime slot/object alternative is not selected: the exact
-26-record rawdump catalog's record 19 is `SHRM_MEM.BIN`
-`[0x09060000,0x09070000)`, while retained `ocimem` is
-`[0x14680000,0x146c0000)`; neither covers slot `0x14890590`. Samsung Upload
-supplies only `SHRM_MEM.BIN`, Sahara reports `NO_SHRM_DUMP_CAPTURED`, and no
-safe arbitrary XBL-BSS path is available in the current evidence. Survival is
-`UNKNOWN`, not absent. No device action is proposed by the scorecard; future
-action needs a separate exact-bound contract/gates.
+The next non-overlapping host-only selection is Experiment 029, scored
+`76/100`: inventory the 71 exact fail-closed site ranges with independent
+unique-VA versus per-site multiplicity accounting, classify exact unrecognized
+instruction forms without treating syntactic range membership as reachability,
+and rank only source-backed decoder-extension candidates for later semantic
+review. Its labels are `DECODER_EXTENSION_CANDIDATE`, `FLAG_ONLY_NO_GPR_DEF`,
+`TAINT_KILL_REQUIRED`, `CONTROL_OR_MEMORY_UNSUPPORTED`, and
+`UNREACHABLE_OR_OVERLAP_UNKNOWN`. Stage 1 must not upgrade 027 or claim
+decoder safety; only a later separately reviewed stage may extend an
+independently reviewed form. No device, MMIO, or write action is selected.
+Experiment 028 is concurrent work outside this integration (GF(2) row-space and decoded SHRM
+register/index-encoding hypotheses); no 028 result, score, authority, or
+review is claimed here.
 
 Claim vocabulary is deliberately closed:
 

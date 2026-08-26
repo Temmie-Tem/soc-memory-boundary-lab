@@ -21,7 +21,7 @@
 | 017 | Does exact XBL expose a table-driven MC read-copy path that independently covers the ranked MC candidates? | The pinned u64 table parses to 122 entries plus a zero terminator; the exact helper's static flow conditionally loads each table-derived address and stores results to a distinct buffer. | Exact XBL size/hash, PT_LOAD mapping, inclusive table/helper hashes, AArch64 word pins, direct-BL scan limited to file-backed executable PT_LOADs, SHRM-plan address-list cross-check; host-only, no device/SMC/MMIO. | `PROVED`: 30×4 MC groups + 2 globals, all 12 qhs_mc candidates covered, helper read-copy store-base dataflow, exactly two direct BL callsites. `REFUTED`: helper as candidate-register writer and independent hard 122-entry cap. Runtime completion/coherence/currentness, mutable table state, indirect reachability and writer semantics `UNKNOWN`; 015/016 remain `NOT ELIGIBLE`. |
 | 018 | Does exact XBL contain literal and syntactic store-offset evidence for the 12 ranked MC targets, and do the non-SP RX candidates resolve through narrow direct-definition models? | Each target's single 8-byte table encoding yields one aligned u64 match and the overlapping aligned u32 match at the same file offset; strict STR W/X unsigned-immediate offsets enumerate candidates. Stage 2A resolves only 64-bit MOVZ/MOVK or same-register `ADRP Xn; ADD Xn,Xn,#imm` within 128 instructions; Stage 2B extends only its two X8 window-limit candidates with same-register W MOVZ/MOVK within 512 instructions; Stage 2C analyzes one X8 writer through its unique direct caller and 48-row retained table; Stage 2D analyzes the remaining X19 store under explicit dispatch, normal-return, and initialized-slot conditions; Stage 2E analyzes only the seven RX SP-base stores against exact F1/F2 local frame allocations. | Exact XBL size/SHA-256, PT_LOAD RX/RWE/RW/OTHER census, scalar STR decoder negatives, literal mapping/table membership, exact candidate/code/table/initializer pins, exact target instruction-class/write-set audit, exact SP-write/site manifest bound to both function hashes, explicit memory-writeback, BR/BLR, all-file-backed executable PT_LOAD-word direct-entry, direct BL/B and success-path cutoffs, unsupported/mixed-width definition negatives; host-only, no device/SMC/MMIO. | `PROVED`: the two aligned matches per target are views of one table entry, not independent literals, with no separate target literal elsewhere; outside-table aligned u32 only for base `0x09260000` at file `0x80154` / VA `0x148bc254` in RWE; 14 matching offsets (RX11/RWE3), seven RX SP-based; Stage 2A has two window-limit no-definitions, one unsupported LDR, one BL control boundary, zero resolved bases/hits. Stage 2B resolves two W-wide-move bases to XBL virtual-address values `0x1489f000`, computing `0x1489f400`/`0x1489f4d0`, with zero numeric target hits. Stage 2C proves one direct BL, the 56/108/272-byte code-range hashes, and 48 unique ID/pointer rows with zero numeric target matches; these are a descriptor-eligibility-dependent possible-value superset. Stage 2D proves the remaining caller/function/initializer/target static pins, exact target no-call/no-saved-register audit, dispatch and normal-return pins, and computes `0x85e9e970` only within explicit runtime/slot conditions; its conditional value has zero numeric target matches. Stage 2E proves all seven SP forms, both frame ranges/hashes and callers, four recognized explicit writeback sites per function (two SP frame updates and two non-SP writebacks), zero recognized BR/BLR transfers, one external direct BL to each function start with zero external entries to interiors, and in-allocation bounds. The same-function immediate-control CFG (BL modeled as fallthrough) has no recognized SP-write-class instruction after allocation on a path to each candidate; unsupported instruction effects remain `UNKNOWN`; absolute stack address and runtime destination remain `UNKNOWN`. `REFUTED` only: the supported Stage 2A direct-definition path, Stage 2B/2C/2D numeric target equality in their stated models, and static absolute/controller-base interpretation of these seven stores within the normal frame model. Physical destination, runtime execution, writer identity outside scoped paths and all SP/RWE/unsupported/dynamic paths remain `UNKNOWN`; 015/016 remain `NOT ELIGIBLE`. |
 
-## Integrated host-only rows 019–022 and 024–026
+## Integrated host-only rows 019–022 and 024–027
 
 | ID | Question | Bounded result | Classification and boundary |
 |---:|---|---|---|
@@ -32,42 +32,31 @@
 | 024 | Does the exact false-negative loop from 020 resolve as an XBL-resident six-byte table walker and a conditional UFS-PHY path? | `PROVED`: walker `[0x148689a0,0x14868a64)` uses six-byte records, exact `0x8000`/`B.EQ` return-before-store, and conditional 32-bit storage of the zero-extended byte; exactly three direct callers select five XBL-resident alternatives plus provider3's selector-`0xf` zero-count/no-pointer path. The selector unions contain 53 and 127 unique offsets, a 170-offset syntactic superset, and 221 nonterminator records. The two pinned design-source UFS blocks are byte-identical; under initialized-base retention all 170 symbolic destinations lie in broader `ufshc` `ufs_phy`. | `SUPPORTED`: table-driven UFS interpretation only under base retention and store reach. `UNKNOWN`: current base, selector/runtime execution, reached-store subset, flag semantics, live-DTB equality, DCB semantic alias/global consumer/writer, DDR/MC relation, GF(2), alias/bypass, and actual current destinations. All mappings are conditional symbolic supersets. |
 | 025 | Can the intended XBL platform-query binding be statically tied from its caller and runtime slot through registry/attach, factory, vtable and callback, and does its recognized callback flow write caller context `+8`? | `PROVED`: helper `[0x1486abec,0x1486acac)` has caller `0x1486847c` with `X0=SP+0x10`, slot `0x14890590` load/address/reload, semantic `MOVZ/MOVK` ID `0x02000139`, seed `X0=0x14875668`/outer record `X1=0x14875590` count 5, descriptor `0x14824ab8` -> factory `0x1484a880` -> object candidate `0x1488f418` -> vtable `0x14824ad0 + 0x48` -> callback `0x1484a9d4`; bounded callback `a9d4->a730->a824->aa30->a854` has output write `0x1484a9f4` to helper `SP+0xc`, nested writes only at `0x1488f3f9/0x14890ba0/0x14890b90`, one decoded MMIO read `0x01fc8004`, and zero recognized MMIO writes. | `SUPPORTED`: conditional intended binding can populate the slot and the recognized callback flow does not write caller context `+8`. `UNKNOWN`: runtime registration/order, slot/object identity, actual `BLR X9` target, alternate BSS mutation/global aliases/unsupported writes, all-exec census coverage outside recognized forms, full `0x01d80000` base currentness, live mapping/authority. Class C remains unchanged; 015/016 remain `NOT ELIGIBLE`. |
 | 026 | Does exact XBL statically close the bounded registration/bootstrap/dispatcher local edges, and does a complementary executable census recognize any interval-overlapping mutation of slot `0x14890590`? | `PROVED`: registration helpers `[0x1482ecb4,0x1482edac)` pin a 24-byte node (object/ID/next at `+0x0/+0x8/+0x10`) and head `0x14890f60`; initializer loop `[0x1482edac,0x1482f0b4)`; table header `[0x14875534,0x14875568)` has count 2, row start `0x14875538`, cursor `0x1487554c`, stride `0x18`; bounded bootstrap, veneer, alternates, dispatcher and callers have exact local/control/data edges, including dispatcher base/stride/index guard and symbolic pointer escape. `SUPPORTED`: memory-only initializer-pool shape `[0x146b30c0,0x146b38b0)`, two-row `0x3f8` geometry; pool contents/runtime values are `UNKNOWN`. Census: 847,465 words, 622 excluded 025 words, 9 accesses (3 writes/6 reads), 2 pointer escapes, zero recognized writes overlapping `[0x14890590,0x14890598)`. | Taxonomy `ORDER_OPEN`; slot result `PROVED_BOUNDED_NO_RECOGNIZED_SLOT_MUTATION`. Runtime order/execution, slot value, object identity, `BLR` target, base currentness and writer absence remain `UNKNOWN`; this is not global writer absence. Class C remains unchanged; 015/016 remain `NOT ELIGIBLE`. |
+| 027 | Does a bounded fail-closed CFG/dataflow pass over the exact 020 site sets recover a DCB consumer or controller/SHRM symbolic target missed by earlier target-first passes? | `PROVED`: exact XBL/`xbl_config` and dependency pins, DCB sections `{6,7,8,10,11,12}`, section-7 keys `0x400/0x404` with `0x10000000` across four `0x3404`-byte blocks, and 020's 67 register-offset sites plus 8 computed idioms. Two dependency-owned register sites are excluded; 65 register sites plus 8 computed sites are analyzed. Result: 71 `INDIRECT_OR_UNSUPPORTED`, 2 `NO_TARGET_WITHIN_MODEL`, zero `DCB_CONSUMER_PATH`, zero `MC_OR_SHRM_SYMBOLIC_TARGET`; two nonexclusive `SECTION_READER_PROXIMITY_ONLY` hypotheses have no link proof. | Classification `BOUNDED_CONSUMER_WRITER_COMPLEMENT_UNKNOWN_GLOBAL`; zero target labels are bounded-model results, not global absence. Runtime base/current destination, execution/order, writer/global consumer identity, aliases, register semantics, unsupported paths and post-boot mutation remain `UNKNOWN`; Class C remains unchanged and 015/016 remain `NOT ELIGIBLE`. |
 
 The integrated results remain `CLASS C (TRANSFORM ONLY)`, with Experiments 015
-and 016 `NOT ELIGIBLE`. Experiment 026 validation is 25 focused and 581 full
-unittest PASS, Python byte-compilation, public JSON safety, byte-identical
-regeneration, manifest mode `0644`, and exact-XBL/final decoder hostile-review
-PASS, recorded in [EXP026_INTEGRATION_REVIEW_2026-08-26.md](EXP026_INTEGRATION_REVIEW_2026-08-26.md).
+and 016 `NOT ELIGIBLE`. Experiment 027 validation is 35 focused and 616 full
+unittest PASS in 86.100 s, Python byte-compilation, 67 public JSON manifests,
+two fresh byte-identical generations, public safety/no-clobber, and independent
+hostile review `PASS` after fixes, recorded in
+[EXP027_INTEGRATION_REVIEW_2026-08-26.md](EXP027_INTEGRATION_REVIEW_2026-08-26.md).
 Experiment 023 is `WITHHELD/NO-GO`, not integrated or public. Its protocol is
 not comparable to 014, physical-allocation PA provenance is missing, the full
-GF(2) matrix is non-unique, and `PA24=b1^b2` is `SUPPORTED` only. The selected
-next host-only follow-up is Experiment 027, scored `79/100`, a bounded DCB
-consumer/writer complement using `xbl_config--sdb2.bin` (size 4,149,248,
-SHA-256 `0e9dfac1ddd0f9acc2cc899213e621490308f0cadf329814048edb7712e2484c`),
-the four `0x3404`-byte blocks at offsets `0x1079c/0x13ba0/0x16fa4/0x1a3a8`,
-020's 67 register-offset loop sites minus the 024 walker (66 new loop
-candidates), and all 8 computed-address sites including loop stores
-`0x1484b9a0/0x146aea20/0x9fc05ef4`. The setter is
-`[0x9fc06410,0x9fc0643c)` with caller `0x9fc023f0`; DCB sections 6/7/8/10/11/12
-are candidates and section 5 is an absolute-address negative control only.
-Loader `[0x1489f9e8,0x1489fbe8)` and reader starts
-`0x1485f0f8/0x1485f13c/0x1485f17c/0x1485f1c0/0x1485f200/0x1485f23c` complete
-the discriminators. The full 024 walker `[0x148689a0,0x14868a64)` and
-overlapping `[0x148689c8,0x14868a60)` are excluded positive controls; the
-excluded caller ranges are `[0x14868630,0x14868644)`,
-`[0x14868668,0x14868680)`, and `[0x14868684,0x1486869c)`.
-Required outcomes are `DCB_CONSUMER_PATH`, `MC_OR_SHRM_SYMBOLIC_TARGET`,
-`NO_TARGET_WITHIN_MODEL`, and `INDIRECT_OR_UNSUPPORTED`; unsupported forms,
-aliases, unresolved computed pointers, excluded-range overlap, or any
-device/MMIO/write action stop the analysis and preserve `UNKNOWN`. Runtime
-base, writer identity/absence, semantics and execution remain `UNKNOWN`.
-The separate rawdump slot/object alternative is not selected: record 19
-`SHRM_MEM.BIN` `[0x09060000,0x09070000)` and `ocimem`
-`[0x14680000,0x146c0000)` do not cover `0x14890590`; Samsung Upload supplies
-only `SHRM_MEM.BIN`, Sahara reports `NO_SHRM_DUMP_CAPTURED`, no safe arbitrary
-XBL-BSS path is available, and survival is `UNKNOWN`, not absent. No device
-action is proposed by the scorecard; future action needs a separate exact-bound
-contract/gates.
+GF(2) matrix is non-unique, and `PA24=b1^b2` is `SUPPORTED` only. The next
+non-overlapping host-only selection is Experiment 029, scored `76/100`, an
+exact unsupported-frontier inventory over 027's 71 fail-closed site ranges.
+It independently deduplicates unique VAs versus per-site multiplicity,
+classifies exact unrecognized forms without treating syntactic range membership
+as reachability, and ranks only source-backed decoder-extension candidates for
+later semantic review. Labels are `DECODER_EXTENSION_CANDIDATE`,
+`FLAG_ONLY_NO_GPR_DEF`, `TAINT_KILL_REQUIRED`,
+`CONTROL_OR_MEMORY_UNSUPPORTED`, and `UNREACHABLE_OR_OVERLAP_UNKNOWN`.
+Stage 1 must not upgrade 027 or claim decoder safety; only a later separately
+reviewed stage may extend an independently reviewed form. Unsupported/control/
+alias `UNKNOWN` remains preserved, with no device/MMIO/write action. Experiment 028 is concurrent
+work outside this integration (GF(2) row-space and decoded SHRM
+register/index-encoding hypotheses); no 028 result, score, authority, or review
+is claimed here.
 
 The Stage 2E row's writeback result is an exact audit of all recognized
 single/pair memory-writeback forms: four sites per function (two SP frame
@@ -1107,8 +1096,12 @@ Experiment 023 is explicitly
 `WITHHELD/NO-GO`, not integrated or public: its timing protocol is not
 comparable to 014, physical-allocation PA provenance is missing, the full
 GF(2) matrix is non-unique, and `PA24=b1^b2` is `SUPPORTED` only. Raw evidence
-remains private. The selected next host-only follow-up is Experiment 027,
-scored `79/100`, a bounded DCB consumer/writer complement over the 020
-67-minus-024 register-offset loops plus all 8 computed-address sites; exact
-inputs, exclusions, outcome labels, and rawdump slot boundary are recorded in
-the scorecard. It is not an implementation or live action proposal.
+remains private. Experiment 027 is now completed and integrated: its bounded
+73-site census returns 71 `INDIRECT_OR_UNSUPPORTED`, 2
+`NO_TARGET_WITHIN_MODEL`, zero `DCB_CONSUMER_PATH`, and zero
+`MC_OR_SHRM_SYMBOLIC_TARGET`; exact inputs, exclusions, artifact pins, and
+validation are recorded in the Experiment 027 integration review. The next
+non-overlapping host-only selection is Experiment 029, scored `76/100`, an
+unsupported-frontier inventory over those 71 fail-closed ranges. Experiment
+028 is concurrent work outside this integration; no result, score, authority,
+or review is claimed here.

@@ -175,9 +175,13 @@ cross-reference/backward slice for the 12 exact qhs_mc targets. That line is
 now covered by Experiments 018–025; unresolved dynamic bases, consumers and
 writers remain `UNKNOWN`. Experiment 025 closes the intended static
 platform-query binding only; runtime order, slot/object identity and base
-currentness remain unresolved. The selected next host-only step is Experiment
-027, scored `79/100`, a bounded DCB consumer/writer complement; it stays
-host-only and performs no broad MMIO scan or device action.
+currentness remain unresolved. Experiment 027 is now integrated as a completed
+host-only bounded DCB consumer/writer result: 73 sites, with 71
+`INDIRECT_OR_UNSUPPORTED`, 2 `NO_TARGET_WITHIN_MODEL`, zero
+`DCB_CONSUMER_PATH`, and zero `MC_OR_SHRM_SYMBOLIC_TARGET` in the implemented
+model. The next non-overlapping selection is Experiment 029, scored `76/100`,
+an unsupported-frontier inventory; Experiment 028 is concurrent work outside
+this integration and is not claimed or reviewed here.
 
 ## Experiment 018 — exact XBL MC writer cross-reference Stage 1A
 
@@ -563,22 +567,42 @@ Experiment 026 is integrated above with taxonomy `ORDER_OPEN` and
 object identity, actual `BLR` target, base currentness, writer absence and live
 mapping remain `UNKNOWN`.
 
-The selected next host-only follow-up is Experiment 027, scored `79/100`, a
-bounded DCB consumer/writer complement. Its target set is the 020 census's 67
-register-offset loop sites minus the 024 walker (66 new loop candidates), plus
-all 8 computed-address sites, including representative loop stores
-`0x1484b9a0`, `0x146aea20`, and `0x9fc05ef4`. The setter is
-`[0x9fc06410,0x9fc0643c)` with caller `0x9fc023f0`; DCB sections 6/7/8/10/11/12
-are candidates and section 5 is an absolute-address negative control only.
-The exact XBL and `xbl_config--sdb2.bin` inputs and loader/reader ranges are in
-the scorecard. The full 024 walker `[0x148689a0,0x14868a64)` and overlapping
-020 subrange `[0x148689c8,0x14868a60)` are excluded positive controls, as are
-caller contexts `[0x14868630,0x14868644)`, `[0x14868668,0x14868680)`, and
-`[0x14868684,0x1486869c)`. Outcomes are
-`DCB_CONSUMER_PATH`, `MC_OR_SHRM_SYMBOLIC_TARGET`, `NO_TARGET_WITHIN_MODEL`,
-or `INDIRECT_OR_UNSUPPORTED`; unsupported forms, aliases, unresolved computed
-pointers, excluded overlap, and any device/MMIO/write action stop the analysis
-and preserve `UNKNOWN`.
+Experiment 027 is now integrated as a completed host-only bounded DCB
+consumer/writer result (selection score `79/100`). It analyzes 65 of the 67
+Experiment 020 register-offset sites after two dependency-owned exclusions,
+plus all 8 computed-address idioms, three as complete loop contexts and five
+as local forms, for 73 sites total. The census returns 71
+`INDIRECT_OR_UNSUPPORTED`, 2 `NO_TARGET_WITHIN_MODEL`, zero
+`DCB_CONSUMER_PATH`, and zero `MC_OR_SHRM_SYMBOLIC_TARGET` in the implemented
+model. Two nonexclusive `SECTION_READER_PROXIMITY_ONLY` hypotheses remain:
+`0x148aa758` is signed `-2528`/absolute `2528` from reader `0x148ab138`, and
+`0x148ab4f8` is signed `960`/absolute `960` from the same reader; threshold is
+`0x1000`, with no link proof. Runtime base/current destination, execution,
+writer/global consumer identity, aliases, register semantics, and unsupported
+paths remain `UNKNOWN`; the zero labels are not global absence claims.
+
+The exact setter is `[0x9fc06410,0x9fc0643c)` with caller `0x9fc023f0`.
+DCB sections 6/7/8/10/11/12 and the four `0x3404`-byte blocks at offsets
+`0x1079c/0x13ba0/0x16fa4/0x1a3a8` remain exact input boundaries; section-7
+keys `0x400/0x404` carry `0x10000000`. The full 024 walker and overlapping
+020 range remain excluded positive controls. The public manifest is 334,847
+bytes, mode `0644`, SHA-256
+`d11785969f16ba09155a2305eefd091158abfc515bc64cf94cb34d573a302277`;
+validation and independent hostile review are recorded in
+[the Experiment 027 integration review](../docs/EXP027_INTEGRATION_REVIEW_2026-08-26.md).
+
+The next non-overlapping host-only selection is Experiment 029, scored
+`76/100`: inventory the 71 exact fail-closed site ranges with independent
+unique-VA versus per-site multiplicity accounting, classify exact unrecognized
+forms without treating syntactic range membership as reachability, and rank
+only source-backed decoder-extension candidates for later semantic review. Its
+labels are `DECODER_EXTENSION_CANDIDATE`, `FLAG_ONLY_NO_GPR_DEF`,
+`TAINT_KILL_REQUIRED`, `CONTROL_OR_MEMORY_UNSUPPORTED`, and
+`UNREACHABLE_OR_OVERLAP_UNKNOWN`; Stage 1 must not upgrade 027 or claim
+decoder safety; only a later separately reviewed stage may extend an
+independently reviewed form. Experiment 028 is concurrent work outside this integration
+(GF(2) row-space and decoded SHRM register/index-encoding hypotheses); no 028
+result, score, authority, or review is claimed here.
 
 The separate rawdump slot/object alternative is not selected: record 19 is
 `SHRM_MEM.BIN` `[0x09060000,0x09070000)`, retained `ocimem` is
