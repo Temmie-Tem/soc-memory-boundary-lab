@@ -1060,7 +1060,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"  {entry['name']:<34} {entry['pages']:>9} pages  "
               f"classes covered {entry['classes_covered']}/8")
     print()
-    print(f"a bank-granular check can separate protected from unprotected: "
+    print(f"within MODEL_PROJECTED_ONLY projection, a bank-granular check can separate protected from unprotected: "
           f"{result['bank_granular_check_can_separate']}")
     print(f"published {publication['basename']} {publication['size_bytes']} bytes "
           f"sha256={publication['sha256']} mode={publication['mode']}")
