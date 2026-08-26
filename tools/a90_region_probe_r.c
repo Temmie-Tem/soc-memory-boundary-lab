@@ -336,7 +336,13 @@ int main(int argc, char **argv)
         int64_t deltas[MAX_PAIRS];
         size_t used = 0;
 
-        if (difference == 0 || (difference & (PAGE_BYTES - 1)) != 0 || difference >= bytes) {
+        /* Sub-page differences are allowed.  Offsets `a` are page aligned and
+         * the allocation base is at least page aligned, so the low bits of a
+         * pair differ by exactly the difference's low bits with no carry, and
+         * a bit below PA12 is therefore measured as precisely as one above.
+         * Riding such a bit on a large kernel witness keeps the two addresses
+         * in different rows, so the conflict question stays well posed. */
+        if (difference == 0 || difference >= bytes) {
             printf("{\"schema\":\"%s\",\"type\":\"difference\",\"value\":\"0x%llx\","
                    "\"status\":\"OUT_OF_RANGE\"}\n",
                    PROBE_SCHEMA, (unsigned long long)difference);

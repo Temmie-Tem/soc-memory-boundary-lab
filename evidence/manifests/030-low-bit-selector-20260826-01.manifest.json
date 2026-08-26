@@ -1,0 +1,131 @@
+{
+ "schema": "a90-low-bit-selector-analysis-v1",
+ "reference_levels": {
+  "same_row": 19,
+  "non_conflict": 168,
+  "conflict": 538
+ },
+ "tolerance": 60,
+ "witnesses": {
+  "kernel": "0x16000",
+  "negative": "0x2000",
+  "same_row_control": "0x800"
+ },
+ "bits": {
+  "0": {
+   "alone": 16,
+   "with_kernel_witness": 539,
+   "with_negative_witness": 170,
+   "verdict": "INERT"
+  },
+  "1": {
+   "alone": 21,
+   "with_kernel_witness": 542,
+   "with_negative_witness": 170,
+   "verdict": "INERT"
+  },
+  "2": {
+   "alone": 20,
+   "with_kernel_witness": 537,
+   "with_negative_witness": 166,
+   "verdict": "INERT"
+  },
+  "3": {
+   "alone": 19,
+   "with_kernel_witness": 534,
+   "with_negative_witness": 164,
+   "verdict": "INERT"
+  },
+  "4": {
+   "alone": 22,
+   "with_kernel_witness": 367,
+   "with_negative_witness": -4,
+   "verdict": "MODULATING"
+  },
+  "5": {
+   "alone": -19,
+   "with_kernel_witness": 271,
+   "with_negative_witness": -68,
+   "verdict": "MODULATING"
+  },
+  "6": {
+   "alone": 23,
+   "with_kernel_witness": 543,
+   "with_negative_witness": 162,
+   "verdict": "INERT"
+  },
+  "7": {
+   "alone": 21,
+   "with_kernel_witness": 541,
+   "with_negative_witness": 158,
+   "verdict": "INERT"
+  },
+  "8": {
+   "alone": 20,
+   "with_kernel_witness": 538,
+   "with_negative_witness": 162,
+   "verdict": "INERT"
+  },
+  "9": {
+   "alone": 762,
+   "with_kernel_witness": 753,
+   "with_negative_witness": 760,
+   "verdict": "SATURATING"
+  },
+  "10": {
+   "alone": 503,
+   "with_kernel_witness": 461,
+   "with_negative_witness": 463,
+   "verdict": "SATURATING"
+  },
+  "11": {
+   "alone": 19,
+   "with_kernel_witness": 537,
+   "with_negative_witness": 154,
+   "verdict": "INERT"
+  },
+  "12": {
+   "alone": 16,
+   "with_kernel_witness": 538,
+   "with_negative_witness": 160,
+   "verdict": "INERT"
+  }
+ },
+ "by_verdict": {
+  "INERT": [
+   0,
+   1,
+   2,
+   3,
+   6,
+   7,
+   8,
+   11,
+   12
+  ],
+  "MODULATING": [
+   4,
+   5
+  ],
+  "SATURATING": [
+   9,
+   10
+  ]
+ },
+ "any_selector": false,
+ "saturating_bits": [
+  9,
+  10
+ ],
+ "provenance": {
+  "mode": "DEVICE_READ_ONLY",
+  "device_writes": "none: allocate, map, read, free only",
+  "analysis_sha256": "72f075d69a17d5d360709bdf8582504a306492684c88158582bf9b39d110e0e4",
+  "raw_inputs": {
+   "phaseA": "c6e1a44f74a91b3e71011eb870f867703d74a5500f086b48123983b7c9efbc3c",
+   "phaseB": "f83f40670d505973e2ff4fe3d8763de0a56e29060a5175d80ccf473b99406b0a",
+   "phaseC": "a5ec7f1072c90432dbbf8e592a05abdb500da9b9e97f1f18da680dd41f9b9396",
+   "phaseD": "75b67869a19ddfb832cae00c96db0987bbd74bd357b320bca77c9971feb44fbe"
+  }
+ }
+}
