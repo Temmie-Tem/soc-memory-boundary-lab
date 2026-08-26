@@ -1,4 +1,4 @@
-"""Tests for the Experiment 029 ABL UEFI extractor.
+"""Tests for the Experiment 029A ABL UEFI extractor.
 
 Every test builds its own synthetic image, so none needs the captured
 firmware.  Two tests exist for defects that were hit while writing the tool: a

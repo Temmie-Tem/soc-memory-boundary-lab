@@ -1,4 +1,10 @@
-# Experiment 029 — Make `abl` searchable, then run the searches that were vacuous
+# Experiment 029A — Make `abl` searchable, then run the searches that were vacuous
+
+Numbered `029A`, not `029`. This experiment and the concurrent
+`029-dcb-unsupported-frontier` were assigned the same number independently on
+2026-08-26. That one is on `main` with Experiments 031, 032 and 033 built on top
+of it, so it keeps the bare number and this one takes the suffix, following the
+`023R` precedent. Nothing about the result changed.
 
 ## Why
 
@@ -116,10 +122,10 @@ Classification is unchanged: `CLASS C (TRANSFORM ONLY)` /
 ```sh
 python3 tools/abl_uefi_extract.py \
   --image <private abl image> --dump-dir <scratch> \
-  --output evidence/manifests/029-abl-uefi-extraction-20260826-01.manifest.json
+  --output evidence/manifests/029A-abl-uefi-extraction-20260826-01.manifest.json
 python3 tools/a90_bank_relation_encoding_audit.py \
   --capture <scratch> \
-  --output evidence/manifests/029-bank-relation-audit-over-abl-20260826-01.manifest.json
+  --output evidence/manifests/029A-bank-relation-audit-over-abl-20260826-01.manifest.json
 python3 -m unittest -v tests.test_abl_uefi_extract
 ```
 
