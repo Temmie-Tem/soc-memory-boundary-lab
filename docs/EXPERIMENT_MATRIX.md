@@ -101,11 +101,16 @@ contents/destination, global absence and security effect remain `UNKNOWN`.
 External parent `247b0e1` is reconciled after phase-preserving 030 repair,
 bounded 019A–023R claims, reproducible 029A extraction, corrected
 IDs/commands/hashes, primary verification and independent hostile review.
-Later moving-branch commits through observed `c91f473` remain excluded as
-history. Verification 015 is independently repaired from exact retained inputs:
-44 focused / 1,039 full serial tests and hostile review `PASS`. The next
-selection is a separate retained-input repair of Verification 016 high-bit
-evidence; Verification 017 remains blocked and Experiment 035 remains deferred.
+Later implementations through observed `c91f473` remain unpromoted wholesale;
+the review response is preserved and V015/V016 are independently rebuilt.
+Verification 015 uses exact retained inputs:
+44 focused / 1,039 full serial tests and hostile review `PASS`. Verification
+016 is also independently repaired from three exact retained inputs: 23 focused
+/ 1,062 full serial tests, phase-preserving high-bit analysis, model-only
+physical scope, and final hostile-review `PASS`. Verification 017 is eligible only for
+a separate audit and remains unpromoted. The next selected live baseline is a
+repaired/reacquired normal-RAM storage-identity oracle; Experiment 035 remains
+deferred.
 
 The Stage 2E row's writeback result is an exact audit of all recognized
 single/pair memory-writeback forms: four sites per function (two SP frame
@@ -1162,9 +1167,10 @@ reconciled for 019A–023R/028/029A/030 with the bounded rows above, 296 focused
 and 995 full tests, byte-identical fresh publications and hostile-review
 `PASS`. Verification 015 is subsequently repaired as the bounded V015 row
 above, with 44 focused / 1,039 full serial tests and hostile-review `PASS`; it
-was rebuilt rather than merged from the moving branch. The next iteration is a
-retained-input Verification-016 repair. Verification 017 remains outside and
-cannot consume the high-bit relation until that gate passes.
+was rebuilt rather than merged from the moving branch. Verification 016 is
+subsequently repaired from three pinned raw files with phase-specific controls,
+two-pass consistency and model-scoped physical claims. Verification 017 remains
+outside and is `UNBLOCKED_FOR_SEPARATE_AUDIT_NOT_PROMOTED`.
 
 ## Verification 015 metadata
 
@@ -1184,3 +1190,24 @@ cannot consume the high-bit relation until that gate passes.
   observed as mode `0644`; no checked-out POSIX mode is asserted.
 - Integration record:
   [VERIFICATION015_INTEGRATION_REVIEW_2026-08-27.md](VERIFICATION015_INTEGRATION_REVIEW_2026-08-27.md).
+
+## Verification 016 metadata
+
+- Intended target: `SM-A908N` / `SM8150`; transcript-attested target identity:
+  `UNKNOWN`; operator/project-context status: `SUPPORTED`.
+- Coordinate scope: `ALLOCATION_OFFSET_MODEL_COORDINATES`; pagemap: `BLIND`;
+  physical PA/base/alignment/effective contiguity: `UNKNOWN`.
+- Exact private inputs: three pinned JSONL files preserving 3×14
+  discrimination, 1×9 held-out and 2×14 three-column sections. Probe source,
+  repaired 023R dependency and V015 publication helper are also pinned.
+- Public manifest:
+  `evidence/manifests/verification-016-high-bit-relation-20260827-01.manifest.json`,
+  59,504 bytes, SHA-256
+  `72525cf994e52bbee1c3ed685c49a6ace4049cd7b279cb97811f6a0d3f4f773f`.
+- Validation: 23 focused and 1,062 full serial unittest PASS; Python byte-
+  compilation, strict phase/parser gates, byte-identical fresh generation,
+  public safety, fresh mode `0644`, no-clobber publication and hostile-review
+  `PASS`.
+  No exact POSIX mode is asserted for checked-in artifacts.
+- Integration record:
+  [VERIFICATION016_INTEGRATION_REVIEW_2026-08-27.md](VERIFICATION016_INTEGRATION_REVIEW_2026-08-27.md).

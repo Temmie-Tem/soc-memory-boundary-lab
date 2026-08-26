@@ -336,7 +336,8 @@ class ArtifactTests(unittest.TestCase):
         encoded_second = (json.dumps(second, sort_keys=True, indent=2, separators=(",", ": ")) + "\n").encode()
         self.assertEqual(encoded_first, encoded_second)
         self.assertEqual(encoded_first, self.manifest_bytes)
-        self.assertEqual(stat.S_IMODE(MANIFEST_PATH.stat().st_mode), 0o644)
+        # Exact 0644 is asserted for the freshly published file below.  Git
+        # does not preserve those exact non-executable bits on checkout.
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "manifest.json"
             extension.write_no_clobber(path, b"{}\n")

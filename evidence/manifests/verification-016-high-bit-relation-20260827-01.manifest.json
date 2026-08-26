@@ -1,0 +1,2646 @@
+{
+ "acquisition_context": {
+  "context": {
+   "barrier": "dsb_ld",
+   "cntfrq": 19200000,
+   "cpu": 7,
+   "divisor": "kept_times_two",
+   "heap": "camera_preview",
+   "mib": 256,
+   "offset_mode": "spread",
+   "order": "alternating",
+   "pairs": 32,
+   "repetitions": 201,
+   "schema": "a90_region_probe_r_v1",
+   "type": "context",
+   "warmups": 17
+  },
+  "ion_heap": {
+   "heap_id": 30,
+   "heap_type": 10,
+   "name": "camera_preview",
+   "schema": "a90_region_probe_r_v1",
+   "type": "ion_heap"
+  },
+  "pa_provenance": {
+   "effective_contiguity": "UNKNOWN",
+   "first_pfn": "0x0",
+   "last_pfn": "0x0",
+   "nonzero_pfn": 0,
+   "pages": 65536,
+   "present": 0,
+   "reported_contiguous": true,
+   "schema": "a90_region_probe_r_v1",
+   "source": "pagemap",
+   "status": "BLIND",
+   "type": "pa_provenance"
+  }
+ },
+ "claims": {
+  "HYPOTHESIS": [
+   "The observed high-bit duplication may represent folding of high allocation-offset bits into the same model output space; physical controller semantics are not established."
+  ],
+  "PROVED": [
+   "The retained discrimination transcript preserves three 14-key sections mapped in order to model bits 25, 26 and 27.",
+   "The retained held-out transcript preserves one nine-key section and the retained three-column transcript preserves two identical-key 14-key passes.",
+   "Every retained pair and qsort p10/median/p90 summary passed strict validation, including pair-before-summary, bounds and per-difference offset uniqueness.",
+   "The canonical widest-gap splits, three-column floor-mean triplets and discrimination matches are exactly reproduced from the retained bytes.",
+   "The separate held-out file has seven observed labels agreeing 7/7 with model-derived predictions from the discrimination matches; this is OUT_OF_SAMPLE_MODEL_DERIVED_AGREEMENT only.",
+   "Each retained phase contains exactly the two reference differences 0x16000 and 0x2000; this proves the retained reference count, not a historical 17/17 run."
+  ],
+  "REFUTED": [
+   "REFUTED_AS_RETAINED_EVIDENCE: the external 192/170/506 tuple is not coherent with either retained three-column pass or their two-pass combine; the retained means are 152/133/206, 150/141/136 and 131/148/510.",
+   "REFUTED_AS_RETAINED_EVIDENCE: the retained V016 bytes do not establish the historical 17/17 claim; that separate unretained run's occurrence and result remain UNKNOWN."
+  ],
+  "SUPPORTED": [
+   "In allocation-offset/model coordinates, model bits 25, 26 and 27 duplicate existing contribution vectors; this is SUPPORTED_WITHIN_MODEL and the supported model rank remains 3."
+  ],
+  "UNKNOWN": [
+   "Physical PA25/PA26/PA27 mapping, allocation base and alignment, and effective physical contiguity remain unknown because pagemap is BLIND.",
+   "Target, build, acquisition timestamp/order, prediction preregistration, historical device action, cleanup and final state are not attested by these raw transcripts.",
+   "Whether a separate unretained 17-difference run occurred, and what result it produced, is UNKNOWN.",
+   "The historical producer or cause of the external 192/170/506 tuple is UNKNOWN because that integration evidence is not retained in the canonical inputs.",
+   "Filesystem inode provenance is UNKNOWN and not claimed; this analysis pins exact input bytes and content stability.",
+   "Verification 017 is not promoted and requires a separate audit; no device authority, alias, mutation, protected reach or boundary bypass follows from this host analysis."
+  ]
+ },
+ "class_c": "TRANSFORM ONLY",
+ "classification": "Class C: TRANSFORM ONLY",
+ "coordinate_scope": "ALLOCATION_OFFSET_MODEL_COORDINATES",
+ "dependencies": {
+  "dependency_manifest": {
+   "basename": "023R-repaired-region-bank-relation-20260826-01.manifest.json",
+   "sha256": "5c3e14ff898c109de740d98260d974bca10751000f85977775cd467ac74aac2e",
+   "size_bytes": 18040
+  },
+  "dependency_semantics": {
+   "coordinate_scope": "allocation-offset/model coordinates",
+   "kernel_consistent_count": 1,
+   "kernel_span_dimension": 9,
+   "lower_kernel_equalities": [
+    {
+     "bit": 25,
+     "pairwise_equalities": [
+      {
+       "difference": "0x204000",
+       "lower_bits": [
+        14,
+        21
+       ],
+       "present_in_023R_kernel_or_differences": true
+      }
+     ],
+     "pairwise_equalities_checked": 1
+    },
+    {
+     "bit": 26,
+     "pairwise_equalities": [],
+     "pairwise_equalities_checked": 0
+    },
+    {
+     "bit": 27,
+     "pairwise_equalities": [
+      {
+       "difference": "0x102000",
+       "lower_bits": [
+        13,
+        20
+       ],
+       "present_in_023R_kernel_or_differences": true
+      }
+     ],
+     "pairwise_equalities_checked": 1
+    }
+   ],
+   "new_bit": 24,
+   "new_bit_contribution": "0b110",
+   "physical_mapping_classification": "SUPPORTED_WITHIN_MODEL",
+   "rank": 3,
+   "retained_kernel_values_checked": [
+    "0x10000",
+    "0x100000",
+    "0x1000000",
+    "0x1002000",
+    "0x1004000",
+    "0x1006000",
+    "0x1008000",
+    "0x100a000",
+    "0x100c000",
+    "0x100e000",
+    "0x1010000",
+    "0x1012000",
+    "0x1014000",
+    "0x1016000",
+    "0x1018000",
+    "0x101a000",
+    "0x101c000",
+    "0x102000",
+    "0x1020000",
+    "0x1040000",
+    "0x1042000",
+    "0x1054000",
+    "0x1080000",
+    "0x1086000",
+    "0x1090000",
+    "0x10c8000",
+    "0x1118000",
+    "0x1122000",
+    "0x114000",
+    "0x1140000",
+    "0x16000",
+    "0x160000",
+    "0x188000",
+    "0x2000",
+    "0x20000",
+    "0x200000",
+    "0x204000",
+    "0x212000",
+    "0x228000",
+    "0x230000",
+    "0x288000",
+    "0x2c000",
+    "0x2c0000",
+    "0x310000",
+    "0x4000",
+    "0x40000",
+    "0x400000",
+    "0x408000",
+    "0x4e000",
+    "0x58000",
+    "0x600000",
+    "0x62000",
+    "0x8000",
+    "0x80000",
+    "0x800000",
+    "0x806000",
+    "0x810000",
+    "0x8a000",
+    "0xb0000",
+    "0xc4000"
+   ],
+   "schema": "a90-region-relation-solver-v1"
+  },
+  "probe_source": {
+   "basename": "a90_region_probe_r.c",
+   "sha256": "2dbc81ef7595d30f627df8d28d24e21603d8c1c174074e85593b9fe8df5569e9",
+   "size_bytes": 19337
+  },
+  "v015_helper": {
+   "basename": "a90_runtime_invariance_analysis.py",
+   "sha256": "6fae489d27d03f94e9dcd89086027a4209988a67020620e54f1df7e22ca99e03",
+   "size_bytes": 97572
+  }
+ },
+ "dependency_cross_check": {
+  "coordinate_scope": "allocation-offset/model coordinates",
+  "kernel_consistent_count": 1,
+  "kernel_span_dimension": 9,
+  "lower_kernel_equalities": [
+   {
+    "bit": 25,
+    "pairwise_equalities": [
+     {
+      "difference": "0x204000",
+      "lower_bits": [
+       14,
+       21
+      ],
+      "present_in_023R_kernel_or_differences": true
+     }
+    ],
+    "pairwise_equalities_checked": 1
+   },
+   {
+    "bit": 26,
+    "pairwise_equalities": [],
+    "pairwise_equalities_checked": 0
+   },
+   {
+    "bit": 27,
+    "pairwise_equalities": [
+     {
+      "difference": "0x102000",
+      "lower_bits": [
+       13,
+       20
+      ],
+      "present_in_023R_kernel_or_differences": true
+     }
+    ],
+    "pairwise_equalities_checked": 1
+   }
+  ],
+  "new_bit": 24,
+  "new_bit_contribution": "0b110",
+  "physical_mapping_classification": "SUPPORTED_WITHIN_MODEL",
+  "rank": 3,
+  "retained_kernel_values_checked": [
+   "0x10000",
+   "0x100000",
+   "0x1000000",
+   "0x1002000",
+   "0x1004000",
+   "0x1006000",
+   "0x1008000",
+   "0x100a000",
+   "0x100c000",
+   "0x100e000",
+   "0x1010000",
+   "0x1012000",
+   "0x1014000",
+   "0x1016000",
+   "0x1018000",
+   "0x101a000",
+   "0x101c000",
+   "0x102000",
+   "0x1020000",
+   "0x1040000",
+   "0x1042000",
+   "0x1054000",
+   "0x1080000",
+   "0x1086000",
+   "0x1090000",
+   "0x10c8000",
+   "0x1118000",
+   "0x1122000",
+   "0x114000",
+   "0x1140000",
+   "0x16000",
+   "0x160000",
+   "0x188000",
+   "0x2000",
+   "0x20000",
+   "0x200000",
+   "0x204000",
+   "0x212000",
+   "0x228000",
+   "0x230000",
+   "0x288000",
+   "0x2c000",
+   "0x2c0000",
+   "0x310000",
+   "0x4000",
+   "0x40000",
+   "0x400000",
+   "0x408000",
+   "0x4e000",
+   "0x58000",
+   "0x600000",
+   "0x62000",
+   "0x8000",
+   "0x80000",
+   "0x800000",
+   "0x806000",
+   "0x810000",
+   "0x8a000",
+   "0xb0000",
+   "0xc4000"
+  ],
+  "schema": "a90-region-relation-solver-v1"
+ },
+ "discrimination": [
+  {
+   "bit": 25,
+   "equal_contribution_bits": [
+    14,
+    21
+   ],
+   "resolved": true,
+   "section_index": 0,
+   "tested": {
+    "0x2002000": 192,
+    "0x2004000": 490,
+    "0x2008000": 173,
+    "0x2010000": 142,
+    "0x2020000": 145,
+    "0x2040000": 149,
+    "0x2080000": 145,
+    "0x2100000": 192,
+    "0x2200000": 487,
+    "0x2400000": 186,
+    "0x2800000": 158,
+    "0x3000000": 170
+   },
+   "tested_bits": [
+    {
+     "difference": "0x2002000",
+     "label": "NEGATIVE",
+     "lower_bit": 13,
+     "median": 192
+    },
+    {
+     "difference": "0x2004000",
+     "label": "CONFLICT",
+     "lower_bit": 14,
+     "median": 490
+    },
+    {
+     "difference": "0x2008000",
+     "label": "NEGATIVE",
+     "lower_bit": 15,
+     "median": 173
+    },
+    {
+     "difference": "0x2010000",
+     "label": "NEGATIVE",
+     "lower_bit": 16,
+     "median": 142
+    },
+    {
+     "difference": "0x2020000",
+     "label": "NEGATIVE",
+     "lower_bit": 17,
+     "median": 145
+    },
+    {
+     "difference": "0x2040000",
+     "label": "NEGATIVE",
+     "lower_bit": 18,
+     "median": 149
+    },
+    {
+     "difference": "0x2080000",
+     "label": "NEGATIVE",
+     "lower_bit": 19,
+     "median": 145
+    },
+    {
+     "difference": "0x2100000",
+     "label": "NEGATIVE",
+     "lower_bit": 20,
+     "median": 192
+    },
+    {
+     "difference": "0x2200000",
+     "label": "CONFLICT",
+     "lower_bit": 21,
+     "median": 487
+    },
+    {
+     "difference": "0x2400000",
+     "label": "NEGATIVE",
+     "lower_bit": 22,
+     "median": 186
+    },
+    {
+     "difference": "0x2800000",
+     "label": "NEGATIVE",
+     "lower_bit": 23,
+     "median": 158
+    },
+    {
+     "difference": "0x3000000",
+     "label": "NEGATIVE",
+     "lower_bit": 24,
+     "median": 170
+    }
+   ],
+   "tested_count": 12,
+   "threshold": 339
+  },
+  {
+   "bit": 26,
+   "equal_contribution_bits": [
+    19
+   ],
+   "resolved": true,
+   "section_index": 1,
+   "tested": {
+    "0x4002000": 170,
+    "0x4004000": 161,
+    "0x4008000": 180,
+    "0x4010000": 167,
+    "0x4020000": 189,
+    "0x4040000": 177,
+    "0x4080000": 462,
+    "0x4100000": 164,
+    "0x4200000": 158,
+    "0x4400000": 152,
+    "0x4800000": 170,
+    "0x5000000": 186
+   },
+   "tested_bits": [
+    {
+     "difference": "0x4002000",
+     "label": "NEGATIVE",
+     "lower_bit": 13,
+     "median": 170
+    },
+    {
+     "difference": "0x4004000",
+     "label": "NEGATIVE",
+     "lower_bit": 14,
+     "median": 161
+    },
+    {
+     "difference": "0x4008000",
+     "label": "NEGATIVE",
+     "lower_bit": 15,
+     "median": 180
+    },
+    {
+     "difference": "0x4010000",
+     "label": "NEGATIVE",
+     "lower_bit": 16,
+     "median": 167
+    },
+    {
+     "difference": "0x4020000",
+     "label": "NEGATIVE",
+     "lower_bit": 17,
+     "median": 189
+    },
+    {
+     "difference": "0x4040000",
+     "label": "NEGATIVE",
+     "lower_bit": 18,
+     "median": 177
+    },
+    {
+     "difference": "0x4080000",
+     "label": "CONFLICT",
+     "lower_bit": 19,
+     "median": 462
+    },
+    {
+     "difference": "0x4100000",
+     "label": "NEGATIVE",
+     "lower_bit": 20,
+     "median": 164
+    },
+    {
+     "difference": "0x4200000",
+     "label": "NEGATIVE",
+     "lower_bit": 21,
+     "median": 158
+    },
+    {
+     "difference": "0x4400000",
+     "label": "NEGATIVE",
+     "lower_bit": 22,
+     "median": 152
+    },
+    {
+     "difference": "0x4800000",
+     "label": "NEGATIVE",
+     "lower_bit": 23,
+     "median": 170
+    },
+    {
+     "difference": "0x5000000",
+     "label": "NEGATIVE",
+     "lower_bit": 24,
+     "median": 186
+    }
+   ],
+   "tested_count": 12,
+   "threshold": 325
+  },
+  {
+   "bit": 27,
+   "equal_contribution_bits": [
+    13,
+    20
+   ],
+   "resolved": true,
+   "section_index": 2,
+   "tested": {
+    "0x8002000": 506,
+    "0x8004000": 177,
+    "0x8008000": 177,
+    "0x8010000": 204,
+    "0x8020000": 161,
+    "0x8040000": 161,
+    "0x8080000": 149,
+    "0x8100000": 534,
+    "0x8200000": 155,
+    "0x8400000": 186,
+    "0x8800000": 201,
+    "0x9000000": 155
+   },
+   "tested_bits": [
+    {
+     "difference": "0x8002000",
+     "label": "CONFLICT",
+     "lower_bit": 13,
+     "median": 506
+    },
+    {
+     "difference": "0x8004000",
+     "label": "NEGATIVE",
+     "lower_bit": 14,
+     "median": 177
+    },
+    {
+     "difference": "0x8008000",
+     "label": "NEGATIVE",
+     "lower_bit": 15,
+     "median": 177
+    },
+    {
+     "difference": "0x8010000",
+     "label": "NEGATIVE",
+     "lower_bit": 16,
+     "median": 204
+    },
+    {
+     "difference": "0x8020000",
+     "label": "NEGATIVE",
+     "lower_bit": 17,
+     "median": 161
+    },
+    {
+     "difference": "0x8040000",
+     "label": "NEGATIVE",
+     "lower_bit": 18,
+     "median": 161
+    },
+    {
+     "difference": "0x8080000",
+     "label": "NEGATIVE",
+     "lower_bit": 19,
+     "median": 149
+    },
+    {
+     "difference": "0x8100000",
+     "label": "CONFLICT",
+     "lower_bit": 20,
+     "median": 534
+    },
+    {
+     "difference": "0x8200000",
+     "label": "NEGATIVE",
+     "lower_bit": 21,
+     "median": 155
+    },
+    {
+     "difference": "0x8400000",
+     "label": "NEGATIVE",
+     "lower_bit": 22,
+     "median": 186
+    },
+    {
+     "difference": "0x8800000",
+     "label": "NEGATIVE",
+     "lower_bit": 23,
+     "median": 201
+    },
+    {
+     "difference": "0x9000000",
+     "label": "NEGATIVE",
+     "lower_bit": 24,
+     "median": 155
+    }
+   ],
+   "tested_count": 12,
+   "threshold": 355
+  }
+ ],
+ "dispositions": {
+  "alias_mutation_protected_reach_bypass": "NO_ALIAS_OR_MUTATION_OBSERVED_OR_PROVED",
+  "alias_or_mutation_scope": "NO_ALIAS_OR_MUTATION_OBSERVED_OR_TESTED",
+  "boundary_bypass": "UNKNOWN_NOT_TESTED",
+  "class": "Class C: TRANSFORM ONLY",
+  "device_action": "NONE_FOR_THIS_HOST_INTEGRATION",
+  "eligibility": "NOT_ELIGIBLE",
+  "numbered_experiments_015_and_016": "NOT_ELIGIBLE",
+  "physical_attribution": "UNKNOWN_PAGEMAP_BLIND",
+  "protected_reach": "UNKNOWN_NOT_TESTED",
+  "verification_017": "UNBLOCKED_FOR_SEPARATE_AUDIT_NOT_PROMOTED"
+ },
+ "eligibility": "NOT_ELIGIBLE",
+ "experiment_id": "verification-016-high-bit-relation",
+ "heldout": {
+  "acquisition_order_timestamp_status": "UNKNOWN_UNRETAINED",
+  "agreement_scope": "OUT_OF_SAMPLE_MODEL_DERIVED_AGREEMENT",
+  "context": {
+   "barrier": "dsb_ld",
+   "cntfrq": 19200000,
+   "cpu": 7,
+   "divisor": "kept_times_two",
+   "heap": "camera_preview",
+   "mib": 256,
+   "offset_mode": "spread",
+   "order": "alternating",
+   "pairs": 32,
+   "repetitions": 201,
+   "schema": "a90_region_probe_r_v1",
+   "type": "context",
+   "warmups": 17
+  },
+  "ion_heap": {
+   "heap_id": 30,
+   "heap_type": 10,
+   "name": "camera_preview",
+   "schema": "a90_region_probe_r_v1",
+   "type": "ion_heap"
+  },
+  "labels": {
+   "0x16000": "CONFLICT",
+   "0x2000": "NEGATIVE",
+   "0x6000000": "NEGATIVE",
+   "0x6084000": "CONFLICT",
+   "0xa004000": "NEGATIVE",
+   "0xa104000": "CONFLICT",
+   "0xa202000": "CONFLICT",
+   "0xc000000": "NEGATIVE",
+   "0xc180000": "CONFLICT"
+  },
+  "medians": {
+   "0x16000": 537,
+   "0x2000": 133,
+   "0x6000000": 149,
+   "0x6084000": 475,
+   "0xa004000": 161,
+   "0xa104000": 496,
+   "0xa202000": 509,
+   "0xc000000": 149,
+   "0xc180000": 437
+  },
+  "pa_provenance": {
+   "effective_contiguity": "UNKNOWN",
+   "first_pfn": "0x0",
+   "last_pfn": "0x0",
+   "nonzero_pfn": 0,
+   "pages": 65536,
+   "present": 0,
+   "reported_contiguous": true,
+   "schema": "a90_region_probe_r_v1",
+   "source": "pagemap",
+   "status": "BLIND",
+   "type": "pa_provenance"
+  },
+  "pair_record_count": 288,
+  "predictions": {
+   "agreements": 7,
+   "all_agree": true,
+   "checked": [
+    {
+     "agrees": true,
+     "difference": "0x6084000",
+     "expected": "CONFLICT",
+     "median": 475,
+     "observed": "CONFLICT"
+    },
+    {
+     "agrees": true,
+     "difference": "0xa202000",
+     "expected": "CONFLICT",
+     "median": 509,
+     "observed": "CONFLICT"
+    },
+    {
+     "agrees": true,
+     "difference": "0xc180000",
+     "expected": "CONFLICT",
+     "median": 437,
+     "observed": "CONFLICT"
+    },
+    {
+     "agrees": true,
+     "difference": "0xa104000",
+     "expected": "CONFLICT",
+     "median": 496,
+     "observed": "CONFLICT"
+    },
+    {
+     "agrees": true,
+     "difference": "0x6000000",
+     "expected": "NEGATIVE",
+     "median": 149,
+     "observed": "NEGATIVE"
+    },
+    {
+     "agrees": true,
+     "difference": "0xc000000",
+     "expected": "NEGATIVE",
+     "median": 149,
+     "observed": "NEGATIVE"
+    },
+    {
+     "agrees": true,
+     "difference": "0xa004000",
+     "expected": "NEGATIVE",
+     "median": 161,
+     "observed": "NEGATIVE"
+    }
+   ],
+   "total": 7
+  },
+  "preregistration_status": "UNKNOWN_UNRETAINED",
+  "reference_count": 2,
+  "reference_labels": {
+   "0x16000": "CONFLICT",
+   "0x2000": "NEGATIVE"
+  },
+  "references": [
+   "0x16000",
+   "0x2000"
+  ],
+  "section_index": 0,
+  "separation": {
+   "band_high": 437,
+   "band_low": 161,
+   "conflict_count": 5,
+   "gap": 276,
+   "gap_count": 8,
+   "runner_up_gap": 38,
+   "runner_up_ratio": 0.13768115942028986,
+   "threshold": 299,
+   "value_count": 9,
+   "widest_gap": 276
+  },
+  "summary_count": 9
+ },
+ "heldout_predictions": {
+  "agreements": 7,
+  "all_agree": true,
+  "checked": [
+   {
+    "agrees": true,
+    "difference": "0x6084000",
+    "expected": "CONFLICT",
+    "median": 475,
+    "observed": "CONFLICT"
+   },
+   {
+    "agrees": true,
+    "difference": "0xa202000",
+    "expected": "CONFLICT",
+    "median": 509,
+    "observed": "CONFLICT"
+   },
+   {
+    "agrees": true,
+    "difference": "0xc180000",
+    "expected": "CONFLICT",
+    "median": 437,
+    "observed": "CONFLICT"
+   },
+   {
+    "agrees": true,
+    "difference": "0xa104000",
+    "expected": "CONFLICT",
+    "median": 496,
+    "observed": "CONFLICT"
+   },
+   {
+    "agrees": true,
+    "difference": "0x6000000",
+    "expected": "NEGATIVE",
+    "median": 149,
+    "observed": "NEGATIVE"
+   },
+   {
+    "agrees": true,
+    "difference": "0xc000000",
+    "expected": "NEGATIVE",
+    "median": 149,
+    "observed": "NEGATIVE"
+   },
+   {
+    "agrees": true,
+    "difference": "0xa004000",
+    "expected": "NEGATIVE",
+    "median": 161,
+    "observed": "NEGATIVE"
+   }
+  ],
+  "total": 7
+ },
+ "historical_17_of_17": {
+  "acquisition_order_timestamp": "UNKNOWN_UNRETAINED",
+  "prediction_preregistration": "UNKNOWN_UNRETAINED",
+  "retained_evidence_status": "REFUTED_AS_RETAINED_EVIDENCE",
+  "retained_reference_count_per_phase": 2,
+  "separate_unretained_run_occurrence": "UNKNOWN",
+  "separate_unretained_run_result": "UNKNOWN"
+ },
+ "input_identity_scope": {
+  "contract": "PINNED_EXACT_BYTES_CONTENT_STABILITY",
+  "filesystem_inode_provenance": "UNKNOWN_NOT_CLAIMED",
+  "same_content_inode_replacement_effect": "NO_ANALYSIS_VALUE_CHANGE"
+ },
+ "inputs": {
+  "dependency_manifest": {
+   "basename": "023R-repaired-region-bank-relation-20260826-01.manifest.json",
+   "sha256": "5c3e14ff898c109de740d98260d974bca10751000f85977775cd467ac74aac2e",
+   "size_bytes": 18040
+  },
+  "probe_source": {
+   "basename": "a90_region_probe_r.c",
+   "sha256": "2dbc81ef7595d30f627df8d28d24e21603d8c1c174074e85593b9fe8df5569e9",
+   "size_bytes": 19337
+  },
+  "raw": [
+   {
+    "basename": "pa25-27-discriminate.jsonl",
+    "sha256": "0b269229a1607c6894fea15c21008ed3651b29faf02b9bc6cd851878c6030754",
+    "size_bytes": 142987
+   },
+   {
+    "basename": "pa25-27-heldout.jsonl",
+    "sha256": "38649c2d2f73be05ef238c20cdc69880b391547f84fe48cd656fff9343be91b0",
+    "size_bytes": 30770
+   },
+   {
+    "basename": "pa25-27-three-column.jsonl",
+    "sha256": "4cea5779ebdace6cc9817de591c8cff81dbd7f029ad78f46d8711708758c950f",
+    "size_bytes": 94966
+   }
+  ],
+  "v015_helper": {
+   "basename": "a90_runtime_invariance_analysis.py",
+   "sha256": "6fae489d27d03f94e9dcd89086027a4209988a67020620e54f1df7e22ca99e03",
+   "size_bytes": 97572
+  }
+ },
+ "matches": {
+  "PA25": [
+   14,
+   21
+  ],
+  "PA26": [
+   19
+  ],
+  "PA27": [
+   13,
+   20
+  ]
+ },
+ "mode": "HOST_ONLY_READ_ONLY_ANALYSIS",
+ "model_assessment": {
+  "bits": {
+   "PA25": {
+    "matching_lower_bits": [
+     14,
+     21
+    ],
+    "status": "SUPPORTED_WITHIN_MODEL"
+   },
+   "PA26": {
+    "matching_lower_bits": [
+     19
+    ],
+    "status": "SUPPORTED_WITHIN_MODEL"
+   },
+   "PA27": {
+    "matching_lower_bits": [
+     13,
+     20
+    ],
+    "status": "SUPPORTED_WITHIN_MODEL"
+   }
+  },
+  "coordinate_scope": "ALLOCATION_OFFSET_MODEL_COORDINATES",
+  "duplicate_existing_contributions": true,
+  "rank": 3,
+  "status": "SUPPORTED_WITHIN_MODEL"
+ },
+ "phase_results": {
+  "bit25": {
+   "bit": 25,
+   "context": {
+    "barrier": "dsb_ld",
+    "cntfrq": 19200000,
+    "cpu": 7,
+    "divisor": "kept_times_two",
+    "heap": "camera_preview",
+    "mib": 256,
+    "offset_mode": "spread",
+    "order": "alternating",
+    "pairs": 32,
+    "repetitions": 201,
+    "schema": "a90_region_probe_r_v1",
+    "type": "context",
+    "warmups": 17
+   },
+   "ion_heap": {
+    "heap_id": 30,
+    "heap_type": 10,
+    "name": "camera_preview",
+    "schema": "a90_region_probe_r_v1",
+    "type": "ion_heap"
+   },
+   "labels": {
+    "0x16000": "CONFLICT",
+    "0x2000": "NEGATIVE",
+    "0x2002000": "NEGATIVE",
+    "0x2004000": "CONFLICT",
+    "0x2008000": "NEGATIVE",
+    "0x2010000": "NEGATIVE",
+    "0x2020000": "NEGATIVE",
+    "0x2040000": "NEGATIVE",
+    "0x2080000": "NEGATIVE",
+    "0x2100000": "NEGATIVE",
+    "0x2200000": "CONFLICT",
+    "0x2400000": "NEGATIVE",
+    "0x2800000": "NEGATIVE",
+    "0x3000000": "NEGATIVE"
+   },
+   "medians": {
+    "0x16000": 512,
+    "0x2000": 142,
+    "0x2002000": 192,
+    "0x2004000": 490,
+    "0x2008000": 173,
+    "0x2010000": 142,
+    "0x2020000": 145,
+    "0x2040000": 149,
+    "0x2080000": 145,
+    "0x2100000": 192,
+    "0x2200000": 487,
+    "0x2400000": 186,
+    "0x2800000": 158,
+    "0x3000000": 170
+   },
+   "model_bit": 25,
+   "pa_provenance": {
+    "effective_contiguity": "UNKNOWN",
+    "first_pfn": "0x0",
+    "last_pfn": "0x0",
+    "nonzero_pfn": 0,
+    "pages": 65536,
+    "present": 0,
+    "reported_contiguous": true,
+    "schema": "a90_region_probe_r_v1",
+    "source": "pagemap",
+    "status": "BLIND",
+    "type": "pa_provenance"
+   },
+   "pair_record_count": 448,
+   "reference_count": 2,
+   "reference_labels": {
+    "0x16000": "CONFLICT",
+    "0x2000": "NEGATIVE"
+   },
+   "references": [
+    "0x16000",
+    "0x2000"
+   ],
+   "section_index": 0,
+   "separation": {
+    "band_high": 487,
+    "band_low": 192,
+    "conflict_count": 3,
+    "gap": 295,
+    "gap_count": 13,
+    "runner_up_gap": 22,
+    "runner_up_ratio": 0.07457627118644068,
+    "threshold": 339,
+    "value_count": 14,
+    "widest_gap": 295
+   },
+   "summary_count": 14
+  },
+  "bit26": {
+   "bit": 26,
+   "context": {
+    "barrier": "dsb_ld",
+    "cntfrq": 19200000,
+    "cpu": 7,
+    "divisor": "kept_times_two",
+    "heap": "camera_preview",
+    "mib": 256,
+    "offset_mode": "spread",
+    "order": "alternating",
+    "pairs": 32,
+    "repetitions": 201,
+    "schema": "a90_region_probe_r_v1",
+    "type": "context",
+    "warmups": 17
+   },
+   "ion_heap": {
+    "heap_id": 30,
+    "heap_type": 10,
+    "name": "camera_preview",
+    "schema": "a90_region_probe_r_v1",
+    "type": "ion_heap"
+   },
+   "labels": {
+    "0x16000": "CONFLICT",
+    "0x2000": "NEGATIVE",
+    "0x4002000": "NEGATIVE",
+    "0x4004000": "NEGATIVE",
+    "0x4008000": "NEGATIVE",
+    "0x4010000": "NEGATIVE",
+    "0x4020000": "NEGATIVE",
+    "0x4040000": "NEGATIVE",
+    "0x4080000": "CONFLICT",
+    "0x4100000": "NEGATIVE",
+    "0x4200000": "NEGATIVE",
+    "0x4400000": "NEGATIVE",
+    "0x4800000": "NEGATIVE",
+    "0x5000000": "NEGATIVE"
+   },
+   "medians": {
+    "0x16000": 537,
+    "0x2000": 142,
+    "0x4002000": 170,
+    "0x4004000": 161,
+    "0x4008000": 180,
+    "0x4010000": 167,
+    "0x4020000": 189,
+    "0x4040000": 177,
+    "0x4080000": 462,
+    "0x4100000": 164,
+    "0x4200000": 158,
+    "0x4400000": 152,
+    "0x4800000": 170,
+    "0x5000000": 186
+   },
+   "model_bit": 26,
+   "pa_provenance": {
+    "effective_contiguity": "UNKNOWN",
+    "first_pfn": "0x0",
+    "last_pfn": "0x0",
+    "nonzero_pfn": 0,
+    "pages": 65536,
+    "present": 0,
+    "reported_contiguous": true,
+    "schema": "a90_region_probe_r_v1",
+    "source": "pagemap",
+    "status": "BLIND",
+    "type": "pa_provenance"
+   },
+   "pair_record_count": 448,
+   "reference_count": 2,
+   "reference_labels": {
+    "0x16000": "CONFLICT",
+    "0x2000": "NEGATIVE"
+   },
+   "references": [
+    "0x16000",
+    "0x2000"
+   ],
+   "section_index": 1,
+   "separation": {
+    "band_high": 462,
+    "band_low": 189,
+    "conflict_count": 2,
+    "gap": 273,
+    "gap_count": 13,
+    "runner_up_gap": 75,
+    "runner_up_ratio": 0.27472527472527475,
+    "threshold": 325,
+    "value_count": 14,
+    "widest_gap": 273
+   },
+   "summary_count": 14
+  },
+  "bit27": {
+   "bit": 27,
+   "context": {
+    "barrier": "dsb_ld",
+    "cntfrq": 19200000,
+    "cpu": 7,
+    "divisor": "kept_times_two",
+    "heap": "camera_preview",
+    "mib": 256,
+    "offset_mode": "spread",
+    "order": "alternating",
+    "pairs": 32,
+    "repetitions": 201,
+    "schema": "a90_region_probe_r_v1",
+    "type": "context",
+    "warmups": 17
+   },
+   "ion_heap": {
+    "heap_id": 30,
+    "heap_type": 10,
+    "name": "camera_preview",
+    "schema": "a90_region_probe_r_v1",
+    "type": "ion_heap"
+   },
+   "labels": {
+    "0x16000": "CONFLICT",
+    "0x2000": "NEGATIVE",
+    "0x8002000": "CONFLICT",
+    "0x8004000": "NEGATIVE",
+    "0x8008000": "NEGATIVE",
+    "0x8010000": "NEGATIVE",
+    "0x8020000": "NEGATIVE",
+    "0x8040000": "NEGATIVE",
+    "0x8080000": "NEGATIVE",
+    "0x8100000": "CONFLICT",
+    "0x8200000": "NEGATIVE",
+    "0x8400000": "NEGATIVE",
+    "0x8800000": "NEGATIVE",
+    "0x9000000": "NEGATIVE"
+   },
+   "medians": {
+    "0x16000": 531,
+    "0x2000": 152,
+    "0x8002000": 506,
+    "0x8004000": 177,
+    "0x8008000": 177,
+    "0x8010000": 204,
+    "0x8020000": 161,
+    "0x8040000": 161,
+    "0x8080000": 149,
+    "0x8100000": 534,
+    "0x8200000": 155,
+    "0x8400000": 186,
+    "0x8800000": 201,
+    "0x9000000": 155
+   },
+   "model_bit": 27,
+   "pa_provenance": {
+    "effective_contiguity": "UNKNOWN",
+    "first_pfn": "0x0",
+    "last_pfn": "0x0",
+    "nonzero_pfn": 0,
+    "pages": 65536,
+    "present": 0,
+    "reported_contiguous": true,
+    "schema": "a90_region_probe_r_v1",
+    "source": "pagemap",
+    "status": "BLIND",
+    "type": "pa_provenance"
+   },
+   "pair_record_count": 448,
+   "reference_count": 2,
+   "reference_labels": {
+    "0x16000": "CONFLICT",
+    "0x2000": "NEGATIVE"
+   },
+   "references": [
+    "0x16000",
+    "0x2000"
+   ],
+   "section_index": 2,
+   "separation": {
+    "band_high": 506,
+    "band_low": 204,
+    "conflict_count": 3,
+    "gap": 302,
+    "gap_count": 13,
+    "runner_up_gap": 25,
+    "runner_up_ratio": 0.08278145695364239,
+    "threshold": 355,
+    "value_count": 14,
+    "widest_gap": 302
+   },
+   "summary_count": 14
+  }
+ },
+ "phases": {
+  "discriminate": [
+   {
+    "bit": 25,
+    "context": {
+     "barrier": "dsb_ld",
+     "cntfrq": 19200000,
+     "cpu": 7,
+     "divisor": "kept_times_two",
+     "heap": "camera_preview",
+     "mib": 256,
+     "offset_mode": "spread",
+     "order": "alternating",
+     "pairs": 32,
+     "repetitions": 201,
+     "schema": "a90_region_probe_r_v1",
+     "type": "context",
+     "warmups": 17
+    },
+    "ion_heap": {
+     "heap_id": 30,
+     "heap_type": 10,
+     "name": "camera_preview",
+     "schema": "a90_region_probe_r_v1",
+     "type": "ion_heap"
+    },
+    "labels": {
+     "0x16000": "CONFLICT",
+     "0x2000": "NEGATIVE",
+     "0x2002000": "NEGATIVE",
+     "0x2004000": "CONFLICT",
+     "0x2008000": "NEGATIVE",
+     "0x2010000": "NEGATIVE",
+     "0x2020000": "NEGATIVE",
+     "0x2040000": "NEGATIVE",
+     "0x2080000": "NEGATIVE",
+     "0x2100000": "NEGATIVE",
+     "0x2200000": "CONFLICT",
+     "0x2400000": "NEGATIVE",
+     "0x2800000": "NEGATIVE",
+     "0x3000000": "NEGATIVE"
+    },
+    "medians": {
+     "0x16000": 512,
+     "0x2000": 142,
+     "0x2002000": 192,
+     "0x2004000": 490,
+     "0x2008000": 173,
+     "0x2010000": 142,
+     "0x2020000": 145,
+     "0x2040000": 149,
+     "0x2080000": 145,
+     "0x2100000": 192,
+     "0x2200000": 487,
+     "0x2400000": 186,
+     "0x2800000": 158,
+     "0x3000000": 170
+    },
+    "model_bit": 25,
+    "pa_provenance": {
+     "effective_contiguity": "UNKNOWN",
+     "first_pfn": "0x0",
+     "last_pfn": "0x0",
+     "nonzero_pfn": 0,
+     "pages": 65536,
+     "present": 0,
+     "reported_contiguous": true,
+     "schema": "a90_region_probe_r_v1",
+     "source": "pagemap",
+     "status": "BLIND",
+     "type": "pa_provenance"
+    },
+    "pair_record_count": 448,
+    "reference_count": 2,
+    "reference_labels": {
+     "0x16000": "CONFLICT",
+     "0x2000": "NEGATIVE"
+    },
+    "references": [
+     "0x16000",
+     "0x2000"
+    ],
+    "section_index": 0,
+    "separation": {
+     "band_high": 487,
+     "band_low": 192,
+     "conflict_count": 3,
+     "gap": 295,
+     "gap_count": 13,
+     "runner_up_gap": 22,
+     "runner_up_ratio": 0.07457627118644068,
+     "threshold": 339,
+     "value_count": 14,
+     "widest_gap": 295
+    },
+    "summary_count": 14
+   },
+   {
+    "bit": 26,
+    "context": {
+     "barrier": "dsb_ld",
+     "cntfrq": 19200000,
+     "cpu": 7,
+     "divisor": "kept_times_two",
+     "heap": "camera_preview",
+     "mib": 256,
+     "offset_mode": "spread",
+     "order": "alternating",
+     "pairs": 32,
+     "repetitions": 201,
+     "schema": "a90_region_probe_r_v1",
+     "type": "context",
+     "warmups": 17
+    },
+    "ion_heap": {
+     "heap_id": 30,
+     "heap_type": 10,
+     "name": "camera_preview",
+     "schema": "a90_region_probe_r_v1",
+     "type": "ion_heap"
+    },
+    "labels": {
+     "0x16000": "CONFLICT",
+     "0x2000": "NEGATIVE",
+     "0x4002000": "NEGATIVE",
+     "0x4004000": "NEGATIVE",
+     "0x4008000": "NEGATIVE",
+     "0x4010000": "NEGATIVE",
+     "0x4020000": "NEGATIVE",
+     "0x4040000": "NEGATIVE",
+     "0x4080000": "CONFLICT",
+     "0x4100000": "NEGATIVE",
+     "0x4200000": "NEGATIVE",
+     "0x4400000": "NEGATIVE",
+     "0x4800000": "NEGATIVE",
+     "0x5000000": "NEGATIVE"
+    },
+    "medians": {
+     "0x16000": 537,
+     "0x2000": 142,
+     "0x4002000": 170,
+     "0x4004000": 161,
+     "0x4008000": 180,
+     "0x4010000": 167,
+     "0x4020000": 189,
+     "0x4040000": 177,
+     "0x4080000": 462,
+     "0x4100000": 164,
+     "0x4200000": 158,
+     "0x4400000": 152,
+     "0x4800000": 170,
+     "0x5000000": 186
+    },
+    "model_bit": 26,
+    "pa_provenance": {
+     "effective_contiguity": "UNKNOWN",
+     "first_pfn": "0x0",
+     "last_pfn": "0x0",
+     "nonzero_pfn": 0,
+     "pages": 65536,
+     "present": 0,
+     "reported_contiguous": true,
+     "schema": "a90_region_probe_r_v1",
+     "source": "pagemap",
+     "status": "BLIND",
+     "type": "pa_provenance"
+    },
+    "pair_record_count": 448,
+    "reference_count": 2,
+    "reference_labels": {
+     "0x16000": "CONFLICT",
+     "0x2000": "NEGATIVE"
+    },
+    "references": [
+     "0x16000",
+     "0x2000"
+    ],
+    "section_index": 1,
+    "separation": {
+     "band_high": 462,
+     "band_low": 189,
+     "conflict_count": 2,
+     "gap": 273,
+     "gap_count": 13,
+     "runner_up_gap": 75,
+     "runner_up_ratio": 0.27472527472527475,
+     "threshold": 325,
+     "value_count": 14,
+     "widest_gap": 273
+    },
+    "summary_count": 14
+   },
+   {
+    "bit": 27,
+    "context": {
+     "barrier": "dsb_ld",
+     "cntfrq": 19200000,
+     "cpu": 7,
+     "divisor": "kept_times_two",
+     "heap": "camera_preview",
+     "mib": 256,
+     "offset_mode": "spread",
+     "order": "alternating",
+     "pairs": 32,
+     "repetitions": 201,
+     "schema": "a90_region_probe_r_v1",
+     "type": "context",
+     "warmups": 17
+    },
+    "ion_heap": {
+     "heap_id": 30,
+     "heap_type": 10,
+     "name": "camera_preview",
+     "schema": "a90_region_probe_r_v1",
+     "type": "ion_heap"
+    },
+    "labels": {
+     "0x16000": "CONFLICT",
+     "0x2000": "NEGATIVE",
+     "0x8002000": "CONFLICT",
+     "0x8004000": "NEGATIVE",
+     "0x8008000": "NEGATIVE",
+     "0x8010000": "NEGATIVE",
+     "0x8020000": "NEGATIVE",
+     "0x8040000": "NEGATIVE",
+     "0x8080000": "NEGATIVE",
+     "0x8100000": "CONFLICT",
+     "0x8200000": "NEGATIVE",
+     "0x8400000": "NEGATIVE",
+     "0x8800000": "NEGATIVE",
+     "0x9000000": "NEGATIVE"
+    },
+    "medians": {
+     "0x16000": 531,
+     "0x2000": 152,
+     "0x8002000": 506,
+     "0x8004000": 177,
+     "0x8008000": 177,
+     "0x8010000": 204,
+     "0x8020000": 161,
+     "0x8040000": 161,
+     "0x8080000": 149,
+     "0x8100000": 534,
+     "0x8200000": 155,
+     "0x8400000": 186,
+     "0x8800000": 201,
+     "0x9000000": 155
+    },
+    "model_bit": 27,
+    "pa_provenance": {
+     "effective_contiguity": "UNKNOWN",
+     "first_pfn": "0x0",
+     "last_pfn": "0x0",
+     "nonzero_pfn": 0,
+     "pages": 65536,
+     "present": 0,
+     "reported_contiguous": true,
+     "schema": "a90_region_probe_r_v1",
+     "source": "pagemap",
+     "status": "BLIND",
+     "type": "pa_provenance"
+    },
+    "pair_record_count": 448,
+    "reference_count": 2,
+    "reference_labels": {
+     "0x16000": "CONFLICT",
+     "0x2000": "NEGATIVE"
+    },
+    "references": [
+     "0x16000",
+     "0x2000"
+    ],
+    "section_index": 2,
+    "separation": {
+     "band_high": 506,
+     "band_low": 204,
+     "conflict_count": 3,
+     "gap": 302,
+     "gap_count": 13,
+     "runner_up_gap": 25,
+     "runner_up_ratio": 0.08278145695364239,
+     "threshold": 355,
+     "value_count": 14,
+     "widest_gap": 302
+    },
+    "summary_count": 14
+   }
+  ],
+  "heldout": [
+   {
+    "acquisition_order_timestamp_status": "UNKNOWN_UNRETAINED",
+    "agreement_scope": "OUT_OF_SAMPLE_MODEL_DERIVED_AGREEMENT",
+    "context": {
+     "barrier": "dsb_ld",
+     "cntfrq": 19200000,
+     "cpu": 7,
+     "divisor": "kept_times_two",
+     "heap": "camera_preview",
+     "mib": 256,
+     "offset_mode": "spread",
+     "order": "alternating",
+     "pairs": 32,
+     "repetitions": 201,
+     "schema": "a90_region_probe_r_v1",
+     "type": "context",
+     "warmups": 17
+    },
+    "ion_heap": {
+     "heap_id": 30,
+     "heap_type": 10,
+     "name": "camera_preview",
+     "schema": "a90_region_probe_r_v1",
+     "type": "ion_heap"
+    },
+    "labels": {
+     "0x16000": "CONFLICT",
+     "0x2000": "NEGATIVE",
+     "0x6000000": "NEGATIVE",
+     "0x6084000": "CONFLICT",
+     "0xa004000": "NEGATIVE",
+     "0xa104000": "CONFLICT",
+     "0xa202000": "CONFLICT",
+     "0xc000000": "NEGATIVE",
+     "0xc180000": "CONFLICT"
+    },
+    "medians": {
+     "0x16000": 537,
+     "0x2000": 133,
+     "0x6000000": 149,
+     "0x6084000": 475,
+     "0xa004000": 161,
+     "0xa104000": 496,
+     "0xa202000": 509,
+     "0xc000000": 149,
+     "0xc180000": 437
+    },
+    "pa_provenance": {
+     "effective_contiguity": "UNKNOWN",
+     "first_pfn": "0x0",
+     "last_pfn": "0x0",
+     "nonzero_pfn": 0,
+     "pages": 65536,
+     "present": 0,
+     "reported_contiguous": true,
+     "schema": "a90_region_probe_r_v1",
+     "source": "pagemap",
+     "status": "BLIND",
+     "type": "pa_provenance"
+    },
+    "pair_record_count": 288,
+    "predictions": {
+     "agreements": 7,
+     "all_agree": true,
+     "checked": [
+      {
+       "agrees": true,
+       "difference": "0x6084000",
+       "expected": "CONFLICT",
+       "median": 475,
+       "observed": "CONFLICT"
+      },
+      {
+       "agrees": true,
+       "difference": "0xa202000",
+       "expected": "CONFLICT",
+       "median": 509,
+       "observed": "CONFLICT"
+      },
+      {
+       "agrees": true,
+       "difference": "0xc180000",
+       "expected": "CONFLICT",
+       "median": 437,
+       "observed": "CONFLICT"
+      },
+      {
+       "agrees": true,
+       "difference": "0xa104000",
+       "expected": "CONFLICT",
+       "median": 496,
+       "observed": "CONFLICT"
+      },
+      {
+       "agrees": true,
+       "difference": "0x6000000",
+       "expected": "NEGATIVE",
+       "median": 149,
+       "observed": "NEGATIVE"
+      },
+      {
+       "agrees": true,
+       "difference": "0xc000000",
+       "expected": "NEGATIVE",
+       "median": 149,
+       "observed": "NEGATIVE"
+      },
+      {
+       "agrees": true,
+       "difference": "0xa004000",
+       "expected": "NEGATIVE",
+       "median": 161,
+       "observed": "NEGATIVE"
+      }
+     ],
+     "total": 7
+    },
+    "preregistration_status": "UNKNOWN_UNRETAINED",
+    "reference_count": 2,
+    "reference_labels": {
+     "0x16000": "CONFLICT",
+     "0x2000": "NEGATIVE"
+    },
+    "references": [
+     "0x16000",
+     "0x2000"
+    ],
+    "section_index": 0,
+    "separation": {
+     "band_high": 437,
+     "band_low": 161,
+     "conflict_count": 5,
+     "gap": 276,
+     "gap_count": 8,
+     "runner_up_gap": 38,
+     "runner_up_ratio": 0.13768115942028986,
+     "threshold": 299,
+     "value_count": 9,
+     "widest_gap": 276
+    },
+    "summary_count": 9
+   }
+  ],
+  "three_column": [
+   {
+    "context": {
+     "barrier": "dsb_ld",
+     "cntfrq": 19200000,
+     "cpu": 7,
+     "divisor": "kept_times_two",
+     "heap": "camera_preview",
+     "mib": 256,
+     "offset_mode": "spread",
+     "order": "alternating",
+     "pairs": 32,
+     "repetitions": 201,
+     "schema": "a90_region_probe_r_v1",
+     "type": "context",
+     "warmups": 17
+    },
+    "ion_heap": {
+     "heap_id": 30,
+     "heap_type": 10,
+     "name": "camera_preview",
+     "schema": "a90_region_probe_r_v1",
+     "type": "ion_heap"
+    },
+    "labels": {
+     "0x16000": "CONFLICT",
+     "0x2000": "NEGATIVE",
+     "0x2000000": "NEGATIVE",
+     "0x2002000": "NEGATIVE",
+     "0x2016000": "NEGATIVE",
+     "0x202c000": "NEGATIVE",
+     "0x2102000": "NEGATIVE",
+     "0x4000000": "NEGATIVE",
+     "0x4002000": "NEGATIVE",
+     "0x4016000": "NEGATIVE",
+     "0x800": "NEGATIVE",
+     "0x8000000": "NEGATIVE",
+     "0x8002000": "CONFLICT",
+     "0x8016000": "NEGATIVE"
+    },
+    "medians": {
+     "0x16000": 527,
+     "0x2000": 149,
+     "0x2000000": 186,
+     "0x2002000": 226,
+     "0x2016000": 161,
+     "0x202c000": 164,
+     "0x2102000": 155,
+     "0x4000000": 161,
+     "0x4002000": 149,
+     "0x4016000": 161,
+     "0x800": 0,
+     "0x8000000": 145,
+     "0x8002000": 527,
+     "0x8016000": 158
+    },
+    "pa_provenance": {
+     "effective_contiguity": "UNKNOWN",
+     "first_pfn": "0x0",
+     "last_pfn": "0x0",
+     "nonzero_pfn": 0,
+     "pages": 65536,
+     "present": 0,
+     "reported_contiguous": true,
+     "schema": "a90_region_probe_r_v1",
+     "source": "pagemap",
+     "status": "BLIND",
+     "type": "pa_provenance"
+    },
+    "pair_record_count": 448,
+    "reference_count": 2,
+    "reference_labels": {
+     "0x16000": "CONFLICT",
+     "0x2000": "NEGATIVE"
+    },
+    "references": [
+     "0x16000",
+     "0x2000"
+    ],
+    "section_index": 0,
+    "separation": {
+     "band_high": 527,
+     "band_low": 226,
+     "conflict_count": 2,
+     "gap": 301,
+     "gap_count": 13,
+     "runner_up_gap": 145,
+     "runner_up_ratio": 0.48172757475083056,
+     "threshold": 376,
+     "value_count": 14,
+     "widest_gap": 301
+    },
+    "summary_count": 14,
+    "triplets": [
+     {
+      "alone": 186,
+      "alone_class": "NEGATIVE",
+      "bit": 25,
+      "verdict": "SELECTOR",
+      "with_conflict": 161,
+      "with_conflict_class": "NEGATIVE",
+      "with_negative": 226,
+      "with_negative_class": "NEGATIVE"
+     },
+     {
+      "alone": 161,
+      "alone_class": "NEGATIVE",
+      "bit": 26,
+      "verdict": "SELECTOR",
+      "with_conflict": 161,
+      "with_conflict_class": "NEGATIVE",
+      "with_negative": 149,
+      "with_negative_class": "NEGATIVE"
+     },
+     {
+      "alone": 145,
+      "alone_class": "NEGATIVE",
+      "bit": 27,
+      "verdict": "SELECTOR_CANCELS_NEGATIVE_WITNESS",
+      "with_conflict": 158,
+      "with_conflict_class": "NEGATIVE",
+      "with_negative": 527,
+      "with_negative_class": "CONFLICT"
+     }
+    ]
+   },
+   {
+    "context": {
+     "barrier": "dsb_ld",
+     "cntfrq": 19200000,
+     "cpu": 7,
+     "divisor": "kept_times_two",
+     "heap": "camera_preview",
+     "mib": 256,
+     "offset_mode": "spread",
+     "order": "alternating",
+     "pairs": 32,
+     "repetitions": 201,
+     "schema": "a90_region_probe_r_v1",
+     "type": "context",
+     "warmups": 17
+    },
+    "ion_heap": {
+     "heap_id": 30,
+     "heap_type": 10,
+     "name": "camera_preview",
+     "schema": "a90_region_probe_r_v1",
+     "type": "ion_heap"
+    },
+    "labels": {
+     "0x16000": "CONFLICT",
+     "0x2000": "NEGATIVE",
+     "0x2000000": "NEGATIVE",
+     "0x2002000": "NEGATIVE",
+     "0x2016000": "NEGATIVE",
+     "0x202c000": "NEGATIVE",
+     "0x2102000": "NEGATIVE",
+     "0x4000000": "NEGATIVE",
+     "0x4002000": "NEGATIVE",
+     "0x4016000": "NEGATIVE",
+     "0x800": "NEGATIVE",
+     "0x8000000": "NEGATIVE",
+     "0x8002000": "CONFLICT",
+     "0x8016000": "NEGATIVE"
+    },
+    "medians": {
+     "0x16000": 518,
+     "0x2000": 124,
+     "0x2000000": 118,
+     "0x2002000": 186,
+     "0x2016000": 105,
+     "0x202c000": 133,
+     "0x2102000": 118,
+     "0x4000000": 139,
+     "0x4002000": 124,
+     "0x4016000": 121,
+     "0x800": -9,
+     "0x8000000": 118,
+     "0x8002000": 493,
+     "0x8016000": 139
+    },
+    "pa_provenance": {
+     "effective_contiguity": "UNKNOWN",
+     "first_pfn": "0x0",
+     "last_pfn": "0x0",
+     "nonzero_pfn": 0,
+     "pages": 65536,
+     "present": 0,
+     "reported_contiguous": true,
+     "schema": "a90_region_probe_r_v1",
+     "source": "pagemap",
+     "status": "BLIND",
+     "type": "pa_provenance"
+    },
+    "pair_record_count": 448,
+    "reference_count": 2,
+    "reference_labels": {
+     "0x16000": "CONFLICT",
+     "0x2000": "NEGATIVE"
+    },
+    "references": [
+     "0x16000",
+     "0x2000"
+    ],
+    "section_index": 1,
+    "separation": {
+     "band_high": 493,
+     "band_low": 186,
+     "conflict_count": 2,
+     "gap": 307,
+     "gap_count": 13,
+     "runner_up_gap": 114,
+     "runner_up_ratio": 0.3713355048859935,
+     "threshold": 339,
+     "value_count": 14,
+     "widest_gap": 307
+    },
+    "summary_count": 14,
+    "triplets": [
+     {
+      "alone": 118,
+      "alone_class": "NEGATIVE",
+      "bit": 25,
+      "verdict": "SELECTOR",
+      "with_conflict": 105,
+      "with_conflict_class": "NEGATIVE",
+      "with_negative": 186,
+      "with_negative_class": "NEGATIVE"
+     },
+     {
+      "alone": 139,
+      "alone_class": "NEGATIVE",
+      "bit": 26,
+      "verdict": "SELECTOR",
+      "with_conflict": 121,
+      "with_conflict_class": "NEGATIVE",
+      "with_negative": 124,
+      "with_negative_class": "NEGATIVE"
+     },
+     {
+      "alone": 118,
+      "alone_class": "NEGATIVE",
+      "bit": 27,
+      "verdict": "SELECTOR_CANCELS_NEGATIVE_WITNESS",
+      "with_conflict": 139,
+      "with_conflict_class": "NEGATIVE",
+      "with_negative": 493,
+      "with_negative_class": "CONFLICT"
+     }
+    ]
+   }
+  ]
+ },
+ "physical_provenance": {
+  "allocation_alignment": "UNKNOWN",
+  "allocation_base": "UNKNOWN",
+  "coordinate_scope": "ALLOCATION_OFFSET_MODEL_COORDINATES",
+  "effective_contiguity": "UNKNOWN",
+  "pagemap_status": "BLIND",
+  "physical_pa_mapping": "UNKNOWN",
+  "reported_contiguous": true
+ },
+ "pins": {
+  "dependency_manifest": {
+   "sha256": "5c3e14ff898c109de740d98260d974bca10751000f85977775cd467ac74aac2e",
+   "size_bytes": 18040
+  },
+  "probe_source": {
+   "sha256": "2dbc81ef7595d30f627df8d28d24e21603d8c1c174074e85593b9fe8df5569e9",
+   "size_bytes": 19337
+  },
+  "raw": {
+   "pa25-27-discriminate.jsonl": {
+    "sha256": "0b269229a1607c6894fea15c21008ed3651b29faf02b9bc6cd851878c6030754",
+    "size_bytes": 142987
+   },
+   "pa25-27-heldout.jsonl": {
+    "sha256": "38649c2d2f73be05ef238c20cdc69880b391547f84fe48cd656fff9343be91b0",
+    "size_bytes": 30770
+   },
+   "pa25-27-three-column.jsonl": {
+    "sha256": "4cea5779ebdace6cc9817de591c8cff81dbd7f029ad78f46d8711708758c950f",
+    "size_bytes": 94966
+   }
+  },
+  "v015_helper": {
+   "sha256": "6fae489d27d03f94e9dcd89086027a4209988a67020620e54f1df7e22ca99e03",
+   "size_bytes": 97572
+  }
+ },
+ "provenance_identity": {
+  "build": {
+   "kernel": "4.14.190-Grass,SD855-Perf+",
+   "status": "SUPPORTED_BY_UNRETAINED_OPERATOR_REPORT",
+   "transcript_attests_identity": false
+  },
+  "cleanup": {
+   "status": "UNKNOWN_INCOMPLETE_RECEIPT"
+  },
+  "commands": {
+   "executed_receipt": "NOT_RETAINED",
+   "status": "REDACTED_REPRODUCTION_TEMPLATE",
+   "template": "python3 tools/a90_high_bit_relation_analysis.py --raw <private-root> --output <public-output>"
+  },
+  "final_state": {
+   "status": "UNKNOWN_INCOMPLETE_RECEIPT"
+  },
+  "historical_action": {
+   "status": "UNKNOWN_INCOMPLETE_RECEIPT"
+  },
+  "target": {
+   "model": "SM-A908N",
+   "soc": "SM8150",
+   "status": "SUPPORTED_BY_UNRETAINED_OPERATOR_REPORT",
+   "transcript_attests_identity": false
+  },
+  "timestamp": {
+   "status": "UNKNOWN_UNRETAINED"
+  }
+ },
+ "public_private_separation": {
+  "input_paths_emitted": "BASENAMES_ONLY",
+  "private_absolute_paths_in_manifest": false,
+  "raw_sensitive_bytes_in_manifest": false,
+  "raw_transcript_bytes_in_manifest": false
+ },
+ "publication": {
+  "helper_pin": "6fae489d27d03f94e9dcd89086027a4209988a67020620e54f1df7e22ca99e03",
+  "method": "ATOMIC_NO_CLOBBER_HARDLINK_V015_HELPER",
+  "requested_mode": "0644"
+ },
+ "raw_structure": {
+  "discrimination_differences_per_section": 14,
+  "discrimination_sections": 3,
+  "heldout_differences": 9,
+  "heldout_sections": 1,
+  "pair_count_per_difference": 32,
+  "reference_count": 2,
+  "summary_statistics": "recomputed C qsort p10/median/p90",
+  "three_column_differences_per_section": 14,
+  "three_column_sections": 2,
+  "unique_reference_differences_per_section": [
+   "0x16000",
+   "0x2000"
+  ]
+ },
+ "references": {
+  "kernel": "0x16000",
+  "negative": "0x2000",
+  "unique_count": 2
+ },
+ "schema": "a90-high-bit-relation-analysis-v1",
+ "sources": [
+  {
+   "differences_per_section": 14,
+   "file": "pa25-27-discriminate.jsonl",
+   "sections": 3
+  },
+  {
+   "differences_per_section": 9,
+   "file": "pa25-27-heldout.jsonl",
+   "sections": 1
+  },
+  {
+   "differences_per_section": 14,
+   "file": "pa25-27-three-column.jsonl",
+   "sections": 2
+  }
+ ],
+ "three_column": {
+  "difference_count": 14,
+  "dispersion": {
+   "0x16000": {
+    "maximum": 527,
+    "mean": 522.5,
+    "minimum": 518,
+    "observations": 2,
+    "population_stddev": 4.5,
+    "spread": 9,
+    "values": [
+     527,
+     518
+    ]
+   },
+   "0x2000": {
+    "maximum": 149,
+    "mean": 136.5,
+    "minimum": 124,
+    "observations": 2,
+    "population_stddev": 12.5,
+    "spread": 25,
+    "values": [
+     149,
+     124
+    ]
+   },
+   "0x2000000": {
+    "maximum": 186,
+    "mean": 152.0,
+    "minimum": 118,
+    "observations": 2,
+    "population_stddev": 34.0,
+    "spread": 68,
+    "values": [
+     186,
+     118
+    ]
+   },
+   "0x2002000": {
+    "maximum": 226,
+    "mean": 206.0,
+    "minimum": 186,
+    "observations": 2,
+    "population_stddev": 20.0,
+    "spread": 40,
+    "values": [
+     226,
+     186
+    ]
+   },
+   "0x2016000": {
+    "maximum": 161,
+    "mean": 133.0,
+    "minimum": 105,
+    "observations": 2,
+    "population_stddev": 28.0,
+    "spread": 56,
+    "values": [
+     161,
+     105
+    ]
+   },
+   "0x202c000": {
+    "maximum": 164,
+    "mean": 148.5,
+    "minimum": 133,
+    "observations": 2,
+    "population_stddev": 15.5,
+    "spread": 31,
+    "values": [
+     164,
+     133
+    ]
+   },
+   "0x2102000": {
+    "maximum": 155,
+    "mean": 136.5,
+    "minimum": 118,
+    "observations": 2,
+    "population_stddev": 18.5,
+    "spread": 37,
+    "values": [
+     155,
+     118
+    ]
+   },
+   "0x4000000": {
+    "maximum": 161,
+    "mean": 150.0,
+    "minimum": 139,
+    "observations": 2,
+    "population_stddev": 11.0,
+    "spread": 22,
+    "values": [
+     161,
+     139
+    ]
+   },
+   "0x4002000": {
+    "maximum": 149,
+    "mean": 136.5,
+    "minimum": 124,
+    "observations": 2,
+    "population_stddev": 12.5,
+    "spread": 25,
+    "values": [
+     149,
+     124
+    ]
+   },
+   "0x4016000": {
+    "maximum": 161,
+    "mean": 141.0,
+    "minimum": 121,
+    "observations": 2,
+    "population_stddev": 20.0,
+    "spread": 40,
+    "values": [
+     161,
+     121
+    ]
+   },
+   "0x800": {
+    "maximum": 0,
+    "mean": -4.5,
+    "minimum": -9,
+    "observations": 2,
+    "population_stddev": 4.5,
+    "spread": 9,
+    "values": [
+     0,
+     -9
+    ]
+   },
+   "0x8000000": {
+    "maximum": 145,
+    "mean": 131.5,
+    "minimum": 118,
+    "observations": 2,
+    "population_stddev": 13.5,
+    "spread": 27,
+    "values": [
+     145,
+     118
+    ]
+   },
+   "0x8002000": {
+    "maximum": 527,
+    "mean": 510.0,
+    "minimum": 493,
+    "observations": 2,
+    "population_stddev": 17.0,
+    "spread": 34,
+    "values": [
+     527,
+     493
+    ]
+   },
+   "0x8016000": {
+    "maximum": 158,
+    "mean": 148.5,
+    "minimum": 139,
+    "observations": 2,
+    "population_stddev": 9.5,
+    "spread": 19,
+    "values": [
+     158,
+     139
+    ]
+   }
+  },
+  "labels": {
+   "0x16000": "CONFLICT",
+   "0x2000": "NEGATIVE",
+   "0x2000000": "NEGATIVE",
+   "0x2002000": "NEGATIVE",
+   "0x2016000": "NEGATIVE",
+   "0x202c000": "NEGATIVE",
+   "0x2102000": "NEGATIVE",
+   "0x4000000": "NEGATIVE",
+   "0x4002000": "NEGATIVE",
+   "0x4016000": "NEGATIVE",
+   "0x800": "NEGATIVE",
+   "0x8000000": "NEGATIVE",
+   "0x8002000": "CONFLICT",
+   "0x8016000": "NEGATIVE"
+  },
+  "medians": {
+   "0x16000": 522,
+   "0x2000": 136,
+   "0x2000000": 152,
+   "0x2002000": 206,
+   "0x2016000": 133,
+   "0x202c000": 148,
+   "0x2102000": 136,
+   "0x4000000": 150,
+   "0x4002000": 136,
+   "0x4016000": 141,
+   "0x800": -5,
+   "0x8000000": 131,
+   "0x8002000": 510,
+   "0x8016000": 148
+  },
+  "pass_count": 2,
+  "pass_section_indices": [
+   0,
+   1
+  ],
+  "passes": [
+   {
+    "context": {
+     "barrier": "dsb_ld",
+     "cntfrq": 19200000,
+     "cpu": 7,
+     "divisor": "kept_times_two",
+     "heap": "camera_preview",
+     "mib": 256,
+     "offset_mode": "spread",
+     "order": "alternating",
+     "pairs": 32,
+     "repetitions": 201,
+     "schema": "a90_region_probe_r_v1",
+     "type": "context",
+     "warmups": 17
+    },
+    "ion_heap": {
+     "heap_id": 30,
+     "heap_type": 10,
+     "name": "camera_preview",
+     "schema": "a90_region_probe_r_v1",
+     "type": "ion_heap"
+    },
+    "labels": {
+     "0x16000": "CONFLICT",
+     "0x2000": "NEGATIVE",
+     "0x2000000": "NEGATIVE",
+     "0x2002000": "NEGATIVE",
+     "0x2016000": "NEGATIVE",
+     "0x202c000": "NEGATIVE",
+     "0x2102000": "NEGATIVE",
+     "0x4000000": "NEGATIVE",
+     "0x4002000": "NEGATIVE",
+     "0x4016000": "NEGATIVE",
+     "0x800": "NEGATIVE",
+     "0x8000000": "NEGATIVE",
+     "0x8002000": "CONFLICT",
+     "0x8016000": "NEGATIVE"
+    },
+    "medians": {
+     "0x16000": 527,
+     "0x2000": 149,
+     "0x2000000": 186,
+     "0x2002000": 226,
+     "0x2016000": 161,
+     "0x202c000": 164,
+     "0x2102000": 155,
+     "0x4000000": 161,
+     "0x4002000": 149,
+     "0x4016000": 161,
+     "0x800": 0,
+     "0x8000000": 145,
+     "0x8002000": 527,
+     "0x8016000": 158
+    },
+    "pa_provenance": {
+     "effective_contiguity": "UNKNOWN",
+     "first_pfn": "0x0",
+     "last_pfn": "0x0",
+     "nonzero_pfn": 0,
+     "pages": 65536,
+     "present": 0,
+     "reported_contiguous": true,
+     "schema": "a90_region_probe_r_v1",
+     "source": "pagemap",
+     "status": "BLIND",
+     "type": "pa_provenance"
+    },
+    "pair_record_count": 448,
+    "reference_count": 2,
+    "reference_labels": {
+     "0x16000": "CONFLICT",
+     "0x2000": "NEGATIVE"
+    },
+    "references": [
+     "0x16000",
+     "0x2000"
+    ],
+    "section_index": 0,
+    "separation": {
+     "band_high": 527,
+     "band_low": 226,
+     "conflict_count": 2,
+     "gap": 301,
+     "gap_count": 13,
+     "runner_up_gap": 145,
+     "runner_up_ratio": 0.48172757475083056,
+     "threshold": 376,
+     "value_count": 14,
+     "widest_gap": 301
+    },
+    "summary_count": 14,
+    "triplets": [
+     {
+      "alone": 186,
+      "alone_class": "NEGATIVE",
+      "bit": 25,
+      "verdict": "SELECTOR",
+      "with_conflict": 161,
+      "with_conflict_class": "NEGATIVE",
+      "with_negative": 226,
+      "with_negative_class": "NEGATIVE"
+     },
+     {
+      "alone": 161,
+      "alone_class": "NEGATIVE",
+      "bit": 26,
+      "verdict": "SELECTOR",
+      "with_conflict": 161,
+      "with_conflict_class": "NEGATIVE",
+      "with_negative": 149,
+      "with_negative_class": "NEGATIVE"
+     },
+     {
+      "alone": 145,
+      "alone_class": "NEGATIVE",
+      "bit": 27,
+      "verdict": "SELECTOR_CANCELS_NEGATIVE_WITNESS",
+      "with_conflict": 158,
+      "with_conflict_class": "NEGATIVE",
+      "with_negative": 527,
+      "with_negative_class": "CONFLICT"
+     }
+    ]
+   },
+   {
+    "context": {
+     "barrier": "dsb_ld",
+     "cntfrq": 19200000,
+     "cpu": 7,
+     "divisor": "kept_times_two",
+     "heap": "camera_preview",
+     "mib": 256,
+     "offset_mode": "spread",
+     "order": "alternating",
+     "pairs": 32,
+     "repetitions": 201,
+     "schema": "a90_region_probe_r_v1",
+     "type": "context",
+     "warmups": 17
+    },
+    "ion_heap": {
+     "heap_id": 30,
+     "heap_type": 10,
+     "name": "camera_preview",
+     "schema": "a90_region_probe_r_v1",
+     "type": "ion_heap"
+    },
+    "labels": {
+     "0x16000": "CONFLICT",
+     "0x2000": "NEGATIVE",
+     "0x2000000": "NEGATIVE",
+     "0x2002000": "NEGATIVE",
+     "0x2016000": "NEGATIVE",
+     "0x202c000": "NEGATIVE",
+     "0x2102000": "NEGATIVE",
+     "0x4000000": "NEGATIVE",
+     "0x4002000": "NEGATIVE",
+     "0x4016000": "NEGATIVE",
+     "0x800": "NEGATIVE",
+     "0x8000000": "NEGATIVE",
+     "0x8002000": "CONFLICT",
+     "0x8016000": "NEGATIVE"
+    },
+    "medians": {
+     "0x16000": 518,
+     "0x2000": 124,
+     "0x2000000": 118,
+     "0x2002000": 186,
+     "0x2016000": 105,
+     "0x202c000": 133,
+     "0x2102000": 118,
+     "0x4000000": 139,
+     "0x4002000": 124,
+     "0x4016000": 121,
+     "0x800": -9,
+     "0x8000000": 118,
+     "0x8002000": 493,
+     "0x8016000": 139
+    },
+    "pa_provenance": {
+     "effective_contiguity": "UNKNOWN",
+     "first_pfn": "0x0",
+     "last_pfn": "0x0",
+     "nonzero_pfn": 0,
+     "pages": 65536,
+     "present": 0,
+     "reported_contiguous": true,
+     "schema": "a90_region_probe_r_v1",
+     "source": "pagemap",
+     "status": "BLIND",
+     "type": "pa_provenance"
+    },
+    "pair_record_count": 448,
+    "reference_count": 2,
+    "reference_labels": {
+     "0x16000": "CONFLICT",
+     "0x2000": "NEGATIVE"
+    },
+    "references": [
+     "0x16000",
+     "0x2000"
+    ],
+    "section_index": 1,
+    "separation": {
+     "band_high": 493,
+     "band_low": 186,
+     "conflict_count": 2,
+     "gap": 307,
+     "gap_count": 13,
+     "runner_up_gap": 114,
+     "runner_up_ratio": 0.3713355048859935,
+     "threshold": 339,
+     "value_count": 14,
+     "widest_gap": 307
+    },
+    "summary_count": 14,
+    "triplets": [
+     {
+      "alone": 118,
+      "alone_class": "NEGATIVE",
+      "bit": 25,
+      "verdict": "SELECTOR",
+      "with_conflict": 105,
+      "with_conflict_class": "NEGATIVE",
+      "with_negative": 186,
+      "with_negative_class": "NEGATIVE"
+     },
+     {
+      "alone": 139,
+      "alone_class": "NEGATIVE",
+      "bit": 26,
+      "verdict": "SELECTOR",
+      "with_conflict": 121,
+      "with_conflict_class": "NEGATIVE",
+      "with_negative": 124,
+      "with_negative_class": "NEGATIVE"
+     },
+     {
+      "alone": 118,
+      "alone_class": "NEGATIVE",
+      "bit": 27,
+      "verdict": "SELECTOR_CANCELS_NEGATIVE_WITNESS",
+      "with_conflict": 139,
+      "with_conflict_class": "NEGATIVE",
+      "with_negative": 493,
+      "with_negative_class": "CONFLICT"
+     }
+    ]
+   }
+  ],
+  "reference_labels": {
+   "0x16000": "CONFLICT",
+   "0x2000": "NEGATIVE"
+  },
+  "separation": {
+   "band_high": 510,
+   "band_low": 206,
+   "conflict_count": 2,
+   "gap": 304,
+   "gap_count": 13,
+   "runner_up_gap": 136,
+   "runner_up_ratio": 0.4473684210526316,
+   "threshold": 358,
+   "value_count": 14,
+   "widest_gap": 304
+  },
+  "triplets": [
+   {
+    "alone": 152,
+    "alone_class": "NEGATIVE",
+    "bit": 25,
+    "dispersion": {
+     "alone": {
+      "maximum": 186,
+      "mean": 152.0,
+      "minimum": 118,
+      "observations": 2,
+      "population_stddev": 34.0,
+      "spread": 68,
+      "values": [
+       186,
+       118
+      ]
+     },
+     "with_conflict": {
+      "maximum": 161,
+      "mean": 133.0,
+      "minimum": 105,
+      "observations": 2,
+      "population_stddev": 28.0,
+      "spread": 56,
+      "values": [
+       161,
+       105
+      ]
+     },
+     "with_negative": {
+      "maximum": 226,
+      "mean": 206.0,
+      "minimum": 186,
+      "observations": 2,
+      "population_stddev": 20.0,
+      "spread": 40,
+      "values": [
+       226,
+       186
+      ]
+     }
+    },
+    "model_bit": 25,
+    "verdict": "SELECTOR",
+    "with_conflict": 133,
+    "with_conflict_class": "NEGATIVE",
+    "with_negative": 206,
+    "with_negative_class": "NEGATIVE"
+   },
+   {
+    "alone": 150,
+    "alone_class": "NEGATIVE",
+    "bit": 26,
+    "dispersion": {
+     "alone": {
+      "maximum": 161,
+      "mean": 150.0,
+      "minimum": 139,
+      "observations": 2,
+      "population_stddev": 11.0,
+      "spread": 22,
+      "values": [
+       161,
+       139
+      ]
+     },
+     "with_conflict": {
+      "maximum": 161,
+      "mean": 141.0,
+      "minimum": 121,
+      "observations": 2,
+      "population_stddev": 20.0,
+      "spread": 40,
+      "values": [
+       161,
+       121
+      ]
+     },
+     "with_negative": {
+      "maximum": 149,
+      "mean": 136.5,
+      "minimum": 124,
+      "observations": 2,
+      "population_stddev": 12.5,
+      "spread": 25,
+      "values": [
+       149,
+       124
+      ]
+     }
+    },
+    "model_bit": 26,
+    "verdict": "SELECTOR",
+    "with_conflict": 141,
+    "with_conflict_class": "NEGATIVE",
+    "with_negative": 136,
+    "with_negative_class": "NEGATIVE"
+   },
+   {
+    "alone": 131,
+    "alone_class": "NEGATIVE",
+    "bit": 27,
+    "dispersion": {
+     "alone": {
+      "maximum": 145,
+      "mean": 131.5,
+      "minimum": 118,
+      "observations": 2,
+      "population_stddev": 13.5,
+      "spread": 27,
+      "values": [
+       145,
+       118
+      ]
+     },
+     "with_conflict": {
+      "maximum": 158,
+      "mean": 148.5,
+      "minimum": 139,
+      "observations": 2,
+      "population_stddev": 9.5,
+      "spread": 19,
+      "values": [
+       158,
+       139
+      ]
+     },
+     "with_negative": {
+      "maximum": 527,
+      "mean": 510.0,
+      "minimum": 493,
+      "observations": 2,
+      "population_stddev": 17.0,
+      "spread": 34,
+      "values": [
+       527,
+       493
+      ]
+     }
+    },
+    "model_bit": 27,
+    "verdict": "SELECTOR_CANCELS_NEGATIVE_WITNESS",
+    "with_conflict": 148,
+    "with_conflict_class": "NEGATIVE",
+    "with_negative": 510,
+    "with_negative_class": "CONFLICT"
+   }
+  ],
+  "verdict_consistency": {
+   "all_consistent": true,
+   "by_bit": {
+    "25": {
+     "combined_verdict": "SELECTOR",
+     "consistent": true,
+     "pass_verdicts": [
+      "SELECTOR",
+      "SELECTOR"
+     ]
+    },
+    "26": {
+     "combined_verdict": "SELECTOR",
+     "consistent": true,
+     "pass_verdicts": [
+      "SELECTOR",
+      "SELECTOR"
+     ]
+    },
+    "27": {
+     "combined_verdict": "SELECTOR_CANCELS_NEGATIVE_WITNESS",
+     "consistent": true,
+     "pass_verdicts": [
+      "SELECTOR_CANCELS_NEGATIVE_WITNESS",
+      "SELECTOR_CANCELS_NEGATIVE_WITNESS"
+     ]
+    }
+   },
+   "combined_checked": true,
+   "passes_checked": 2
+  }
+ }
+}

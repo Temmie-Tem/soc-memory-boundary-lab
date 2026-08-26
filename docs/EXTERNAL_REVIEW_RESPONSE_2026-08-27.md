@@ -123,3 +123,22 @@ already carried on `main` reproduces against the retained phases and is not
 duplicated here. The remaining README and contract corrections belong with
 whichever line ends up owning those files after integration; this document
 records the verification so the decision is not made on an unchecked list.
+
+## Current integration disposition
+
+This response is preserved verbatim from historical commit `4b78b61` above
+this section. The current integrator accepts its exact-mode portability report:
+the two named checked-in-manifest assertions were removed, and the same defect
+was independently found and removed from the later Experiment-034 checked-in
+manifest test. Fresh publisher outputs still assert exact mode `0644`; tracked
+artifact identity is size/SHA-256 because Git records only the executable bit.
+
+The response's rejection of finding 8 is not adopted. Exact original 019A text
+claimed the candidate arrays were “register-programming tables” and that
+“data-driven controller programming exists in this boot chain” without a
+proved consumer. Exact original 020A text said “Every DCB consumer must” match
+one local reader idiom and promoted bounded literal/reader negatives beyond
+their model. Those are the concrete sentences finding 8 repaired. The original
+UNKNOWN blocks were valuable but did not cancel contradictory PROVED/REFUTED
+and global prose elsewhere in the same records. Finding 8 therefore remains an
+upheld scope/claim-level repair in the current integration.

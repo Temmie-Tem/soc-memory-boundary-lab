@@ -126,7 +126,9 @@ class ManifestAccountingTests(unittest.TestCase):
     def test_checked_manifest_identity_and_top_level_boundary(self):
         self.assertEqual(len(self.manifest_bytes), EXPECTED_MANIFEST_SIZE)
         self.assertEqual(hashlib.sha256(self.manifest_bytes).hexdigest(), EXPECTED_MANIFEST_SHA256)
-        self.assertEqual(stat.S_IMODE(MANIFEST_PATH.stat().st_mode), 0o644)
+        # Git does not preserve the exact non-executable permission bits.  The
+        # publisher's 0644 contract is exercised on fresh outputs below; the
+        # checked-in artifact identity is its pinned bytes.
         self.assertEqual(self.manifest["schema"], "sm8150-dcb-unsupported-frontier-v1")
         self.assertEqual(self.manifest["experiment_id"], "029-dcb-unsupported-frontier")
         self.assertEqual(self.manifest["mode"], "HOST_ONLY_READ_ONLY")

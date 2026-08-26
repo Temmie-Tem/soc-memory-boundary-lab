@@ -445,10 +445,23 @@ pagemap is `BLIND`, and action/final-state receipts are incomplete. Validation
 is 44 focused and 1,039 full serial tests with hostile-review `PASS`; see the
 [Verification 015 integration review](docs/VERIFICATION015_INTEGRATION_REVIEW_2026-08-27.md).
 
-Class C and numbered Experiments 015/016 eligibility remain unchanged. The
-next iteration is the separate retained-input repair of Verification 016's
-PA25–PA27 high-bit relation. Verification 017 remains blocked on that repair;
-the moving external branch will not be merged wholesale.
+Verification 016 is now independently repaired from three exact retained raw
+files. `PROVED` in allocation-offset/model coordinates: independent model-bit
+25/26/27 splits, equal-contribution matches `[14,21]`, `[19]`, `[13,20]`, two
+three-column passes whose verdicts agree before and after combination, and 7/7
+model-derived labels in the separate held-out file. The historical `17/17`
+run is not retained, and the external `192/170/506` tuple is not coherent with
+either retained pass or their combine. Pagemap remains `BLIND`; physical PA,
+base/alignment and effective contiguity remain `UNKNOWN`. Validation is 23
+focused and 1,062 full serial tests with hostile-review `PASS`; see the
+[Verification 016 integration review](docs/VERIFICATION016_INTEGRATION_REVIEW_2026-08-27.md).
+
+Class C and numbered Experiments 015/016 eligibility remain unchanged.
+Verification 017 is unblocked only for a separate audit and is not promoted.
+The next highest-information iteration is a repaired, fully retained normal-RAM
+storage-identity baseline: harden the external Verification-018 oracle, then
+reacquire its reversible camera-preview allocation run because the historical
+public manifest has no retained raw transcript or sufficient provenance.
 
 Claim vocabulary is deliberately closed:
 

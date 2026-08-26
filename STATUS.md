@@ -3,9 +3,11 @@
 Current research state: `NO_BOUNDARY_BYPASS_OBSERVED`
 
 Current class: `CLASS C (TRANSFORM ONLY) — live normal-RAM timing proves a
-hidden low-24-bit XOR bank-selection relation; direct EL1 controller/SHRM reads
-remain blocked; no transform write, complete-coordinate alias,
-protection-order mismatch, or boundary bypass has been observed`
+hidden low-24-bit physical-region XOR bank-selection relation, and retained
+allocation-offset/model evidence extends the same rank-three shape through
+model bit 27; direct EL1 controller/SHRM reads remain blocked; no transform
+write, complete-coordinate alias, protection-order mismatch, or boundary bypass
+has been observed`
 
 Platform provenance: the A90 runtime, ACM bridge, REPL primitive, TWRP
 code-boot and boot-prefix rollback used throughout are supplied by the upstream
@@ -323,8 +325,10 @@ current table contents/destination, global absence and security effect remain
 is `PASS` after a `CMP W` width-mask repair. See
 [the Experiment 034 integration review](docs/EXP034_INTEGRATION_REVIEW_2026-08-26.md).
 
-The external line is reconciled at exact parent `247b0e1`; later moving-branch
-commits through observed `c91f473` are excluded. 023R proves rank-three/bit-24
+The external line is reconciled at exact parent `247b0e1`. Later implementation
+commits through observed `c91f473` are not promoted wholesale: `4b78b61` is
+preserved as a review response, while Verifications 015/016 are rebuilt from
+retained inputs. 023R proves rank-three/bit-24
 algebra only in allocation-offset/model coordinates; physical PA attribution
 is `SUPPORTED_WITHIN_MODEL` because pagemap is `BLIND`. 028 is a bounded
 494-register encoding negative, 029A supplies reproducible ABL extraction and
@@ -351,10 +355,21 @@ action/final-state receipts are absent. Validation is 44 focused / 1,039 full
 serial PASS with independent hostile-review `PASS`; see the
 [Verification 015 integration review](docs/VERIFICATION015_INTEGRATION_REVIEW_2026-08-27.md).
 
-Class C and numbered Experiments 015/016 eligibility remain unchanged. The next
-iteration is the separate retained-input repair of Verification 016's high-bit
-relation. Verification 017 remains blocked on that result; the moving branch
-will not be merged wholesale.
+Verification 016 is repaired from three exact retained raw files. `PROVED` in
+allocation-offset/model coordinates: separate bit-25/26/27 thresholds and
+matches `[14,21]`, `[19]`, `[13,20]`; two three-column passes with identical
+per-bit verdicts before/after combination; and seven of seven model-derived
+labels in the separate held-out file. The raw files do not retain the historical
+17-control run. Pagemap is `BLIND`, so physical PA/base/alignment/effective
+contiguity remain `UNKNOWN`. Validation is 23 focused and 1,062 full serial
+PASS with hostile-review `PASS`; see the
+[Verification 016 integration review](docs/VERIFICATION016_INTEGRATION_REVIEW_2026-08-27.md).
+
+Class C and numbered Experiments 015/016 eligibility remain unchanged.
+Verification 017 is `UNBLOCKED_FOR_SEPARATE_AUDIT_NOT_PROMOTED`. The next
+iteration is a repaired and freshly retained normal-RAM storage-identity
+baseline; the historical Verification-018 manifest is not promoted without its
+raw transcript/provenance.
 
 ## A. 현재까지 PROVED
 
@@ -727,7 +742,9 @@ will not be merged wholesale.
   selector; the physical roles of PA9/PA10 remain `UNKNOWN`.
 - External reconciliation validation is 296 focused / 995 full PASS, with
   byte-identical mode-`0644` publications and independent hostile-review
-  `PASS`. Exact parent is `247b0e1`; later moving-branch work is not integrated.
+  `PASS`. Exact parent is `247b0e1`; later implementation work is not promoted
+  wholesale, and the separately rebuilt V015/V016 records supersede it only in
+  their named scopes.
 - Verification 015 proves the exact six-condition numerical classifications,
   per-difference dispersion, two primary L762 excursions, zero flips across six
   independently split repeat groups, and the exact six-level × two bus-vote
@@ -1043,26 +1060,32 @@ ordering remain `UNKNOWN`, so this is not yet a structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-Verification 015 is complete. The highest-information next iteration is the
-retained Verification-016 high-bit relation because it can extend the measured
-transform model beyond bit 24 without a new device action. It must be repaired,
-not cherry-picked:
+Verification 016 is complete. The highest-information next iteration is a
+repaired and freshly retained normal-RAM storage-identity baseline. The
+historical Verification-018 public manifest says four controls/anchors and 88
+candidates returned no alias, but its raw device transcript, target/build
+receipt, probe-binary identity and final-state receipt are not present in the
+current private evidence set. That result is evidence to reacquire, not
+authority to promote.
 
-1. pin every retained raw/tool/source/dependency input;
-2. preserve acquisition phases and reject the current `setdefault()` filename-
-   order merge of overlapping keys;
-3. reconcile the README's 17/17/threshold-352 account with the current
-   54-key/threshold-335 manifest and publish only facts present in raw bytes;
-4. include held-out prediction results in the generated manifest;
-5. keep PA25–PA27 as allocation-offset/model evidence unless source/DT/base-
-   alignment and effective-contiguity evidence justify physical attribution;
-6. add deterministic no-clobber/public-safety tests and independent review.
+The ordered next step is:
 
-Verification 017 cannot consume the high-bit relation until this gate passes.
-No live allocation, device/MMIO/controller write or secure-heap action is
-selected. If the retained evidence cannot support a repaired result, the
-fallback remains the host-only 020A setter trace from `0x9fc06410` through
-caller `0x9fc023f0`. Numbered Experiments 015/016 remain `NOT_ELIGIBLE`.
+1. repair the marker parser to fail closed on malformed, missing, duplicate,
+   inconsistent or out-of-range records;
+2. pin exact probe source/binary, analyzer, command parameters and synthetic
+   dropped-line/injective controls;
+3. publish through deterministic no-clobber/public-safety handling;
+4. run host tests and independent review;
+5. if those pass, perform one reversible `camera_preview` allocation-only
+   write/read/free acquisition with live same-address and distinct controls;
+6. retain exact raw transcript, target/build/timestamp/action/cleanup/final-state
+   receipt and hashes before interpreting the negative.
+
+This action writes only inside its own non-secure allocation and does not touch
+MMIO, SMC, secure heap, protected memory or a partition. Verification 017 is
+now eligible for a separate host-only audit but is not promoted; the 020A setter
+trace remains the host-only fallback. Numbered Experiments 015/016 remain
+`NOT_ELIGIBLE`.
 
 ## N. 가장 위험한 아직 금지된 실험
 
@@ -1107,6 +1130,11 @@ Evidence for the attack class being relevant:
   four clean operator-labelled runtime/reboot/coldboot comparisons. This
   `SUPPORTED` stability makes the observed relation less likely to be a single-
   boot artifact, but it is not an immutability or transition proof.
+- Verification 016 independently retains the folded rank-three shape through
+  allocation-offset/model bits 25–27, with per-phase controls, two-pass verdict
+  consistency and 7/7 separate-file model-derived agreement. This widens the
+  model but does not establish physical PA identity, contiguity, a complete
+  coordinate map, mutation or alias.
 - Experiment 017 adds exact-XBL table/read-copy observation confidence for the
   three qhs_mc candidate groups, but does not prove any writer, mutation,
   alias, protected reach or bypass. Experiments 015 and 016 remain `NOT

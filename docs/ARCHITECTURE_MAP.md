@@ -405,9 +405,10 @@ test pins are recorded in the integration review.
 Experiment 034 is `COMPLETED`: its guarded five-entry table and four unique
 local targets close site 35 to 71/71 `NO_TARGET_WITHIN_MODEL` inside the
 bounded static model. Exact external parent `247b0e1` is also reconciled for
-019A–023R/028/029A/030 after claim/provenance/phase repairs; later commits
-through observed `c91f473` are excluded. These results do not identify the
-runtime transform owner or writer.
+019A–023R/028/029A/030 after claim/provenance/phase repairs. Later
+implementations through observed `c91f473` are not promoted wholesale; review
+response `4b78b61` is preserved and V015/V016 are independently rebuilt. These
+results do not identify the runtime transform owner or writer.
 
 Verification 015 subsequently proves six exact condition-labelled numerical
 classifications in allocation-offset/model coordinates. Four clean comparisons
@@ -415,10 +416,17 @@ share all 51 labels; the weak L762 condition retains two excursions and remains
 `REPEAT_REQUIRED`/`all_invariant=false`, while six independently split repeat
 groups have zero flips. This `SUPPORTED` stability across operator-reported
 runtime/reboot/coldboot contexts does not prove transform immutability or a
-data-path location. Pagemap remains `BLIND`; physical provenance and effective
-contiguity remain `UNKNOWN`. The next selection is a retained-input repair of
-Verification 016 high-bit evidence, without allowing Verification 017 to
-consume it first.
+data-path location.
+
+Verification 016 extends the same bounded model to allocation-offset/model bits
+25–27. The retained equal-contribution classes are bit25=`{14,21}`,
+bit26=`{19}`, and bit27=`{13,20}`; both three-column passes independently retain
+the same selector/cancellation verdicts, and a separate seven-row set agrees
+with model-derived labels 7/7. This supports a rank-three folded selection model
+but does not locate named controller coordinates. Pagemap remains `BLIND`;
+physical PA identity, base/alignment and effective contiguity remain `UNKNOWN`.
+Verification 017 may now be audited separately but is not automatically
+promoted.
 
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside

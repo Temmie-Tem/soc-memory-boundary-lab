@@ -1715,3 +1715,55 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
    repair: preserve phases, remove filename-order merging, reconcile raw and
    prose, and keep PA25–PA27 physical attribution model-scoped until
    base/alignment/contiguity is proved. Verification 017 remains blocked.
+
+## 2026-08-27 — Verification 016 retained high-bit repair
+
+1. Rebuilt Verification 016 on current integration base rather than importing
+   external implementation `6b3abc7`. No device, USB, allocation, memory, SMC,
+   MMIO, controller, protected-memory, boot or partition action occurred.
+2. Bound three private inputs by exact basename/size/SHA-256: three 14-key
+   discrimination sections, one nine-key held-out section and two 14-key
+   three-column passes. Probe source, repaired 023R manifest and repaired V015
+   stable-read/publication helper are also pinned.
+3. Rejected the external `setdefault()`/filename-order merge. Every phase has
+   its own median map, widest-gap threshold, labels and exact same-phase
+   `0x16000=CONFLICT` / `0x2000=NEGATIVE` controls. The two three-column passes
+   are classified before averaging and must agree with their combine.
+4. `PROVED` in `ALLOCATION_OFFSET_MODEL_COORDINATES`: bit25 split
+   `339/295/22`, match `{14,21}`; bit26 `325/273/75`, match `{19}`; bit27
+   `355/302/25`, match `{13,20}`. The two passes and combine retain
+   `SELECTOR`, `SELECTOR`, and `SELECTOR_CANCELS_NEGATIVE_WITNESS`.
+5. The separate held-out file agrees 7/7 with model-derived labels. Prediction
+   preregistration and acquisition order/timestamp are not retained and remain
+   `UNKNOWN`.
+6. The retained files contain only two control/reference differences per phase.
+   They do not establish the historical eight-kernel plus nine-negative `17/17`
+   run. The external `192/170/506` tuple is not coherent with either retained
+   three-column pass or their combine; its historical producer/cause is outside
+   the canonical inputs.
+7. Pagemap is `BLIND`. Physical PA identity for model bits 25–27,
+   base/alignment and effective contiguity remain `UNKNOWN`; the producer's
+   contiguous flag is retained only as `reported_contiguous`. Exact-byte/content
+   stability is proved, not filesystem-inode provenance.
+8. Independent hostile review found page-contract, unsupported causal-claim and
+   nonfinite-JSON gaps. The parser now rejects zero differences, non-page-
+   aligned offsets, either page endpoint out of range, NaN/Infinity, phase
+   reorder, raw symlinks and hidden three-pass disagreement.
+9. Final artifacts are analyzer 78,490 bytes / SHA-256
+   `a1b804a3686ba3f7d87f89b68d88de67387c24de424eb396fc770629f0cf2bec`,
+   tests 22,757 /
+   `8a8221e7c03e4adbf6de7a7f27b773bea7b2e3d32405a44a9673aeab562e67bb`,
+   README 8,276 /
+   `706362bf45248c7c7af0b6e511f1ffd3edae9b9404b5ae13961e2acf71b771bf`,
+   and public manifest 59,504 /
+   `72525cf994e52bbee1c3ed685c49a6ace4049cd7b279cb97811f6a0d3f4f773f`.
+10. Validation is 23 focused and 1,062 final full serial unittest PASS in
+    117.328 seconds; full maximum RSS 277,724 KiB, swap 0. Three nonportable exact-0644 assertions on
+    checked-in artifacts were removed while fresh publisher-mode tests remain.
+    Final stable-tree hostile review reproduced all pins/manifest and returned
+    `PASS` with no remaining P0–P2. Class remains `CLASS C (TRANSFORM ONLY)`; numbered 015/016 stay
+    `NOT_ELIGIBLE`. Verification 017 is eligible only for separate audit.
+11. The next selected iteration is a repaired, freshly retained normal-RAM
+    storage-identity oracle. The historical Verification-018 public result has
+    no retained raw transcript/provenance in this tree and will be reacquired
+    only after host hardening and hostile review.

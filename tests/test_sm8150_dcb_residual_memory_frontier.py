@@ -298,7 +298,8 @@ class ExactArtifactTests(unittest.TestCase):
         encoded_second = (json.dumps(second, sort_keys=True, indent=2, separators=(",", ": ")) + "\n").encode()
         self.assertEqual(encoded_first, encoded_second)
         self.assertEqual(encoded_first, self.manifest_bytes)
-        self.assertEqual(stat.S_IMODE(MANIFEST_PATH.stat().st_mode), 0o644)
+        # Exact 0644 is a fresh-publication property.  Git records only the
+        # executable bit for this checked-in manifest, whose bytes are pinned.
         with tempfile.TemporaryDirectory() as temp:
             path = Path(temp) / "manifest.json"
             extension.write_no_clobber(path, b"{}\n")

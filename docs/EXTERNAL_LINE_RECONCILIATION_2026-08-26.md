@@ -13,10 +13,11 @@ identity.
 
 After this merge began, `research/xbl-config-cdt` advanced through
 `05a4c5c`, `4b78b61`, `a297fde`, `b2b5068`, `6b3abc7`, and `c91f473`.
-Those commits and their runtime-transition, retraction/power-cycle, PA25–27,
-and post-decode-check results are not in this tree, were not reviewed for this
-iteration, and are not promoted here. Verification 015 remains outside this
-pinned merge and does not change Experiments 015/016 eligibility.
+Those commits were outside this pinned merge. The later current-tree work
+rebuilds Verifications 015/016 independently from retained inputs rather than
+promoting those implementations. Review-response commit `4b78b61` is preserved
+separately as dissent/provenance at integration commit `787c8b4`; preserving
+the response does not adopt every disposition in it.
 
 The imported history includes original commits for 019A–022A, 023/023R, 028,
 029A and 030 plus the external merge through main's Experiment 033. The `A`
