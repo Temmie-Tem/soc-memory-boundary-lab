@@ -21,7 +21,7 @@
 | 017 | Does exact XBL expose a table-driven MC read-copy path that independently covers the ranked MC candidates? | The pinned u64 table parses to 122 entries plus a zero terminator; the exact helper's static flow conditionally loads each table-derived address and stores results to a distinct buffer. | Exact XBL size/hash, PT_LOAD mapping, inclusive table/helper hashes, AArch64 word pins, direct-BL scan limited to file-backed executable PT_LOADs, SHRM-plan address-list cross-check; host-only, no device/SMC/MMIO. | `PROVED`: 30×4 MC groups + 2 globals, all 12 qhs_mc candidates covered, helper read-copy store-base dataflow, exactly two direct BL callsites. `REFUTED`: helper as candidate-register writer and independent hard 122-entry cap. Runtime completion/coherence/currentness, mutable table state, indirect reachability and writer semantics `UNKNOWN`; 015/016 remain `NOT ELIGIBLE`. |
 | 018 | Does exact XBL contain literal and syntactic store-offset evidence for the 12 ranked MC targets, and do the non-SP RX candidates resolve through narrow direct-definition models? | Each target's single 8-byte table encoding yields one aligned u64 match and the overlapping aligned u32 match at the same file offset; strict STR W/X unsigned-immediate offsets enumerate candidates. Stage 2A resolves only 64-bit MOVZ/MOVK or same-register `ADRP Xn; ADD Xn,Xn,#imm` within 128 instructions; Stage 2B extends only its two X8 window-limit candidates with same-register W MOVZ/MOVK within 512 instructions; Stage 2C analyzes one X8 writer through its unique direct caller and 48-row retained table; Stage 2D analyzes the remaining X19 store under explicit dispatch, normal-return, and initialized-slot conditions; Stage 2E analyzes only the seven RX SP-base stores against exact F1/F2 local frame allocations. | Exact XBL size/SHA-256, PT_LOAD RX/RWE/RW/OTHER census, scalar STR decoder negatives, literal mapping/table membership, exact candidate/code/table/initializer pins, exact target instruction-class/write-set audit, exact SP-write/site manifest bound to both function hashes, explicit memory-writeback, BR/BLR, all-file-backed executable PT_LOAD-word direct-entry, direct BL/B and success-path cutoffs, unsupported/mixed-width definition negatives; host-only, no device/SMC/MMIO. | `PROVED`: the two aligned matches per target are views of one table entry, not independent literals, with no separate target literal elsewhere; outside-table aligned u32 only for base `0x09260000` at file `0x80154` / VA `0x148bc254` in RWE; 14 matching offsets (RX11/RWE3), seven RX SP-based; Stage 2A has two window-limit no-definitions, one unsupported LDR, one BL control boundary, zero resolved bases/hits. Stage 2B resolves two W-wide-move bases to XBL virtual-address values `0x1489f000`, computing `0x1489f400`/`0x1489f4d0`, with zero numeric target hits. Stage 2C proves one direct BL, the 56/108/272-byte code-range hashes, and 48 unique ID/pointer rows with zero numeric target matches; these are a descriptor-eligibility-dependent possible-value superset. Stage 2D proves the remaining caller/function/initializer/target static pins, exact target no-call/no-saved-register audit, dispatch and normal-return pins, and computes `0x85e9e970` only within explicit runtime/slot conditions; its conditional value has zero numeric target matches. Stage 2E proves all seven SP forms, both frame ranges/hashes and callers, four recognized explicit writeback sites per function (two SP frame updates and two non-SP writebacks), zero recognized BR/BLR transfers, one external direct BL to each function start with zero external entries to interiors, and in-allocation bounds. The same-function immediate-control CFG (BL modeled as fallthrough) has no recognized SP-write-class instruction after allocation on a path to each candidate; unsupported instruction effects remain `UNKNOWN`; absolute stack address and runtime destination remain `UNKNOWN`. `REFUTED` only: the supported Stage 2A direct-definition path, Stage 2B/2C/2D numeric target equality in their stated models, and static absolute/controller-base interpretation of these seven stores within the normal frame model. Physical destination, runtime execution, writer identity outside scoped paths and all SP/RWE/unsupported/dynamic paths remain `UNKNOWN`; 015/016 remain `NOT ELIGIBLE`. |
 
-## Integrated host-only rows 019–022, 024–027, 029, 031, and 032
+## Integrated host-only rows 019–022, 024–027, 029, and 031–033
 
 | ID | Question | Bounded result | Classification and boundary |
 |---:|---|---|---|
@@ -36,6 +36,8 @@
 | 029 | What exact instruction forms remain outside the 027 decoder in its fail-closed ranges? | `PROVED`: the 71 ranges contain 1,992 occurrences / 1,180 unique VAs; the unsupported frontier is 352 occurrences / 219 unique VAs / 197 unique words. Primary counts are `DECODER_EXTENSION_CANDIDATE` 161, `FLAG_ONLY_NO_GPR_DEF` 99, `TAINT_KILL_REQUIRED` 27, `CONTROL_OR_MEMORY_UNSUPPORTED` 54, and `UNKNOWN` 11. | `BOUNDED_UNSUPPORTED_FRONTIER_INVENTORY_UNKNOWN`: syntactic range membership is not CFG reachability; source provenance, decoder safety, runtime destination, consumer/writer identity, and writer absence remain `UNKNOWN`/`NOT_CLAIMED`. Host-only, no device/MMIO/write action. |
 | 031 | Can a source-qualified scalar-plus-dispatch v2 pass reduce the exact 029 frontier without promoting a consumer or writer? | `PROVED`: selected membership is 283 occurrences / 160 unique VAs / 148 unique words, with 250 reached selected events, 33 selected-not-reached occurrences, zero family/label mismatches, and zero events outside the selected domain. The residual is 69 occurrences / 59 unique VAs / 49 unique words across 20 sites. The combined model transitions 51 of 71 sites to bounded `NO_TARGET_WITHIN_MODEL`; 20 remain `INDIRECT_OR_UNSUPPORTED`. `DIRECT_CONTROL_DISPATCH_REPAIR` contributes 143 events across 62 sites (`B.cond` 87, `CBZ/CBNZ` 28, `B` 15, `TBZ/TBNZ` 13); with repair sites split 48 no-target/14 fail-closed, without it 3/6. | `V2_MODEL_ONLY` / `NO_ABSENCE_CLAIM`: the 51 result depends on combined scalar and dispatch repair, not scalar-only closure. Pair/sign-extending memory, system/control, three-source, `BIC`/`EOR`, indirect aliases and unsafe forms remain fail-closed; zero `DCB_CONSUMER_PATH` and zero `MC_OR_SHRM_SYMBOLIC_TARGET`. Runtime destination, writer/consumer identity, execution/order, alias, writability and live authority remain `UNKNOWN`. |
 | 032 | Can source-qualified arithmetic semantics reduce the exact reached 031/029 frontier without promoting a consumer or writer? | `PROVED`: the combined selection is 298 occurrences / 175 unique VAs / 162 unique words across 71 ranges, with 264 reached selected events and 34 selected-not-reached occurrences. The arithmetic extension contributes 15 selected rows across 7 sites and 14 reached events (`MADD` 3, `UMADDL` 7, `EOR` 2, `BIC` 2). The result transitions 55/71 sites to `NO_TARGET_WITHIN_MODEL`; 16 remain `INDIRECT_OR_UNSUPPORTED`; relative to 031, sites 1/36/37/52 transition with zero regressions. The residual is 54 occurrences / 44 unique VAs / 35 unique words across 15 sites (`PAIR_MEMORY` 48, `SIGN_EXTENDING_MEMORY` 2, `SYSTEM_CONTROL` 4). | `V3_MODEL_ONLY` / `NO_ABSENCE_CLAIM`: exact full-record equivalence preserves 250 scalar, 143 direct-control, and 23 taint-kill 031 events. Qualified arithmetic is modulo-width and identity-limited; pair/sign-extending memory, system/control, indirect aliases, reserved/unknown forms remain fail-closed. Zero `DCB_CONSUMER_PATH` and zero `MC_OR_SHRM_SYMBOLIC_TARGET`; current destination, writer absence, execution and live authority remain `UNKNOWN`. Host-only, no device/MMIO/write action. |
+
+| 033 | Can source-qualified pair-memory, sign-extending-memory, and system-control semantics reduce the exact residual left by Experiment 032 without promoting a consumer or writer? | `PROVED`: the complete 029 frontier is selected as 352 occurrences / 219 unique VAs / 197 unique words; 308 selected events are reached and 44 selected occurrences are not reached. The new residual admission is 44 events: `LDP` 38, `STP` 3, `LDRSW` 1, `LDRSB` 1, and `DAIFClr` 1. Three `STP` instructions publish six explicit lane observations. The bounded site outcome is 70 `NO_TARGET_WITHIN_MODEL` / 1 `INDIRECT_OR_UNSUPPORTED`, with site 35 remaining unresolved. | `V4_MODEL_ONLY` / `NO_ABSENCE_CLAIM`: inherited 032 full-record equality is exact for 264 extension, 143 direct-control, and 23 taint-kill events. Zero bounded `DCB_CONSUMER_PATH` and `MC_OR_SHRM_SYMBOLIC_TARGET`; global writer/current destination/protected-memory semantics and `DAIFClr` current-EL/`CheckDAIFAccess` remain `UNKNOWN`. Host-only, no device/MMIO/write action; Class C and 015/016 eligibility unchanged. |
 
 The integrated results remain `CLASS C (TRANSFORM ONLY)`, with Experiments 015
 and 016 `NOT ELIGIBLE`. Experiment 027 validation is 35 focused and 616 full
@@ -68,20 +70,22 @@ The checked 032 public manifest is 1,564,295 bytes, mode `0644`, SHA-256
 `beee3cdaa7d69f240310bed8b574f8dd81b00b48c2383f48dd849ebd36fb4b31`.
 Experiment 023 is `WITHHELD/NO-GO`, not integrated or public. Its protocol is
 not comparable to 014, physical-allocation PA provenance is missing, the full
-GF(2) matrix is non-unique, and `PA24=b1^b2` is `SUPPORTED` only. The next
-non-overlapping host-only selection is Experiment 033, scored `87/100`, for
-source qualification and bounded modeling of the exact reached residual: 41
-`PAIR_MEMORY` events across 13 sites (38 `LDP`, 3 `STP`; 34 SP-based `LDP`), two
-sign-extending loads across two sites, and one `DAIFClr` system-control event
-across the 15/16-site fail-closed boundary. `STP` must be modeled as two
-explicit store observations; unpredictable, overlap, and writeback forms stay
-fail-closed, and site 35's indirect/runtime alias remains fail-closed. This
-host-only work outranks live capture and withheld 023R because it closes a
-concrete reached residual using existing exact inputs; 023R still lacks
-comparable timing, PA provenance, and a unique full GF(2) matrix.
-External Claude Experiments 028 and 030 remain outside this integration and
-unreviewed here; no result, score, authority, review, or commit from either is
-claimed or integrated.
+GF(2) matrix is non-unique, and `PA24=b1^b2` is `SUPPORTED` only. Experiment
+033 is now `COMPLETED` and integrated from artifact commit `56b5ffa`; its
+public manifest is 2,017,356 bytes, mode `0644`, SHA-256
+`606723e5125d661c800b167133f2a9b69a3b8d47361b39176665a49be539e598`.
+Validation is 15 focused / 685 full unittest PASS, full maximum RSS
+253,944 KiB with zero swap, byte-identical fresh publications, and independent
+hostile review `PASS` with no P0-P2 findings. The next non-overlapping
+host-only selection is Experiment 034. Current site-35 jump-table evidence is
+`HYPOTHESIS`, not closure: `BR X1` at `0x1484fa08`, table base `0x14824cf0`,
+`CMP W9,#4` plus `B.HI` at `0x1484f9f4/0x1484f9f8`, and
+`LDR X1,[X5,X9,LSL#3]` at `0x1484fa04`; the five local entries are
+`0x1484fa3c`, `0x1484fa50`, `0x1484fa88`, `0x1484fa0c`, and `0x1484fa0c`.
+Only a pinned tool and tests can reclassify site 35. Experiment 034 remains
+host-only and non-overlapping with external Claude Experiments 028/030, which
+remain outside and unreviewed here; no result, score, authority, review, or
+commit from either is claimed or integrated.
 
 The Stage 2E row's writeback result is an exact audit of all recognized
 single/pair memory-writeback forms: four sites per function (two SP frame
@@ -1126,17 +1130,20 @@ remains private. Experiment 027 is now completed and integrated: its bounded
 `NO_TARGET_WITHIN_MODEL`, zero `DCB_CONSUMER_PATH`, and zero
 `MC_OR_SHRM_SYMBOLIC_TARGET`; exact inputs, exclusions, artifact pins, and
 validation are recorded in the Experiment 027 integration review. Experiments
-029, 031, and 032 are also completed and integrated; their exact frontier
+029, 031, 032, and 033 are also completed and integrated; their exact frontier
 accounting, source-qualified transitions, artifact pins, and validation are
-recorded in their integration reviews. The next non-overlapping host-only
-selection is Experiment 033, scored `87/100`, for source qualification and
-bounded modeling of the exact reached residual: 41 `PAIR_MEMORY` events across
-13 sites (38 `LDP`, 3 `STP`; 34 SP-based `LDP`), two sign-extending loads, and
-one `DAIFClr` system-control event across the 15/16-site fail-closed boundary.
-`STP` must be modeled as two explicit store observations, and unpredictable,
-overlap, and writeback forms remain fail-closed; site 35's indirect/runtime
-alias remains fail-closed. This stays host-only and outranks live capture and
-withheld 023R because it uses existing exact inputs; 023R still lacks
-comparable timing, PA provenance, and a unique full GF(2) matrix.
+recorded in their integration reviews. Experiment 033 is the v4 residual
+extension from commit `56b5ffa`: 352 selected occurrences / 219 unique VAs /
+197 unique words, 308 reached events, 44 selected-not-reached, 44 new events
+(`LDP` 38, `STP` 3, `LDRSW` 1, `LDRSB` 1, `DAIFClr` 1), six explicit STP lane
+observations, and a 70/1 bounded site split with site 35 still indirect.
+The next non-overlapping host-only selection is Experiment 034. Its current
+site-35 jump-table reconstruction is `HYPOTHESIS`, not closure: `BR X1` at
+`0x1484fa08`, candidate table base `0x14824cf0`, guarded index via
+`CMP W9,#4` + `B.HI` at `0x1484f9f4/0x1484f9f8`, load at `0x1484fa04`, and
+five local entries `0x1484fa3c`, `0x1484fa50`, `0x1484fa88`, `0x1484fa0c`,
+`0x1484fa0c`. Only a pinned tool and tests may reclassify site 35. External
+Claude Experiments 028 and 030 remain outside and unreviewed here; no result,
+score, authority, review, or commit from either is claimed.
 External Claude Experiments 028 and 030 remain outside and unreviewed here; no
 result, score, authority, review, or commit from either is claimed.

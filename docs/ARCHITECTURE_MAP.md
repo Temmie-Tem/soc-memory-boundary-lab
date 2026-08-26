@@ -366,17 +366,44 @@ reserved encodings, and unknown forms remain fail-closed. Zero
 artifact pins, and validation are recorded in
 [EXP032_INTEGRATION_REVIEW_2026-08-26.md](EXP032_INTEGRATION_REVIEW_2026-08-26.md).
 
-The next non-overlapping host-only selection is Experiment 033, scored
-`87/100`: source-qualify and model the exact remaining reached residual of 41
-`PAIR_MEMORY` events across 13 sites (38 `LDP`, 3 `STP`; 34 SP-based `LDP`),
-two sign-extending loads across two sites, and one `DAIFClr` system-control
-event across the 15/16-site fail-closed boundary. `STP` must be represented as
-two explicit store observations, with unpredictable, overlap, and writeback
-forms fail-closed; site 35's indirect/runtime alias remains fail-closed. This
-outranks live capture and withheld 023R because it closes a concrete reached
-residual using existing exact host inputs without a new device gate; 023R still
-lacks comparable timing, PA provenance, and a unique full GF(2) matrix. No
-device, MMIO, write, or live authority is selected.
+Experiment 033 is now `COMPLETED` and integrated from artifact commit
+`56b5ffa`. It is a host-only, read-only v4 extension of the exact 032 bounded
+model. The complete 029 frontier is selected as 352 occurrences / 219 unique
+VAs / 197 unique words; 308 events are reached and 44 selected occurrences
+are not reached. The inherited 032 full-record equality is exact for 264
+extension events, 143 direct-control events, and 23 taint-kill events. The 44
+new residual events are `LDP` 38, `STP` 3, `LDRSW` 1, `LDRSB` 1, and
+`DAIFClr` 1. The three `STP` instructions are represented by six explicit
+lane observations.
+
+`PROVED`: source-qualified `LDP W/X`, `LDP X` post-index, `STP W/X`,
+`LDRSW X`, `LDRSB W`, and exact `DAIFClr #IRQ` forms are modeled with
+fail-closed handling for pre-index/unseen pair modes, SIMD/FP pairs, LDPSW,
+overlap/unpredictable forms, other system forms, indirect aliases, and
+malformed words. The bounded site result is 70
+`NO_TARGET_WITHIN_MODEL` and one `INDIRECT_OR_UNSUPPORTED` at site 35; no
+bounded `DCB_CONSUMER_PATH` or `MC_OR_SHRM_SYMBOLIC_TARGET` path is promoted.
+`UNKNOWN`: global writer identity/absence, current physical destination,
+protected-memory semantics, and the runtime exception level or
+`CheckDAIFAccess` result for `DAIFClr`. Class C remains unchanged and
+Experiments 015/016 remain `NOT_ELIGIBLE`.
+
+The checked public manifest is 2,017,356 bytes, mode `0644`, SHA-256
+`606723e5125d661c800b167133f2a9b69a3b8d47361b39176665a49be539e598`.
+Validation is 15 focused / 685 full unittest PASS, full maximum RSS
+253,944 KiB with zero swap, byte-identical fresh publications, and an
+independent hostile review `PASS` with no P0-P2 findings. The tool and focused
+test pins are recorded in the integration review.
+
+The next non-overlapping host-only selection is Experiment 034. Current
+site-35 jump-table evidence is `HYPOTHESIS`, not a closure: `BR X1` is at
+`0x1484fa08`, the candidate table base is `0x14824cf0`, `W9` is guarded by
+`CMP W9,#4` plus `B.HI` at `0x1484f9f4/0x1484f9f8`, and
+`LDR X1,[X5,X9,LSL#3]` is at `0x1484fa04`. The five local little-endian
+entries are `0x1484fa3c`, `0x1484fa50`, `0x1484fa88`, `0x1484fa0c`, and
+`0x1484fa0c`. A pinned tool and tests must prove this pattern before site 35
+is reclassified. The selection does not import external Claude Experiments
+028/030.
 
 External Claude Experiments 028 and 030 remain outside this integration and
 unreviewed here. No result, score, authority, review, or commit from either is

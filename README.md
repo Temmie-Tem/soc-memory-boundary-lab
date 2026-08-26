@@ -12,13 +12,14 @@ This is a derived project. See [Upstream](#upstream) for the platform it
 observes from and the safety method it inherits.
 
 Current phase: source reconstruction plus bounded, source-backed live
-normal-RAM observation. Experiment 007 first retired a generic REPL mapping path after a
-watchdog before its intended MMIO read. A fixed inline no-load control later
-passed; the paired candidate's single fixed 32-bit load produced no value and
-was followed by a retained `Non Secure Watchdog Bark`. `SUPPORTED`, not
-`PROVED`: the load caused the stall. V2321 was restored by verified boot-prefix
-readback and passed final native health. No DDR/controller, XPU, SMMU, SCM,
-EL2, EL3, or protected-memory write has been performed.
+normal-RAM observation and host-only frontier qualification. Experiment 007
+first retired a generic REPL mapping path after a watchdog before its intended
+MMIO read. A fixed inline no-load control later passed; the paired candidate's
+single fixed 32-bit load produced no value and was followed by a retained
+`Non Secure Watchdog Bark`. `SUPPORTED`, not `PROVED`: the load caused the
+stall. V2321 was restored by verified boot-prefix readback and passed final
+native health. No DDR/controller, XPU, SMMU, SCM, EL2, EL3, or
+protected-memory write has been performed.
 
 Live Verifications 005–014 have now completed the gated diagnostic track. Exact
 XBL static analysis proved that MID alone admits the inner vendor path while a
@@ -374,17 +375,41 @@ MC/SHRM symbolic-target paths are promoted; writer absence and current
 destination remain `UNKNOWN`. Validation and artifact pins are recorded in the
 [Experiment 032 integration review](docs/EXP032_INTEGRATION_REVIEW_2026-08-26.md).
 
-The next non-overlapping host-only selection is Experiment 033, scored
-`87/100`: source-qualify and model the exact remaining reached residual of 41
-`PAIR_MEMORY` events across 13 sites (38 `LDP`, 3 `STP`; 34 SP-based `LDP`),
-two sign-extending loads across two sites, and one `DAIFClr` system-control
-event across the 15/16-site fail-closed boundary. `STP` must be modeled as two
-explicit store observations, and unpredictable, overlap, and writeback forms
-must remain fail-closed; site 35's indirect/runtime alias remains fail-closed.
-This outranks live capture and withheld 023R because it closes a concrete,
-reached residual using existing exact host inputs without a new device gate;
-023R still lacks comparable timing, PA provenance, and a unique full GF(2)
-matrix. No device, MMIO, write, or live authority is selected.
+Experiment 033 is `COMPLETED` and integrated from artifact commit `56b5ffa` as
+a host-only, read-only v4 extension of the exact 032 model. The complete 029
+frontier is selected as 352 occurrences / 219 unique VAs / 197 unique words;
+308 events are reached and 44 selected occurrences are not reached. The
+inherited 032 record is exact for 264 reached extension events, 143 direct
+control events, and 23 taint-kill events. The 44 new residual events are
+`LDP` 38, `STP` 3, `LDRSW` 1, `LDRSB` 1, and `DAIFClr` 1; the three `STP`
+instructions publish six lane observations.
+
+`PROVED`: the bounded site result is 70 `NO_TARGET_WITHIN_MODEL` and one
+`INDIRECT_OR_UNSUPPORTED`, with the latter remaining at site 35. No bounded
+`DCB_CONSUMER_PATH` or `MC_OR_SHRM_SYMBOLIC_TARGET` path is promoted.
+`UNKNOWN`: global writer identity/absence, current physical destination,
+protected-memory semantics, and the runtime exception level or
+`CheckDAIFAccess` outcome for `DAIFClr`. Class C remains unchanged and
+Experiments 015/016 remain `NOT_ELIGIBLE`.
+
+The checked public manifest is 2,017,356 bytes, mode `0644`, SHA-256
+`606723e5125d661c800b167133f2a9b69a3b8d47361b39176665a49be539e598`.
+Validation is 15 focused and 685 full unittest PASS, with full-discovery
+maximum RSS 253,944 KiB and zero swap, byte-identical fresh publications,
+and independent hostile review `PASS` with no P0–P2 findings. Details and
+artifact pins are in
+[EXP033_INTEGRATION_REVIEW_2026-08-26.md](docs/EXP033_INTEGRATION_REVIEW_2026-08-26.md).
+
+The next non-overlapping host-only selection is Experiment 034, the highest
+information target at this point: resolve site 35's exact indirect jump-table
+target under a pinned, fail-closed static model. Current reconnaissance is
+`HYPOTHESIS`, not closure: `BR X1` is at `0x1484fa08`, the candidate table base
+is `0x14824cf0`, `W9` is guarded by `CMP W9,#4` plus `B.HI` at
+`0x1484f9f4/0x1484f9f8`, and `LDR X1,[X5,X9,LSL#3]` is at `0x1484fa04`.
+The five little-endian entries are `0x1484fa3c`, `0x1484fa50`,
+`0x1484fa88`, `0x1484fa0c`, and `0x1484fa0c`, all local. A pinned tool and
+tests must prove the pattern before site 35 is reclassified. This selection
+does not import or claim external Claude Experiments 028/030.
 
 External Claude Experiments 028 and 030 remain outside this integration and
 unreviewed here. No result, score, authority, review, or commit from either is

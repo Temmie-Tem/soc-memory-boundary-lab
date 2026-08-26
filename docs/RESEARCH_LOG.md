@@ -1489,3 +1489,74 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
     and the full GF(2) matrix is non-unique. External Claude Experiments 028
     and 030 remain outside and unreviewed; no result, score, authority, review,
     or commit from either is integrated or claimed.
+
+## 2026-08-26 — Experiment 033 residual-memory frontier integration
+
+1. Integrated host-only, read-only Experiment 033 from artifact commit
+   `56b5ffa`. It extends the exact Experiment 032 scalar/arithmetic/direct-
+   control model with source-qualified residual pair-memory,
+   sign-extending-memory, and system-control forms. No device, USB, SMC, MMIO,
+   normal-RAM, protected-memory, boot, activation, or write action occurred.
+   Class C remains `TRANSFORM ONLY`; Experiments 015/016 remain
+   `NOT_ELIGIBLE`.
+2. The exact XBL input remains `xbl--sdb1.bin`, 4,194,304 bytes, SHA-256
+   `e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37`.
+   The exact 032 source/public-manifest bytes and 032 manifest semantics were
+   checked before importing 032. The pinned 032 module then checked the exact
+   031/029/027 chain before each imported source or public-manifest use; the
+   exact XBL was checked separately before analysis. Arm's primary DDI0602
+   (ID092025), version 2025-09, was
+   independently pinned at PDF SHA-256
+   `683025f0460c8af8d6711b764c5c4d51d1b56f38d78b618e6cb27d9abf4c853f`.
+3. `PROVED`: the v4 admission supports `LDP W/X` signed-offset and `LDP X`
+   post-index (pages 437–439), `STP W/X` signed-offset (752–754), `LDRSW X`
+   (465–466), `LDRSB W` (457–458), and exact `DAIFClr #IRQ`
+   `0xd50342ff` (553–556). Pair loads use pre-state lane addresses, stores
+   publish two lane observations, and base writeback is modulo 64 bits.
+   Pre-index/unseen modes, SIMD/FP pairs, LDPSW, overlap/unpredictable forms,
+   other system forms, indirect aliases, malformed words, and unsound memory
+   provenance remain fail-closed. `DAIFClr` current exception level and
+   `CheckDAIFAccess` outcome remain `UNKNOWN`.
+4. The complete 029 frontier is selected as exactly 352 occurrences / 219
+   unique VAs / 197 unique raw words. The run reaches 308 selected events and
+   leaves 44 selected occurrences not reached. The 44 new events are `LDP` 38,
+   `STP` 3, `LDRSW` 1, `LDRSB` 1, and `DAIFClr` 1. The three `STP` instructions
+   produce six explicit lane observations. The inherited 032 full-record
+   equality is exact for 264 reached extension events, 143 direct-control
+   events, and 23 taint-kill events.
+5. `PROVED`: the bounded site outcome is 70 `NO_TARGET_WITHIN_MODEL` and one
+   `INDIRECT_OR_UNSUPPORTED`, with the latter remaining at site 35's unresolved
+   indirect/runtime alias. Zero bounded `DCB_CONSUMER_PATH` and zero
+   `MC_OR_SHRM_SYMBOLIC_TARGET` paths are promoted. Global writer identity or
+   absence, current physical destination, protected-memory semantics,
+   execution/order, aliases, and live authority remain `UNKNOWN`; these are
+   bounded model outcomes, not global absence claims.
+6. Final artifact pins are tool 172,708 bytes / SHA-256
+   `aeb346253aab7860554c8a1cb627d04cbd56d9d82abf50a4a5b811da62a20f93`, tests
+   20,273 bytes / SHA-256
+   `58632f7a74772e2e86f1ff106c616fd85d0719781394a099cf0d411bb7258dba`,
+   Experiment README 7,648 bytes / SHA-256
+   `fb87bee1cbb001054389134afb8ae3c80da694d66355731848bc735a37189002`, and
+   checked public manifest 2,017,356 bytes / mode `0644` / SHA-256
+   `606723e5125d661c800b167133f2a9b69a3b8d47361b39176665a49be539e598`.
+7. Validation is 15 focused PASS (maximum RSS 65,064 KiB, no swap), 685 full
+   unittest-discovery PASS in 85.706 seconds (maximum RSS 253,944 KiB, swap
+   0), Python byte-compilation, public JSON/private-path safety, byte-identical
+   fresh publications, exact accounting/equivalence checks, GNU AArch64
+   `objdump` agreement for all 29 unique reached residual words, and a QEMU
+   AArch64 oracle for pair/sign-extension semantics. `DAIFClr` was not run in
+   the EL0 oracle. Independent hostile review returned `PASS` with no P0–P2
+   findings.
+8. `PASS`: Experiment 033 is integrated as a deterministic bounded v4
+   extension. It does not establish a live consumer, writer, current
+   destination, transform mutation, physical-to-DRAM alias, protected reach,
+   or isolation bypass. External Claude Experiments 028 and 030 remain outside
+   and unreviewed here.
+9. Experiment 034 is selected as the next highest-information, non-overlapping
+   host-only follow-up. Current site-35 jump-table reconstruction is
+   `HYPOTHESIS`, not closure: `BR X1` at `0x1484fa08`, candidate table base
+   `0x14824cf0`, guarded `W9` index via `CMP W9,#4` plus `B.HI` at
+   `0x1484f9f4/0x1484f9f8`, and `LDR X1,[X5,X9,LSL#3]` at `0x1484fa04`; five
+   local little-endian entries are `0x1484fa3c`, `0x1484fa50`, `0x1484fa88`,
+   `0x1484fa0c`, and `0x1484fa0c`. A pinned tool and tests must prove this
+   pattern before site 35 is reclassified.
