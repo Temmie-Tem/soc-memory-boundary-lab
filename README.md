@@ -458,10 +458,17 @@ focused and 1,062 full serial tests with hostile-review `PASS`; see the
 
 Class C and numbered Experiments 015/016 eligibility remain unchanged.
 Verification 017 is unblocked only for a separate audit and is not promoted.
-The next highest-information iteration is a repaired, fully retained normal-RAM
-storage-identity baseline: harden the external Verification-018 oracle, then
-reacquire its reversible camera-preview allocation run because the historical
-public manifest has no retained raw transcript or sufficient provenance.
+Verification 018 has now completed one exact, reversible A90 allocation-local
+baseline with a retained PASS receipt: both controls fired and all 176 tested
+candidate pairs were `DISTINCT` across two trials (`NO_ALIAS` in the exact
+one-state offset scope). Pagemap remained `BLIND`, so this is not physical alias
+or protected-boundary evidence. The first parser-only target-format incident is
+retained separately and had no allocation or write effect. The canonical public
+manifest is
+[verification-018-a90-20260827-03.manifest.json](evidence/manifests/verification-018-a90-20260827-03.manifest.json).
+The next highest-information work is the separate V017 post-decode-granularity
+audit and the route-2 falsification handoff in
+[docs/CODEX_HANDOFF_ROUTE2_TERMINATION_2026-08-27.md](docs/CODEX_HANDOFF_ROUTE2_TERMINATION_2026-08-27.md).
 
 Claim vocabulary is deliberately closed:
 
@@ -536,6 +543,13 @@ The real Samsung Upload dump and set qualification are in
 [experiments/verification-012-a90-samsung-upload-shrm/README.md](experiments/verification-012-a90-samsung-upload-shrm/README.md).
 The exact A90 TWRP code-only System transition is documented in
 [docs/A90_TWRP_CODE_BOOT.md](docs/A90_TWRP_CODE_BOOT.md).
+Verification 018's bounded non-secure allocation-local storage-identity oracle and its retained
+live disposition are documented in
+[experiments/verification-018-alias-marker/README.md](experiments/verification-018-alias-marker/README.md)
+and
+[evidence/manifests/verification-018-a90-20260827-03.manifest.json](evidence/manifests/verification-018-a90-20260827-03.manifest.json).
+The integration and hostile-review record is
+[docs/VERIFICATION018_INTEGRATION_REVIEW_2026-08-27.md](docs/VERIFICATION018_INTEGRATION_REVIEW_2026-08-27.md).
 
 Raw dumps, device identifiers, boot/firmware images, and full transcripts are
 kept below `evidence/private/` and ignored by Git. Redacted hash manifests are

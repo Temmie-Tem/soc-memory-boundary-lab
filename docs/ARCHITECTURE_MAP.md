@@ -428,6 +428,19 @@ physical PA identity, base/alignment and effective contiguity remain `UNKNOWN`.
 Verification 017 may now be audited separately but is not automatically
 promoted.
 
+Verification 018 supplies a separate, allocation-local live baseline.  The exact
+A90 V2321 runner pins the checked-in probe source, a byte-identical static
+AArch64 binary and a build receipt before bridge contact, then allocates only
+the non-secure `camera_preview` ION heap (type 10/id 30).  Two write-combine
+virtual mappings of that one 256-MiB dma-buf pass the same-storage and
+distinct-offset controls.  Across four fixed anchors, bits 6..27 and two
+trials, all 176 candidate observations are `DISTINCT` with zero disturbance,
+anchor clobbering or trial disagreement.  This is `PROVED` only as
+`NO_ALIAS` over the retained one-state allocation-offset pairs.  Pagemap is
+`BLIND`, so physical PA identity, effective contiguity, final DRAM coordinates,
+cross-state permutation and any protected-boundary implication remain
+`UNKNOWN`; it does not promote numbered Experiments 015 or 016.
+
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside
 `DC_NOC_NON_BROADCAST_MPU`, `MEMNOC_MS_MPU`, and `CNOC_SNOC_MS_MPU` regions.

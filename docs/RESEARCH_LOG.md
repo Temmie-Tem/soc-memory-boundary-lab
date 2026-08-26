@@ -1767,3 +1767,98 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
     storage-identity oracle. The historical Verification-018 public result has
     no retained raw transcript/provenance in this tree and will be reacquired
     only after host hardening and hostile review.
+
+# 2026-08-27 — Verification 018 bounded allocation-local marker baseline
+
+This entry records one completed autonomous iteration after the repaired V015
+and V016 integrations.  It is a Verification record, not the numbered
+Experiment 018 XBL writer line.
+
+## Host construction and hostile review
+
+The new probe (`tools/a90_alias_marker_probe.c`) is a static AArch64 C probe
+with a strict `a90_alias_marker_v1` JSONL contract: one context, exact
+`camera_preview` type 10/id 30 heap, pagemap observation, two controls, four
+page-aligned anchors, two trials over bits 6..27, and one summary (190 records;
+176 candidates).  It performs only allocation-local write-combine accesses and
+never opens MMIO, SMC, secure/protected memory, a partition or a controller
+register.  The host analyzer recomputes all markers, sentinels, candidate
+verdicts, control gates and summary counts; malformed, duplicate, reordered,
+foreign, nonfinite, incomplete or inconsistent records fail closed.  Synthetic
+tests identify dropped bits 6/12/13/19/27, retain an injective negative and
+keep an injective cross-state permutation outside this single-state oracle.
+
+The first independent hostile review rejected live promotion until the runner
+added predeclared source/binary pins and a reproducible build receipt, exact
+bridge serial identity (`usb-A90-LNX...` -> `/dev/ttyACM0`), strict version and
+command framing, sidecar/raw/receipt binding, bounded frame sizes, child
+completion evidence and a total deadline.  A second review is retained as the
+required challenge input; its residual objection is accepted as scope: this is
+not a PFN/PTE/SG physical-alias proof or a cacheable-vs-noncacheable full
+normal-RAM alias experiment.
+
+## Live actions and receipts
+
+The first live invocation stopped after read-only `version`/`cmdline` because
+the actual version frame includes a parenthesized build and separate
+`version:`/`kernel:` lines.  It retained an `INCIDENT` receipt with zero
+preclean/upload/ION/probe/write actions.  No replay of an effect occurred.
+
+After the parser was corrected from that retained frame, one fresh run used the
+exact bridge and fixed command:
+
+```text
+run /tmp/a90-native/v018-alias-probe --ion-node /tmp/a90-native/v018-ion --seed 0x5da9f0e3c17b2846
+```
+
+The run bound `SM-A908N` / `SM8150`, V2321 `0.9.285`, kernel
+`4.14.190-25818860-abA908N...`, debug level `0x4f4c`, force-upload `0`, and
+dump sink `0`; the ION character identity was `10:94`.  The 256-MiB allocation
+was prefaulted for pagemap observation, both mappings were distinct virtual
+addresses, the same-storage control returned `ALIAS`, and the distinct-offset
+control returned `DISTINCT`.  All 176 candidates were `DISTINCT` in both
+trials.  The probe summary was `aliases=0 disturbed=0 clobbered_anchors=0
+trial_disagreements=0 verdict=NO_ALIAS`.
+
+The runner retained raw JSONL, framed probe output, the full bridge transcript
+and a PASS receipt.  The temporary node, upload envelope and remote binary were
+removed and absence-proved; remote binary hashes were identical before/after
+the run; final V2321 selftest was `pass=11 warn=1 fail=0`.  Private hashes are:
+
+| Artifact | Bytes | SHA-256 |
+|---|---:|---|
+| build receipt | 773 | `40a338c2c96bc214ff89543cd9946e2243499e1f72f7b5819f0c748118c43872` |
+| probe source | 22,191 | `cdc6f985fb8e2f37a3964a25f8d575ec1b3fe48eab71d084a30537c6fbe6f3bb` |
+| probe binary | 710,408 | `33ef21a13ef79f6888b5a466644660ace3c6950664b1e2b497aad474f1487d56` |
+| raw JSONL | 37,456 | `22bb53723a0e1305cdb1c8f4e169ef01e4d2605d1453685ac69faa0bee2a4751` |
+| framed probe output | 37,497 | `f0f4af75e1525b23a4ff16cae202dab9cfef805844d57fc5aee766afe62aa8b7` |
+| bridge transcript | 1,071,529 | `b8535e555fab04adf083a94de56e93526da7038ea8917648012fa38957672c52` |
+| PASS receipt | 1,135,686 | `3d8bbba997045f2e53e4ea2ed5fa560ee7c3efad1971ff1991ee2465ba960352` |
+
+The retained run did not exercise a transport timeout.  If the bridge times out
+before returning a frame that contains the remote child PID, the current runner
+records an incident but cannot independently prove that the remote child stopped
+before cleanup; this recovery path is `UNKNOWN` and is not used to support the
+`PASS` result above.
+
+The sanitized public manifest is
+`evidence/manifests/verification-018-a90-20260827-03.manifest.json`, 47,715
+bytes, SHA-256
+`4747a45c20b038b511c3310ebbdd4ac67f9885f29dfe2e3155882a3cf7eb0371`, mode
+`0644`.  It reports `DEVICE_ACQUISITION_VALIDATED` and
+`PROVED_NO_ALIAS_IN_EXACT_TESTED_OFFSET_PAIRS`; no raw bytes, private paths or
+device secrets are published.
+
+## Reclassification and next discriminator
+
+`PROVED`: the exact one-state allocation-offset observations and all live
+cleanup/health/build/target receipts.  `SUPPORTED`: this negative is useful as
+a non-secure allocation-local storage-identity baseline.  `UNKNOWN`: PFNs/physical mapping,
+effective contiguity, final DRAM coordinate, injective cross-state permutation,
+transform-state mutability, protection ordering and any protected-boundary
+reach.  `REFUTED` only: an alias in the tested candidate pairs for this run.
+
+Class C (`TRANSFORM ONLY`) is unchanged; numbered Experiments 015/016 remain
+`NOT_ELIGIBLE`.  The next scored work is the separate V017 post-decode-
+granularity audit, with the route-2 falsification questions and reopen criteria
+in `docs/CODEX_HANDOFF_ROUTE2_TERMINATION_2026-08-27.md`.

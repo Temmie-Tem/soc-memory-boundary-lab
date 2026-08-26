@@ -366,10 +366,41 @@ PASS with hostile-review `PASS`; see the
 [Verification 016 integration review](docs/VERIFICATION016_INTEGRATION_REVIEW_2026-08-27.md).
 
 Class C and numbered Experiments 015/016 eligibility remain unchanged.
-Verification 017 is `UNBLOCKED_FOR_SEPARATE_AUDIT_NOT_PROMOTED`. The next
-iteration is a repaired and freshly retained normal-RAM storage-identity
-baseline; the historical Verification-018 manifest is not promoted without its
-raw transcript/provenance.
+Verification 017 is `UNBLOCKED_FOR_SEPARATE_AUDIT_NOT_PROMOTED`.
+
+Verification 018's first parser-only attempt stopped before any target-dependent
+mutation: it retained only `version`/`cmdline` frames because the live version
+format included an explicit parenthesized build string. That incident is kept
+private and was not replayed as an effect. The corrected second run is
+`PROVED` as a bounded allocation-local result: exact A90 `SM-A908N` / SM8150
+V2321, `camera_preview` ION type 10/id 30, one 256-MiB write-combine
+allocation, two distinct virtual mappings, 4 page-aligned anchors, bits 6..27,
+2 trials and 176 candidate observations. Both controls fired (`ALIAS` for the
+same dma-buf through two VAs and `DISTINCT` for the distinct-offset negative);
+all 176 candidates were `DISTINCT`, with zero disturbance, anchor clobbering or
+trial disagreement. The analyzer result is `NO_ALIAS` only for the exact tested
+offset pairs in one state. Pagemap was `BLIND` (0 present / 0 nonzero PFNs), so
+physical PA identity, contiguity and final DRAM coordinates remain `UNKNOWN`.
+This does not satisfy or promote numbered Experiments 015/016 and is not
+physical-alias or protected-boundary evidence.
+
+The live receipt and raw artifacts are private under the ignored evidence
+directory. The canonical public manifest is
+`evidence/manifests/verification-018-a90-20260827-03.manifest.json`, 47,715
+bytes, SHA-256
+`4747a45c20b038b511c3310ebbdd4ac67f9885f29dfe2e3155882a3cf7eb0371`, mode
+`0644`. The probe source is 22,191 bytes / SHA-256
+`cdc6f985fb8e2f37a3964a25f8d575ec1b3fe48eab71d084a30537c6fbe6f3bb`; the
+byte-identical static AArch64 binary is 710,408 bytes / SHA-256
+`33ef21a13ef79f6888b5a466644660ace3c6950664b1e2b497aad474f1487d56`, built
+twice with `aarch64-linux-gnu-gcc` 15.2.0. Host validation is 28 focused
+tests at this iteration; the independent hostile review's P1s were repaired
+by exact source/binary/build pins, bridge serial binding, strict framing and
+receipt/sidecar checks. Class C remains unchanged. The next discriminator is
+the separate V017 post-decode-granularity audit plus the route-2 challenge in
+`docs/CODEX_HANDOFF_ROUTE2_TERMINATION_2026-08-27.md`.
+The detailed integration review is
+`docs/VERIFICATION018_INTEGRATION_REVIEW_2026-08-27.md`.
 
 ## A. 현재까지 PROVED
 
@@ -1060,32 +1091,29 @@ ordering remain `UNKNOWN`, so this is not yet a structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-Verification 016 is complete. The highest-information next iteration is a
-repaired and freshly retained normal-RAM storage-identity baseline. The
-historical Verification-018 public manifest says four controls/anchors and 88
-candidates returned no alias, but its raw device transcript, target/build
-receipt, probe-binary identity and final-state receipt are not present in the
-current private evidence set. That result is evidence to reacquire, not
-authority to promote.
+Verification 016 is complete, and Verification 018 has now supplied the fresh
+allocation-local baseline described above. The highest-information next
+iteration is the separate host-only Verification 017 post-decode-granularity
+audit, paired with the route-2 falsification challenge recorded in
+`docs/CODEX_HANDOFF_ROUTE2_TERMINATION_2026-08-27.md`.
 
 The ordered next step is:
 
-1. repair the marker parser to fail closed on malformed, missing, duplicate,
-   inconsistent or out-of-range records;
-2. pin exact probe source/binary, analyzer, command parameters and synthetic
-   dropped-line/injective controls;
-3. publish through deterministic no-clobber/public-safety handling;
-4. run host tests and independent review;
-5. if those pass, perform one reversible `camera_preview` allocation-only
-   write/read/free acquisition with live same-address and distinct controls;
-6. retain exact raw transcript, target/build/timestamp/action/cleanup/final-state
-   receipt and hashes before interpreting the negative.
+1. audit the external V017 post-decode-granularity argument with the exact
+   retained V016/023R algebra and keep bank-only versus complete-coordinate
+   enforcement separate;
+2. run the route-2 challenge against 029–034, requiring an exact reachable
+   writer/register path before reopening the mutation route;
+3. retain the V018 one-state result only as a storage-identity baseline and do
+   not infer physical PA alias, transform immutability or protected reach;
+4. if a reopen condition appears, select a new bounded discriminator and stop
+   any endpoint/termination wording.
 
-This action writes only inside its own non-secure allocation and does not touch
-MMIO, SMC, secure heap, protected memory or a partition. Verification 017 is
-now eligible for a separate host-only audit but is not promoted; the 020A setter
-trace remains the host-only fallback. Numbered Experiments 015/016 remain
-`NOT_ELIGIBLE`.
+The completed V018 action wrote only inside its own non-secure allocation and
+did not touch MMIO, SMC, secure heap, protected memory or a partition.
+Verification 017 is now eligible for a separate host-only audit but is not
+promoted; the 020A setter trace remains the host-only fallback. Numbered
+Experiments 015/016 remain `NOT_ELIGIBLE`.
 
 ## N. 가장 위험한 아직 금지된 실험
 
@@ -1216,7 +1244,10 @@ Evidence against a presently usable bypass:
   not controller-wide absence. Experiment 029A likewise finds no exact stored
   controller-base/model-mask literal or tested triple in extracted ABL, while
   computed/runtime paths remain `UNKNOWN`.
-- No normal-RAM physical-to-DRAM alias exists in evidence.
+- Verification 018's fresh allocation-local marker baseline found no collision
+  in 176 exact one-state offset pairs across two trials, with both controls
+  valid; pagemap was BLIND, so this is not a physical-to-DRAM alias exclusion.
+- No normal-RAM physical-to-DRAM alias is proved in the retained evidence.
 - Verification 015's only requested bus-vote axis is excluded: retained data do
   not prove a DDR-frequency transition, and the L762 primary comparison remains
   `REPEAT_REQUIRED` even though its two excursions do not recur in the bounded
