@@ -1,19 +1,19 @@
 # Next-experiment scorecard — 2026-08-26
 
 This scorecard ranks host-only follow-up work after the integrated
-Experiments 019–022 and 024–027. It does not grant live, device, SMC, MMIO,
-write, or Experiments 015/016 authority. Experiments 024–027 are complete as
-bounded static results; their conditional and semantic boundaries remain
-explicit below.
+Experiments 019–022, 024–027, 029, and 031. It does not grant live, device,
+SMC, MMIO, write, or Experiments 015/016 authority. The integrated Experiments
+024–027, 029, and 031 are complete as bounded static results; their conditional
+and semantic boundaries remain explicit below. External 028/030 are excluded.
 
 | Rank | Experiment | Information target | Scope and gate | Status |
 |---:|---|---|---|---|
-| 1 | 029 | Inventory the exact unsupported frontier left by Experiment 027 without promoting decoder safety. | Host-only, exact XBL plus committed 027 tool/manifest pins; inspect only the 71 fail-closed site ranges; independently deduplicate unique VAs versus per-site multiplicity; classify exact unrecognized forms without treating syntactic range membership as reachability; rank only source-backed decoder-extension candidates for later semantic review. Preserve unsupported/control/alias `UNKNOWN`; no device/MMIO/write action. | `PRIMARY SELECTED`; 76/100 |
+| 1 | 032 | Qualify official semantics for the exact reached arithmetic frontier left by Experiment 031. | Host-only; bind an official source and inspect only reached `MADD/UMADDL`, `EOR`, and `BIC` blockers. Preserve site 35's indirect branch, site 56's pair, and all unsafe/unknown forms as fail-closed; no device/MMIO/write action. | `PRIMARY SELECTED`; 82/100 |
 | 2 | E — capture-feasibility | Assess whether a future host-only evidence capture has a safe, bounded path without promoting a device action. | Read-only feasibility review only; no capture, device, SMC, MMIO or write action. | `LATER`; 52/100 |
 | 3 | D — 023R | Re-test the timing claim only after the protocol and provenance defects are repaired. | Require a protocol comparable to Experiment 014 (including ordering, warmup, barriers, and reopen accounting), physical-allocation PA provenance, and a unique full GF(2) matrix. `PA24=b1^b2` can remain `SUPPORTED` until those gates pass. | `LATER`; 41/100; 023 is withheld/`NO-GO` and not public |
 | 4 | B — base currentness | Resolve initialized-base currentness as a bounded static/runtime-boundary question. | Preserve the unresolved runtime base and indirect `BLR` boundaries; no device action or live promotion. | `LATER`; 24/100 |
 | 5 | A — runtime slot/object observation | Reassess the runtime slot/object question only if a safe evidence path exists. | The existing 26-record catalog does not cover the target slot; no safe capture path is currently available. This is not selected; no device action is proposed by this scorecard; future action needs a separate exact-bound contract/gates. | `LATER`; 14/100 |
-| — | 028 (concurrent) | GF(2) row-space and decoded SHRM register/index-encoding hypotheses. | Concurrent work outside this integration; no result, score, authority, or review is claimed here. | `OUTSIDE THIS INTEGRATION`; not scored |
+| — | 028/030 (external Claude) | Bank-relation/SHRM encoding and low-bit selection work. | External work outside this integration and unreviewed here; no result, score, authority, or review is claimed here. | `OUTSIDE THIS INTEGRATION`; not scored |
 
 The scores are decision aids, not vulnerability probabilities, success
 probabilities, or evidence labels. They compare critical-`UNKNOWN` closure,
@@ -181,10 +181,10 @@ byte-compilation, 67 public JSON manifests, two fresh byte-identical
 generations, public safety/no-clobber, and independent hostile review `PASS`
 after fixes, recorded in [EXP027_INTEGRATION_REVIEW_2026-08-26.md](EXP027_INTEGRATION_REVIEW_2026-08-26.md).
 
-## Experiment 029 selected unsupported-frontier inventory
+## Experiment 029 integrated unsupported-frontier inventory
 
-Experiment 029 is the next non-overlapping host-only selection, scored
-`76/100`. It uses the exact XBL (4,194,304 bytes,
+Experiment 029 is `COMPLETED` and integrated from commit `a495bdc`, with
+selection score `76/100`. It uses the exact XBL (4,194,304 bytes,
 `e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37`) and the
 committed Experiment 027 tool pin
 `11a4dab37e9a54e74ec93fba7c89524de1e77c7e71b86f105dd167d77780bcb9` plus
@@ -197,14 +197,67 @@ reachability, and ranks only source-backed decoder-extension candidates for
 later semantic review. Required labels are `DECODER_EXTENSION_CANDIDATE`,
 `FLAG_ONLY_NO_GPR_DEF`, `TAINT_KILL_REQUIRED`,
 `CONTROL_OR_MEMORY_UNSUPPORTED`, and `UNREACHABLE_OR_OVERLAP_UNKNOWN`.
-Stage 1 is an inventory only: it must not upgrade Experiment 027 or claim
-decoder safety. Only a later separately reviewed stage may extend an
-independently reviewed form. Unsupported/control/alias `UNKNOWN` remains
-preserved; no device, MMIO, or write action is selected.
+`PROVED`: the 71 ranges contain 1,992 occurrences / 1,180 unique VAs; the
+unsupported frontier is 352 occurrences / 219 unique VAs / 197 unique words.
+The primary classes are `DECODER_EXTENSION_CANDIDATE` 161,
+`FLAG_ONLY_NO_GPR_DEF` 99, `TAINT_KILL_REQUIRED` 27,
+`CONTROL_OR_MEMORY_UNSUPPORTED` 54, and `UNKNOWN` 11. These are bounded
+syntactic labels only: source provenance, CFG reachability, decoder safety,
+runtime destination, consumer/writer identity, and writer absence remain
+`UNKNOWN`/`NOT_CLAIMED`. Validation is 17 focused and 633 full unittest PASS
+in 84.985 s, 68 public JSON manifests, byte-identical repetition, and final
+hostile review `PASS`, recorded in
+[EXP029_INTEGRATION_REVIEW_2026-08-26.md](EXP029_INTEGRATION_REVIEW_2026-08-26.md).
 
-Experiment 028 is concurrent work outside this integration (GF(2) row-space
-and decoded SHRM register/index-encoding hypotheses). No Experiment 028 result,
-score, authority, or review is claimed here.
+## Experiment 031 integrated scalar-frontier extension
+
+Experiment 031 is `COMPLETED` and integrated from artifact commit `cd9f26e`
+plus reconciliation repair `12a8ebe`. The source-qualified scalar-plus-
+dispatch v2 model selects 283 occurrences / 160 unique VAs / 148 unique
+words, reaches 250 selected events, and retains 69 occurrences / 59 unique
+VAs / 49 unique words across 20 sites. It transitions 51 of the 71 baseline
+sites to bounded `NO_TARGET_WITHIN_MODEL`; 20 remain
+`INDIRECT_OR_UNSUPPORTED`. The result is explicitly `V2_MODEL_ONLY` and
+`NO_ABSENCE_CLAIM`, and the 51-site transition depends on the combined scalar
+and `DIRECT_CONTROL_DISPATCH_REPAIR` model rather than scalar-only closure.
+
+The repair contributes 143 events across 62 sites: `B.cond` 87,
+`CBZ/CBNZ` 28, `B` 15, and `TBZ/TBNZ` 13. Pair/sign-extending memory,
+system/control, three-source, `BIC`/`EOR`, indirect aliases, and unsafe forms
+remain fail-closed; zero `DCB_CONSUMER_PATH` and zero
+`MC_OR_SHRM_SYMBOLIC_TARGET` are bounded-model labels, not absence claims.
+Validation is 19 focused and 652 tracked full unittest PASS in 85.226 s,
+maximum RSS 220,684 KiB with no swaps, Python byte-compilation, 69 public JSON
+manifests, two fresh manifests byte-identical to the checked manifest, QEMU
+280/280, and final reconciliation hostile review `PASS`, recorded in
+[EXP031_INTEGRATION_REVIEW_2026-08-26.md](EXP031_INTEGRATION_REVIEW_2026-08-26.md).
+The reconciled artifact pins are tool 91,221 bytes / SHA-256
+`5263d8975e9d64809aed04763e0c5573458dabcc6ae7432763d2858a36fc267b`, tests
+18,751 bytes / SHA-256
+`3a81fb4b4fc3023e70918a1648b6f04bb50e0967d27a8f09dbf939f9b55eff6d`,
+Experiment README 7,580 bytes / SHA-256
+`12924ad1fcfeba580f57447e67f74d14743a5962046941ff3088e1b130d173de`, and
+manifest 1,327,118 bytes / mode `0644` / SHA-256
+`51a187195c16eb609d337305540fc6d20a09297f5ab76b054497c5c58c3a2e86`.
+
+## Experiment 032 selection rationale
+
+Experiment 032 is the next non-overlapping host-only selection at `82/100`.
+It qualifies an official source and applies bounded semantics to the exact
+reached `MADD/UMADDL` plus `EOR/BIC` arithmetic frontier. The target blockers
+are 10 reached `THREE_SOURCE` events at sites 35/36/37/56, two `EOR` events at
+sites 36/37, and two `BIC` events at sites 1/52. Site 35's indirect branch and
+site 56's pair remain fail-closed.
+
+This selection outranks pair-memory because pair-memory has 41 events across
+13 sites, 38 of them `LDP`, with most of the remainder being SP epilogues;
+the arithmetic forms directly construct indexes/addresses in the high-value
+runtime-alias/hash-like contexts. Pair-memory remains a later candidate. No
+device, MMIO, write, or live authority is selected.
+
+External Claude Experiments 028 and 030 remain outside this integration and
+unreviewed here. No result, score, authority, review, or commit from either is
+claimed or integrated.
 
 ## Alternative A boundary — runtime slot/object observation
 

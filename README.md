@@ -326,19 +326,47 @@ byte-compilation, 67 public JSON manifests parsed, two fresh byte-identical
 generations, public safety/no-clobber checks, and independent hostile review
 `PASS` after fixes; see the [Experiment 027 integration review](docs/EXP027_INTEGRATION_REVIEW_2026-08-26.md).
 
-The next non-overlapping host-only selection is Experiment 029, scored
-`76/100`: inventory the 71 exact fail-closed site ranges with independent
-unique-VA versus per-site multiplicity accounting, classify exact unrecognized
-instruction forms without treating syntactic range membership as reachability,
-and rank only source-backed decoder-extension candidates for later semantic
-review. Its labels are `DECODER_EXTENSION_CANDIDATE`, `FLAG_ONLY_NO_GPR_DEF`,
-`TAINT_KILL_REQUIRED`, `CONTROL_OR_MEMORY_UNSUPPORTED`, and
-`UNREACHABLE_OR_OVERLAP_UNKNOWN`. Stage 1 must not upgrade 027 or claim
-decoder safety; only a later separately reviewed stage may extend an
-independently reviewed form. No device, MMIO, or write action is selected.
-Experiment 028 is concurrent work outside this integration (GF(2) row-space and decoded SHRM
-register/index-encoding hypotheses); no 028 result, score, authority, or
-review is claimed here.
+Experiment 029 is `COMPLETED` and integrated from commit `a495bdc` as a
+host-only, read-only inventory of the 71 exact Experiment 027 fail-closed site
+ranges. It proves 1,992 range occurrences / 1,180 unique VAs in the scanned
+domain, with a 352-occurrence / 219-unique-VA / 197-unique-word unsupported
+frontier. The four syntactic extension families rank as
+`BITFIELD_IMM` (120 occurrences), `AND_SHIFT` (37), `EOR_SHIFT` (2), and
+`BIC_SHIFT` (2); source provenance, reachability and decoder safety remain
+explicitly `UNKNOWN`/`NOT_CLAIMED`. Its integration review records 17 focused
+and 633 full unittest PASS in 84.985 s, 68 public JSON manifests, deterministic
+repetition, and final hostile review `PASS`.
+
+Experiment 031 is `COMPLETED` and integrated from artifact commits `cd9f26e`
+plus reconciliation repair `12a8ebe` as the source-qualified
+scalar-plus-dispatch follow-up. It selects 283 occurrences /
+160 unique VAs / 148 unique words, reaches 250 selected events (33 selected-
+not-reached; family/label mismatches and events outside the selected domain
+are zero), and retains a 69-occurrence / 59-unique-VA / 49-unique-word
+residual across 20 sites. The combined v2 model transitions 51 of 71 sites to bounded
+`NO_TARGET_WITHIN_MODEL`; 20 remain `INDIRECT_OR_UNSUPPORTED`. This is
+explicitly `V2_MODEL_ONLY` and `NO_ABSENCE_CLAIM`, and the 51 result depends on
+the 143-event/62-site `DIRECT_CONTROL_DISPATCH_REPAIR` (with repair: 48
+no-target/14 fail-closed; without: 3/6), not scalar-only closure. Its
+integration validation is 19 focused and 652 tracked full unittest PASS in
+85.226 s (maximum RSS 220,684 KiB, no swaps), 69 public JSON manifests,
+byte-identical fresh generations, QEMU 280/280, and final reconciliation
+hostile review `PASS`; the checked manifest is 1,327,118 bytes, mode `0644`,
+SHA-256 `51a187195c16eb609d337305540fc6d20a09297f5ab76b054497c5c58c3a2e86`.
+See the
+[Experiment 031 integration review](docs/EXP031_INTEGRATION_REVIEW_2026-08-26.md).
+
+The next non-overlapping host-only selection is Experiment 032, scored
+`82/100`: qualify an official source and apply bounded semantics to the exact
+reached `MADD/UMADDL` plus `EOR/BIC` arithmetic frontier. Pair-memory remains a
+later candidate because 38 of its 41 events are `LDP` and most of the rest are
+SP epilogues, while arithmetic directly forms indexes/addresses in high-value
+runtime-alias/hash-like contexts. Site 35's indirect branch and site 56's pair
+remain fail-closed; no device authority is selected.
+
+External Claude Experiments 028 and 030 remain outside this integration and
+unreviewed here. No result, score, authority, review, or commit from either is
+claimed or integrated.
 
 Claim vocabulary is deliberately closed:
 

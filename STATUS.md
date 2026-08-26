@@ -240,19 +240,48 @@ byte-compilation, 67 public JSON manifests parsed, two fresh byte-identical
 generations, public safety/no-clobber checks, and independent hostile review
 `PASS` after fixes.
 
-The next non-overlapping host-only selection is Experiment 029, scored
-`76/100`: inventory the 71 exact fail-closed site ranges with independent
-unique-VA versus per-site multiplicity accounting, classify exact unrecognized
-instruction forms without treating syntactic range membership as reachability,
-and rank only source-backed decoder-extension candidates for later semantic
-review. Labels are `DECODER_EXTENSION_CANDIDATE`, `FLAG_ONLY_NO_GPR_DEF`,
-`TAINT_KILL_REQUIRED`, `CONTROL_OR_MEMORY_UNSUPPORTED`, and
-`UNREACHABLE_OR_OVERLAP_UNKNOWN`. Stage 1 must not upgrade 027 or claim
-decoder safety; only a later separately reviewed stage may extend an
-independently reviewed form. No device, MMIO, or write action is selected.
-Experiment 028 is concurrent work outside this integration (GF(2) row-space and decoded SHRM
-register/index-encoding hypotheses); no 028 result, score, authority, or
-review is claimed here. Experiment 023R remains later and withheld.
+Experiment 029 is `COMPLETED` and integrated from commit `a495bdc` as a
+host-only, read-only inventory of the 71 exact Experiment 027 fail-closed site
+ranges. It proves 1,992 range occurrences / 1,180 unique VAs and a
+352-occurrence / 219-unique-VA / 197-unique-word unsupported frontier. Its
+integration review records 17 focused and 633 full unittest PASS in 84.985 s,
+68 public JSON manifests, deterministic repetition, and final hostile review
+`PASS`; source provenance, reachability, and decoder safety remain
+`UNKNOWN`/`NOT_CLAIMED`.
+
+Experiment 031 is `COMPLETED` and integrated from artifact commit `cd9f26e`
+plus reconciliation repair `12a8ebe`. The source-qualified scalar-plus-
+dispatch v2 model selects 283 occurrences / 160 unique VAs / 148 unique
+words, reaches 250 selected events (33 selected-not-reached; family/label
+mismatches and events outside the selected domain are zero), and retains 69
+occurrences / 59 unique VAs / 49 unique words across 20 sites. It transitions
+51 of 71 baseline sites to bounded `NO_TARGET_WITHIN_MODEL`; 20 remain
+`INDIRECT_OR_UNSUPPORTED`. This is `V2_MODEL_ONLY` and `NO_ABSENCE_CLAIM`,
+not scalar-only closure. `DIRECT_CONTROL_DISPATCH_REPAIR` contributes 143
+events across 62 sites (B 15, B.cond 87, CBZ/CBNZ 28, TBZ/TBNZ 13), with
+repair outcomes 48 no-target/14 fail-closed and no-repair outcomes 3/6.
+Validation is 19 focused and 652 tracked full
+unittest PASS in 85.226 s (maximum RSS 220,684 KiB, no swaps), 69 public JSON
+manifests, QEMU 280/280, byte-identical fresh generations, and final
+reconciliation hostile review `PASS`; the checked manifest is 1,327,118 bytes,
+mode `0644`, SHA-256
+`51a187195c16eb609d337305540fc6d20a09297f5ab76b054497c5c58c3a2e86`.
+The reconciled tool/test/Experiment-README pins are respectively
+`5263d8975e9d64809aed04763e0c5573458dabcc6ae7432763d2858a36fc267b`,
+`3a81fb4b4fc3023e70918a1648b6f04bb50e0967d27a8f09dbf939f9b55eff6d`, and
+`12924ad1fcfeba580f57447e67f74d14743a5962046941ff3088e1b130d173de`.
+
+The next non-overlapping host-only selection is Experiment 032, scored
+`82/100`: qualify an official source and apply bounded semantics to the exact
+reached `MADD/UMADDL` plus `EOR/BIC` arithmetic frontier. Pair-memory remains
+a later candidate; 38 of its 41 events are `LDP` and most of the remainder are
+SP epilogues, while arithmetic directly forms indexes/addresses in high-value
+runtime-alias/hash-like contexts. Site 35's indirect branch and site 56's pair
+remain fail-closed; no device authority is selected.
+
+External Claude Experiments 028 and 030 remain outside this integration and
+unreviewed here. No result, score, authority, review, or commit from either is
+claimed or integrated. Experiment 023R remains later and withheld.
 
 ## A. 현재까지 PROVED
 
@@ -911,10 +940,16 @@ callback proof for slot `0x14890590` and registry
 Experiment 026 is now integrated above with taxonomy `ORDER_OPEN` and
 `PROVED_BOUNDED_NO_RECOGNIZED_SLOT_MUTATION`; runtime order, slot value,
 object identity, `BLR` target, base currentness, writer absence, and live
-authority remain `UNKNOWN`. Experiment 027 is integrated as the completed
-bounded DCB result above. The selected next highest-information experiment is
-Experiment 029, scored `76/100`; Experiment 028 is concurrent and outside this
-integration, with no result or review claimed here.
+authority remain `UNKNOWN`. Experiments 027, 029, and 031 are integrated as
+completed bounded DCB results above. Experiment 031's 51-site transition is
+the combined scalar-plus-dispatch `V2_MODEL_ONLY` result, with
+`NO_ABSENCE_CLAIM`; it is not scalar-only closure. The selected next
+highest-information experiment is Experiment 032, scored `82/100`, targeting
+official-source qualification and bounded `MADD/UMADDL` plus `EOR/BIC`
+arithmetic semantics. Pair-memory remains later because its 41 events across
+13 sites include 38 `LDP` events and mostly SP epilogues; arithmetic directly
+forms indexes/addresses in high-value runtime-alias/hash-like contexts.
+External Claude Experiments 028 and 030 remain outside and unreviewed here.
 
 Experiment 023R is later and remains withheld until its timing protocol is
 comparable to Experiment 014, physical-allocation PA provenance is present,

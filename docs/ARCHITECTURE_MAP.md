@@ -315,19 +315,45 @@ The candidate setter remains `[0x9fc06410,0x9fc0643c)` with caller
 `0x9fc023f0`; DCB sections 6/7/8/10/11/12, loader/readers, and the 024
 positive-control exclusions remain exact boundaries as recorded in the review.
 
-The next non-overlapping host-only selection is Experiment 029, scored
-`76/100`: inventory the 71 exact fail-closed site ranges with independent
-unique-VA versus per-site multiplicity accounting, classify exact unrecognized
-instruction forms without treating syntactic range membership as reachability,
-and rank only source-backed decoder-extension candidates for later semantic
-review. Labels are `DECODER_EXTENSION_CANDIDATE`, `FLAG_ONLY_NO_GPR_DEF`,
-`TAINT_KILL_REQUIRED`, `CONTROL_OR_MEMORY_UNSUPPORTED`, and
-`UNREACHABLE_OR_OVERLAP_UNKNOWN`. Stage 1 must not upgrade 027 or claim
-decoder safety; only a later separately reviewed stage may extend an
-independently reviewed form. No device, MMIO, or write action is selected.
-Experiment 028 is concurrent work outside this integration (GF(2) row-space and decoded SHRM
-register/index-encoding hypotheses); no 028 result, score, authority, or
-review is claimed here. Class C and 015/016 eligibility remain unchanged.
+Experiment 029 is `COMPLETED` and integrated from commit `a495bdc` as a
+host-only, read-only unsupported-frontier inventory. It covers the exact 71
+Experiment 027 fail-closed ranges and proves 1,992 range occurrences / 1,180
+unique VAs, including a 352-occurrence / 219-unique-VA / 197-unique-word
+frontier. Source provenance, reachability, and decoder safety remain
+`UNKNOWN`/`NOT_CLAIMED`; its 17 focused / 633 full validation and final hostile
+review `PASS` are recorded in the integration review.
+
+Experiment 031 is `COMPLETED` and integrated from artifact commit `cd9f26e`
+plus reconciliation repair `12a8ebe`. Its source-qualified scalar-plus-
+dispatch v2 model selects 283 occurrences / 160 unique VAs / 148 unique
+words, reaches 250 selected events, and retains 69 occurrences / 59 unique
+VAs / 49 unique words across 20 sites. The combined model transitions 51 of
+71 baseline sites to bounded `NO_TARGET_WITHIN_MODEL`; 20 remain
+`INDIRECT_OR_UNSUPPORTED`. This is `V2_MODEL_ONLY` and `NO_ABSENCE_CLAIM`, not
+scalar-only closure; no DCB consumer/MC/SHRM path is promoted. Class C and
+015/016 eligibility remain unchanged.
+
+The selected membership is 283 occurrences / 160 unique VAs / 148 unique
+words, with 250 reached selected events and 33 selected-not-reached; family or
+label mismatches and events outside the selected domain are zero. The separate
+`DIRECT_CONTROL_DISPATCH_REPAIR` contributes 143 events across 62 sites, with
+outcomes 48 no-target/14 fail-closed when present and 3/6 without it. The
+residual 69 occurrences / 59 unique VAs / 49 unique words remains fail-closed.
+The reconciled 031 public manifest is 1,327,118 bytes, mode `0644`, SHA-256
+`51a187195c16eb609d337305540fc6d20a09297f5ab76b054497c5c58c3a2e86`; the
+tool/test/README pins and validation are recorded in the integration review.
+
+The next non-overlapping host-only selection is Experiment 032, scored
+`82/100`: official-source qualification and bounded semantics for the exact
+reached `MADD/UMADDL` plus `EOR/BIC` arithmetic frontier. Pair-memory remains
+later because 38 of its 41 events are `LDP` and most of the remainder are SP
+epilogues, while arithmetic directly forms indexes/addresses in high-value
+runtime-alias/hash-like contexts. Site 35's indirect branch and site 56's pair
+remain fail-closed; no device authority is selected.
+
+External Claude Experiments 028 and 030 remain outside this integration and
+unreviewed here. No result, score, authority, review, or commit from either is
+claimed or integrated.
 
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside

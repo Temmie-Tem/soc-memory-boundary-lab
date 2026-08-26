@@ -1206,9 +1206,9 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
    runtime order, slot value, actual `BLR` target, base currentness, or live
    mapping. Experiment 027 is now completed and integrated as a bounded DCB
    consumer/writer complement; its exact result and artifact pins are recorded
-   in the current integration section. The next non-overlapping selection is
-   Experiment 029, scored `76/100`; Experiment 028 is concurrent work outside
-   this integration and is not claimed or reviewed here.
+   in the current integration section. The subsequent Experiment 029 inventory
+   and 031 scalar follow-up are recorded in the later sections; external Claude
+   Experiments 028/030 remain outside and unreviewed here.
 
 ## 2026-08-26 — Experiment 026 XBL dispatch/order and slot-escape integration
 
@@ -1267,9 +1267,9 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
    clobbers, control flow, and positive/negative slot overlap. Experiment 027
    is now integrated as the completed bounded DCB consumer/writer complement;
    its 73-site result and validation are recorded in the following section.
-   The next non-overlapping host-only selection is Experiment 029, scored
-   `76/100`; Experiment 028 is concurrent work outside this integration and
-   is not claimed or reviewed here.
+   The subsequent Experiment 029 inventory and 031 scalar follow-up are
+   recorded in the later sections; external Claude Experiments 028/030 remain
+   outside and unreviewed here.
 
 ## 2026-08-26 — Experiment 027 DCB consumer/writer complement integration
 
@@ -1315,16 +1315,105 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
    generations byte-identical, public safety/no-clobber checks, and independent
    hostile review `PASS` after fixes. The durable integration review is
    `docs/EXP027_INTEGRATION_REVIEW_2026-08-26.md`.
-7. The next non-overlapping host-only selection is Experiment 029, scored
-   `76/100`. It inventories only the 71 fail-closed site ranges, independently
-   deduplicates unique VAs versus per-site multiplicity, classifies exact
-   unrecognized forms without treating syntactic range membership as
-   reachability, and ranks only source-backed decoder-extension candidates for
-   later semantic review. Its labels are `DECODER_EXTENSION_CANDIDATE`,
-   `FLAG_ONLY_NO_GPR_DEF`, `TAINT_KILL_REQUIRED`,
-   `CONTROL_OR_MEMORY_UNSUPPORTED`, and `UNREACHABLE_OR_OVERLAP_UNKNOWN`.
-   Stage 1 must not upgrade Experiment 027 or claim decoder safety; only a later
-   separately reviewed stage may extend an independently reviewed form. No
-   device, MMIO, or write action is selected. Experiment 028 is concurrent work outside
-   this integration (GF(2) row-space and decoded SHRM register/index-encoding
-   hypotheses); no result, score, authority, or review is claimed here.
+7. Experiment 029 subsequently completed the bounded unsupported-frontier
+   inventory, and Experiment 031 completed the separately reviewed
+   source-qualified scalar follow-up; both results are recorded below. External
+   Claude Experiments 028/030 remain outside and unreviewed here. No result,
+   score, authority, or review from either external experiment is claimed.
+
+## 2026-08-26 — Experiment 029 unsupported-frontier integration
+
+1. Integrated host-only, read-only Experiment 029 from commit `a495bdc`. It
+   scans only the exact 71 Experiment 027 ranges labelled
+   `INDIRECT_OR_UNSUPPORTED`; it does not extend the 027 decoder, infer CFG
+   reachability, execute firmware, contact a device, read MMIO, or perform a
+   write. Class C remains `TRANSFORM ONLY`; Experiments 015/016 remain
+   `NOT ELIGIBLE`.
+2. `PROVED`: the scanned ranges contain 1,992 occurrences at 1,180 unique
+   VAs. The unsupported frontier is 352 occurrences at 219 unique VAs and
+   197 unique raw words. The exact primary-class counts are
+   `DECODER_EXTENSION_CANDIDATE` 161, `FLAG_ONLY_NO_GPR_DEF` 99,
+   `TAINT_KILL_REQUIRED` 27, `CONTROL_OR_MEMORY_UNSUPPORTED` 54, and
+   `UNKNOWN` 11. The four extension rankings are `BITFIELD_IMM` 120,
+   `AND_SHIFT` 37, `EOR_SHIFT` 2, and `BIC_SHIFT` 2 occurrences.
+3. Range membership and overlap labels are not reachability: 191 frontier
+   occurrence rows overlap ranges and 161 occur in exactly one range, yielding
+   133 frontier duplicate rows. Every candidate remains `HYPOTHESIS` with
+   source provenance `UNKNOWN_REQUIRES_PRIMARY_SOURCE_REVIEW`, reachability
+   `UNKNOWN_RANGE_MEMBERSHIP_IS_NOT_CFG_REACHABILITY`, and decoder safety
+   `NOT_CLAIMED`. Writer absence remains `UNKNOWN`; no absence claim is made.
+4. The checked public manifest is
+   `evidence/manifests/029-dcb-unsupported-frontier-20260826-01.manifest.json`,
+   628,525 bytes, mode `0644`, SHA-256
+   `c6d46c382d7c091fffad137adb9491d107ff823ad6c6221f51eb627cc218f634`.
+   Tool, focused-test, and experiment-README SHA-256 values are respectively
+   `e5c491deaddafd4c60de7df3bfe0531f38bbd3740fe668942b912466ee86bca0`,
+   `d5eebfcbf1b4332bfeef693802e9b554728480051bc61331e811993c8837a1f2`, and
+   `805476c2aad021a781011c66910e819fd9bbf3dc1a05d84aa4435b9704274ef6`.
+5. Validation is 17 focused and 633 full unittest-discovery PASS in 84.985 s,
+   Python byte-compilation, 68 public JSON manifests, two fresh generations
+   byte-identical to one another and the checked manifest, publication
+   no-clobber/mode checks, and final independent hostile review `PASS`. The
+   durable review is `docs/EXP029_INTEGRATION_REVIEW_2026-08-26.md`.
+
+## 2026-08-26 — Experiment 031 scalar-frontier integration
+
+1. Integrated host-only, read-only Experiment 031 from artifact commit
+   `cd9f26e` plus reconciliation repair commit `12a8ebe`. No device, USB, SMC,
+   MMIO, normal-RAM, protected-memory, boot, activation, or write action
+   occurred. Class C remains `TRANSFORM ONLY`; Experiments 015/016 remain
+   `NOT ELIGIBLE`.
+2. `PROVED`: the exact XBL remains 4,194,304 bytes with SHA-256
+   `e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37` and
+   the exact 027/029 source and manifest identities are checked before import.
+   Scalar admission is qualified against Arm's primary A64 source DDI0602
+   (ID092025), version 2025-09, source SHA-256
+   `683025f0460c8af8d6711b764c5c4d51d1b56f38d78b618e6cb27d9abf4c853f`.
+3. The selected 029 membership domain is exactly 283 occurrences / 160 unique
+   VAs / 148 unique raw words. The bounded model reaches 250 selected events;
+   33 selected occurrences are not reached. The residual is exactly 69
+   occurrences / 59 unique VAs / 49 unique raw words across 20 sites:
+   `PAIR_MEMORY` 48, `THREE_SOURCE_UNVALIDATED` 11, `SYSTEM_CONTROL` 4,
+   `BIC_SHIFT` 2, `EOR_SHIFT` 2, and `SIGN_EXTENDING_MEMORY` 2.
+4. The combined scalar-plus-dispatch v2 model transitions 51 of 71 baseline
+   sites to bounded `NO_TARGET_WITHIN_MODEL`; 20 remain
+   `INDIRECT_OR_UNSUPPORTED`. This is explicitly `V2_MODEL_ONLY` and
+   `NO_ABSENCE_CLAIM`, not scalar-only closure. The separate
+   `DIRECT_CONTROL_DISPATCH_REPAIR` contributes 143 events across 62 sites:
+   `B.cond` 87, `CBZ/CBNZ` 28, `B` 15, and `TBZ/TBNZ` 13. No
+   `DCB_CONSUMER_PATH` or `MC_OR_SHRM_SYMBOLIC_TARGET` is promoted.
+5. Pair/sign-extending memory, system/control, three-source, `BIC`/`EOR`,
+   indirect aliases, reserved/unknown encodings, and unsafe forms remain
+   fail-closed. Runtime execution/order, current object/base values, physical
+   destination, global consumer/writer identity, writability, alias behavior,
+   security effect, `current_destination`, and `writer_absence` remain
+   `UNKNOWN`.
+6. Final artifact pins are tool 91,221 bytes / SHA-256
+   `5263d8975e9d64809aed04763e0c5573458dabcc6ae7432763d2858a36fc267b`, tests
+   18,751 bytes / SHA-256
+   `3a81fb4b4fc3023e70918a1648b6f04bb50e0967d27a8f09dbf939f9b55eff6d`,
+   Experiment README 7,580 bytes / SHA-256
+   `12924ad1fcfeba580f57447e67f74d14743a5962046941ff3088e1b130d173de`, and
+   checked manifest 1,327,118 bytes / mode `0644` / SHA-256
+   `51a187195c16eb609d337305540fc6d20a09297f5ab76b054497c5c58c3a2e86`.
+7. Validation is 19 focused and 652 tracked full unittest-discovery PASS in
+   85.226 s, maximum RSS 220,684 KiB with no swaps, Python byte-compilation,
+   69 public JSON manifests, two fresh generations byte-identical to the
+   checked manifest, QEMU oracle 280/280, and final reconciliation hostile
+   review `PASS`. The durable review is
+   `docs/EXP031_INTEGRATION_REVIEW_2026-08-26.md`.
+8. `PASS`: Experiment 031 narrows the bounded 027 frontier only. The 51-site
+   result depends on the combined scalar and dispatch-repair model and must
+   never be described as scalar-only closure or writer/consumer absence.
+   The next non-overlapping host-only selection is Experiment 032 at `82/100`:
+   official-source qualification and bounded semantics for exact reached
+   `MADD/UMADDL` plus `EOR/BIC` arithmetic blockers. The 10 reached
+   `THREE_SOURCE` events are at sites 35/36/37/56; `EOR` has two events at
+   sites 36/37; `BIC` has two at sites 1/52. Site 35's indirect branch and
+   site 56's pair remain fail-closed. Pair-memory remains later because 38 of
+   its 41 events are `LDP` and most of the remainder are SP epilogues, while
+   arithmetic directly forms indexes/addresses in high-value runtime-alias/
+   hash-like contexts.
+9. External Claude Experiments 028 and 030 remain outside this integration and
+   unreviewed here. No result, score, authority, review, or commit from either
+   is integrated or claimed.
