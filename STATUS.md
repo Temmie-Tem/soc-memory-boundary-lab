@@ -193,13 +193,62 @@ authority. Experiment 024's UFS mapping remains conditional; Class C is
 unchanged and Experiments 015/016 remain `NOT ELIGIBLE`. See [the integration
 review](docs/EXP025_INTEGRATION_REVIEW_2026-08-26.md).
 
-The next primary host-only selection is Experiment 026, scored `95/100`, for
-exact-XBL dispatch/order and a complementary slot-escape census linking
-registration/bootstrap to main-init. Its new ranges and table inputs are
-listed in [the scorecard](docs/NEXT_EXPERIMENT_SCORECARD.md); all Experiment
-025 ranges are dependency-only. Runtime order, slot value, `BLR` target, and
-base currentness remain `UNKNOWN`, and no device action or MMIO write is part
-of the selection. Experiment 023R remains later and withheld.
+Experiment 026 is `COMPLETED` and integrated from commit `0305a03` as
+host-only, read-only static analysis. `PROVED`: registration helpers
+`[0x1482ecb4,0x1482edac)`, the initializer loop `[0x1482edac,0x1482f0b4)`,
+and table header `[0x14875534,0x14875568)` independently pin a 24-byte
+registration node, list head `0x14890f60`, count two, row start
+`0x14875538`, cursor `0x1487554c`, and stride `0x18`; `PROVED`: bounded
+bootstrap, veneer, alternates, dispatcher, and caller local/control/data edges
+include the dispatcher base/stride/index guard and symbolic pointer escape
+`0x146b30c0 + runtime_index*0x3f8`, with modeled index `0..1`, not an exact
+runtime base. `SUPPORTED`: memory-only initializer-pool shape
+`[0x146b30c0,0x146b38b0)`, two-row `0x3f8` geometry. Pool contents and runtime
+values remain `UNKNOWN`.
+
+The complementary census scans 847,465 executable words, excludes 622 words
+covered by the Experiment 025 dependency, and recognizes 9 direct accesses
+(3 writes, 6 reads) plus 2 pointer escapes. Zero recognized access intervals
+overlap slot `[0x14890590,0x14890598)`. The taxonomy is `ORDER_OPEN` and
+`PROVED_BOUNDED_NO_RECOGNIZED_SLOT_MUTATION`; this is not global writer
+absence. Runtime execution/order, slot value, object identity, `BLR` target,
+base currentness, and writer absence remain `UNKNOWN`. Validation is 25
+focused and 581 full unittest PASS, Python byte-compilation, JSON safety,
+byte-identical regeneration, mode `0644`, and exact-XBL/final decoder hostile
+review `PASS`; see [the Experiment 026 integration review](docs/EXP026_INTEGRATION_REVIEW_2026-08-26.md).
+Class C remains `TRANSFORM ONLY`; 015/016 remain `NOT ELIGIBLE`. The selected
+next host-only follow-up is Experiment 027, scored `79/100`, a bounded DCB
+consumer/writer complement. It uses the exact XBL plus
+`xbl_config--sdb2.bin` (size 4,149,248, SHA-256
+`0e9dfac1ddd0f9acc2cc899213e621490308f0cadf329814048edb7712e2484c`) and
+four `0x3404`-byte DCB blocks at offsets `0x1079c`, `0x13ba0`, `0x16fa4`, and
+`0x1a3a8`. The target set is the 020 census's 67 register-offset loop sites
+minus the 024 walker (66 new loop candidates), plus all 8 computed-address
+sites; representative loop stores are `0x1484b9a0`, `0x146aea20`, and
+`0x9fc05ef4`. The setter is `[0x9fc06410,0x9fc0643c)` with caller
+`0x9fc023f0`. DCB sections 6/7/8/10/11/12 are candidates; section 5's
+absolute-address table is a negative control only. Loader
+`[0x1489f9e8,0x1489fbe8)` and section readers
+`0x1485f0f8/0x1485f13c/0x1485f17c/0x1485f1c0/0x1485f200/0x1485f23c` are
+the remaining exact discriminators.
+
+The full 024 walker `[0x148689a0,0x14868a64)` and overlapping 020 subrange
+`[0x148689c8,0x14868a60)` are excluded positive controls, not new claims; the
+excluded 024 caller ranges are `[0x14868630,0x14868644)`,
+`[0x14868668,0x14868680)`, and `[0x14868684,0x1486869c)`. Required outcomes
+are `DCB_CONSUMER_PATH`, `MC_OR_SHRM_SYMBOLIC_TARGET`,
+`NO_TARGET_WITHIN_MODEL`, and `INDIRECT_OR_UNSUPPORTED`; unsupported forms,
+aliases, unresolved computed pointers, excluded-range overlap, or any
+device/MMIO/write action stop the analysis and preserve `UNKNOWN`. Runtime
+base, writer identity/absence, semantics and execution remain `UNKNOWN`.
+
+The separate runtime slot/object alternative is not selected: rawdump record
+19 is `SHRM_MEM.BIN` `[0x09060000,0x09070000)`, retained `ocimem` is
+`[0x14680000,0x146c0000)`, and neither covers `0x14890590`. Samsung Upload
+supplies only `SHRM_MEM.BIN`; Sahara reports `NO_SHRM_DUMP_CAPTURED`; no safe
+arbitrary XBL-BSS path is available, and survival is `UNKNOWN`, not absent.
+No device action is proposed by the scorecard; future action needs a separate
+exact-bound contract/gates. Experiment 023R remains later and withheld.
 
 ## A. 현재까지 PROVED
 
@@ -552,21 +601,6 @@ of the selection. Experiment 023R remains later and withheld.
 - One or more coherent set-0 MC/MCCC words may encode geometry, channel
   selection, or a hidden transform term. Their repeated/two-by-two structure
   makes this testable, but no semantic assignment is presently proved.
-- Experiment 026 is the primary bounded `HYPOTHESIS` follow-up, scored
-  `95/100`: exact-XBL dispatch/order and a complementary unsupported-form
-  slot/page/global-alias/argument-escape census linking registration/bootstrap
-  to main-init. Its design-input ranges are
-  `[0x1482ecb4,0x1482edac)`, `[0x1482edac,0x1482f0b4)`, table header
-  `[0x14875534,0x14875568)`, bootstrap caller `[0x14852ce0,0x14852d70)`,
-  veneer `[0x14843d20,0x14843d50)`, alternate `[0x14828338,0x14828360)` and
-  `[0x14828b44,0x14828c80)`, main dispatcher `[0x14864834,0x148648c0)`,
-  callers `[0x148641a4,0x1486420c)`, `[0x1486420c,0x1486424c)`,
-  `[0x148642dc,0x148644cc)`, top `[0x1485a2ec,0x1485a30c)`, and
-  memory-only runtime initializer pool `[0x146b30c0,0x146b38b0)`. These are
-  design inputs/HYPOTHESIS only; preliminary range hashes are not claims until
-  Experiment 026 independently re-derives and pins them. Even on static
-  closure, runtime order, slot value, `BLR` target, base currentness, and live
-  mapping remain `UNKNOWN`; no device action is part of the design.
 - Experiment 023R is a later candidate only after a comparable timing
   protocol, physical-allocation PA provenance and a unique full GF(2) matrix
   are available. Until then `PA24=b1^b2` is `SUPPORTED`, not `PROVED`.
@@ -870,12 +904,12 @@ callback proof for slot `0x14890590` and registry
 `[0x14890e50,0x14890f50)`. Its recognized callback output write is to helper
 `SP+0xc`, not caller context `+8`; runtime order, slot/object identity, actual
 `BLR` target, alternate aliases/writes, and base currentness remain `UNKNOWN`.
-The next highest-information step is Experiment 026, the scored `95/100`
-exact-XBL dispatch/order plus complementary slot-escape census. Its design
-inputs are the ranges in [the scorecard](docs/NEXT_EXPERIMENT_SCORECARD.md),
-with all 025 ranges dependency-only and no preliminary 026 range hashes claimed
-until independent re-derivation. It remains host-only and requires no device,
-SMC, MMIO or write action.
+Experiment 026 is now integrated above with taxonomy `ORDER_OPEN` and
+`PROVED_BOUNDED_NO_RECOGNIZED_SLOT_MUTATION`; runtime order, slot value,
+object identity, `BLR` target, base currentness, writer absence, and live
+authority remain `UNKNOWN`. The selected next highest-information experiment
+is Experiment 027, scored `79/100`, with the bounded DCB inputs and
+discriminators recorded above; no implementation or live action is implied.
 
 Experiment 023R is later and remains withheld until its timing protocol is
 comparable to Experiment 014, physical-allocation PA provenance is present,

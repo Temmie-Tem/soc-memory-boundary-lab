@@ -276,13 +276,66 @@ conditional; Class C is unchanged and Experiments 015/016 remain
 `NOT ELIGIBLE`. See the
 [Experiment 025 integration review](docs/EXP025_INTEGRATION_REVIEW_2026-08-26.md).
 
-The next primary host-only selection is Experiment 026, scored `95/100`: exact
-XBL dispatch/order plus a complementary slot-escape census linking registration
-and bootstrap to main-init. Its design inputs include the new ranges and tables
-listed in the [scorecard](docs/NEXT_EXPERIMENT_SCORECARD.md), while all
-Experiment 025 ranges are dependency-only. Runtime order, slot value, `BLR`
-target, and base currentness remain `UNKNOWN`; no device action or MMIO write is
-part of the selection. Experiment 023R remains later and withheld.
+Experiment 026 is `COMPLETED` and integrated from commit `0305a03` as
+host-only, read-only static analysis. `PROVED`: independently pinned
+registration helpers `[0x1482ecb4,0x1482edac)`, the initializer loop
+`[0x1482edac,0x1482f0b4)`, table header `[0x14875534,0x14875568)` with count
+two, row start `0x14875538`, cursor `0x1487554c`, and derived stride `0x18`.
+The registration node is 24 bytes (object, identifier, next at `+0x0/+0x8/
++0x10`) with list head `0x14890f60`. `PROVED`: bounded bootstrap, veneer,
+alternate, dispatcher, and caller local/control/data edges include the
+dispatcher base/stride/index guard and symbolic pointer escape
+`0x146b30c0 + runtime_index*0x3f8`, modeled index `0..1`, not an exact runtime
+base. `SUPPORTED`: the memory-only initializer pool has shape
+`[0x146b30c0,0x146b38b0)`, two-row `0x3f8` geometry. Pool contents and runtime
+values remain `UNKNOWN`.
+
+The complementary census scans 847,465 executable words, excludes 622 words
+covered by the Experiment 025 dependency, and recognizes 9 direct accesses
+(3 writes, 6 reads) plus 2 pointer escapes. It finds zero recognized writes
+whose actual access intervals overlap slot `[0x14890590,0x14890598)`. The
+bounded result is `ORDER_OPEN` and
+`PROVED_BOUNDED_NO_RECOGNIZED_SLOT_MUTATION`; this is not global writer
+absence. Runtime execution/order, slot value, object identity, `BLR` target,
+base currentness, and writer absence remain `UNKNOWN`. Validation is 25
+focused and 581 full unittest PASS, Python byte-compilation, JSON safety,
+byte-identical regeneration, mode `0644`, and exact-XBL plus final decoder
+hostile-review `PASS`, recorded in the
+[Experiment 026 integration review](docs/EXP026_INTEGRATION_REVIEW_2026-08-26.md).
+Class C is unchanged; Experiments 015/016 remain `NOT ELIGIBLE`. The selected
+next host-only follow-up is Experiment 027, scored `79/100`, a bounded DCB
+consumer/writer complement. It binds the exact XBL above plus
+`xbl_config--sdb2.bin` (size 4,149,248, SHA-256
+`0e9dfac1ddd0f9acc2cc899213e621490308f0cadf329814048edb7712e2484c`) and
+four `0x3404`-byte DCB blocks at file offsets `0x1079c`, `0x13ba0`,
+`0x16fa4`, and `0x1a3a8`. The target set is the 020 census's 67
+register-offset loop sites minus the 024 walker (66 new loop candidates), plus
+all 8 computed-address sites; representative loop stores are `0x1484b9a0`,
+`0x146aea20`, and `0x9fc05ef4`. The setter is `[0x9fc06410,0x9fc0643c)` with
+caller `0x9fc023f0`. DCB sections 6/7/8/10/11/12 are candidates; section 5's
+absolute-address table is a negative control only. The XBL loader is
+`[0x1489f9e8,0x1489fbe8)` and section readers begin at
+`0x1485f0f8/0x1485f13c/0x1485f17c/0x1485f1c0/0x1485f200/0x1485f23c`.
+
+The full 024 walker `[0x148689a0,0x14868a64)` and overlapping 020 subrange
+`[0x148689c8,0x14868a60)` are excluded positive controls, not new claims; the
+three excluded 024 caller context ranges are
+`[0x14868630,0x14868644)`, `[0x14868668,0x14868680)`, and
+`[0x14868684,0x1486869c)`. Required outcomes are `DCB_CONSUMER_PATH`,
+`MC_OR_SHRM_SYMBOLIC_TARGET`, `NO_TARGET_WITHIN_MODEL`, and
+`INDIRECT_OR_UNSUPPORTED`; unsupported forms, aliases, unresolved computed
+pointers, excluded-range overlap, or any device/MMIO/write action stop the
+analysis and preserve `UNKNOWN`. Runtime base, writer identity/absence,
+semantics, and execution remain `UNKNOWN`. Experiment 023R remains withheld.
+
+The separate runtime slot/object alternative is not selected: the exact
+26-record rawdump catalog's record 19 is `SHRM_MEM.BIN`
+`[0x09060000,0x09070000)`, while retained `ocimem` is
+`[0x14680000,0x146c0000)`; neither covers slot `0x14890590`. Samsung Upload
+supplies only `SHRM_MEM.BIN`, Sahara reports `NO_SHRM_DUMP_CAPTURED`, and no
+safe arbitrary XBL-BSS path is available in the current evidence. Survival is
+`UNKNOWN`, not absent. No device action is proposed by the scorecard; future
+action needs a separate exact-bound contract/gates.
 
 Claim vocabulary is deliberately closed:
 

@@ -175,8 +175,9 @@ cross-reference/backward slice for the 12 exact qhs_mc targets. That line is
 now covered by Experiments 018–025; unresolved dynamic bases, consumers and
 writers remain `UNKNOWN`. Experiment 025 closes the intended static
 platform-query binding only; runtime order, slot/object identity and base
-currentness remain unresolved. The next primary host-only step is Experiment
-026, which stays host-only and performs no broad MMIO scan or device action.
+currentness remain unresolved. The selected next host-only step is Experiment
+027, scored `79/100`, a bounded DCB consumer/writer complement; it stays
+host-only and performs no broad MMIO scan or device action.
 
 ## Experiment 018 — exact XBL MC writer cross-reference Stage 1A
 
@@ -499,7 +500,52 @@ artifact-review PASS results. See
 `../docs/EXP025_INTEGRATION_REVIEW_2026-08-26.md` for the durable integration
 record; two independent common-document reviews returned `PASS`.
 
-## Integration gate and next stage
+## Experiment 026 — exact XBL dispatch/order and slot-escape census
+
+Experiment 026 is `COMPLETED` and integrated from commit `0305a03` as
+host-only, read-only static evidence. The exact XBL input is 4,194,304 bytes
+with SHA-256
+`e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37`; the
+Experiment 025 dependency is size 28,132 with SHA-256
+`d3c405d7c8d23dc1cd65b1c578b4b4ce931d9bdfeb303c892e9c0c145c4c81cc`. No
+device, SMC, MMIO, protected-memory, normal-RAM, write, or activation action
+occurred.
+
+`PROVED`: registration helpers `[0x1482ecb4,0x1482edac)` pin the 24-byte
+node shape (object/ID/next at `+0x0/+0x8/+0x10`) and list head `0x14890f60`;
+initializer loop `[0x1482edac,0x1482f0b4)`; table header
+`[0x14875534,0x14875568)` has count two, row start `0x14875538`, cursor
+`0x1487554c`, and stride `0x18`. `PROVED`: bootstrap caller, veneer,
+alternate, dispatcher, and caller local/control/data edges include dispatcher
+base/stride/index guard and symbolic pointer escape
+`0x146b30c0 + runtime_index*0x3f8` for modeled index `0..1`, not an exact
+runtime base. `SUPPORTED`: memory-only initializer-pool shape
+`[0x146b30c0,0x146b38b0)`, two-row `0x3f8` geometry. Pool contents and runtime
+values remain `UNKNOWN`.
+
+The complementary all-file-backed executable census scans 847,465 words,
+excludes 622 words covered by the 025 dependency, recognizes 9 direct accesses
+(3 writes, 6 reads) and 2 pointer escapes, and finds zero recognized writes
+whose access intervals overlap slot `[0x14890590,0x14890598)`. The taxonomy is
+`ORDER_OPEN` and `PROVED_BOUNDED_NO_RECOGNIZED_SLOT_MUTATION`; this is bounded
+recognized-form coverage, not global writer absence. Runtime execution/order,
+slot value, object identity, `BLR` target, base currentness, writer absence,
+and live authority remain `UNKNOWN`. Class C remains `TRANSFORM ONLY`; 015/016
+remain `NOT ELIGIBLE`.
+
+Tool/test/README/manifest SHA-256 values are
+`61b4f993678527b7cb1b024b0e8f5cdf4b965a9bf3aedc8a2a12214c8d26a5f8`,
+`3f8aad6ed90b8c16d4bece5dc272e402ddd4f91af35ae1a294c53beb6d5d9b41`,
+`392631c3ef6298b23ef52bdfe085d723b7bd5451dd10483e5296e4ab4c6e3d24`, and
+`2139b5d230be78d822eda656f2856a229894167938227d34a614dcabf16c7885`.
+The public manifest is 64,027 bytes, mode `0644`, at
+`evidence/manifests/026-xbl-dispatch-order-slot-escape-20260826-01.manifest.json`.
+Validation is 25 focused and 581 full unittest PASS, Python byte-compilation,
+public JSON safety, byte-identical regeneration, and exact-XBL/final decoder
+hostile-review `PASS`, recorded in
+`../docs/EXP026_INTEGRATION_REVIEW_2026-08-26.md`.
+
+## Integration gate and selected next stage
 
 Historical Experiment 024 validation records 30 focused and 534 full unittest
 PASS, 64 public JSON manifests, byte-identical regeneration, and two
@@ -512,11 +558,32 @@ provenance is missing so a `+0x1000` countermodel fits the labels, and the full
 GF(2) matrix is non-unique. `PA24=b1^b2` is `SUPPORTED` only; raw evidence is
 private.
 
-Experiment 025 is integrated above. The next primary host-only selection is
-Experiment 026, scored `95/100`: exact-XBL dispatch/order plus a complementary
-unsupported-form slot/page/global-alias/argument-escape census linking
-registration/bootstrap to main-init. Its design-input ranges are listed in
-`../docs/NEXT_EXPERIMENT_SCORECARD.md`; all 025 ranges are dependency-only and
-preliminary 026 range hashes are not claims until independent re-derivation.
-Runtime order, slot value, actual `BLR` target, base currentness and live
-mapping remain `UNKNOWN`; no device action or MMIO write is part of this step.
+Experiment 026 is integrated above with taxonomy `ORDER_OPEN` and
+`PROVED_BOUNDED_NO_RECOGNIZED_SLOT_MUTATION`; runtime order, slot value,
+object identity, actual `BLR` target, base currentness, writer absence and live
+mapping remain `UNKNOWN`.
+
+The selected next host-only follow-up is Experiment 027, scored `79/100`, a
+bounded DCB consumer/writer complement. Its target set is the 020 census's 67
+register-offset loop sites minus the 024 walker (66 new loop candidates), plus
+all 8 computed-address sites, including representative loop stores
+`0x1484b9a0`, `0x146aea20`, and `0x9fc05ef4`. The setter is
+`[0x9fc06410,0x9fc0643c)` with caller `0x9fc023f0`; DCB sections 6/7/8/10/11/12
+are candidates and section 5 is an absolute-address negative control only.
+The exact XBL and `xbl_config--sdb2.bin` inputs and loader/reader ranges are in
+the scorecard. The full 024 walker `[0x148689a0,0x14868a64)` and overlapping
+020 subrange `[0x148689c8,0x14868a60)` are excluded positive controls, as are
+caller contexts `[0x14868630,0x14868644)`, `[0x14868668,0x14868680)`, and
+`[0x14868684,0x1486869c)`. Outcomes are
+`DCB_CONSUMER_PATH`, `MC_OR_SHRM_SYMBOLIC_TARGET`, `NO_TARGET_WITHIN_MODEL`,
+or `INDIRECT_OR_UNSUPPORTED`; unsupported forms, aliases, unresolved computed
+pointers, excluded overlap, and any device/MMIO/write action stop the analysis
+and preserve `UNKNOWN`.
+
+The separate rawdump slot/object alternative is not selected: record 19 is
+`SHRM_MEM.BIN` `[0x09060000,0x09070000)`, retained `ocimem` is
+`[0x14680000,0x146c0000)`, and neither covers `0x14890590`. Samsung Upload
+supplies only `SHRM_MEM.BIN`, Sahara reports `NO_SHRM_DUMP_CAPTURED`, no safe
+arbitrary XBL-BSS path is available, and survival is `UNKNOWN`, not absent.
+No device action is proposed by the scorecard; future action needs a separate
+exact-bound contract/gates.

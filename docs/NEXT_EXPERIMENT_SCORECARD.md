@@ -1,16 +1,18 @@
 # Next-experiment scorecard — 2026-08-26
 
 This scorecard ranks host-only follow-up work after the integrated
-Experiments 019–022, 024, and 025. It does not grant live, device, SMC, MMIO,
-write, or Experiments 015/016 authority. Experiments 024 and 025 are complete
-as bounded static results; their conditional and semantic boundaries remain
+Experiments 019–022 and 024–026. It does not grant live, device, SMC, MMIO,
+write, or Experiments 015/016 authority. Experiments 024–026 are complete as
+bounded static results; their conditional and semantic boundaries remain
 explicit below.
 
 | Rank | Experiment | Information target | Scope and gate | Status |
 |---:|---|---|---|---|
-| 1 | 026 | Reconstruct exact-XBL dispatch/order linking registration/bootstrap to main-init, with a complementary slot-escape census. | Host-only: bind the new function/table/caller ranges below; census unsupported-form slot/page/global aliases and argument escapes. Treat every Experiment 025 range as dependency-only. Require independent re-derivation and pinned hashes before any promotion; no device action. | `PRIMARY HYPOTHESIS`; 95/100 |
-| 2 | DCB writer follow-up | Resolve the remaining bounded DCB/register-writer complement after the 018–022 coverage. | Host-only, exact-byte and conservative decoder scope; no broad MMIO scan or device action. Preserve all current unknown writer/semantic boundaries. | `LATER`; 69/100 |
-| 3 | 023R | Re-test the timing claim only after the protocol and provenance defects are repaired. | Require a protocol comparable to Experiment 014 (including ordering, warmup, barriers, and reopen accounting), physical-allocation PA provenance, and a unique full GF(2) matrix. `PA24=b1^b2` can remain `SUPPORTED` until those gates pass. | `LATER`; 64/100; 023 is withheld/`NO-GO` and not public |
+| 1 | 027 | Resolve the remaining bounded DCB consumer/writer complement after the integrated 024–026 coverage. | Host-only, exact XBL plus pinned `xbl_config--sdb2.bin`; use exact DCB blocks and explicit loader/section-directory/computed-address discriminators. Keep checksum/bounds readers distinct from controller writers, exclude 024–026 dependency ranges, and preserve all runtime-base/writer/semantic `UNKNOWN`s. No broad MMIO scan or device action. | `PRIMARY SELECTED`; 79/100 |
+| 2 | E — capture-feasibility | Assess whether a future host-only evidence capture has a safe, bounded path without promoting a device action. | Read-only feasibility review only; no capture, device, SMC, MMIO or write action. | `LATER`; 52/100 |
+| 3 | D — 023R | Re-test the timing claim only after the protocol and provenance defects are repaired. | Require a protocol comparable to Experiment 014 (including ordering, warmup, barriers, and reopen accounting), physical-allocation PA provenance, and a unique full GF(2) matrix. `PA24=b1^b2` can remain `SUPPORTED` until those gates pass. | `LATER`; 41/100; 023 is withheld/`NO-GO` and not public |
+| 4 | B — base currentness | Resolve initialized-base currentness as a bounded static/runtime-boundary question. | Preserve the unresolved runtime base and indirect `BLR` boundaries; no device action or live promotion. | `LATER`; 24/100 |
+| 5 | A — runtime slot/object observation | Reassess the runtime slot/object question only if a safe evidence path exists. | The existing 26-record catalog does not cover the target slot; no safe capture path is currently available. This is not selected; no device action is proposed by this scorecard; future action needs a separate exact-bound contract/gates. | `LATER`; 14/100 |
 
 The scores are decision aids, not vulnerability probabilities or evidence
 labels. They compare critical-`UNKNOWN` closure, discriminatory power, success
@@ -119,29 +121,78 @@ byte-compilation, byte-identical regeneration, and two artifact-review PASS
 results; the durable integration-doc review is recorded separately in
 [EXP025_INTEGRATION_REVIEW_2026-08-26.md](EXP025_INTEGRATION_REVIEW_2026-08-26.md).
 
-## Experiment 026 primary design boundary
+## Experiment 026 integrated result
 
-Experiment 026 is the primary host-only selection, scored `95/100`, for exact-
-XBL dispatch/order and a complementary unsupported-form slot/page/global-alias/
-argument-escape census linking registration/bootstrap to main-init. Its new
-design-input ranges are:
+Experiment 026 is `COMPLETED` and integrated from commit `0305a03` as
+host-only, read-only static analysis of the exact XBL. `PROVED`: registration
+helpers `[0x1482ecb4,0x1482edac)` pin a 24-byte node and list head
+`0x14890f60`; initializer loop `[0x1482edac,0x1482f0b4)`; table header
+`[0x14875534,0x14875568)` has count two, row start `0x14875538`, cursor
+`0x1487554c`, and stride `0x18`. `PROVED`: bounded bootstrap, veneer,
+alternates, dispatcher, and caller local/control/data edges include the
+dispatcher base/stride/index guard and symbolic pointer escape
+`0x146b30c0 + runtime_index*0x3f8` for modeled index `0..1`, not an exact
+runtime base. `SUPPORTED`: memory-only initializer-pool shape
+`[0x146b30c0,0x146b38b0)`, two-row `0x3f8` geometry. Pool contents and runtime
+values remain `UNKNOWN`.
 
-- registration-list helpers `[0x1482ecb4,0x1482edac)` and initializer loop
-  `[0x1482edac,0x1482f0b4)`;
-- table header `[0x14875534,0x14875568)`;
-- bootstrap caller `[0x14852ce0,0x14852d70)`, veneer `[0x14843d20,0x14843d50)`,
-  and alternate paths `[0x14828338,0x14828360)` and
-  `[0x14828b44,0x14828c80)`;
-- main dispatcher `[0x14864834,0x148648c0)`, callers
-  `[0x148641a4,0x1486420c)`, `[0x1486420c,0x1486424c)`,
-  `[0x148642dc,0x148644cc)`, and top `[0x1485a2ec,0x1485a30c)`;
-- memory-only runtime initializer pool `[0x146b30c0,0x146b38b0)`.
+The complementary census scans 847,465 executable words, excludes 622 words
+covered by 025, recognizes 9 accesses (3 writes, 6 reads) and 2 pointer
+escapes, and finds zero recognized interval-overlap writes to slot
+`[0x14890590,0x14890598)`. Its taxonomy is `ORDER_OPEN` and
+`PROVED_BOUNDED_NO_RECOGNIZED_SLOT_MUTATION`; this is not global writer
+absence. Runtime execution/order, slot value, object identity, `BLR` target,
+base currentness, writer absence and live authority remain `UNKNOWN`. Its
+artifact hashes and 25 focused/581 full validation are recorded in
+[EXP026_INTEGRATION_REVIEW_2026-08-26.md](EXP026_INTEGRATION_REVIEW_2026-08-26.md).
 
-These are design inputs/`HYPOTHESIS` only; no preliminary 026 range hashes are
-claims until Experiment 026 independently re-derives and pins them. All 025
-ranges are dependency-only. Even on static closure, runtime order, slot value,
-actual `BLR` target, base currentness and live mapping remain `UNKNOWN`; no
-device, SMC, MMIO, write, or activation action is part of this selection.
+## Experiment 027 selected bounded DCB consumer/writer complement
+
+Experiment 027 is the selected next host-only follow-up, scored `79/100`; this
+scorecard records selection only, not an implementation or preliminary hash.
+The exact XBL remains bound by size 4,194,304 and SHA-256
+`e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37`. The
+second exact input is `xbl_config--sdb2.bin`, size 4,149,248, SHA-256
+`0e9dfac1ddd0f9acc2cc899213e621490308f0cadf329814048edb7712e2484c`.
+
+The 020 target set is the 67 register-offset loop sites minus the one 024
+walker (66 new loop candidates), plus all 8 computed-address sites. Representative
+computed-address loop stores are `0x1484b9a0`, `0x146aea20`, and `0x9fc05ef4`;
+the exact candidate-segment setter is `[0x9fc06410,0x9fc0643c)` with direct
+caller `0x9fc023f0`. The DCB candidate sections are 6, 7, 8, 10, 11, and 12;
+section 5's absolute-address table is a negative control only, not a promoted
+DCB writer target.
+
+The four DCB blocks are `0x3404` bytes at file offsets `0x1079c`, `0x13ba0`,
+`0x16fa4`, and `0x1a3a8`. Other exact discriminators are the XBL DCB-loader
+window `[0x1489f9e8,0x1489fbe8)` and section-directory reader starts
+`0x1485f0f8`, `0x1485f13c`, `0x1485f17c`, `0x1485f1c0`, `0x1485f200`, and
+`0x1485f23c`. The full 024 walker `[0x148689a0,0x14868a64)` is an excluded
+positive control; the overlapping 020 subrange `[0x148689c8,0x14868a60)`
+(SHA-256 `02248b786ffb501a5fa9242aa3952e1e4d783f47464952e96ca2704a9f94341`)
+is not a new claim. The three 024 direct-caller context ranges are also
+excluded/control: `[0x14868630,0x14868644)`, `[0x14868668,0x14868680)`, and
+`[0x14868684,0x1486869c)`.
+
+Required outcome labels are `DCB_CONSUMER_PATH`,
+`MC_OR_SHRM_SYMBOLIC_TARGET`, `NO_TARGET_WITHIN_MODEL`, and
+`INDIRECT_OR_UNSUPPORTED`. Stop and preserve `UNKNOWN` on unsupported forms,
+aliases, unresolved computed pointers, overlap with an excluded/control range,
+or any device/MMIO/write action. The implementation must distinguish
+checksum/bounds readers from controller writers and preserve `UNKNOWN` for
+runtime base, writer identity/absence, register semantics and execution. No
+device, SMC, MMIO, normal-RAM, protected-memory or write action is selected.
+
+## Alternative A boundary — runtime slot/object observation
+
+The exact 26-record rawdump catalog does not cover slot `0x14890590`. Record 19
+maps SHRM `SHRM_MEM.BIN` at `[0x09060000,0x09070000)`; the retained `ocimem`
+window is `[0x14680000,0x146c0000)`. Neither interval covers the runtime slot.
+Samsung Upload supplies only `SHRM_MEM.BIN`; Sahara status is
+`NO_SHRM_DUMP_CAPTURED`. There is no safe arbitrary XBL-BSS path in the
+current evidence, and survival is `UNKNOWN`, not absent. This alternative is
+not selected; no device action is proposed by this scorecard; future action
+needs a separate exact-bound contract/gates.
 
 ## Experiment 023R prerequisites
 

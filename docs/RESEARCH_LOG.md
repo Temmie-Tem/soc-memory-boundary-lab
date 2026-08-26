@@ -1143,11 +1143,9 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
    `evidence/manifests/024-xbl-six-byte-walker-20260826-01.manifest.json`.
 8. Experiment 025 is the completed bounded static follow-up for the unresolved
    platform-query binding; its integration and exact claim boundaries are
-   recorded below. The next primary host-only step is Experiment 026,
-   scored `95/100`, for exact-XBL dispatch/order plus a complementary
-   unsupported-form slot/page/global-alias/argument-escape census linking
-   registration/bootstrap to main-init. Its ranges are design inputs only until
-   independently re-derived; all Experiment 025 ranges are dependency-only.
+   recorded below. Experiment 026 is now independently re-derived, committed,
+   and integrated in the following section; all 025 ranges remain
+   dependency-only for that result.
 
 ## 2026-08-26 — Experiment 025 XBL platform-query binding integration
 
@@ -1204,10 +1202,70 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
    artifact/publication/repetition metadata. Two independent final artifact
    reviews returned `PASS`; this does not pre-approve the common-document
    integration review.
-9. The next primary host-only selection is Experiment 026, scored `95/100`,
-   for exact-XBL dispatch/order and complementary unsupported-form
-   slot/page/global-alias/argument-escape census linking registration/bootstrap
-   to main-init. Its design-input ranges must be independently re-derived and
-   hash-pinned; all 025 ranges are dependency-only. Runtime order, slot value,
-   actual `BLR` target, base currentness, and live mapping remain `UNKNOWN`,
-   and no device action is part of the selection.
+9. The completed Experiment 026 result is recorded below and does not upgrade
+   runtime order, slot value, actual `BLR` target, base currentness, or live
+   mapping. The selected next host-only follow-up is Experiment 027, scored
+   `79/100`, a bounded DCB consumer/writer complement over the 020 67
+   register-offset loop sites minus the 024 walker plus all 8 computed-address
+   sites; its exact inputs, exclusions, outcome labels, and rawdump slot
+   boundary are recorded in the current integration sections.
+
+## 2026-08-26 — Experiment 026 XBL dispatch/order and slot-escape integration
+
+1. Integrated commit `0305a03` as a host-only, read-only static analysis of
+   the exact SM8150 XBL. The exact input is 4,194,304 bytes with SHA-256
+   `e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37`.
+   The committed 025 dependency is size 28,132 with SHA-256
+   `d3c405d7c8d23dc1cd65b1c578b4b4ce931d9bdfeb303c892e9c0c145c4c81cc`.
+   No device, SMC, MMIO, protected-memory, normal-RAM, write, or activation
+   action occurred. Class C remains `TRANSFORM ONLY`; Experiments 015/016
+   remain `NOT ELIGIBLE`.
+2. `PROVED`: registration helpers `[0x1482ecb4,0x1482edac)` pin the exact
+   24-byte node shape (object/ID/next at `+0x0/+0x8/+0x10`) and list head
+   `0x14890f60`; initializer loop `[0x1482edac,0x1482f0b4)`; table header
+   `[0x14875534,0x14875568)` has count 2, row start `0x14875538`, cursor
+   `0x1487554c`, and derived stride `0x18`.
+3. `PROVED`: bootstrap caller `[0x14852ce0,0x14852d70)`, veneer
+   `[0x14843d20,0x14843d50)`, alternates `[0x14828338,0x14828360)` and
+   `[0x14828b44,0x14828c80)`, dispatcher `[0x14864834,0x148648c0)`, callers
+   `[0x148641a4,0x1486420c)`, `[0x1486420c,0x1486424c)`,
+   `[0x148642dc,0x148644cc)`, and `[0x1485a2ec,0x1485a30c)` have exact
+   local/control/data edges, including dispatcher base/stride/index guard and
+   symbolic pointer escape `0x146b30c0 + runtime_index*0x3f8` for modeled index
+   `0..1`, not an exact runtime base. `SUPPORTED`: memory-only initializer-pool
+   shape `[0x146b30c0,0x146b38b0)`, two-row `0x3f8` geometry. Pool
+   contents/runtime values remain `UNKNOWN`.
+4. The complementary all-file-backed executable census scans 847,465 words,
+   excludes 622 words covered by the 025 dependency, recognizes 9 direct
+   accesses (3 writes and 6 reads) and 2 pointer escapes, and finds zero
+   recognized writes whose access intervals overlap slot
+   `[0x14890590,0x14890598)`. This is bounded recognized-form coverage, not a
+   global writer-absence claim.
+5. The result taxonomy is `ORDER_OPEN` and
+   `PROVED_BOUNDED_NO_RECOGNIZED_SLOT_MUTATION`. Runtime execution/order, slot
+   value, object identity, `BLR` target, base currentness, writer absence and
+   live authority remain `UNKNOWN`.
+6. Tool/test/README/manifest SHA-256 values are
+   `61b4f993678527b7cb1b024b0e8f5cdf4b965a9bf3aedc8a2a12214c8d26a5f8`,
+   `3f8aad6ed90b8c16d4bece5dc272e402ddd4f91af35ae1a294c53beb6d5d9b41`,
+   `392631c3ef6298b23ef52bdfe085d723b7bd5451dd10483e5296e4ab4c6e3d24`, and
+   `2139b5d230be78d822eda656f2856a229894167938227d34a614dcabf16c7885`.
+   The public manifest is 64,027 bytes, mode `0644`, at
+   `evidence/manifests/026-xbl-dispatch-order-slot-escape-20260826-01.manifest.json`.
+7. Validation is 25 focused and 581 full unittest-discovery PASS, Python
+   byte-compilation PASS, public JSON safety PASS, two fresh generations
+   byte-identical, and exact-XBL semantic plus final decoder hostile reviews
+   `PASS`. The durable integration-doc review is
+   `docs/EXP026_INTEGRATION_REVIEW_2026-08-26.md`.
+8. Final hostile review repairs covered shifted-register ADD/SUB semantics,
+   ORR masks and LSL-only coverage, unsupported UBFM/SBFM/pair/literal/
+   register-offset/exclusive/LSE forms, SIMD/sign-extension/unprivileged
+   variants, MTE ADDG/SUBG, undefined extended-register encodings, stale
+   literal taint, SP/XZR handling, writeback overlap, conditional list-head
+   semantics, symbolic pool addressing, and interval-overlap slot detection.
+   Adversarial synthetic controls cover decoder false positives/negatives,
+   clobbers, control flow, and positive/negative slot overlap. The selected
+   next host-only follow-up is Experiment 027, scored `79/100`, a bounded DCB
+   consumer/writer complement with outcomes `DCB_CONSUMER_PATH`,
+   `MC_OR_SHRM_SYMBOLIC_TARGET`, `NO_TARGET_WITHIN_MODEL`, or
+   `INDIRECT_OR_UNSUPPORTED`; no implementation or live action is implied.
