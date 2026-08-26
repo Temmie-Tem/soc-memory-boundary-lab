@@ -457,7 +457,21 @@ focused and 1,062 full serial tests with hostile-review `PASS`; see the
 [Verification 016 integration review](docs/VERIFICATION016_INTEGRATION_REVIEW_2026-08-27.md).
 
 Class C and numbered Experiments 015/016 eligibility remain unchanged.
-Verification 017 is unblocked only for a separate audit and is not promoted.
+Verification 017 has now completed its separate host-only post-decode
+granularity audit.  The exact rank-3 relation has a minimum class-change span
+of 8 KiB and covers all eight recovered bank
+classes in a 64-KiB-aligned 64-KiB span (128 KiB is the arbitrary-base
+guarantee) when projected into the retained allocation-offset/model domain;
+every listed protected carveout and every explicitly unprotected System RAM
+fragment meets that model-projection bound.  Therefore a **bank-only post-decode
+check** is `REFUTED` as a separator for those projected ranges.  The finite GF(2)
+countermodels also prove that the bank projection alone does not determine
+complete-coordinate injectivity.  This does not locate the actual protection
+check, establish a complete DRAM coordinate, or prove a downstream mutable
+transform.  The canonical manifest is
+[verification-017-protection-bank-granularity-20260827-05.manifest.json](evidence/manifests/verification-017-protection-bank-granularity-20260827-05.manifest.json).
+Validation is 42 focused and 1,132 full serial tests (`skipped=1`, no swaps),
+with byte-identical regeneration and no device action.
 Verification 018 has now completed one exact, reversible A90 allocation-local
 baseline with a retained PASS receipt: both controls fired and all 176 tested
 candidate pairs were `DISTINCT` across two trials (`NO_ALIAS` in the exact
@@ -466,9 +480,11 @@ or protected-boundary evidence. The first parser-only target-format incident is
 retained separately and had no allocation or write effect. The canonical public
 manifest is
 [verification-018-a90-20260827-03.manifest.json](evidence/manifests/verification-018-a90-20260827-03.manifest.json).
-The next highest-information work is the separate V017 post-decode-granularity
-audit and the route-2 falsification handoff in
-[docs/CODEX_HANDOFF_ROUTE2_TERMINATION_2026-08-27.md](docs/CODEX_HANDOFF_ROUTE2_TERMINATION_2026-08-27.md).
+The next highest-information work is the route-2 falsification handoff and
+independent response in
+[docs/CODEX_HANDOFF_ROUTE2_TERMINATION_2026-08-27.md](docs/CODEX_HANDOFF_ROUTE2_TERMINATION_2026-08-27.md)
+and
+[docs/ROUTE2_TERMINATION_RESPONSE_2026-08-27.md](docs/ROUTE2_TERMINATION_RESPONSE_2026-08-27.md).
 
 Claim vocabulary is deliberately closed:
 
@@ -512,6 +528,10 @@ literal-attribution audit are in
 [experiments/014-dram-conflict-timing/README.md](experiments/014-dram-conflict-timing/README.md).
 Experiment 017's exact XBL table/read-copy cross-reference is in
 [experiments/017-xbl-mc-snapshot-xref/README.md](experiments/017-xbl-mc-snapshot-xref/README.md).
+Verification 017's bank-granularity audit is in
+[experiments/verification-017-protection-bank-granularity/README.md](experiments/verification-017-protection-bank-granularity/README.md),
+with its sanitized result in
+[evidence/manifests/verification-017-protection-bank-granularity-20260827-05.manifest.json](evidence/manifests/verification-017-protection-bank-granularity-20260827-05.manifest.json).
 Experiment 018's Stage 1A/Stage 2A/Stage 2B/Stage 2C/Stage 2D/Stage 2E XBL writer cross-reference is in
 [experiments/018-xbl-mc-writer-xref/README.md](experiments/018-xbl-mc-writer-xref/README.md).
 Experiment 019's strict DCB pair-array inventory is in

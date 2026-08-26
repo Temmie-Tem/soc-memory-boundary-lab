@@ -1859,6 +1859,65 @@ transform-state mutability, protection ordering and any protected-boundary
 reach.  `REFUTED` only: an alias in the tested candidate pairs for this run.
 
 Class C (`TRANSFORM ONLY`) is unchanged; numbered Experiments 015/016 remain
-`NOT_ELIGIBLE`.  The next scored work is the separate V017 post-decode-
-granularity audit, with the route-2 falsification questions and reopen criteria
-in `docs/CODEX_HANDOFF_ROUTE2_TERMINATION_2026-08-27.md`.
+`NOT_ELIGIBLE`.  The next scored work is the route-2 falsification challenge,
+with the questions and independent response in
+`docs/CODEX_HANDOFF_ROUTE2_TERMINATION_2026-08-27.md` and
+`docs/ROUTE2_TERMINATION_RESPONSE_2026-08-27.md`.
+
+# 2026-08-27 — Verification 017 post-decode bank-granularity audit
+
+This is the host-only audit that V016's dependency gate made eligible.  It uses
+no device, SMC, MMIO, protected-memory or controller action.  Claude's bounded
+implementation was independently rechecked and then hardened here with exact
+source pins, semantic manifest cross-checks, no-clobber `O_EXCL` publication,
+page-aligned range validation, and explicit subtraction of reserved ranges
+nested inside the broad `System RAM` resource.
+
+## Inputs and computation
+
+The pinned 023R relation manifest is 18,040 bytes / SHA-256
+`5c3e14ff898c109de740d98260d974bca10751000f85977775cd467ac74aac2e`; the
+pinned V016 high-bit manifest is 59,504 bytes / SHA-256
+`72525cf994e52bbee1c3ed685c49a6ace4049cd7b279cb97811f6a0d3f4f773f`; and the
+pinned `docs/MEMORY_MAP.md` is 9,428 bytes / SHA-256
+`34496c0d92736f7df5b9da69f8bcadfe40fb3ee35558c1b10fab7d06dec86950`.  The
+tool also checks that 023R retains a resolved unique rank-3 result and that
+V016 retains exactly the equalities `{25:[14,21], 26:[19], 27:[13,20]}` before
+running the model.
+
+The recovered relation has rank three.  Its first nonzero contribution is bit
+13, so the minimum class-change span is 8 KiB; the first three independent
+contributions appear by bit 15, so a 64-KiB-aligned 64-KiB span covers all eight
+model bank classes.  For an arbitrary base, 128 KiB is the conservative
+guarantee.  Five protected carveouts (`hyp_mem`, `tima_region`, `rkp_region`,
+`uh_heap_region`, `qseecom_region`) and nine explicitly unprotected System RAM
+fragments meet that aligned-or-128-KiB bound under the
+allocation-offset/model-coordinate projection.  The isolated 4-KiB System RAM fragment at
+`0x80000000-0x80000fff` is retained as an explicit exclusion rather than
+silently generalized.  The tool parses and cross-checks the fixed-range table
+and `/proc/iomem` block against its calculation inputs.  It also constructs
+injective and non-injective finite GF(2) completions with the same bank
+projection, proving that the observed bank relation alone does not determine
+complete-coordinate injectivity.
+
+## Result
+
+The canonical public manifest is
+`evidence/manifests/verification-017-protection-bank-granularity-20260827-05.manifest.json`,
+18,108 bytes, mode `0644`, SHA-256
+`97ff68a2f8ebfb6313f228f2626f12f88260764a993f916ba1f97677d7b99f02`.  The
+focused suite is 42/42 PASS; a fresh host publication is byte-identical to the
+canonical manifest.  The full serial repository suite is 1,132/1,132 PASS
+(`skipped=1`) in 113.958 seconds, maximum RSS 278,532 KiB, with zero swap.
+
+`PROVED`: the model-coordinate rank/granularity, source semantic agreement, the
+alignment-sensitive 64/128-KiB covering bounds, the model-projected per-range class histograms,
+and the finite countermodel underdetermination.  `REFUTED` only within those
+declared ranges: a check that observes only post-decode bank class cannot
+separate protected from the explicitly unprotected comparison ranges.
+`SUPPORTED`: the narrow bank-only shape does not explain protection separation,
+leaving checks that retain additional address information as the remaining
+structural possibility.
+`UNKNOWN`: actual enforcement ordering, complete DRAM coordinates, physical
+mapping, PA28+, transform mutability, global writer/register absence, and any
+protected-memory reach or bypass.  Class C remains unchanged.

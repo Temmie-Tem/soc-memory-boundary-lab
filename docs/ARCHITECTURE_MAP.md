@@ -425,8 +425,16 @@ the same selector/cancellation verdicts, and a separate seven-row set agrees
 with model-derived labels 7/7. This supports a rank-three folded selection model
 but does not locate named controller coordinates. Pagemap remains `BLIND`;
 physical PA identity, base/alignment and effective contiguity remain `UNKNOWN`.
-Verification 017 may now be audited separately but is not automatically
-promoted.
+Verification 017 applies the pinned relation to the exact protected carveouts
+and explicitly unprotected System RAM fragments as an
+allocation-offset/model-coordinate projection.  It proves an 8-KiB minimum
+class-change span; a 64-KiB-aligned 64-KiB span covers all eight bank classes,
+while 128 KiB is the arbitrary-base guarantee.  Finite GF(2) countermodels show
+that the observed bank projection admits both injective and non-injective
+complete-coordinate completions.  The narrow bank-only post-decode enforcement
+shape is therefore `REFUTED` as a separator for those projected ranges.  The
+result is a granularity exclusion only: actual protection ordering, complete
+DRAM coordinates, transform mutability and protected reach remain `UNKNOWN`.
 
 Verification 018 supplies a separate, allocation-local live baseline.  The exact
 A90 V2321 runner pins the checked-in probe source, a byte-identical static

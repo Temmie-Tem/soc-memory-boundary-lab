@@ -36,6 +36,7 @@ parent and subsequent repairs add the following evidence and corrections:
 | V015 invariance repair | `1182f12` (source external `05a4c5c`) | Four clean condition comparisons agree on all 51 labels; weak L762 remains `REPEAT_REQUIRED`; the TWRP “5931 cliff” is removed as an unretained environment artifact. |
 | Review response | `787c8b4` (external `4b78b61`) | Seven concrete source/evidence defects are upheld and recorded; the eighth is rejected because it restated an existing UNKNOWN boundary; the 0o644 portability issue is reported but not imported. |
 | V016 high-bit repair | `746def0` | Separate PA25/26/27 model-bit contributions are retained with two-pass consistency and 7/7 held-out model agreement; physical PA/base/contiguity remain UNKNOWN under BLIND pagemap. |
+| V017 granularity audit | current change, live memory-map input and 023R kernel basis semantically pinned | In the retained allocation-offset/model projection, the exact rank-3 relation covers all eight bank classes in a 64-KiB-aligned 64-KiB span (128 KiB arbitrary-base guarantee); the narrow bank-only post-decode enforcement shape is refuted as a separator for the listed protected/unprotected ranges. Countermodels leave complete-coordinate injectivity underdetermined; actual ordering remains UNKNOWN. |
 | 029–034 frontier | integrated in `STATUS.md`, `docs/EXP029_*` through `docs/EXP034_*` | Arithmetic, memory-form, system-control and site-35 bounded models close to 71 `NO_TARGET_WITHIN_MODEL` rows, but dynamic/indirect/runtime writer identity remains UNKNOWN. |
 | New V018 baseline work | current change, live evidence `verification-018-a90-20260827-02` | Strict 190-record allocation-local marker oracle, exact type-10/id-30 `camera_preview` gate, source/binary/build/receipt pins, sidecar transcript checks and synthetic controls are now retained. The live result is `NO_ALIAS` only over 176 exact one-state allocation-offset pairs; pagemap is `BLIND`, so it is not physical alias evidence. |
 
@@ -48,12 +49,15 @@ promote a claim above the exact retained artifact.
 ### 1. Did 029–034 leave a live route to register/writer identification?
 
 **Current answer: SUPPORTED bounded closure, UNKNOWN global closure.**  The
-exact rows in 029–034 report zero bounded DCB-consumer/MC-symbolic-target paths
-where their model can resolve one, and site 35 is now closed inside its guarded
-table model.  The same records explicitly preserve dynamic bases, indirect
-calls, runtime execution/currentness, unsupported instructions and global
-writer identity as `UNKNOWN`.  Therefore the route is not a proved live writer
-path, but it is also not a global absence proof.
+retained 029–034 reviews report zero bounded DCB-consumer/MC-symbolic-target
+paths where their model can resolve one, and site 35 is closed inside its
+guarded table model.  The same records explicitly preserve dynamic bases,
+indirect calls, runtime execution/currentness, unsupported instructions and
+global writer identity as `UNKNOWN`.  Therefore the route is not a proved live
+writer path, but it is also not a global absence proof.  Separately, the parent
+memory-map evidence proves no HLOS grant over the known remapper/BIMC apertures
+and one fixed EL1 load fails; a static writer identification alone would not
+make an aperture reachable.
 
 To falsify this answer, identify an exact, source-pinned path from an executed
 or reachable producer to a ranked MCCC/MC/DDRSS transform-state register,
@@ -63,17 +67,28 @@ not sufficient.
 
 ### 2. Does the V017 post-decode-granularity argument hold?
 
-**Current answer: UNKNOWN / separate audit required.**  V016 now satisfies the
-input dependency gate, but no integrated V017 audit has been accepted.  A bank
-only relation or a diagnostic coordinate model does not establish a complete
-post-transform coordinate, and neither one locates QHEE/TZ/XPU enforcement
-relative to final DRAM decode.  The audit must preserve that distinction and
-must not turn a granularity argument into a physical-isolation proof.
+**Current answer: PROVED only for the narrow bank-only shape in the retained
+model projection; actual ordering remains UNKNOWN.**  The exact pinned V016/023R
+relation has a minimum class-change span of 8 KiB.  A 64-KiB span covers all
+eight classes when aligned to a 64-KiB block;
+for an arbitrary base the conservative guarantee is 128 KiB.  Every listed
+protected carveout and every explicitly unprotected System RAM comparison
+fragment is at least 128 KiB (or aligned), so a check that sees only the
+post-decode bank index cannot separate those ranges.  The corrected result is
+recorded in `verification-017-protection-bank-granularity-20260827-05.manifest.json`
+(18,108 bytes, SHA-256
+`97ff68a2f8ebfb6313f228f2626f12f88260764a993f916ba1f97677d7b99f02`).
 
-To falsify the bounded argument, show from exact retained algebra and address
-domains that the claimed granularity conclusion is invalid, or show a concrete
-post-transform enforcement ordering that changes the implication.  If neither
-is available, retain `UNKNOWN`, not `PROVED`.
+The result does not establish a complete post-transform coordinate, locate
+QHEE/TZ/XPU enforcement relative to final DRAM decode, or prove a mutable
+downstream transform.  Those remain `UNKNOWN`; the result must not be turned
+into a physical-isolation or bypass conclusion.
+
+To falsify the bounded argument, show from the exact retained algebra and
+declared address domains that a listed range fails the eight-class coverage, or
+provide a concrete post-transform enforcement ordering that changes the
+implication.  A complete-coordinate or controller-level claim is not a
+counterexample to this bank-only statement.
 
 ### 3. Do the V018/V019 gates contain a defect?
 
@@ -96,15 +111,16 @@ not device authority.
 
 ### 4. Does any 029–034 result contradict the rank-3 relation?
 
-**Current answer: no contradiction in the retained bounded coordinates;
-physical attribution remains UNKNOWN.**  The 029–034 static results concern
-candidate writer/data-flow paths, not the measured relation’s full physical
-coordinate semantics.  V015 preserves cross-condition label invariance, and
-V016 adds model bits 25–27 with the same rank-three shape in its declared
-allocation-offset/model scope.  None of those facts identifies PA bits, a
-controller register, or a complete DRAM map.
+**Current answer: UNKNOWN until the 029–034 rows are independently audited in
+this line.**  The current handoff does not carry the full raw row set or a
+separate comparison manifest, so it must not count this question as survived by
+concurrence.  V015 preserves cross-condition label invariance, V016 adds model
+bits 25–27 with the same rank-three shape, and V017's source cross-check agrees
+with those equalities; none of those facts is a review of every 029–034 row.
 
-To falsify this answer, provide an exact retained observation or algebraic
+To resolve this question, reparse the exact 029–034 artifacts and compare their
+declared coordinate domain and rank-relevant algebra against the retained
+V015/V016 records.  Provide an exact retained observation or algebraic
 counterexample in the same declared coordinate domain that requires rank four
 or otherwise violates the repaired kernel/match tests.  A different runtime
 environment, a stale unretained sweep, or a semantic guess about one ranked
@@ -117,7 +133,10 @@ claim:
 
 1. **Reachable register identification:** an exact writer path reaches a
    transform-state register through a source-pinned effective address and a
-   testable boot/runtime precondition.
+   testable boot/runtime precondition, **and the aperture is demonstrably
+   reachable from Normal World**.  Identification without a reachable hole is
+   research value, not a security-route reopening.  These may be tracked as
+   1a (identification) and 1b (reachability) if needed.
 2. **Large ordinary-RAM pool:** a reproducible non-secure, physically proved
    contiguous allocation of at least 512 MiB is available with PFN/PTE/SG
    identity and no secure/protected ownership.

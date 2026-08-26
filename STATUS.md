@@ -366,7 +366,24 @@ PASS with hostile-review `PASS`; see the
 [Verification 016 integration review](docs/VERIFICATION016_INTEGRATION_REVIEW_2026-08-27.md).
 
 Class C and numbered Experiments 015/016 eligibility remain unchanged.
-Verification 017 is `UNBLOCKED_FOR_SEPARATE_AUDIT_NOT_PROMOTED`.
+
+Verification 017 has completed the separate host-only post-decode-granularity
+audit.  From the exact pinned 023R/V016 manifests and the live memory-map
+record, the rank-3 model has a minimum class-change span of 8 KiB and reaches all
+eight bank classes in a 64-KiB-aligned 64-KiB span (128 KiB for an arbitrary
+base) under the retained allocation-offset/model projection.  Every listed
+protected carveout and every explicitly unprotected System RAM fragment meets
+that model-projection bound.  Thus a bank-only post-decode check is `REFUTED` as
+a separator for those projected ranges.  Finite GF(2) countermodels prove that
+the bank projection alone does not determine complete-coordinate injectivity.
+The actual protection ordering, complete DRAM coordinate, transform mutability,
+and any bypass remain `UNKNOWN`; this is not a physical alias or Class-D/E
+result.  The canonical public manifest is
+`evidence/manifests/verification-017-protection-bank-granularity-20260827-05.manifest.json`,
+18,108 bytes, SHA-256
+`97ff68a2f8ebfb6313f228f2626f12f88260764a993f916ba1f97677d7b99f02`, mode
+`0644`, with 42 focused / 1,132 full serial tests passing (`skipped=1`, no
+swaps) and no device action.
 
 Verification 018's first parser-only attempt stopped before any target-dependent
 mutation: it retained only `version`/`cmdline` frames because the live version
@@ -397,8 +414,10 @@ twice with `aarch64-linux-gnu-gcc` 15.2.0. Host validation is 28 focused
 tests at this iteration; the independent hostile review's P1s were repaired
 by exact source/binary/build pins, bridge serial binding, strict framing and
 receipt/sidecar checks. Class C remains unchanged. The next discriminator is
-the separate V017 post-decode-granularity audit plus the route-2 challenge in
-`docs/CODEX_HANDOFF_ROUTE2_TERMINATION_2026-08-27.md`.
+the route-2 challenge and its independent response in
+`docs/CODEX_HANDOFF_ROUTE2_TERMINATION_2026-08-27.md` and
+`docs/ROUTE2_TERMINATION_RESPONSE_2026-08-27.md`; V017's audit is complete and
+does not authorize a controller or protection write.
 The detailed integration review is
 `docs/VERIFICATION018_INTEGRATION_REVIEW_2026-08-27.md`.
 
@@ -1091,28 +1110,26 @@ ordering remain `UNKNOWN`, so this is not yet a structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-Verification 016 is complete, and Verification 018 has now supplied the fresh
+Verification 016 is complete, Verification 017 has excluded the narrow
+bank-only enforcement shape, and Verification 018 has supplied the fresh
 allocation-local baseline described above. The highest-information next
-iteration is the separate host-only Verification 017 post-decode-granularity
-audit, paired with the route-2 falsification challenge recorded in
-`docs/CODEX_HANDOFF_ROUTE2_TERMINATION_2026-08-27.md`.
+iteration is the route-2 falsification challenge recorded in
+`docs/CODEX_HANDOFF_ROUTE2_TERMINATION_2026-08-27.md` and answered independently
+in `docs/ROUTE2_TERMINATION_RESPONSE_2026-08-27.md`.
 
 The ordered next step is:
 
-1. audit the external V017 post-decode-granularity argument with the exact
-   retained V016/023R algebra and keep bank-only versus complete-coordinate
-   enforcement separate;
-2. run the route-2 challenge against 029–034, requiring an exact reachable
+1. run the route-2 challenge against 029–034, requiring an exact reachable
    writer/register path before reopening the mutation route;
-3. retain the V018 one-state result only as a storage-identity baseline and do
+2. retain the V017 result as a bank-only shape exclusion and the V018 one-state
+   result only as a storage-identity baseline; do
    not infer physical PA alias, transform immutability or protected reach;
-4. if a reopen condition appears, select a new bounded discriminator and stop
+3. if a reopen condition appears, select a new bounded discriminator and stop
    any endpoint/termination wording.
 
 The completed V018 action wrote only inside its own non-secure allocation and
 did not touch MMIO, SMC, secure heap, protected memory or a partition.
-Verification 017 is now eligible for a separate host-only audit but is not
-promoted; the 020A setter trace remains the host-only fallback. Numbered
+The 020A setter trace remains the host-only fallback. Numbered
 Experiments 015/016 remain `NOT_ELIGIBLE`.
 
 ## N. 가장 위험한 아직 금지된 실험
