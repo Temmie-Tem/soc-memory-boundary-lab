@@ -1,0 +1,125 @@
+{
+ "schema": "a90-bank-relation-encoding-audit-v1",
+ "rows": [
+  "0x009d2000",
+  "0x01a74000",
+  "0x014e8000"
+ ],
+ "row_space": [
+  "0x0074e000",
+  "0x009d2000",
+  "0x00e9c000",
+  "0x013a6000",
+  "0x014e8000",
+  "0x01a74000",
+  "0x01d3a000"
+ ],
+ "targets": {
+  "SHRM_MEM.BIN": {
+   "bytes": 65536,
+   "sha256": "409550ad226443271a39b6bc060f0e8fb3224111cc03f07a6ee563eaa7098bb7"
+  },
+  "abl--sdd8.bin": {
+   "bytes": 4194304,
+   "sha256": "1db19d11a5ce6865e3fbcabadfbdaa9045e75f144b8bc8593a58338c20a3120c"
+  },
+  "aop--sdd7.bin": {
+   "bytes": 524288,
+   "sha256": "eadd6c78daca52221e1e3419f34a53eac7c1e2c2bb46c9b663325df1998b9c7c"
+  },
+  "devcfg--sdd22.bin": {
+   "bytes": 131072,
+   "sha256": "0399578253dd293dfc961c6a1077f660834df3ae5e1d65555f4225e327a03d14"
+  },
+  "hyp--sdd33.bin": {
+   "bytes": 1048576,
+   "sha256": "646f8fca08b0eff56b1d8415d81c3041a775c1871400dc57448cb5103405a8e1"
+  },
+  "tz--sdd5.bin": {
+   "bytes": 4194304,
+   "sha256": "a5e6c574e18e2e576a25df6274b20bdb142386811dfda6383f86d7b1b3c102ab"
+  },
+  "xbl--sdb1.bin": {
+   "bytes": 4194304,
+   "sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37"
+  },
+  "xbl--sdc1.bin": {
+   "bytes": 4194304,
+   "sha256": "ae1191b5d70e6de9fd67c6d629bc93aa567296605d30b5c9196ff58fcc26cb50"
+  },
+  "xbl_config--sdb2.bin": {
+   "bytes": 4149248,
+   "sha256": "0e9dfac1ddd0f9acc2cc899213e621490308f0cadf329814048edb7712e2484c"
+  },
+  "xbl_config--sdc2.bin": {
+   "bytes": 4149248,
+   "sha256": "1b34aaaab314d22eaf25e0efa708df96dba9a3ecf731fde2461efdb214c1bb24"
+  }
+ },
+ "register_count": 494,
+ "nonzero_register_count": 274,
+ "literal": {
+  "hits": [
+   {
+    "target": "tz--sdd5.bin",
+    "mask": "0x009d2000",
+    "file_offset": "0x18c749",
+    "aligned_u32": false
+   },
+   {
+    "target": "tz--sdd5.bin",
+    "mask": "0x01a74000",
+    "file_offset": "0x337",
+    "aligned_u32": false
+   }
+  ],
+  "count": 2
+ },
+ "chance_baseline": {
+  "trials": 200,
+  "decoy_hits": 132,
+  "hits_per_mask": 0.66,
+  "expected_for_real_masks": 4.62
+ },
+ "literal_verdict": "BELOW_CHANCE",
+ "register_mask": [],
+ "register_index_encoding": [],
+ "adjacent_triple": [],
+ "legacy_comparison": {
+  "legacy_targets": [
+   "0x003a6000",
+   "0x004e8000",
+   "0x0074e000",
+   "0x009d2000",
+   "0x00a74000",
+   "0x00d3a000",
+   "0x00e9c000"
+  ],
+  "current_targets": [
+   "0x0074e000",
+   "0x009d2000",
+   "0x00e9c000",
+   "0x013a6000",
+   "0x014e8000",
+   "0x01a74000",
+   "0x01d3a000"
+  ],
+  "shared": [
+   "0x0074e000",
+   "0x009d2000",
+   "0x00e9c000"
+  ],
+  "legacy_only_never_in_relation": [
+   "0x003a6000",
+   "0x004e8000",
+   "0x00a74000",
+   "0x00d3a000"
+  ],
+  "current_only_never_searched": [
+   "0x013a6000",
+   "0x014e8000",
+   "0x01a74000",
+   "0x01d3a000"
+  ]
+ }
+}
