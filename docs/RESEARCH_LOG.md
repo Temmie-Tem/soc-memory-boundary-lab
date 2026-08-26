@@ -1405,15 +1405,87 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
 8. `PASS`: Experiment 031 narrows the bounded 027 frontier only. The 51-site
    result depends on the combined scalar and dispatch-repair model and must
    never be described as scalar-only closure or writer/consumer absence.
-   The next non-overlapping host-only selection is Experiment 032 at `82/100`:
-   official-source qualification and bounded semantics for exact reached
-   `MADD/UMADDL` plus `EOR/BIC` arithmetic blockers. The 10 reached
-   `THREE_SOURCE` events are at sites 35/36/37/56; `EOR` has two events at
-   sites 36/37; `BIC` has two at sites 1/52. Site 35's indirect branch and
-   site 56's pair remain fail-closed. Pair-memory remains later because 38 of
-   its 41 events are `LDP` and most of the remainder are SP epilogues, while
-   arithmetic directly forms indexes/addresses in high-value runtime-alias/
-   hash-like contexts.
+   Experiment 032 was selected at `82/100` for official-source qualification
+   and bounded semantics for exact reached `MADD/UMADDL` plus `EOR/BIC`
+   arithmetic blockers; it is completed and integrated in the following
+   entry. The 10 reached `THREE_SOURCE` events are at sites 35/36/37/56;
+   `EOR` has two events at sites 36/37; `BIC` has two at sites 1/52. Site
+   35's indirect branch and site 56's pair remain fail-closed. Pair-memory was
+   deferred because 38 of its 41 events are `LDP` and most of the remainder
+   are SP epilogues, while arithmetic directly forms indexes/addresses in
+   high-value runtime-alias/hash-like contexts.
 9. External Claude Experiments 028 and 030 remain outside this integration and
    unreviewed here. No result, score, authority, review, or commit from either
    is integrated or claimed.
+
+## 2026-08-26 — Experiment 032 arithmetic-frontier integration
+
+1. Integrated host-only, read-only Experiment 032 from artifact commit
+   `d46c44c`, immediately after docs commit `e063181`. No device, USB, SMC,
+   MMIO, normal-RAM, protected-memory, boot, activation, or write action
+   occurred. Class C remains `TRANSFORM ONLY`; Experiments 015/016 remain
+   `NOT ELIGIBLE`.
+2. `PROVED`: the exact XBL input remains `xbl--sdb1.bin`, 4,194,304 bytes,
+   SHA-256 `e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37`.
+   Exact 031/029/027 source and public-manifest identities were checked before
+   dependency import. Arithmetic admission is qualified against Arm's primary
+   A64 source DDI0602 (ID092025), version 2025-09, PDF SHA-256
+   `683025f0460c8af8d6711b764c5c4d51d1b56f38d78b618e6cb27d9abf4c853f`.
+3. The added source-qualified forms are modulo-width `MADD` (page 539),
+   `UMADDL` (page 873), shifted `EOR` (page 354), and shifted `BIC` (page 62).
+   The three-source mask is `0x7FE08000`; reserved selectors and MSUB,
+   SMADDL/SMSUBL, and UMSUBL are rejected. Operands read pre-state, `Rd=31`
+   discards to ZR, and only exact address-accumulator identities preserve an
+   address origin. Pointer transforms, pair/sign-extending memory,
+   system/control, indirect branches, and unknown forms remain fail-closed.
+4. `PROVED`: the selected membership is exactly 298 occurrences / 175 unique
+   VAs / 162 unique raw words across the 71 exact 029 ranges. It retains the
+   031 domain (283 / 160 / 148) and adds 15 arithmetic rows across seven sites
+   (15 / 15 / 14); 264 selected events are reached and 34 are selected-not-
+   reached. The reached arithmetic identity is 14 events: `MADD` 3,
+   `UMADDL` 7, `EOR` 2, and `BIC` 2.
+5. The inherited 031 full-record equivalence is exact for 250 reached scalar
+   extension events, 143 direct-control events, and 23 reached taint-kill
+   events. The combined v3 model transitions 55 of 71 baseline sites to
+   bounded `NO_TARGET_WITHIN_MODEL`; 16 remain `INDIRECT_OR_UNSUPPORTED`.
+   Relative to 031, sites 1, 36, 37, and 52 transition, 51 remain no-target,
+   and zero regressions occur. Zero `DCB_CONSUMER_PATH` and zero
+   `MC_OR_SHRM_SYMBOLIC_TARGET` paths are promoted.
+6. The residual syntactic frontier is exactly 54 occurrences / 44 unique VAs /
+   35 unique raw words across 15 sites: `PAIR_MEMORY` 48,
+   `SIGN_EXTENDING_MEMORY` 2, and `SYSTEM_CONTROL` 4. Range membership is
+   not CFG reachability; the result is `V3_MODEL_ONLY` and
+   `NO_ABSENCE_CLAIM`. Runtime execution/order, current destination, physical
+   destination, global consumer/writer identity, writability, aliases, and
+   `writer_absence` remain `UNKNOWN`.
+7. Final artifact pins are tool 127,151 bytes / SHA-256
+   `d4233d08ebe3c28cf803f5e9e1e564f1d9e40af12eca85498d23e569821219e2`, tests
+   22,710 bytes / SHA-256
+   `8bb006cb409235bff0b5a2d2fe2a00cae389eb5253124fcd580bb7713df4d3ad`,
+   Experiment README 6,484 bytes / SHA-256
+   `20292544e84c5a30876856043287cf6b712642309a6ccd7cfb3fa21702da7573`, and
+   checked manifest 1,564,295 bytes / mode `0644` / SHA-256
+   `beee3cdaa7d69f240310bed8b574f8dd81b00b48c2383f48dd849ebd36fb4b31`.
+8. Validation is 18 focused PASS (maximum RSS 58,388 KiB, no swaps), 670
+   full-discovery unittest PASS in 84.937 s (maximum RSS 233,928 KiB,
+   swaps 0), Python byte-compilation, 70 public JSON manifests, two fresh
+   generations byte-identical to the checked manifest, exact-word QEMU 56/56,
+   synthetic QEMU 76/76, logical/three-source encoding grids totaling
+   1,152/1,152, and final independent
+   hostile review `PASS`. The durable review is
+   `docs/EXP032_INTEGRATION_REVIEW_2026-08-26.md`.
+9. `PASS`: Experiment 032 is integrated as a deterministic bounded arithmetic
+   extension only. The next non-overlapping host-only selection is Experiment
+   033 at `87/100`: source-qualify and model 41 reached `PAIR_MEMORY` events
+   across 13 sites (38 `LDP`, 3 `STP`; 34 SP-based `LDP`), two sign-extending
+   loads across two sites, and one `DAIFClr` system-control event spanning the
+   15-site residual and 16-site fail-closed set. `STP` must be represented as
+   two explicit store observations; unpredictable, overlap, and writeback forms
+   remain fail-closed, as does site 35's indirect/runtime alias.
+10. Experiment 033 outranks live capture and withheld 023R because it closes a
+    concrete reached residual from existing exact host inputs without a new
+    device gate. Experiment 023R remains withheld because its timing protocol
+    is not comparable to 014, physical-allocation PA provenance is missing,
+    and the full GF(2) matrix is non-unique. External Claude Experiments 028
+    and 030 remain outside and unreviewed; no result, score, authority, review,
+    or commit from either is integrated or claimed.

@@ -356,13 +356,35 @@ SHA-256 `51a187195c16eb609d337305540fc6d20a09297f5ab76b054497c5c58c3a2e86`.
 See the
 [Experiment 031 integration review](docs/EXP031_INTEGRATION_REVIEW_2026-08-26.md).
 
-The next non-overlapping host-only selection is Experiment 032, scored
-`82/100`: qualify an official source and apply bounded semantics to the exact
-reached `MADD/UMADDL` plus `EOR/BIC` arithmetic frontier. Pair-memory remains a
-later candidate because 38 of its 41 events are `LDP` and most of the rest are
-SP epilogues, while arithmetic directly forms indexes/addresses in high-value
-runtime-alias/hash-like contexts. Site 35's indirect branch and site 56's pair
-remain fail-closed; no device authority is selected.
+Experiment 032 is `COMPLETED` and integrated from artifact commit `d46c44c`
+after docs commit `e063181` as a host-only, read-only source-qualified
+arithmetic extension. It retains the exact 031 scalar-plus-dispatch semantics
+and adds only Arm-qualified `MADD/UMADDL`, shifted `EOR`, and shifted `BIC`.
+The combined selection is 298 occurrences / 175 unique VAs / 162 unique words,
+reaches 264 selected events (34 selected-not-reached), and adds 15 arithmetic
+rows across seven sites (14 reached: `MADD` 3, `UMADDL` 7, `EOR` 2, `BIC` 2).
+The bounded result transitions 55 of 71 baseline sites to
+`NO_TARGET_WITHIN_MODEL`; 16 remain `INDIRECT_OR_UNSUPPORTED`. Relative to
+031, sites 1, 36, 37, and 52 transition with zero regressions. The residual
+is 54 occurrences / 44 unique VAs / 35 unique words across 15 sites:
+`PAIR_MEMORY` 48, `SIGN_EXTENDING_MEMORY` 2, and `SYSTEM_CONTROL` 4.
+The inherited 031 full-record equivalence is exact for 250 scalar events,
+143 direct-control events, and 23 taint-kill events. Zero DCB-consumer and
+MC/SHRM symbolic-target paths are promoted; writer absence and current
+destination remain `UNKNOWN`. Validation and artifact pins are recorded in the
+[Experiment 032 integration review](docs/EXP032_INTEGRATION_REVIEW_2026-08-26.md).
+
+The next non-overlapping host-only selection is Experiment 033, scored
+`87/100`: source-qualify and model the exact remaining reached residual of 41
+`PAIR_MEMORY` events across 13 sites (38 `LDP`, 3 `STP`; 34 SP-based `LDP`),
+two sign-extending loads across two sites, and one `DAIFClr` system-control
+event across the 15/16-site fail-closed boundary. `STP` must be modeled as two
+explicit store observations, and unpredictable, overlap, and writeback forms
+must remain fail-closed; site 35's indirect/runtime alias remains fail-closed.
+This outranks live capture and withheld 023R because it closes a concrete,
+reached residual using existing exact host inputs without a new device gate;
+023R still lacks comparable timing, PA provenance, and a unique full GF(2)
+matrix. No device, MMIO, write, or live authority is selected.
 
 External Claude Experiments 028 and 030 remain outside this integration and
 unreviewed here. No result, score, authority, review, or commit from either is
