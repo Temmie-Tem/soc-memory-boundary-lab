@@ -28,7 +28,10 @@ Class remains `C (TRANSFORM ONLY)`. Experiments 015 and 016 remain
 
 ## Withheld and next stage
 
-Experiment 023 is explicitly `WITHHELD/NO-GO`, not integrated and not public.
+At this review's integration boundary, Experiment 023 was explicitly
+`WITHHELD/NO-GO` and not public. A later external-line reconciliation retains
+its audit artifact as merge-history evidence without promoting it; Experiment
+023R is the separately repaired result.
 Its protocol is not comparable to Experiment 014 (fixed order, half warmup,
 `ISB`, summed reopen without `/2`); physical allocation PA provenance is
 missing, so a `+0x1000` countermodel fits the labels; and the full GF(2)

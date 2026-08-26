@@ -15,7 +15,7 @@
 | 011 | Exact XBL exposes a PA-to-DRAM-coordinate model and selected DCB section 16 identifies candidate controller state. | A real DDR failure path computes rank/row/bank/channel/column; section tokens match SHRM-visible MCCC/MC pages. | Three exact SHA-256 pins, bounded function/word hashes, inverse-coordinate control, structural two-set parser, no device/SMC/MMIO. | `PROVED`: the diagnostic formula is linear, complete and bijective with no XOR/alias; section tokens match five controller families. Experiment 014 later `REFUTED` it as the complete silicon bank map; token semantics remain `UNKNOWN`. |
 | 012 | Exact SHRM section-16 consumer establishes token scaling and direction. | Xtensa helper computes controller addresses and stages reads/writes according to a direction argument; exact callsites reveal the observed mode. | Exact XBL/SHRM blob hashes, parser/callsite fingerprints, offset formula, capacity/count checks, no device/SMC/MMIO. | `PROVED`: `(base_page<<12)+(offset<<2)`; both direct consumers pass read direction and produce 430/64 snapshot reads. Section-16 write primitive `REFUTED` for observed paths; runtime values/locks/indirect paths `UNKNOWN`. |
 | 013 | Does either exact TZ branch grant HLOS access to the SHRM snapshot workspace? | Every covering policy region can be resolved and permission-decoded; a fixed snapshot word can then be tested with a paired no-load control. | Exact TZ hash, complete `0xf00` range, both selector branches, candidates differing by one instruction, no retry/address/write input, verified V2321 rollback. | `PROVED`: three TZ-owned regions per branch exclude HLOS; no-load control returned `0xc071`; one-load read returned no value and retained `Non Secure Watchdog Bark`/`TZBSP_ERR_FATAL_NON_SECURE_WDT`. Direct EL1 path `REFUTED`; XPU root cause `SUPPORTED`; no bypass. |
-| 014 | Normal-RAM bank/channel relationships fit a stable GF(2) model not already explained by the exact diagnostic formula. | XOR-difference row-reopen timing recovers the selector kernel; row-bit relations and held-out combinations must agree while one-bank-bit perturbations leave the class. | Exact non-secure single-SG ION CMA PA binding; write-combine mapping; symmetric reopen/baseline directions; 64 PA pairs; 1001 repetitions; same-row, held-out and one-bit controls; CPU/DDR pinning. | `PROVED`, observed low-24 scope: row bits 16..23 contribute XOR terms to the rank-five selection space; PA9/PA10 independence `SUPPORTED`; diagnostic no-XOR bank formula `REFUTED` as complete silicon mapping. No complete-coordinate alias, mutation or bypass. |
+| 014 | Normal-RAM bank/channel relationships fit a stable GF(2) model not already explained by the exact diagnostic formula. | XOR-difference row-reopen timing recovers the selector kernel; row-bit relations and held-out combinations must agree while one-bank-bit perturbations leave the class. | Exact non-secure single-SG ION CMA PA binding; write-combine mapping; symmetric reopen/baseline directions; 64 PA pairs; 1001 repetitions; same-row, held-out and one-bit controls; CPU/DDR pinning. | `PROVED`, direct observed low-24 scope: row bits 16..23 contribute the rank-three bank/model relation and held-out controls agree; the diagnostic no-XOR bank formula is `REFUTED` as the complete silicon map. Experiment 030 later `REFUTED` the historical inference that PA9/PA10 class departure proves independent channel selectors; their physical roles remain `UNKNOWN`. No complete-coordinate alias, mutation or bypass. |
 | 015 | A controlled transform state creates physical-to-DRAM alias. | `PA_A != PA_B` but writes through one are observed through the other after cache-neutral independent reads. | Prove distinct PTE/PAs; CPU and DMA controls; cache maintenance; reboot/state restoration; unchanged-state negative control. | `NOT ELIGIBLE`: candidate tokens exist, but operation semantics, readback/lock state, safe restore, and an alias-producing state are not proved. |
 | 016 | A normal-RAM alias reaches a protected boundary. | Only after 015, a minimal non-secret marker/boundary test differs between normal and alias path. | No dump, exact ordering proof, secondary enforcement control. | `NOT ELIGIBLE`. |
 | 017 | Does exact XBL expose a table-driven MC read-copy path that independently covers the ranked MC candidates? | The pinned u64 table parses to 122 entries plus a zero terminator; the exact helper's static flow conditionally loads each table-derived address and stores results to a distinct buffer. | Exact XBL size/hash, PT_LOAD mapping, inclusive table/helper hashes, AArch64 word pins, direct-BL scan limited to file-backed executable PT_LOADs, SHRM-plan address-list cross-check; host-only, no device/SMC/MMIO. | `PROVED`: 30×4 MC groups + 2 globals, all 12 qhs_mc candidates covered, helper read-copy store-base dataflow, exactly two direct BL callsites. `REFUTED`: helper as candidate-register writer and independent hard 122-entry cap. Runtime completion/coherence/currentness, mutable table state, indirect reachability and writer semantics `UNKNOWN`; 015/016 remain `NOT ELIGIBLE`. |
@@ -36,8 +36,21 @@
 | 029 | What exact instruction forms remain outside the 027 decoder in its fail-closed ranges? | `PROVED`: the 71 ranges contain 1,992 occurrences / 1,180 unique VAs; the unsupported frontier is 352 occurrences / 219 unique VAs / 197 unique words. Primary counts are `DECODER_EXTENSION_CANDIDATE` 161, `FLAG_ONLY_NO_GPR_DEF` 99, `TAINT_KILL_REQUIRED` 27, `CONTROL_OR_MEMORY_UNSUPPORTED` 54, and `UNKNOWN` 11. | `BOUNDED_UNSUPPORTED_FRONTIER_INVENTORY_UNKNOWN`: syntactic range membership is not CFG reachability; source provenance, decoder safety, runtime destination, consumer/writer identity, and writer absence remain `UNKNOWN`/`NOT_CLAIMED`. Host-only, no device/MMIO/write action. |
 | 031 | Can a source-qualified scalar-plus-dispatch v2 pass reduce the exact 029 frontier without promoting a consumer or writer? | `PROVED`: selected membership is 283 occurrences / 160 unique VAs / 148 unique words, with 250 reached selected events, 33 selected-not-reached occurrences, zero family/label mismatches, and zero events outside the selected domain. The residual is 69 occurrences / 59 unique VAs / 49 unique words across 20 sites. The combined model transitions 51 of 71 sites to bounded `NO_TARGET_WITHIN_MODEL`; 20 remain `INDIRECT_OR_UNSUPPORTED`. `DIRECT_CONTROL_DISPATCH_REPAIR` contributes 143 events across 62 sites (`B.cond` 87, `CBZ/CBNZ` 28, `B` 15, `TBZ/TBNZ` 13); with repair sites split 48 no-target/14 fail-closed, without it 3/6. | `V2_MODEL_ONLY` / `NO_ABSENCE_CLAIM`: the 51 result depends on combined scalar and dispatch repair, not scalar-only closure. Pair/sign-extending memory, system/control, three-source, `BIC`/`EOR`, indirect aliases and unsafe forms remain fail-closed; zero `DCB_CONSUMER_PATH` and zero `MC_OR_SHRM_SYMBOLIC_TARGET`. Runtime destination, writer/consumer identity, execution/order, alias, writability and live authority remain `UNKNOWN`. |
 | 032 | Can source-qualified arithmetic semantics reduce the exact reached 031/029 frontier without promoting a consumer or writer? | `PROVED`: the combined selection is 298 occurrences / 175 unique VAs / 162 unique words across 71 ranges, with 264 reached selected events and 34 selected-not-reached occurrences. The arithmetic extension contributes 15 selected rows across 7 sites and 14 reached events (`MADD` 3, `UMADDL` 7, `EOR` 2, `BIC` 2). The result transitions 55/71 sites to `NO_TARGET_WITHIN_MODEL`; 16 remain `INDIRECT_OR_UNSUPPORTED`; relative to 031, sites 1/36/37/52 transition with zero regressions. The residual is 54 occurrences / 44 unique VAs / 35 unique words across 15 sites (`PAIR_MEMORY` 48, `SIGN_EXTENDING_MEMORY` 2, `SYSTEM_CONTROL` 4). | `V3_MODEL_ONLY` / `NO_ABSENCE_CLAIM`: exact full-record equivalence preserves 250 scalar, 143 direct-control, and 23 taint-kill 031 events. Qualified arithmetic is modulo-width and identity-limited; pair/sign-extending memory, system/control, indirect aliases, reserved/unknown forms remain fail-closed. Zero `DCB_CONSUMER_PATH` and zero `MC_OR_SHRM_SYMBOLIC_TARGET`; current destination, writer absence, execution and live authority remain `UNKNOWN`. Host-only, no device/MMIO/write action. |
-
 | 033 | Can source-qualified pair-memory, sign-extending-memory, and system-control semantics reduce the exact residual left by Experiment 032 without promoting a consumer or writer? | `PROVED`: the complete 029 frontier is selected as 352 occurrences / 219 unique VAs / 197 unique words; 308 selected events are reached and 44 selected occurrences are not reached. The new residual admission is 44 events: `LDP` 38, `STP` 3, `LDRSW` 1, `LDRSB` 1, and `DAIFClr` 1. Three `STP` instructions publish six explicit lane observations. The bounded site outcome is 70 `NO_TARGET_WITHIN_MODEL` / 1 `INDIRECT_OR_UNSUPPORTED`, with site 35 remaining unresolved. | `V4_MODEL_ONLY` / `NO_ABSENCE_CLAIM`: inherited 032 full-record equality is exact for 264 extension, 143 direct-control, and 23 taint-kill events. Zero bounded `DCB_CONSUMER_PATH` and `MC_OR_SHRM_SYMBOLIC_TARGET`; global writer/current destination/protected-memory semantics and `DAIFClr` current-EL/`CheckDAIFAccess` remain `UNKNOWN`. Host-only, no device/MMIO/write action; Class C and 015/016 eligibility unchanged. |
+| 034 | Does site 35's exact guarded jump table resolve the final Experiment 033 fail-closed edge without promoting a consumer or controller target? | `PROVED`: contiguous `LDR W9`/`CMP W9,#4`/`B.HI`/`ADRP+ADD`/indexed `LDR X1`/`BR X1` dispatch, table `0x14824cf0`, five entries and four unique mapped local targets. Four independent in-memory direct-edge runs are CFG-complete with no unsupported form. The composed result is 71 `NO_TARGET_WITHIN_MODEL` / zero fail-closed sites, with exactly one transition from 033 and no regression. | `BOUNDED_STATIC_RESOLUTION_ONLY` / `NO_ABSENCE_CLAIM`: baseline 033 site records remain verbatim; zero bounded consumer/controller targets are promoted. External/unmodeled entries, runtime `BR`/direct-`B` equivalence, execution/index/table contents, current destination, writer/consumer absence and security effect remain `UNKNOWN`. Host-only; Class C and 015/016 eligibility unchanged. |
+
+## Reconciled external A-line and repaired runtime evidence
+
+| ID | Question | Bounded result | Classification and boundary |
+|---:|---|---|---|
+| 019A | Do selected DCB regions contain pair-array shapes compatible with later register programming? | `PROVED`: exact syntactic pair arrays and their bounded materialization forms are inventoried. | Candidate shapes are not register-table semantics. Implicit bases, consumers, runtime destinations and writers remain `UNKNOWN`. |
+| 020A | Do selected XBL literal and local consumer models identify a controller setter? | `PROVED`: bounded literal/cross-reference and conditional setter-idiom results for the named sites. | The largest RWE segment is only a candidate DDR segment. Alternative pointer forms, encodings, runtime base arguments and writer identity remain `UNKNOWN`; Experiment 018 is not generally invalidated. |
+| 021A | Do direct bounded-copy calls establish DCB-section delivery? | `PROVED`: seven direct `BL` and zero direct `B`; two calls have no local DCB-section label. | Local labelled delivery is bounded evidence only. Other-section, global and indirect delivery remain `UNKNOWN`; global absence is not claimed. |
+| 022A | Are the two retained address-observation channels complete? | `REFUTED`: known address `0x09248080` is outside both enumerated channels. | Channel density is descriptive only. Implemented-register coverage and unobserved addresses remain `UNKNOWN`. |
+| 023R | Does a repaired second-region timing protocol recover the same relation beyond Experiment 014's allocation window? | `PROVED` in allocation-offset/model coordinates: 66 summaries/58 unique differences, threshold 359 with empty gap 182..537, a unique rank-three kernel, and bit-24 contribution `0b110`. | Physical PA24/rank/model-base attribution is `SUPPORTED_WITHIN_MODEL` under contiguous-qsecom plus Experiment-014-relation assumptions. All pagemap records are `BLIND`; effective contiguity, alias, mutation and protected reach remain `UNKNOWN`/not observed. |
+| 028 | Do the 023R numeric covectors appear in the decoded SHRM register snapshot under tested encodings? | `PROVED`: seven numeric model covectors; zero register-mask/index/triple matches among 494 decoded registers/274 nonzero. Two tested firmware literal hits are unaligned chance matches; the 200-decoy baseline averages 0.66 hits per mask. | Negative scope is only the observed register set and tested encodings; physical-bank attribution is `SUPPORTED_WITHIN_MODEL`. Derived state, writer and runtime mutation remain `UNKNOWN`. |
+| 029A | Can exact ABL be reproducibly extracted and searched for the bounded controller/model encodings? | `PROVED`: deterministic flat extraction of the exact ABL payload and zero exact stored controller-base, model-mask and tested adjacent-triple hits; exact diagnostic-string counts are retained. | PE32 execution/disassembly, computed values, controller participation/writes, SMEM value and live DT are `UNKNOWN`/`UNRETAINED_UNKNOWN`. |
+| 030 | Do retained low-bit timing phases prove PA9/PA10 are independent channel selectors? | `REFUTED` within the measured reopen model: upward departure from conflict does not prove an independent channel selector. Complete spread-mode triplets for PA9/PA10 and stride-mode PA9 are `SATURATING`; stride-mode PA10 is `INCOMPLETE`. | Whether PA9/PA10 jointly contribute channel, rank, bank group or another coordinate remains `UNKNOWN`; no phase is merged by filename/order. |
 
 The integrated results remain `CLASS C (TRANSFORM ONLY)`, with Experiments 015
 and 016 `NOT ELIGIBLE`. Experiment 027 validation is 35 focused and 616 full
@@ -68,24 +81,28 @@ independent hostile review
 [EXP032_INTEGRATION_REVIEW_2026-08-26.md](EXP032_INTEGRATION_REVIEW_2026-08-26.md).
 The checked 032 public manifest is 1,564,295 bytes, mode `0644`, SHA-256
 `beee3cdaa7d69f240310bed8b574f8dd81b00b48c2383f48dd849ebd36fb4b31`.
-Experiment 023 is `WITHHELD/NO-GO`, not integrated or public. Its protocol is
-not comparable to 014, physical-allocation PA provenance is missing, the full
-GF(2) matrix is non-unique, and `PA24=b1^b2` is `SUPPORTED` only. Experiment
-033 is now `COMPLETED` and integrated from artifact commit `56b5ffa`; its
+The historical Experiment 023 result remains `WITHHELD/NO-GO`; its public
+manifest is retained for audit but it is not promoted. Experiment 023R is the
+separate repaired model result and carries the coordinate/provenance limits in
+the table above. Experiment 033 is `COMPLETED` and integrated from artifact commit `56b5ffa`; its
 public manifest is 2,017,356 bytes, mode `0644`, SHA-256
 `606723e5125d661c800b167133f2a9b69a3b8d47361b39176665a49be539e598`.
 Validation is 15 focused / 685 full unittest PASS, full maximum RSS
 253,944 KiB with zero swap, byte-identical fresh publications, and independent
-hostile review `PASS` with no P0-P2 findings. The next non-overlapping
-host-only selection is Experiment 034. Current site-35 jump-table evidence is
-`HYPOTHESIS`, not closure: `BR X1` at `0x1484fa08`, table base `0x14824cf0`,
-`CMP W9,#4` plus `B.HI` at `0x1484f9f4/0x1484f9f8`, and
-`LDR X1,[X5,X9,LSL#3]` at `0x1484fa04`; the five local entries are
-`0x1484fa3c`, `0x1484fa50`, `0x1484fa88`, `0x1484fa0c`, and `0x1484fa0c`.
-Only a pinned tool and tests can reclassify site 35. Experiment 034 remains
-host-only and non-overlapping with external Claude Experiments 028/030, which
-remain outside and unreviewed here; no result, score, authority, review, or
-commit from either is claimed or integrated.
+hostile review `PASS` with no P0-P2 findings. Experiment 034 is completed in
+artifact commit `d5d8046`: its guarded table has five entries/four unique local
+targets, all four bounded direct-edge runs are CFG-complete, and the composed
+outcome is 71 `NO_TARGET_WITHIN_MODEL` / zero fail-closed sites. Validation is
+14 focused and 699 full unittest PASS; the final hostile review is `PASS` after
+a `CMP W` width-mask repair. Runtime equivalence, execution, current table
+contents/destination, global absence and security effect remain `UNKNOWN`.
+
+External parent `247b0e1` is reconciled after phase-preserving 030 repair,
+bounded 019A–023R claims, reproducible 029A extraction, corrected
+IDs/commands/hashes, primary verification and independent hostile review.
+Later moving-branch commits through observed `c91f473` are excluded. The next
+selection is a separate commit-pinned repair/audit of Verification-015 runtime-
+invariance evidence; Experiment 035 remains deferred.
 
 The Stage 2E row's writeback result is an exact audit of all recognized
 single/pair memory-writeback forms: four sites per function (two SP frame
@@ -1114,18 +1131,18 @@ preserve the already allocated Experiment 014–016 sequence.
   integration-doc review is `PASS` in
   [EXP026_INTEGRATION_REVIEW_2026-08-26.md](EXP026_INTEGRATION_REVIEW_2026-08-26.md).
 
-## Integration validation and withheld Experiment 023
+## Integration validation and current reconciliation
 
 Independent Experiment 026 integration validation is 25 focused and 581 full
 repository unittest PASS, Python byte-compilation, public JSON safety,
 byte-identical regeneration, manifest mode `0644`, and exact-XBL/final decoder
 hostile-review PASS results recorded in
 [EXP026_INTEGRATION_REVIEW_2026-08-26.md](EXP026_INTEGRATION_REVIEW_2026-08-26.md).
-Experiment 023 is explicitly
-`WITHHELD/NO-GO`, not integrated or public: its timing protocol is not
-comparable to 014, physical-allocation PA provenance is missing, the full
-GF(2) matrix is non-unique, and `PA24=b1^b2` is `SUPPORTED` only. Raw evidence
-remains private. Experiment 027 is now completed and integrated: its bounded
+The historical Experiment 023 result remains explicitly `WITHHELD/NO-GO` and
+is not promoted; its audit manifest is retained while raw evidence stays
+private. Repaired Experiment 023R instead proves only allocation-offset/model
+algebra and supports physical PA attribution within stated assumptions.
+Experiment 027 is completed and integrated: its bounded
 73-site census returns 71 `INDIRECT_OR_UNSUPPORTED`, 2
 `NO_TARGET_WITHIN_MODEL`, zero `DCB_CONSUMER_PATH`, and zero
 `MC_OR_SHRM_SYMBOLIC_TARGET`; exact inputs, exclusions, artifact pins, and
@@ -1136,14 +1153,11 @@ recorded in their integration reviews. Experiment 033 is the v4 residual
 extension from commit `56b5ffa`: 352 selected occurrences / 219 unique VAs /
 197 unique words, 308 reached events, 44 selected-not-reached, 44 new events
 (`LDP` 38, `STP` 3, `LDRSW` 1, `LDRSB` 1, `DAIFClr` 1), six explicit STP lane
-observations, and a 70/1 bounded site split with site 35 still indirect.
-The next non-overlapping host-only selection is Experiment 034. Its current
-site-35 jump-table reconstruction is `HYPOTHESIS`, not closure: `BR X1` at
-`0x1484fa08`, candidate table base `0x14824cf0`, guarded index via
-`CMP W9,#4` + `B.HI` at `0x1484f9f4/0x1484f9f8`, load at `0x1484fa04`, and
-five local entries `0x1484fa3c`, `0x1484fa50`, `0x1484fa88`, `0x1484fa0c`,
-`0x1484fa0c`. Only a pinned tool and tests may reclassify site 35. External
-Claude Experiments 028 and 030 remain outside and unreviewed here; no result,
-score, authority, review, or commit from either is claimed.
-External Claude Experiments 028 and 030 remain outside and unreviewed here; no
-result, score, authority, review, or commit from either is claimed.
+observations, and a 70/1 bounded site split that Experiment 034 subsequently
+closes to 71/0 inside the static model. Exact external parent `247b0e1` is now
+reconciled for 019A–023R/028/029A/030 with the bounded rows above, 296 focused
+and 995 full tests, byte-identical fresh publications and hostile-review
+`PASS`. Later commits through observed `c91f473`, including Verification 015,
+remain outside this integration. The next iteration is a commit-pinned
+Verification-015 provenance and analysis repair, not a wholesale moving-tip
+merge.

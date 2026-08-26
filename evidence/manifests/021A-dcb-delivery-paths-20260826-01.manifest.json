@@ -1,0 +1,336 @@
+{
+ "abl_searchability": {
+  "aarch64_ret_count": 0,
+  "aligned_aarch64_ret_count": 0,
+  "artifact_name": "abl--sdd8.bin",
+  "artifact_sha256": "1db19d11a5ce6865e3fbcabadfbdaa9045e75f144b8bc8593a58338c20a3120c",
+  "artifact_size": 4194304,
+  "available": true,
+  "classification": "UNPARSED_HIGH_ENTROPY_UEFI_FV",
+  "elf_class": 32,
+  "entropy_at_or_above_threshold": true,
+  "entropy_sample_size": 1048576,
+  "entropy_scope": "first 1048576 payload bytes",
+  "entropy_threshold_bits_per_byte": 7.9,
+  "firmware_volume_parse": "NOT_PERFORMED",
+  "fvh_marker_offset": "0x28",
+  "fvh_marker_present": true,
+  "payload_entropy_bits_per_byte": 8.0,
+  "payload_size": 2293760,
+  "program_headers": [
+   {
+    "file_size": 148,
+    "type": 0,
+    "vaddr": "0x00000000"
+   },
+   {
+    "file_size": 6712,
+    "type": 0,
+    "vaddr": "0x9fc30000"
+   },
+   {
+    "file_size": 2293760,
+    "type": 1,
+    "vaddr": "0x9fa00000"
+   }
+  ],
+  "reason": "HIGH_ENTROPY_UEFI_FV_REQUIRES_PARSING: compression and literal searchability are UNKNOWN; a literal-absence result is void",
+  "searchability": "UNKNOWN",
+  "searchable": null
+ },
+ "bounded_copy_probe_sha256": "9cf4ae37942180041e4cbb78c3a1d91a877a5ac732e6099f6224ef7fc6ca6c14",
+ "claim_scope": "Delivery conclusions are limited to the pinned bounded-copy routine and its direct BL/B census in the exact XBL.",
+ "claims": {
+  "HYPOTHESIS": [],
+  "PROVED": [
+   "The exact XBL has seven direct BL edges to the pinned bounded-copy routine and zero direct B edges to it.",
+   "Under the local directory-read label model, five direct BL sites are labelled with sections exactly {0, 1, 2, 15, 16}, matching the Experiment 004 record.",
+   "Sections 3-14 and 17 are NOT_OBSERVED in the local directory-read label model; direct delivery through the two unlabelled calls remains UNKNOWN.",
+   "The embedded SHRM Xtensa blob holds exact aligned stored literals inside the first ranked MC instance block, and none equal to any of the twelve ranked target addresses; computed or received pointers remain UNKNOWN.",
+   "abl has an aligned _FVH marker, measured entropy at or above the pinned threshold in the first 1048576 payload bytes, and zero aligned AArch64 RET observations."
+  ],
+  "REFUTED": [
+   "The local directory-read label model accounts for every direct BL call site; two of the seven direct BL sites are unlabelled."
+  ],
+  "SUPPORTED": [
+   "The ABL observations support the UNPARSED_HIGH_ENTROPY_UEFI_FV classification, but do not prove compression or semantic unsearchability."
+  ],
+  "UNKNOWN": [
+   "Whether abl consumes the DCB tables, whether its payload is compressed, and whether a literal search would be meaningful after parsing it.",
+   "Whether SHRM reaches a ranked target by computing an offset from the base literal it does hold, rather than storing the target address; the exact-literal result does not cover computed or received pointers.",
+   "Whether direct delivery of sections 3-14 or 17 occurs through the two unlabelled calls; whether an indirect BLR/BR caller reaches the pinned routine; whether a copy path exists through another routine; and any global call-graph conclusion.",
+   "Register semantics, the relation to the Experiment 014 GF(2) bank relation, post-boot writability, alias and boundary bypass."
+  ]
+ },
+ "dcb_copy_paths": {
+  "bounded_copy_va": "0x1483ab24",
+  "call_site_count": 7,
+  "call_sites": [
+   {
+    "call_va": "0x1489fabc",
+    "dcb_section": 0,
+    "segment": "RWE"
+   },
+   {
+    "call_va": "0x1489fadc",
+    "dcb_section": 1,
+    "segment": "RWE"
+   },
+   {
+    "call_va": "0x1489fafc",
+    "dcb_section": 2,
+    "segment": "RWE"
+   },
+   {
+    "call_va": "0x1489fb2c",
+    "dcb_section": 15,
+    "segment": "RWE"
+   },
+   {
+    "call_va": "0x1489fb4c",
+    "dcb_section": 16,
+    "segment": "RWE"
+   },
+   {
+    "call_va": "0x148a0684",
+    "dcb_section": null,
+    "segment": "RWE"
+   },
+   {
+    "call_va": "0x148b3e08",
+    "dcb_section": null,
+    "segment": "RWE"
+   }
+  ],
+  "direct_b_count": 0,
+  "direct_b_sites": [],
+  "direct_bl_count": 7,
+  "direct_bl_sites": [
+   {
+    "branch_va": "0x1489fabc",
+    "target_va": "0x1483ab24"
+   },
+   {
+    "branch_va": "0x1489fadc",
+    "target_va": "0x1483ab24"
+   },
+   {
+    "branch_va": "0x1489fafc",
+    "target_va": "0x1483ab24"
+   },
+   {
+    "branch_va": "0x1489fb2c",
+    "target_va": "0x1483ab24"
+   },
+   {
+    "branch_va": "0x1489fb4c",
+    "target_va": "0x1483ab24"
+   },
+   {
+    "branch_va": "0x148a0684",
+    "target_va": "0x1483ab24"
+   },
+   {
+    "branch_va": "0x148b3e08",
+    "target_va": "0x1483ab24"
+   }
+  ],
+  "locally_labelled_sections": [
+   0,
+   1,
+   2,
+   15,
+   16
+  ],
+  "matches_recorded_locally_labelled_sections": true,
+  "scope": "exact pinned routine, direct BL/B encodings and local directory-read labels only; unlabelled direct BL sites, indirect BLR/BR callers and other copy routines leave delivery UNKNOWN",
+  "sections_without_locally_labelled_direct_path": [
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   17
+  ],
+  "unlabelled_direct_bl_count": 2,
+  "unlabelled_direct_bl_sites": [
+   "0x148a0684",
+   "0x148b3e08"
+  ]
+ },
+ "definition_of_done": {
+  "build": {
+   "reason": "NOT_APPLICABLE: host-only static analysis; no live device contact occurred; retained hashed firmware artifacts were used",
+   "status": "NOT_APPLICABLE"
+  },
+  "commands": {
+   "command": "python3 tools/sm8150_dcb_delivery_paths_021a.py --output <public-manifest-path>",
+   "reason": "Private input and output paths are redacted; exact firmware and dependency hashes are pinned in the manifest. This template is not an executed-command receipt.",
+   "status": "REDACTED_REPRODUCTION_TEMPLATE"
+  },
+  "device_binding": {
+   "reason": "NOT_APPLICABLE: host-only static analysis; no live device contact occurred; retained hashed firmware artifacts were used",
+   "status": "NOT_APPLICABLE"
+  },
+  "live_repetitions": {
+   "reason": "No live device execution or observation is part of this host-only static experiment.",
+   "status": "NOT_APPLICABLE"
+  },
+  "recovery": {
+   "reason": "No device, boot, transport, or runtime state was touched; recovery is outside this static iteration.",
+   "status": "NOT_APPLICABLE"
+  },
+  "repetitions": {
+   "reason": "No live device execution or observation is part of this host-only static experiment.",
+   "status": "NOT_APPLICABLE"
+  },
+  "rollback": {
+   "reason": "No device or persistent state was changed; there is no effect to roll back.",
+   "status": "NOT_APPLICABLE"
+  },
+  "target": {
+   "binding": "PROVED_EXACT_FIRMWARE_INPUT_HASH",
+   "marketing_name": "A90 5G",
+   "model": "SM-A908N",
+   "soc": "SM8150",
+   "soc_name": "Snapdragon 855"
+  },
+  "timestamp": {
+   "reason": "Deterministic host-only publication does not embed a wall-clock timestamp.",
+   "status": "NOT_APPLICABLE"
+  },
+  "tool_and_build": {
+   "build": "NOT_APPLICABLE",
+   "build_reason": "The host-only analyzer is interpreted Python source and produces no firmware/kernel build output.",
+   "tool": "sm8150_dcb_delivery_paths_021a.py schema sm8150-dcb-delivery-paths-v2"
+  }
+ },
+ "delivery_conclusion": {
+  "classification": "UNKNOWN",
+  "direct_delivery": "UNKNOWN",
+  "global_delivery": "UNKNOWN",
+  "indirect_blr_br": "UNKNOWN",
+  "local_label_status": "NOT_OBSERVED",
+  "other_copy_routines": "UNKNOWN",
+  "scope": "pinned bounded-copy routine, direct BL/B census and local directory-read labels only",
+  "sections_without_locally_labelled_direct_path": [
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   17
+  ],
+  "sections_without_locally_labelled_direct_path_status": "NOT_OBSERVED",
+  "unlabelled_direct_bl_count": 2
+ },
+ "dependency_manifests": {
+  "004-live-firmware-readonly-20260825-01.manifest.json": "1ed4b8b14b2e0ccf2d4ae084ea413e0395d9dc488dd5d2bb1dd872fbe20d9247",
+  "verification-001-independent-claim-audit-20260825-01.manifest.json": "a722f0f66367de300b9a4402002e510a0d457c0250ca1b09f44e964f4914f2e5"
+ },
+ "device_access": "none",
+ "direct_branch_census": {
+  "direct_b_count": 0,
+  "direct_bl_count": 7,
+  "target_va": "0x1483ab24"
+ },
+ "experiment_id": "021A-dcb-delivery-paths",
+ "image": "xbl--sdb1.bin",
+ "image_sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+ "mode": "HOST_ONLY_READ_ONLY",
+ "schema": "sm8150-dcb-delivery-paths-v2",
+ "shrm_blob_literal_audit": {
+  "aperture_aligned_words": 116,
+  "aperture_blocks": 39,
+  "blob_sha256": "421824b417ab28e6c0d1802c05d7ce5422e93b116973ce7f039321fb5a01a1fd",
+  "blob_size": 23776,
+  "blob_vaddr": "0x148bbe98",
+  "ranked_instance_block_literal_counts": {
+   "0x09260000": 7,
+   "0x092e0000": 0,
+   "0x09360000": 0,
+   "0x093e0000": 0
+  },
+  "ranked_instance_block_literal_present": true,
+  "ranked_instance_block_literals": {
+   "0x09260000": [
+    {
+     "blob_offset": "0x003bc",
+     "offset_from_base": "0x0",
+     "shrm_vaddr": "0x283bc",
+     "value": "0x09260000"
+    },
+    {
+     "blob_offset": "0x003b0",
+     "offset_from_base": "0x200",
+     "shrm_vaddr": "0x283b0",
+     "value": "0x09260200"
+    },
+    {
+     "blob_offset": "0x004e4",
+     "offset_from_base": "0x5200",
+     "shrm_vaddr": "0x284e4",
+     "value": "0x09265200"
+    },
+    {
+     "blob_offset": "0x0052c",
+     "offset_from_base": "0x5600",
+     "shrm_vaddr": "0x2852c",
+     "value": "0x09265600"
+    },
+    {
+     "blob_offset": "0x001a4",
+     "offset_from_base": "0x5a00",
+     "shrm_vaddr": "0x281a4",
+     "value": "0x09265a00"
+    },
+    {
+     "blob_offset": "0x003b4",
+     "offset_from_base": "0x6200",
+     "shrm_vaddr": "0x283b4",
+     "value": "0x09266200"
+    },
+    {
+     "blob_offset": "0x00520",
+     "offset_from_base": "0x9124",
+     "shrm_vaddr": "0x28520",
+     "value": "0x09269124"
+    }
+   ],
+   "0x092e0000": [],
+   "0x09360000": [],
+   "0x093e0000": []
+  },
+  "ranked_target_literal_counts": {
+   "0x09260400": 0,
+   "0x09260404": 0,
+   "0x092604d0": 0,
+   "0x092e0400": 0,
+   "0x092e0404": 0,
+   "0x092e04d0": 0,
+   "0x09360400": 0,
+   "0x09360404": 0,
+   "0x093604d0": 0,
+   "0x093e0400": 0,
+   "0x093e0404": 0,
+   "0x093e04d0": 0
+  },
+  "ranked_target_literal_present": false,
+  "ranked_target_literal_total": 0,
+  "ranked_target_literals": {}
+ }
+}

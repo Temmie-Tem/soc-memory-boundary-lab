@@ -1,0 +1,131 @@
+{
+ "build": {
+  "capture_id": "004-live-firmware-readonly-20260825-01",
+  "capture_manifest": "004-live-firmware-readonly-20260825-01.manifest.json",
+  "capture_manifest_sha256": "1ed4b8b14b2e0ccf2d4ae084ea413e0395d9dc488dd5d2bb1dd872fbe20d9247",
+  "device_build": "v2321-usb-clean-identity-rodata",
+  "kernel": "Linux 4.14.190-25818860-abA908NKSU5EWA3 aarch64"
+ },
+ "command_reason": "Private input, scratch and output paths are redacted; exact logical source and relation dependencies are pinned by their manifests. These are reproduction templates, not executed-command receipts.",
+ "command_status": "REDACTED_REPRODUCTION_TEMPLATE",
+ "commands": [
+  "host: python3 tools/abl_uefi_extract.py --image <private abl image> --dump-dir <scratch> --output <manifest>",
+  "host: python3 tools/a90_bank_relation_encoding_audit.py --capture <scratch> --experiment-id 029A-bank-relation-audit-over-abl --source-manifest <029A extraction manifest> --relation-manifest <023R public manifest> --output <029A bank-audit manifest>",
+  "host: python3 -m unittest -v tests.test_abl_uefi_extract"
+ ],
+ "device_binding": {
+  "reason": "The extractor operates on an already captured image and does not contact or identify a live device.",
+  "status": "NOT_APPLICABLE"
+ },
+ "experiment_id": "029A-abl-uefi-searchability",
+ "extracted": {
+  "abl/file@0x48/lzma": {
+   "bytes": 4763976,
+   "dump_name": "abl_file@0x48_lzma.bin",
+   "sha256": "3fc653082e6acbfcfe3019c7d78b278326bc40de30a4f0325362fa6cce29011a"
+  },
+  "abl/file@0x48/lzma/fv@0x4/Cryptest/PE32": {
+   "bytes": 520192,
+   "dump_name": "abl_file@0x48_lzma_fv@0x4_Cryptest_PE32.bin",
+   "sha256": "053390db517fab8fe40460502faf227574af084172f758411b6a220e80a97375"
+  },
+  "abl/file@0x48/lzma/fv@0x4/LinuxLoader/PE32": {
+   "bytes": 2433024,
+   "dump_name": "abl_file@0x48_lzma_fv@0x4_LinuxLoader_PE32.bin",
+   "sha256": "51c1779a9d1462189bde201557564ab96e68bf352be05efae23cb0fe9dd1f9db"
+  },
+  "abl/file@0x48/lzma/fv@0x4/Odin/PE32": {
+   "bytes": 1810432,
+   "dump_name": "abl_file@0x48_lzma_fv@0x4_Odin_PE32.bin",
+   "sha256": "6203c19be5cf5fdeb7a95b770d30ed44518d19d7ecb8027ca5476912e83bed52"
+  }
+ },
+ "extracted_total_bytes": 9527624,
+ "host_analysis": {
+  "dump_contract": "every extracted blob is a flat deterministic *.bin file",
+  "extraction_repetitions": 1,
+  "mode": "HOST_ONLY_READ_ONLY",
+  "tool": "tools/abl_uefi_extract.py",
+  "tool_sha256": "047cc74a023e05e7bec80384b5939a4c406a5a8575587a01c0643280cd7a8ab4"
+ },
+ "image_bytes": 4194304,
+ "image_sha256": "1db19d11a5ce6865e3fbcabadfbdaa9045e75f144b8bc8593a58338c20a3120c",
+ "modules": [
+  {
+   "bytes": 1810432,
+   "file_type": "APPLICATION",
+   "name": "Odin",
+   "origin": "abl/file@0x48/lzma/fv@0x4",
+   "section_type": "PE32",
+   "sha256": "6203c19be5cf5fdeb7a95b770d30ed44518d19d7ecb8027ca5476912e83bed52"
+  },
+  {
+   "bytes": 2433024,
+   "file_type": "APPLICATION",
+   "name": "LinuxLoader",
+   "origin": "abl/file@0x48/lzma/fv@0x4",
+   "section_type": "PE32",
+   "sha256": "51c1779a9d1462189bde201557564ab96e68bf352be05efae23cb0fe9dd1f9db"
+  },
+  {
+   "bytes": 520192,
+   "file_type": "APPLICATION",
+   "name": "Cryptest",
+   "origin": "abl/file@0x48/lzma/fv@0x4",
+   "section_type": "PE32",
+   "sha256": "053390db517fab8fe40460502faf227574af084172f758411b6a220e80a97375"
+  }
+ ],
+ "pt_load": {
+  "file_offset": 12288,
+  "file_size": 2293760,
+  "flags": 7,
+  "index": 2,
+  "memory_size": 2293760,
+  "vaddr": 2678063104
+ },
+ "public_private_separation": {
+  "private": "The source firmware image and extracted *.bin blobs remain private; no raw firmware bytes are published.",
+  "public": "This manifest contains structure, counts, classifications and SHA-256 digests only.",
+  "raw_bytes_in_manifest": false
+ },
+ "recovery": {
+  "reason": "No device mutation, boot transition or persistent state change occurs during extraction.",
+  "status": "NOT_APPLICABLE"
+ },
+ "repetitions": 1,
+ "rollback": {
+  "reason": "Host extraction writes only caller-selected scratch files and no device or firmware state.",
+  "status": "NOT_APPLICABLE"
+ },
+ "schema": "abl-uefi-extract-v2",
+ "target": {
+  "model": "SM-A908N",
+  "partition": "abl",
+  "soc": "SM8150",
+  "source_filename": "abl--sdd8.bin"
+ },
+ "timestamp": "2026-08-26",
+ "volumes": [
+  {
+   "bytes": 2293760,
+   "depth": 0,
+   "file_system_guid": "8C8CE578-8A3D-4F1C-9935-896185C32DD3",
+   "files": 1,
+   "header_length": 72,
+   "length": 2293760,
+   "origin": "abl",
+   "revision": 2
+  },
+  {
+   "bytes": 4763968,
+   "depth": 1,
+   "file_system_guid": "8C8CE578-8A3D-4F1C-9935-896185C32DD3",
+   "files": 4,
+   "header_length": 72,
+   "length": 4763968,
+   "origin": "abl/file@0x48/lzma/fv@0x4",
+   "revision": 2
+  }
+ ]
+}

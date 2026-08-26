@@ -147,11 +147,13 @@ independently recorded as 22 focused and 556 full unittest PASS, 65 public JSON
 manifests, Python byte-compilation, byte-identical regeneration, and two
 independent artifact-review PASS results in the
 [Experiment 025 integration review](docs/EXP025_INTEGRATION_REVIEW_2026-08-26.md).
-Experiment 023 is `WITHHELD/NO-GO`, not integrated or public: its timing
-protocol is not comparable to Experiment 014 (fixed order, half warmup,
-`ISB`, summed reopen without `/2`), physical-allocation PA provenance is
-missing so a `+0x1000` countermodel fits the labels, and the full GF(2) matrix
-is non-unique. `PA24=b1^b2` is `SUPPORTED` only; raw evidence remains private.
+The historical Experiment 023 artifact is retained as merge-history evidence
+but remains `WITHHELD/NO-GO` and unpromoted: its timing protocol is not
+comparable to Experiment 014 (fixed order, half warmup, `ISB`, summed reopen
+without `/2`), physical-allocation PA provenance is missing so a `+0x1000`
+countermodel fits the labels, and the full GF(2) matrix is non-unique.
+`PA24=b1^b2` is `SUPPORTED` only; raw evidence remains private. Experiment
+023R is the separately repaired result described below.
 
 Experiment 024 is `COMPLETED` and integrated. `PROVED`: the exact
 `[0x148689a0,0x14868a64)` walker uses six-byte records, compares flags with
@@ -311,19 +313,32 @@ Validation is 15 focused and 685 full unittest PASS, full maximum RSS
 independent hostile review PASS with no P0-P2 findings. See
 [the Experiment 033 integration review](docs/EXP033_INTEGRATION_REVIEW_2026-08-26.md).
 
-The next non-overlapping host-only selection is Experiment 034. Current
-site-35 jump-table evidence is `HYPOTHESIS`, pending a pinned tool and tests:
-`BR X1` at `0x1484fa08`; table base `0x14824cf0`; guarded `W9` index from
-`CMP W9,#4` plus `B.HI` at `0x1484f9f4/0x1484f9f8`; and
-`LDR X1,[X5,X9,LSL#3]` at `0x1484fa04`. The five local little-endian entries
-are `0x1484fa3c`, `0x1484fa50`, `0x1484fa88`, `0x1484fa0c`, and
-`0x1484fa0c`. This is the highest-information non-overlapping host-only
-follow-up; it does not claim site 35 closure or import external Claude
-Experiments 028/030.
+Experiment 034 is completed in artifact commit `d5d8046`. It proves the exact
+guarded table at `0x14824cf0`, five entries/four unique local targets, and four
+CFG-complete bounded direct-edge resolutions. The composed result is 71
+`NO_TARGET_WITHIN_MODEL` / zero fail-closed sites, without promoting a bounded
+consumer or controller target. Runtime `BR`/direct-`B` equivalence, execution,
+current table contents/destination, global absence and security effect remain
+`UNKNOWN`. Validation is 14 focused and 699 full unittest PASS; hostile review
+is `PASS` after a `CMP W` width-mask repair. See
+[the Experiment 034 integration review](docs/EXP034_INTEGRATION_REVIEW_2026-08-26.md).
 
-External Claude Experiments 028 and 030 remain outside this integration and
-unreviewed here. No result, score, authority, review, or commit from either is
-claimed or integrated. Experiment 023R remains later and withheld.
+The external line is reconciled at exact parent `247b0e1`; later moving-branch
+commits through observed `c91f473` are excluded. 023R proves rank-three/bit-24
+algebra only in allocation-offset/model coordinates; physical PA attribution
+is `SUPPORTED_WITHIN_MODEL` because pagemap is `BLIND`. 028 is a bounded
+494-register encoding negative, 029A supplies reproducible ABL extraction and
+stored-form negatives, and 030 preserves phases while refuting only the
+independent-channel-selector inference. Physical roles, runtime writers,
+computed ABL paths and live DT remain `UNKNOWN`; phase-D PA10 remains
+`INCOMPLETE`.
+
+Validation is 296 focused and 995 full unittest PASS, deterministic fresh
+manifests are mode `0644`, and final hostile review is `PASS`; see
+[the external-line reconciliation](docs/EXTERNAL_LINE_RECONCILIATION_2026-08-26.md).
+Class C and Experiments 015/016 eligibility are unchanged. The next iteration
+is a separate commit-pinned repair/audit of later Verification-015 evidence,
+not a wholesale merge of the moving external branch.
 
 ## A. 현재까지 PROVED
 
@@ -669,6 +684,34 @@ claimed or integrated. Experiment 023R remains later and withheld.
   `CheckDAIFAccess` result remain `UNKNOWN`; Class C and 015/016 eligibility
   are unchanged. Validation is 15 focused / 685 full PASS (full RSS
   253,944 KiB, swap 0), with hostile review PASS and no P0-P2 findings.
+- Experiment 034 proves the exact site-35 guarded dispatch and five-entry table
+  at `0x14824cf0`. Four unique local targets each produce a CFG-complete
+  bounded in-memory direct-edge run, transitioning the composed model to 71
+  `NO_TARGET_WITHIN_MODEL` / zero fail-closed sites with no regression and no
+  promoted consumer/controller target. The baseline 033 site records remain
+  verbatim. Runtime branch-type equivalence, execution/index/table contents,
+  current destination, global absence and security effect remain `UNKNOWN`.
+- Reconciled 023R proves 66 summaries/58 unique differences and, strictly in
+  allocation-offset/model coordinates, a unique rank-three kernel plus
+  bit-24 contribution `0b110`. Mapping these to physical PA24/rank/base or a
+  second physical region is only `SUPPORTED_WITHIN_MODEL`; all five pagemap
+  records are `BLIND` and effective contiguity is `UNKNOWN`.
+- Experiment 028 proves seven numeric model covectors and zero tested
+  register-mask/index/triple matches among 494 decoded registers/274 nonzero.
+  Its 0.4514% observed-span density is not implemented-register coverage, and
+  physical-bank attribution of the masks is only `SUPPORTED_WITHIN_MODEL`.
+- Experiment 029A reproducibly extracts ABL's 4,763,976-byte canonical payload
+  and proves zero exact controller-base/model-mask literals and zero tested
+  spanning triples. PE32 runtime/computed paths, controller participation and
+  the unretained live-DT property set remain `UNKNOWN`.
+- Experiment 030 proves phase-preserving low-bit verdicts. PA9 is saturating in
+  spread and stride modes; PA10 is saturating in complete spread phases B/C,
+  while phase D has only PA10-alone `503` and is `INCOMPLETE`. `REFUTED` is
+  only the inference that upward departure proves an independent channel
+  selector; the physical roles of PA9/PA10 remain `UNKNOWN`.
+- External reconciliation validation is 296 focused / 995 full PASS, with
+  byte-identical mode-`0644` publications and independent hostile-review
+  `PASS`. Exact parent is `247b0e1`; later moving-branch work is not integrated.
 - Experiment 024's integrated host-only validation record is 30 focused and 534 full
   unittest PASS, 64 public JSON manifests, byte-identical regeneration, and
   two independent review PASS results recorded in the
@@ -688,17 +731,10 @@ claimed or integrated. Experiment 023R remains later and withheld.
 - One or more coherent set-0 MC/MCCC words may encode geometry, channel
   selection, or a hidden transform term. Their repeated/two-by-two structure
   makes this testable, but no semantic assignment is presently proved.
-- Experiment 023R is a later candidate only after a comparable timing
-  protocol, physical-allocation PA provenance and a unique full GF(2) matrix
-  are available. Until then `PA24=b1^b2` is `SUPPORTED`, not `PROVED`.
-- Experiment 034 may resolve the remaining site-35 indirect/runtime alias
-  through a guarded five-entry jump table. This is currently `HYPOTHESIS`:
-  static reconnaissance identifies `BR X1` at `0x1484fa08`, table base
-  `0x14824cf0`, `CMP W9,#4` plus `B.HI` at `0x1484f9f4/0x1484f9f8`, and
-  `LDR X1,[X5,X9,LSL#3]` at `0x1484fa04`, with local entries
-  `0x1484fa3c`, `0x1484fa50`, `0x1484fa88`, `0x1484fa0c`, and
-  `0x1484fa0c`. A pinned decoder and tests must validate this before any site
-  35 reclassification.
+- Later Verification-015 observations may support relation invariance across
+  runtime votes, reboot and TWRP/V2321 environments. Current numerical rows are
+  reproducible, but provenance paths, six-versus-eleven-level scope, repeat
+  binding and final-state journals require repair before promotion.
 
 ## C. REFUTED
 
@@ -800,9 +836,9 @@ claimed or integrated. Experiment 023R remains later and withheld.
 
 ## D. UNKNOWN
 
-- Contributions from rank-relative PA bits `24..31`, exact physical channel
-  equations beyond independent PA9/PA10 components, and the reason PA4/PA5
-  produce intermediate timing.
+- Physical attribution of the 023R model bit-24 contribution, contributions
+  from physical PA25..31, the actual roles of saturating PA9/PA10, and the
+  reason PA4/PA5 produce intermediate timing.
 - Exact semantic names, bitfields, and lock/writability state of coherent set-0
   section-16 registers; any indirect helper invocation with reverse direction;
   and final-decode meaning.
@@ -984,60 +1020,29 @@ ordering remain `UNKNOWN`, so this is not yet a structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-Do not repeat the fixed protected load. Experiments 019–022 and 024 have
-completed the current bounded host-only static follow-up. Experiment 024
-`PROVED` the exact six-byte walker, three direct callers, five XBL-resident
-table alternatives, 53/127 selector offset unions, 170-offset conditional
-superset and 221 nonterminator records; it `SUPPORTED` the table-driven UFS
-positive control only under initialized-base retention and store reach. Current
-base, runtime execution, reached-store subset, flag semantics, live-DTB
-equality, DCB semantic alias/global consumer/writer, DDR/MC relation, GF(2),
-and alias/bypass remain `UNKNOWN`.
+The highest-information next iteration is the later Verification-015 runtime-
+invariance line, because it tests whether a legitimate Normal-World-triggered
+transition changes the observed relation without requiring an unknown
+controller write. It outranks another static setter trace if its provenance can
+be repaired.
 
-Experiment 025 has completed the bounded registry/attach/factory/vtable/
-callback proof for slot `0x14890590` and registry
-`[0x14890e50,0x14890f50)`. Its recognized callback output write is to helper
-`SP+0xc`, not caller context `+8`; runtime order, slot/object identity, actual
-`BLR` target, alternate aliases/writes, and base currentness remain `UNKNOWN`.
-Experiment 026 is now integrated above with taxonomy `ORDER_OPEN` and
-`PROVED_BOUNDED_NO_RECOGNIZED_SLOT_MUTATION`; runtime order, slot value,
-object identity, `BLR` target, base currentness, writer absence, and live
-authority remain `UNKNOWN`. Experiments 027, 029, and 031 are integrated as
-completed bounded DCB results above. Experiment 031's 51-site transition is
-the combined scalar-plus-dispatch `V2_MODEL_ONLY` result, with
-`NO_ABSENCE_CLAIM`; it is not scalar-only closure. Experiment 032 then
-qualified the exact arithmetic extension: 298 selected occurrences / 175
-unique VAs / 162 unique words, 264 reached events, 55/71 no-target sites and
-16 fail-closed, with four transitions from 031 (sites 1, 36, 37, 52) and no
-regressions. Its residual remains 54 occurrences / 44 unique VAs / 35 unique
-words across 15 sites, and no DCB consumer, MC/SHRM target, current
-destination, or writer absence is proved. Experiment 033 is now completed and
-integrated from `56b5ffa`: it selects the complete 029 frontier (352
-occurrences / 219 unique VAs / 197 unique words), reaches 308 events, and
-leaves 44 selected occurrences not reached. Its inherited 032 full-record
-equality is exact for 264 extension, 143 direct-control, and 23 taint-kill
-events. The 44 new events are `LDP` 38, `STP` 3, `LDRSW` 1, `LDRSB` 1, and
-`DAIFClr` 1; six explicit `STP` lane observations are retained. The bounded
-site result is 70 `NO_TARGET_WITHIN_MODEL` / one
-`INDIRECT_OR_UNSUPPORTED` at site 35, with zero bounded DCB-consumer or
-MC/SHRM-target paths. Global writer/current destination/protected semantics
-and the `DAIFClr` current-EL/`CheckDAIFAccess` result remain `UNKNOWN`.
-Validation is 15 focused / 685 full PASS (full maximum RSS 253,944 KiB, swap
-0), with hostile review PASS and no P0-P2 findings.
+The numerical five-condition result is reproducible from retained inputs, but
+it is not integrated here. Its documented globs currently select zero files,
+only six rather than eleven DDR levels are retained, the repeat result is not
+manifest-bound, dispersion is dropped, and device action/final-state receipts
+are incomplete. Therefore the next action is a commit-pinned host repair/audit:
 
-The next highest-information non-overlapping host-only selection is Experiment
-034. Its current site-35 jump-table reconstruction is `HYPOTHESIS` pending a
-pinned tool and tests: `BR X1` at `0x1484fa08`, table base `0x14824cf0`, a
-`CMP W9,#4` + `B.HI` guard at `0x1484f9f4/0x1484f9f8`, and
-`LDR X1,[X5,X9,LSL#3]` at `0x1484fa04`; candidate local entries are
-`0x1484fa3c`, `0x1484fa50`, `0x1484fa88`, `0x1484fa0c`, and `0x1484fa0c`.
-Do not claim site-35 closure until that static pattern is proved. External
-Claude Experiments 028 and 030 remain outside and unreviewed here.
+1. pin an exact later commit rather than the moving branch tip;
+2. repair raw paths and six-level scope;
+3. bind raw/tool/probe/repeat/build/journal/final-state hashes;
+4. retain `REPEAT_REQUIRED` and `all_invariant=false` for the low-vote run;
+5. add context consistency, deterministic/no-clobber and public-safety tests;
+6. independently review before any result is promoted.
 
-Experiment 023R is later and remains withheld until its timing protocol is
-comparable to Experiment 014, physical-allocation PA provenance is present,
-and the full GF(2) matrix is unique. `PA24=b1^b2` remains `SUPPORTED` only.
-See [docs/NEXT_EXPERIMENT_SCORECARD.md](docs/NEXT_EXPERIMENT_SCORECARD.md).
+If that line cannot satisfy provenance, the next fallback is the host-only
+trace from 020A's pinned candidate setter `0x9fc06410` through caller
+`0x9fc023f0` to the runtime base-argument source. No device/MMIO/controller
+write is selected. Experiments 015 and 016 remain `NOT_ELIGIBLE`.
 
 ## N. 가장 위험한 아직 금지된 실험
 
@@ -1124,12 +1129,21 @@ Evidence for the attack class being relevant:
 - Experiment 022 adds sparse density for two enumerated evidence channels only;
   known `0x09248080` refutes channel completeness and implemented-register
   coverage remains `UNKNOWN`. These host-only results do not advance 015/016.
+- Reconciled 023R independently recovers a unique rank-three relation in
+  allocation-offset/model coordinates, but physical PA24/rank/base mapping is
+  `SUPPORTED_WITHIN_MODEL`, not direct pagemap evidence.
+- Experiment 030 shows the low-bit metric saturates on PA9 and PA10 rather than
+  supporting the prior independent-channel-selector inference. Their actual
+  physical roles remain `UNKNOWN`.
 - Experiment 033 qualifies the remaining integer-memory/system forms in the
   same bounded model and reduces the 032 result to 70 bounded
   `NO_TARGET_WITHIN_MODEL` sites plus one unresolved indirect site (35). Its
   352/308/44 accounting, exact 264/143/23 inheritance, and six STP lane
   observations are static evidence only; it does not promote a DCB consumer,
   MC/SHRM target, current destination, writer, or protected reach.
+- Experiment 034 resolves site 35 inside the bounded static model, producing
+  71/71 `NO_TARGET_WITHIN_MODEL` without promoting a consumer/controller path;
+  it is model closure, not runtime writer absence.
 
 Evidence against a presently usable bypass:
 
@@ -1145,6 +1159,11 @@ Evidence against a presently usable bypass:
   userland read paths stop before reaching MMIO.
 - No SM8150 Linux code programming such a transform was found, and no exact
   firmware register write has yet been attributed to the recovered row space.
+- Experiment 028 finds no tested numeric model-mask encoding among 494 observed
+  decoded registers/274 nonzero; this is evidence against those encodings only,
+  not controller-wide absence. Experiment 029A likewise finds no exact stored
+  controller-base/model-mask literal or tested triple in extracted ABL, while
+  computed/runtime paths remain `UNKNOWN`.
 - No normal-RAM physical-to-DRAM alias exists in evidence.
 - The recovered bank hash alone does not create a complete-coordinate alias;
   its conflict witnesses intentionally share a bank while selecting different
@@ -1179,9 +1198,11 @@ Evidence against a presently usable bypass:
 
 Critical unknowns are exact set-0 register semantics, any normal-HLOS runtime
 export, hash-register identity and encoding, lock/writability state, indirect
-reverse-direction use, PA24..31 contributions, final XPU/remapper/MCCC/MC
-readback, dynamic BIMC policy inputs, protection ordering, deterministic
-complete-coordinate alias behavior, and site 35's guarded jump-table target.
+reverse-direction use, physical attribution of the model bit-24 contribution,
+PA25..31 contributions, final XPU/remapper/MCCC/MC readback, dynamic BIMC
+policy inputs, protection ordering, and deterministic complete-coordinate
+alias behavior. Site 35 is closed only inside the bounded static model;
+runtime execution/current destination remain unknown.
 The `DAIFClr` current exception level and `CheckDAIFAccess` result also remain
 unknown. The defensible current conclusion is
 `NORMAL-RAM LOW-24 XOR BANK HASH PROVED / SECURE CONTROLLER APERTURES PROVED /

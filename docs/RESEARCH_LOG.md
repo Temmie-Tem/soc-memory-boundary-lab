@@ -1071,7 +1071,10 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
    retained-evidence channels and their sparse observed density. Completeness
    is `REFUTED` by known `0x09248080`; implemented-register coverage remains
    `UNKNOWN`.
-6. Experiment 023 is explicitly `WITHHELD/NO-GO`, not integrated or public.
+6. At this historical integration boundary, Experiment 023 was explicitly
+   `WITHHELD/NO-GO` and not published. A later reconciliation retains its audit
+   artifact as merge-history evidence without promotion; Experiment 023R is
+   the separately repaired result.
    Its timing protocol is not comparable to Experiment 014 (fixed order, half
    warmup, `ISB`, summed reopen without `/2`); physical-allocation PA
    provenance is missing so a `+0x1000` countermodel fits the labels; and the
@@ -1414,9 +1417,9 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
    deferred because 38 of its 41 events are `LDP` and most of the remainder
    are SP epilogues, while arithmetic directly forms indexes/addresses in
    high-value runtime-alias/hash-like contexts.
-9. External Claude Experiments 028 and 030 remain outside this integration and
-   unreviewed here. No result, score, authority, review, or commit from either
-   is integrated or claimed.
+9. At this dated Experiment-031 integration boundary, external Experiments 028
+   and 030 were outside and unreviewed. The 2026-08-27 reconciliation below
+   supersedes only that integration status.
 
 ## 2026-08-26 — Experiment 032 arithmetic-frontier integration
 
@@ -1482,13 +1485,14 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
    15-site residual and 16-site fail-closed set. `STP` must be represented as
    two explicit store observations; unpredictable, overlap, and writeback forms
    remain fail-closed, as does site 35's indirect/runtime alias.
-10. Experiment 033 outranks live capture and withheld 023R because it closes a
+10. At this dated selection point, Experiment 033 outranked live capture and
+    the then-withheld 023R because it closed a
     concrete reached residual from existing exact host inputs without a new
-    device gate. Experiment 023R remains withheld because its timing protocol
+    device gate. At that boundary, Experiment 023R remained withheld because its timing protocol
     is not comparable to 014, physical-allocation PA provenance is missing,
-    and the full GF(2) matrix is non-unique. External Claude Experiments 028
-    and 030 remain outside and unreviewed; no result, score, authority, review,
-    or commit from either is integrated or claimed.
+    and the full GF(2) matrix was non-unique. External Experiments 028 and 030
+    were likewise outside and unreviewed. The 2026-08-27 reconciliation below
+    supersedes those integration statuses after repair.
 
 ## 2026-08-26 — Experiment 033 residual-memory frontier integration
 
@@ -1550,9 +1554,9 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
 8. `PASS`: Experiment 033 is integrated as a deterministic bounded v4
    extension. It does not establish a live consumer, writer, current
    destination, transform mutation, physical-to-DRAM alias, protected reach,
-   or isolation bypass. External Claude Experiments 028 and 030 remain outside
-   and unreviewed here.
-9. Experiment 034 is selected as the next highest-information, non-overlapping
+   or isolation bypass. At this dated boundary, external Experiments 028 and
+   030 were still outside and unreviewed.
+9. Experiment 034 was selected at this point as the next highest-information, non-overlapping
    host-only follow-up. Current site-35 jump-table reconstruction is
    `HYPOTHESIS`, not closure: `BR X1` at `0x1484fa08`, candidate table base
    `0x14824cf0`, guarded `W9` index via `CMP W9,#4` plus `B.HI` at
@@ -1560,3 +1564,102 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
    local little-endian entries are `0x1484fa3c`, `0x1484fa50`, `0x1484fa88`,
    `0x1484fa0c`, and `0x1484fa0c`. A pinned tool and tests must prove this
    pattern before site 35 is reclassified.
+
+## 2026-08-26 — Experiment 034 site-35 jump-table integration
+
+1. Integrated the completed host-only Experiment 034 artifact from commit
+   `d5d8046`. No device, USB, SMC, MMIO, normal-RAM, protected-memory, boot,
+   activation, or write action occurred. Class C remains `TRANSFORM ONLY`;
+   Experiments 015/016 remain `NOT_ELIGIBLE`.
+2. `PROVED`: exact contiguous dispatch at `0x1484f9f0..0x1484fa08` is
+   `LDR W9,[SP,#36]`, `CMP W9,#4`, `B.HI`, `ADRP+ADD`,
+   `LDR X1,[X5,X9,LSL#3]`, `BR X1`. It selects table `0x14824cf0`, file
+   offset `0xbcf0`, containing five entries and four unique mapped, aligned
+   local targets.
+3. Four independent in-memory direct-edge substitutions are CFG-complete,
+   contain no unsupported form, and each return `NO_TARGET_WITHIN_MODEL`.
+   Exact replacement words are `0x14000001`, `0x1400000d`, `0x14000012`,
+   and `0x14000020`; changed-byte counts are respectively 3, 3, 3, and 2.
+4. `PROVED`: the composed outcome is 71 `NO_TARGET_WITHIN_MODEL` / zero
+   fail-closed sites. The 71 baseline 033 records remain verbatim and the
+   composed result is published separately. Exactly one site transitions and
+   70 remain stable, with no regression and no bounded DCB-consumer or
+   MC/SHRM-target promotion.
+5. `UNKNOWN`: external/unmodeled entry paths, runtime `BR`/direct-`B`
+   branch-type equivalence, execution/index/table contents, current
+   destination, global writer/consumer absence, protected-memory semantics and
+   any security effect. This is bounded static resolution, not an alias or
+   bypass result.
+6. Final artifacts are tool 56,864 bytes / SHA-256
+   `7589b9f61d92fc835a2378f11106963c074619d59675209082ad919f823690a8`,
+   tests 21,596 bytes / SHA-256
+   `081b7334a4e88a04647d39e5657c13bcb537b374db192e0597b561ce02cae51b`,
+   README 6,712 bytes / SHA-256
+   `05a44b688afc6b23eec2e469c523bc6c780d3379ca6ff08f34b020da14bfc82a`,
+   and manifest 2,241,492 bytes / mode `0644` / SHA-256
+   `75728982e1622f3e807c367baff5cc87d18cff94fa2a9135699f3f836b804b92`.
+7. Validation is 14 focused and 699 full unittest PASS, maximum RSS 125,552
+   KiB and 274,656 KiB respectively, swap 0. Two fresh publications are
+   byte-identical. Independent raw-byte and hostile reviews pass after a
+   `CMP W` width-mask P2 was repaired and covered by 224 one-bit dispatch
+   mutation controls.
+8. The next selection at this point was external-line reconciliation. External 023R/028/
+   029A/030 history is retained, but no result is promoted until phase
+   provenance, bounded claim levels, reproduction commands, IDs/hashes and
+   independent review are corrected. Experiment 035 is deferred.
+
+## 2026-08-27 — exact-parent external-line reconciliation
+
+1. Reconciled the independent history at exact merge parent `247b0e1` onto
+   Experiment 034 artifact commit `d5d8046`. The moving branch name was not
+   used as input identity. Later commits `05a4c5c`, `4b78b61`, `a297fde`,
+   `b2b5068`, `6b3abc7`, and `c91f473` are excluded and unpromoted. No device,
+   USB, SMC, MMIO, normal-RAM, protected-memory, boot, partition or write
+   action occurred in this reconciliation.
+2. Direct promotion was blocked and repaired for: Experiment 030 phase mixing;
+   Experiment 022A's false completeness claim; Experiment 021A's two unlabelled
+   direct-copy calls; Experiment 029A's extractor/audit filename mismatch;
+   stale IDs/commands/hashes; Experiment 023R's all-`BLIND` pagemap provenance;
+   overbroad 019A/020A/028/029A absence and semantic claims; and nonportable
+   exact-mode assertions for checked-in artifacts.
+3. `PROVED` by repaired 023R only in allocation-offset/model coordinates: 66
+   summaries over 58 unique differences, threshold 359 with empty band
+   182..537, one rank-three kernel and model bit-24 contribution `0b110`.
+   Physical PA24/rank/base attribution is `SUPPORTED_WITHIN_MODEL` under the
+   contiguous-qsecom plus Experiment-014-relation assumptions. Effective
+   contiguity and direct physical-page identity remain `UNKNOWN` because all
+   pagemap records are `BLIND`.
+4. `PROVED` by 028 within its exact observed set and encodings: seven numeric
+   model covectors and zero register-mask/index/triple matches among 494
+   decoded registers, 274 nonzero. Two firmware literal hits are unaligned
+   chance matches and the deterministic 200-decoy baseline averages 0.66 hits
+   per mask. This is not controller-wide absence, a writer result, or physical-
+   bank proof.
+5. `PROVED` by 029A: deterministic flat ABL extraction binds exact source
+   SHA-256 `1db19d11a5ce6865e3fbcabadfbdaa9045e75f144b8bc8593a58338c20a3120c`
+   and decompressed-payload SHA-256
+   `3fc653082e6acbfcfe3019c7d78b278326bc40de30a4f0325362fa6cce29011a`.
+   The bounded stored controller-base/model-mask/triple searches are zero.
+   Computed values, PE32 execution, runtime controller participation/writes,
+   SMEM value and live DT remain `UNKNOWN`/`UNRETAINED_UNKNOWN`.
+6. `REFUTED` by phase-preserving 030 only within the measured reopen model:
+   upward class departure does not prove PA9/PA10 are independent channel
+   selectors. Complete phase-B/phase-C spread triplets and phase-D PA9 are
+   `SATURATING`; phase-D PA10 is `INCOMPLETE`. Their physical coordinate roles
+   remain `UNKNOWN`.
+7. Historical Experiment 023 is now retained as merge-history/audit evidence
+   but remains `WITHHELD/NO-GO` and unpromoted; raw evidence remains private.
+   Experiment 023R is the separately repaired result. No reconciled result
+   establishes or globally refutes transform mutation, physical-to-DRAM alias,
+   protected-memory reach, or isolation bypass.
+8. Validation: 296 focused and 995 full unittest PASS; final full discovery ran
+   in 108.700 seconds with maximum RSS 272,988 KiB and swap 0. Python byte-
+   compilation, public JSON parsing/safety, deterministic byte-identical fresh
+   generation for ten manifests and `git diff --check` pass. Independent
+   hostile code/artifact review is `PASS` with no remaining P0–P2 after the
+   repairs.
+9. Class remains `CLASS C (TRANSFORM ONLY)`; Experiments 015/016 remain
+   `NOT_ELIGIBLE`. The next selection is a separate commit-pinned repair/audit
+   of Verification-015 runtime-invariance evidence. Its numerical result is
+   evidence to verify, not yet integrated authority; the moving branch tip
+   will not be merged wholesale.

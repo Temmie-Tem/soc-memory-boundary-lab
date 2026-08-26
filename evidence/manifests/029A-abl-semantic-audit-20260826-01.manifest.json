@@ -1,0 +1,462 @@
+{
+ "adjacent_triples": {
+  "count": 0,
+  "matches": [],
+  "max_shift": 20,
+  "relation_bits": [
+   "PA13",
+   "PA14",
+   "PA15",
+   "PA16",
+   "PA17",
+   "PA18",
+   "PA19",
+   "PA20",
+   "PA21",
+   "PA22",
+   "PA23",
+   "PA24"
+  ],
+  "scope": "all canonical decompressed payloads",
+  "strides_bytes": [
+   4,
+   8
+  ]
+ },
+ "bank_row_space_literals": {
+  "coordinate_scope": "allocation-offset/model coordinates",
+  "encoding": "exact_u32_little_endian",
+  "offset_policy": "every_byte_offset",
+  "physical_attribution": {
+   "classification": "SUPPORTED_WITHIN_MODEL",
+   "reason": "Numeric-mask spans and search counts are proved only in allocation-offset/model coordinates; physical bank-row attribution inherits the validated 023R model assumptions."
+  },
+  "row_space": [
+   "0x0074e000",
+   "0x009d2000",
+   "0x00e9c000",
+   "0x013a6000",
+   "0x014e8000",
+   "0x01a74000",
+   "0x01d3a000"
+  ],
+  "rows": [
+   "0x009d2000",
+   "0x01a74000",
+   "0x014e8000"
+  ],
+  "scope": "all canonical decompressed payloads",
+  "total_count": 0,
+  "values": [
+   {
+    "byte_order": "little",
+    "count": 0,
+    "offset_policy": "every_byte_offset",
+    "per_target": {
+     "abl/file@0x48/lzma": 0
+    },
+    "value": "0x0074e000",
+    "width_bytes": 4
+   },
+   {
+    "byte_order": "little",
+    "count": 0,
+    "offset_policy": "every_byte_offset",
+    "per_target": {
+     "abl/file@0x48/lzma": 0
+    },
+    "value": "0x009d2000",
+    "width_bytes": 4
+   },
+   {
+    "byte_order": "little",
+    "count": 0,
+    "offset_policy": "every_byte_offset",
+    "per_target": {
+     "abl/file@0x48/lzma": 0
+    },
+    "value": "0x00e9c000",
+    "width_bytes": 4
+   },
+   {
+    "byte_order": "little",
+    "count": 0,
+    "offset_policy": "every_byte_offset",
+    "per_target": {
+     "abl/file@0x48/lzma": 0
+    },
+    "value": "0x013a6000",
+    "width_bytes": 4
+   },
+   {
+    "byte_order": "little",
+    "count": 0,
+    "offset_policy": "every_byte_offset",
+    "per_target": {
+     "abl/file@0x48/lzma": 0
+    },
+    "value": "0x014e8000",
+    "width_bytes": 4
+   },
+   {
+    "byte_order": "little",
+    "count": 0,
+    "offset_policy": "every_byte_offset",
+    "per_target": {
+     "abl/file@0x48/lzma": 0
+    },
+    "value": "0x01a74000",
+    "width_bytes": 4
+   },
+   {
+    "byte_order": "little",
+    "count": 0,
+    "offset_policy": "every_byte_offset",
+    "per_target": {
+     "abl/file@0x48/lzma": 0
+    },
+    "value": "0x01d3a000",
+    "width_bytes": 4
+   }
+  ]
+ },
+ "build": {
+  "capture_id": "004-live-firmware-readonly-20260825-01",
+  "capture_manifest": "004-live-firmware-readonly-20260825-01.manifest.json",
+  "capture_manifest_sha256": "1ed4b8b14b2e0ccf2d4ae084ea413e0395d9dc488dd5d2bb1dd872fbe20d9247",
+  "device_build": "v2321-usb-clean-identity-rodata",
+  "kernel": "Linux 4.14.190-25818860-abA908NKSU5EWA3 aarch64"
+ },
+ "claim_boundary": {
+  "disassembly": "NOT_PERFORMED",
+  "live_device_tree": "UNRETAINED_UNKNOWN",
+  "runtime_participation": "UNKNOWN",
+  "static_negative": "exact stored u32 literals and the tested adjacent-triple encoding in canonical decompressed payloads"
+ },
+ "claims": {
+  "HYPOTHESIS": [],
+  "PROVED": [
+   "The exact source was extracted into the canonical decompressed payload scope and produced the published hashes and counts.",
+   "The bank row-space search uses the validated 023R relation in allocation-offset/model coordinates; its numeric search counts are static results in that scope.",
+   "The named DDR diagnostic/property strings have 16 total ASCII occurrences under the recorded per-string counts; this is static naming evidence only."
+  ],
+  "REFUTED": [
+   "In the searched canonical payloads, no listed controller-base value occurs as an exact stored u32 little-endian literal.",
+   "In the searched canonical payloads, no validated allocation-offset/model row-space value occurs as an exact stored u32 little-endian literal.",
+   "In the searched canonical payloads, no tested adjacent three-word encoding spans the validated allocation-offset/model row space."
+  ],
+  "SUPPORTED": [
+   "Physical bank-row attribution of the numeric masks and spans is SUPPORTED_WITHIN_MODEL only under the validated 023R assumptions."
+  ],
+  "UNKNOWN": [
+   "Whether ABL computes a controller base, row-space value, or any equivalent relation at runtime.",
+   "Whether an extracted PE32 module participates in controller programming or performs a runtime write; the modules were not disassembled or executed by this audit.",
+   "Whether the named DDR strings were reached on the captured boot, or what DDR Info structure SMEM supplied.",
+   "The live device-tree property set and hash: no retained DT payload, property dump, or DT hash is an input to this audit."
+  ]
+ },
+ "commands": [
+  "host: python3 tools/abl_uefi_extract.py --image <private abl image> --dump-dir <scratch> --output <extraction manifest>",
+  "host: python3 tools/a90_abl_semantic_audit.py --image <private abl image> --relation-manifest <023R public manifest> --output <semantic manifest>",
+  "host: python3 -m unittest -v tests.test_a90_abl_semantic_audit"
+ ],
+ "controller_base_literals": {
+  "scope": "all canonical decompressed payloads",
+  "sets": {
+   "qhs_mc": {
+    "encoding": "exact_u32_little_endian",
+    "offset_policy": "every_byte_offset",
+    "total_count": 0,
+    "values": [
+     {
+      "byte_order": "little",
+      "count": 0,
+      "offset_policy": "every_byte_offset",
+      "per_target": {
+       "abl/file@0x48/lzma": 0
+      },
+      "value": "0x09260000",
+      "width_bytes": 4
+     },
+     {
+      "byte_order": "little",
+      "count": 0,
+      "offset_policy": "every_byte_offset",
+      "per_target": {
+       "abl/file@0x48/lzma": 0
+      },
+      "value": "0x092e0000",
+      "width_bytes": 4
+     },
+     {
+      "byte_order": "little",
+      "count": 0,
+      "offset_policy": "every_byte_offset",
+      "per_target": {
+       "abl/file@0x48/lzma": 0
+      },
+      "value": "0x09360000",
+      "width_bytes": 4
+     },
+     {
+      "byte_order": "little",
+      "count": 0,
+      "offset_policy": "every_byte_offset",
+      "per_target": {
+       "abl/file@0x48/lzma": 0
+      },
+      "value": "0x093e0000",
+      "width_bytes": 4
+     }
+    ]
+   },
+   "qhs_mccc": {
+    "encoding": "exact_u32_little_endian",
+    "offset_policy": "every_byte_offset",
+    "total_count": 0,
+    "values": [
+     {
+      "byte_order": "little",
+      "count": 0,
+      "offset_policy": "every_byte_offset",
+      "per_target": {
+       "abl/file@0x48/lzma": 0
+      },
+      "value": "0x09250000",
+      "width_bytes": 4
+     }
+    ]
+   },
+   "qhs_mccc_master": {
+    "encoding": "exact_u32_little_endian",
+    "offset_policy": "every_byte_offset",
+    "total_count": 0,
+    "values": [
+     {
+      "byte_order": "little",
+      "count": 0,
+      "offset_policy": "every_byte_offset",
+      "per_target": {
+       "abl/file@0x48/lzma": 0
+      },
+      "value": "0x090b0000",
+      "width_bytes": 4
+     }
+    ]
+   }
+  },
+  "total_count": 0
+ },
+ "definition_of_done": {
+  "commands": {
+   "command": "python3 tools/a90_abl_semantic_audit.py --image <private abl image> --relation-manifest <023R public manifest> --output <semantic manifest>",
+   "reason": "Private input and output paths are redacted; the exact relation manifest is pinned by dependency provenance. This template is not an executed-command receipt.",
+   "status": "REDACTED_REPRODUCTION_TEMPLATE"
+  }
+ },
+ "device_access": "none",
+ "device_binding": {
+  "reason": "The audit reads an already captured image and never contacts or identifies a live device.",
+  "status": "NOT_APPLICABLE"
+ },
+ "experiment_id": "029A-abl-semantic-audit",
+ "extracted": {
+  "abl/file@0x48/lzma": {
+   "bytes": 4763976,
+   "sha256": "3fc653082e6acbfcfe3019c7d78b278326bc40de30a4f0325362fa6cce29011a"
+  },
+  "abl/file@0x48/lzma/fv@0x4/Cryptest/PE32": {
+   "bytes": 520192,
+   "sha256": "053390db517fab8fe40460502faf227574af084172f758411b6a220e80a97375"
+  },
+  "abl/file@0x48/lzma/fv@0x4/LinuxLoader/PE32": {
+   "bytes": 2433024,
+   "sha256": "51c1779a9d1462189bde201557564ab96e68bf352be05efae23cb0fe9dd1f9db"
+  },
+  "abl/file@0x48/lzma/fv@0x4/Odin/PE32": {
+   "bytes": 1810432,
+   "sha256": "6203c19be5cf5fdeb7a95b770d30ed44518d19d7ecb8027ca5476912e83bed52"
+  }
+ },
+ "extracted_total_bytes": 9527624,
+ "host_analysis": {
+  "extraction_in_memory": true,
+  "extractor": "tools/abl_uefi_extract.py",
+  "extractor_sha256": "047cc74a023e05e7bec80384b5939a4c406a5a8575587a01c0643280cd7a8ab4",
+  "mode": "HOST_ONLY_READ_ONLY",
+  "semantic_repetitions": 1,
+  "tool": "tools/a90_abl_semantic_audit.py",
+  "tool_sha256": "40ac0c1300f1d469fd7f9ee1f9941d04a7ac849acdb95ce1f94853e9d470fcf2"
+ },
+ "live_device_tree": {
+  "property_observation": "UNKNOWN",
+  "reason": "No retained public or private DT payload, property dump, or DT hash is supplied to this audit.",
+  "retained_evidence": false,
+  "sha256": "UNKNOWN",
+  "status": "UNRETAINED_UNKNOWN"
+ },
+ "mode": "HOST_ONLY_READ_ONLY",
+ "modules": [
+  {
+   "bytes": 1810432,
+   "file_type": "APPLICATION",
+   "name": "Odin",
+   "origin": "abl/file@0x48/lzma/fv@0x4",
+   "section_type": "PE32",
+   "sha256": "6203c19be5cf5fdeb7a95b770d30ed44518d19d7ecb8027ca5476912e83bed52"
+  },
+  {
+   "bytes": 2433024,
+   "file_type": "APPLICATION",
+   "name": "LinuxLoader",
+   "origin": "abl/file@0x48/lzma/fv@0x4",
+   "section_type": "PE32",
+   "sha256": "51c1779a9d1462189bde201557564ab96e68bf352be05efae23cb0fe9dd1f9db"
+  },
+  {
+   "bytes": 520192,
+   "file_type": "APPLICATION",
+   "name": "Cryptest",
+   "origin": "abl/file@0x48/lzma/fv@0x4",
+   "section_type": "PE32",
+   "sha256": "053390db517fab8fe40460502faf227574af084172f758411b6a220e80a97375"
+  }
+ ],
+ "named_ddr_strings": {
+  "encoding": "ASCII exact substring",
+  "scope": "all canonical decompressed payloads",
+  "strings": {
+   "ddr_device_hbb_channel_rank": {
+    "count": 4,
+    "per_target": {
+     "abl/file@0x48/lzma": 4
+    },
+    "text": "ddr_device_hbb_ch%d_rank%d"
+   },
+   "ddr_device_rank_channel": {
+    "count": 4,
+    "per_target": {
+     "abl/file@0x48/lzma": 4
+    },
+    "text": "ddr_device_rank_ch%d"
+   },
+   "ddr_device_type": {
+    "count": 3,
+    "per_target": {
+     "abl/file@0x48/lzma": 3
+    },
+    "text": "ddr_device_type"
+   },
+   "ddr_header_revision": {
+    "count": 1,
+    "per_target": {
+     "abl/file@0x48/lzma": 1
+    },
+    "text": "DDR Header Revision =0x%x"
+   },
+   "ddr_rank_hbb_not_supported": {
+    "count": 1,
+    "per_target": {
+     "abl/file@0x48/lzma": 1
+    },
+    "text": "ddr_device_rank, HBB not supported in Revision=0x%x"
+   },
+   "error_getting_ddr_info": {
+    "count": 2,
+    "per_target": {
+     "abl/file@0x48/lzma": 2
+    },
+    "text": "Error getting DDR Info, Plz check SMEM version (see EFISmem.h)"
+   },
+   "unable_to_get_ddr_info_protocol": {
+    "count": 1,
+    "per_target": {
+     "abl/file@0x48/lzma": 1
+    },
+    "text": "INFO: Unable to get DDR Info protocol:%r"
+   }
+  }
+ },
+ "pt_load": {
+  "file_offset": 12288,
+  "file_size": 2293760,
+  "flags": 7,
+  "index": 2,
+  "memory_size": 2293760,
+  "vaddr": 2678063104
+ },
+ "public_private_separation": {
+  "private": "The captured firmware image and extracted blobs remain private.",
+  "private_absolute_paths_in_manifest": false,
+  "public": "Hashes, sizes, structure, counts, strings, classifications, and bounded metadata only.",
+  "raw_bytes_in_manifest": false
+ },
+ "recovery": {
+  "reason": "No device mutation or boot transition occurs in this host-only audit.",
+  "status": "NOT_APPLICABLE"
+ },
+ "relation_dependency": {
+  "contribution": "0b110",
+  "coordinate_scope": "allocation-offset/model coordinates",
+  "experiment_id": "023R-repaired-region-bank-relation",
+  "manifest": "023R-repaired-region-bank-relation-20260826-01.manifest.json",
+  "new_bit": 24,
+  "physical_classification": "SUPPORTED_WITHIN_MODEL",
+  "rank": 3,
+  "sha256": "5c3e14ff898c109de740d98260d974bca10751000f85977775cd467ac74aac2e",
+  "validated": true
+ },
+ "repetitions": 1,
+ "rollback": {
+  "reason": "The audit changes no device, firmware, boot, or persistent state.",
+  "status": "NOT_APPLICABLE"
+ },
+ "schema": "a90-abl-semantic-audit-v1",
+ "search_scope": {
+  "aggregate_sha256": "3fc653082e6acbfcfe3019c7d78b278326bc40de30a4f0325362fa6cce29011a",
+  "kind": "decompressed_guid_defined_payloads",
+  "module_overlap_policy": "PE32 modules are reported by hash but are not counted again; they are contained in the decompressed payload.",
+  "target_count": 1,
+  "targets": [
+   {
+    "bytes": 4763976,
+    "name": "abl/file@0x48/lzma",
+    "sha256": "3fc653082e6acbfcfe3019c7d78b278326bc40de30a4f0325362fa6cce29011a"
+   }
+  ],
+  "total_bytes": 4763976
+ },
+ "source_image": {
+  "bytes": 4194304,
+  "sha256": "1db19d11a5ce6865e3fbcabadfbdaa9045e75f144b8bc8593a58338c20a3120c"
+ },
+ "target": {
+  "model": "SM-A908N",
+  "partition": "abl",
+  "soc": "SM8150",
+  "source_filename": "abl--sdd8.bin"
+ },
+ "timestamp": "2026-08-26",
+ "volumes": [
+  {
+   "bytes": 2293760,
+   "depth": 0,
+   "file_system_guid": "8C8CE578-8A3D-4F1C-9935-896185C32DD3",
+   "header_length": 72,
+   "length": 2293760,
+   "origin": "abl",
+   "revision": 2,
+   "sha256": "c92f38e7527ba80771fa1ebceab3069e858fb4dd64b8b173a07e14d3e1eeeb40"
+  },
+  {
+   "bytes": 4763968,
+   "depth": 1,
+   "file_system_guid": "8C8CE578-8A3D-4F1C-9935-896185C32DD3",
+   "header_length": 72,
+   "length": 4763968,
+   "origin": "abl/file@0x48/lzma/fv@0x4",
+   "revision": 2,
+   "sha256": "8d5ec161619627116b239f5a966978c845b5266556b98118175bdd9e681f5f31"
+  }
+ ]
+}

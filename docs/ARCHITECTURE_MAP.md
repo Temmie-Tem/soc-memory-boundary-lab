@@ -95,9 +95,15 @@ b2 = PA15 xor PA17 xor PA18 xor PA19 xor PA22
 Four held-out kernel vectors and four one-bank-bit negatives have a 314
 milli-tick p10/p90 non-overlap gap; same-row controls centre near zero. The
 basis is defined only up to an invertible output-basis change and therefore
-does not label physical BA pins. PA9 and PA10 are `SUPPORTED` as two further
-independent channel-like selection components. PA24..31, exact block/register
-ownership, and complete-coordinate alias behaviour remain `UNKNOWN`.
+does not label physical BA pins. Experiment 030 later `REFUTED` the inference
+that PA9/PA10 leaving the conflict class upward proves two independent channel
+selectors: both saturate in complete spread phases, PA9 also saturates in
+stride mode, and stride-mode PA10 is `INCOMPLETE`; their physical roles remain
+`UNKNOWN`. Experiment 023R `PROVED` allocation-offset/model bit-24
+contribution `0b110`; mapping it to physical PA24/rank/base is only
+`SUPPORTED_WITHIN_MODEL` because pagemap is `BLIND`. Physical contributions
+from PA25..31, exact block/register ownership, and complete-coordinate alias
+behaviour remain `UNKNOWN`.
 
 `PROVED`: selected DCB section 16 parses exactly into two base-token/offset-token
 sets. The exact Xtensa SHRM helper at `0x2d8dc` computes
@@ -226,10 +232,11 @@ coverage and the unenumerated address set remain `UNKNOWN`. These results do
 not identify the final decode owner or advance Experiments 015/016, which
 remain `NOT ELIGIBLE`.
 
-Experiment 023 is explicitly `WITHHELD/NO-GO`, not integrated or public. Its
-protocol is not comparable to Experiment 014, physical-allocation PA
-provenance is missing, its full GF(2) matrix is non-unique, and
-`PA24=b1^b2` is `SUPPORTED` only. Experiment 024 is now `COMPLETED` and
+The historical Experiment 023 artifact is retained as merge-history evidence
+but remains `WITHHELD/NO-GO` and unpromoted. Its protocol is not comparable to
+Experiment 014, physical-allocation PA provenance is missing, its full GF(2)
+matrix is non-unique, and `PA24=b1^b2` is `SUPPORTED` only. Experiment 023R is
+the separately repaired, model-scoped result. Experiment 024 is `COMPLETED` and
 integrated as host-only, read-only static evidence. `PROVED`: its exact
 `[0x148689a0,0x14868a64)` walker has six-byte records, the exact `0x8000`
 terminator and `B.EQ` return-before-store, and a conditional 32-bit store of
@@ -395,19 +402,13 @@ Validation is 15 focused / 685 full unittest PASS, full maximum RSS
 independent hostile review `PASS` with no P0-P2 findings. The tool and focused
 test pins are recorded in the integration review.
 
-The next non-overlapping host-only selection is Experiment 034. Current
-site-35 jump-table evidence is `HYPOTHESIS`, not a closure: `BR X1` is at
-`0x1484fa08`, the candidate table base is `0x14824cf0`, `W9` is guarded by
-`CMP W9,#4` plus `B.HI` at `0x1484f9f4/0x1484f9f8`, and
-`LDR X1,[X5,X9,LSL#3]` is at `0x1484fa04`. The five local little-endian
-entries are `0x1484fa3c`, `0x1484fa50`, `0x1484fa88`, `0x1484fa0c`, and
-`0x1484fa0c`. A pinned tool and tests must prove this pattern before site 35
-is reclassified. The selection does not import external Claude Experiments
-028/030.
-
-External Claude Experiments 028 and 030 remain outside this integration and
-unreviewed here. No result, score, authority, review, or commit from either is
-claimed or integrated.
+Experiment 034 is `COMPLETED`: its guarded five-entry table and four unique
+local targets close site 35 to 71/71 `NO_TARGET_WITHIN_MODEL` inside the
+bounded static model. Exact external parent `247b0e1` is also reconciled for
+019A–023R/028/029A/030 after claim/provenance/phase repairs; later commits
+through observed `c91f473` are excluded. These results do not identify the
+runtime transform owner or writer. The next selection is a separate commit-
+pinned repair/audit of Verification-015 runtime-invariance evidence.
 
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside

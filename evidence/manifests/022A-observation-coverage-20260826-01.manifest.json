@@ -1,0 +1,553 @@
+{
+ "address_density_by_block": [
+  {
+   "block": "0x09050000",
+   "by_channel": {
+    "shrm_snapshot": 7,
+    "xbl_mc_table": 0
+   },
+   "full_64k_word_slot_density_percent": 0.0427,
+   "is_ranked_instance": false,
+   "max_offset": "0x00012c",
+   "min_offset": "0x000114",
+   "observed": 7,
+   "observed_span_address_density_percent": 100.0,
+   "observed_span_word_slots": 7
+  },
+  {
+   "block": "0x090b0000",
+   "by_channel": {
+    "shrm_snapshot": 9,
+    "xbl_mc_table": 0
+   },
+   "full_64k_word_slot_density_percent": 0.0549,
+   "is_ranked_instance": false,
+   "max_offset": "0x0002a0",
+   "min_offset": "0x000000",
+   "observed": 9,
+   "observed_span_address_density_percent": 5.3254,
+   "observed_span_word_slots": 169
+  },
+  {
+   "block": "0x090c0000",
+   "by_channel": {
+    "shrm_snapshot": 3,
+    "xbl_mc_table": 0
+   },
+   "full_64k_word_slot_density_percent": 0.0183,
+   "is_ranked_instance": false,
+   "max_offset": "0x0000b0",
+   "min_offset": "0x000058",
+   "observed": 3,
+   "observed_span_address_density_percent": 13.0435,
+   "observed_span_word_slots": 23
+  },
+  {
+   "block": "0x09180000",
+   "by_channel": {
+    "shrm_snapshot": 36,
+    "xbl_mc_table": 1
+   },
+   "full_64k_word_slot_density_percent": 0.2258,
+   "is_ranked_instance": false,
+   "max_offset": "0x006700",
+   "min_offset": "0x00007c",
+   "observed": 37,
+   "observed_span_address_density_percent": 0.5639,
+   "observed_span_word_slots": 6562
+  },
+  {
+   "block": "0x09190000",
+   "by_channel": {
+    "shrm_snapshot": 36,
+    "xbl_mc_table": 1
+   },
+   "full_64k_word_slot_density_percent": 0.2258,
+   "is_ranked_instance": false,
+   "max_offset": "0x006700",
+   "min_offset": "0x00007c",
+   "observed": 37,
+   "observed_span_address_density_percent": 0.5639,
+   "observed_span_word_slots": 6562
+  },
+  {
+   "block": "0x09220000",
+   "by_channel": {
+    "shrm_snapshot": 21,
+    "xbl_mc_table": 0
+   },
+   "full_64k_word_slot_density_percent": 0.1282,
+   "is_ranked_instance": false,
+   "max_offset": "0x003318",
+   "min_offset": "0x000344",
+   "observed": 21,
+   "observed_span_address_density_percent": 0.6858,
+   "observed_span_word_slots": 3062
+  },
+  {
+   "block": "0x09230000",
+   "by_channel": {
+    "shrm_snapshot": 14,
+    "xbl_mc_table": 0
+   },
+   "full_64k_word_slot_density_percent": 0.0854,
+   "is_ranked_instance": false,
+   "max_offset": "0x00e034",
+   "min_offset": "0x002100",
+   "observed": 14,
+   "observed_span_address_density_percent": 0.1144,
+   "observed_span_word_slots": 12238
+  },
+  {
+   "block": "0x09240000",
+   "by_channel": {
+    "shrm_snapshot": 15,
+    "xbl_mc_table": 0
+   },
+   "full_64k_word_slot_density_percent": 0.0916,
+   "is_ranked_instance": false,
+   "max_offset": "0x008064",
+   "min_offset": "0x001000",
+   "observed": 15,
+   "observed_span_address_density_percent": 0.2085,
+   "observed_span_word_slots": 7194
+  },
+  {
+   "block": "0x09250000",
+   "by_channel": {
+    "shrm_snapshot": 4,
+    "xbl_mc_table": 0
+   },
+   "full_64k_word_slot_density_percent": 0.0244,
+   "is_ranked_instance": false,
+   "max_offset": "0x00011c",
+   "min_offset": "0x000110",
+   "observed": 4,
+   "observed_span_address_density_percent": 100.0,
+   "observed_span_word_slots": 4
+  },
+  {
+   "block": "0x09260000",
+   "by_channel": {
+    "shrm_snapshot": 37,
+    "xbl_mc_table": 30
+   },
+   "full_64k_word_slot_density_percent": 0.2563,
+   "is_ranked_instance": true,
+   "max_offset": "0x0091e0",
+   "min_offset": "0x000080",
+   "observed": 42,
+   "observed_span_address_density_percent": 0.4514,
+   "observed_span_word_slots": 9305
+  },
+  {
+   "block": "0x092a0000",
+   "by_channel": {
+    "shrm_snapshot": 21,
+    "xbl_mc_table": 0
+   },
+   "full_64k_word_slot_density_percent": 0.1282,
+   "is_ranked_instance": false,
+   "max_offset": "0x003318",
+   "min_offset": "0x000344",
+   "observed": 21,
+   "observed_span_address_density_percent": 0.6858,
+   "observed_span_word_slots": 3062
+  },
+  {
+   "block": "0x092b0000",
+   "by_channel": {
+    "shrm_snapshot": 14,
+    "xbl_mc_table": 0
+   },
+   "full_64k_word_slot_density_percent": 0.0854,
+   "is_ranked_instance": false,
+   "max_offset": "0x00e034",
+   "min_offset": "0x002100",
+   "observed": 14,
+   "observed_span_address_density_percent": 0.1144,
+   "observed_span_word_slots": 12238
+  },
+  {
+   "block": "0x092c0000",
+   "by_channel": {
+    "shrm_snapshot": 15,
+    "xbl_mc_table": 0
+   },
+   "full_64k_word_slot_density_percent": 0.0916,
+   "is_ranked_instance": false,
+   "max_offset": "0x008064",
+   "min_offset": "0x001000",
+   "observed": 15,
+   "observed_span_address_density_percent": 0.2085,
+   "observed_span_word_slots": 7194
+  },
+  {
+   "block": "0x092d0000",
+   "by_channel": {
+    "shrm_snapshot": 4,
+    "xbl_mc_table": 0
+   },
+   "full_64k_word_slot_density_percent": 0.0244,
+   "is_ranked_instance": false,
+   "max_offset": "0x00011c",
+   "min_offset": "0x000110",
+   "observed": 4,
+   "observed_span_address_density_percent": 100.0,
+   "observed_span_word_slots": 4
+  },
+  {
+   "block": "0x092e0000",
+   "by_channel": {
+    "shrm_snapshot": 37,
+    "xbl_mc_table": 30
+   },
+   "full_64k_word_slot_density_percent": 0.2563,
+   "is_ranked_instance": true,
+   "max_offset": "0x0091e0",
+   "min_offset": "0x000080",
+   "observed": 42,
+   "observed_span_address_density_percent": 0.4514,
+   "observed_span_word_slots": 9305
+  },
+  {
+   "block": "0x09320000",
+   "by_channel": {
+    "shrm_snapshot": 21,
+    "xbl_mc_table": 0
+   },
+   "full_64k_word_slot_density_percent": 0.1282,
+   "is_ranked_instance": false,
+   "max_offset": "0x003318",
+   "min_offset": "0x000344",
+   "observed": 21,
+   "observed_span_address_density_percent": 0.6858,
+   "observed_span_word_slots": 3062
+  },
+  {
+   "block": "0x09330000",
+   "by_channel": {
+    "shrm_snapshot": 14,
+    "xbl_mc_table": 0
+   },
+   "full_64k_word_slot_density_percent": 0.0854,
+   "is_ranked_instance": false,
+   "max_offset": "0x00e034",
+   "min_offset": "0x002100",
+   "observed": 14,
+   "observed_span_address_density_percent": 0.1144,
+   "observed_span_word_slots": 12238
+  },
+  {
+   "block": "0x09340000",
+   "by_channel": {
+    "shrm_snapshot": 15,
+    "xbl_mc_table": 0
+   },
+   "full_64k_word_slot_density_percent": 0.0916,
+   "is_ranked_instance": false,
+   "max_offset": "0x008064",
+   "min_offset": "0x001000",
+   "observed": 15,
+   "observed_span_address_density_percent": 0.2085,
+   "observed_span_word_slots": 7194
+  },
+  {
+   "block": "0x09350000",
+   "by_channel": {
+    "shrm_snapshot": 4,
+    "xbl_mc_table": 0
+   },
+   "full_64k_word_slot_density_percent": 0.0244,
+   "is_ranked_instance": false,
+   "max_offset": "0x00011c",
+   "min_offset": "0x000110",
+   "observed": 4,
+   "observed_span_address_density_percent": 100.0,
+   "observed_span_word_slots": 4
+  },
+  {
+   "block": "0x09360000",
+   "by_channel": {
+    "shrm_snapshot": 37,
+    "xbl_mc_table": 30
+   },
+   "full_64k_word_slot_density_percent": 0.2563,
+   "is_ranked_instance": true,
+   "max_offset": "0x0091e0",
+   "min_offset": "0x000080",
+   "observed": 42,
+   "observed_span_address_density_percent": 0.4514,
+   "observed_span_word_slots": 9305
+  },
+  {
+   "block": "0x093a0000",
+   "by_channel": {
+    "shrm_snapshot": 21,
+    "xbl_mc_table": 0
+   },
+   "full_64k_word_slot_density_percent": 0.1282,
+   "is_ranked_instance": false,
+   "max_offset": "0x003318",
+   "min_offset": "0x000344",
+   "observed": 21,
+   "observed_span_address_density_percent": 0.6858,
+   "observed_span_word_slots": 3062
+  },
+  {
+   "block": "0x093b0000",
+   "by_channel": {
+    "shrm_snapshot": 14,
+    "xbl_mc_table": 0
+   },
+   "full_64k_word_slot_density_percent": 0.0854,
+   "is_ranked_instance": false,
+   "max_offset": "0x00e034",
+   "min_offset": "0x002100",
+   "observed": 14,
+   "observed_span_address_density_percent": 0.1144,
+   "observed_span_word_slots": 12238
+  },
+  {
+   "block": "0x093c0000",
+   "by_channel": {
+    "shrm_snapshot": 15,
+    "xbl_mc_table": 0
+   },
+   "full_64k_word_slot_density_percent": 0.0916,
+   "is_ranked_instance": false,
+   "max_offset": "0x008064",
+   "min_offset": "0x001000",
+   "observed": 15,
+   "observed_span_address_density_percent": 0.2085,
+   "observed_span_word_slots": 7194
+  },
+  {
+   "block": "0x093d0000",
+   "by_channel": {
+    "shrm_snapshot": 4,
+    "xbl_mc_table": 0
+   },
+   "full_64k_word_slot_density_percent": 0.0244,
+   "is_ranked_instance": false,
+   "max_offset": "0x00011c",
+   "min_offset": "0x000110",
+   "observed": 4,
+   "observed_span_address_density_percent": 100.0,
+   "observed_span_word_slots": 4
+  },
+  {
+   "block": "0x093e0000",
+   "by_channel": {
+    "shrm_snapshot": 37,
+    "xbl_mc_table": 30
+   },
+   "full_64k_word_slot_density_percent": 0.2563,
+   "is_ranked_instance": true,
+   "max_offset": "0x0091e0",
+   "min_offset": "0x000080",
+   "observed": 42,
+   "observed_span_address_density_percent": 0.4514,
+   "observed_span_word_slots": 9305
+  },
+  {
+   "block": "0x09690000",
+   "by_channel": {
+    "shrm_snapshot": 15,
+    "xbl_mc_table": 0
+   },
+   "full_64k_word_slot_density_percent": 0.0916,
+   "is_ranked_instance": false,
+   "max_offset": "0x00871c",
+   "min_offset": "0x008500",
+   "observed": 15,
+   "observed_span_address_density_percent": 11.0294,
+   "observed_span_word_slots": 136
+  }
+ ],
+ "candidate_follow_up": {
+  "classification": "HYPOTHESIS",
+  "name": "DDR-OPP timing recovery",
+  "scope": "one candidate discriminator only; no promotion or authority"
+ },
+ "channel_scope": "Exact counts for the two enumerated channels only: SHRM_MEM.BIN snapshot and Experiment 017 XBL MC table. This is not a complete project-nameable address set.",
+ "channels": {
+  "shrm_snapshot_set0": 430,
+  "shrm_snapshot_union": 470,
+  "union": 492,
+  "xbl_mc_table": 122,
+  "xbl_table_addresses_new_to_the_snapshot": 22
+ },
+ "claim_scope": "Address counts and negatives are limited to the two enumerated channels; the known counterexample refutes completeness and no global absence claim is made.",
+ "claims": {
+  "HYPOTHESIS": [
+   "Repeating Experiment 014 timing recovery at another DDR operating point is one candidate follow-up; this experiment does not elevate it using the invalid completeness claim."
+  ],
+  "PROVED": [
+   "The exact counts 430 (SHRM snapshot set 0), 470 (SHRM snapshot union), 122 (Experiment 017 XBL MC table) and 492 (their union) describe the two enumerated channels only.",
+   "Within each ranked MC instance the enumerated union contains 42 addresses over a 9305-word observed span, giving 0.4514 percent observed-span address density; its full-64-KiB word-slot density is 42/16384 = 0.2563 percent per instance and 168/65536 = 0.2563 percent in the union.",
+   "All three ranked offsets lie inside the selected sample; that is a property of how candidates were selected, not evidence of global coverage."
+  ],
+  "REFUTED": [
+   "The union of the two enumerated channels is the complete project-nameable controller-address set: known address 0x09248080 is outside both channels."
+  ],
+  "SUPPORTED": [
+   "The two enumerated channels provide a sparse observed sample around the ranked instances; the density figures are descriptive, not implemented-register coverage."
+  ],
+  "UNKNOWN": [
+   "How many registers each block actually implements, and therefore the true implemented-register denominator and coverage.",
+   "Whether the bank relation is implemented by a register at all.",
+   "Whether ranked-candidate negatives from other experiments generalize beyond these selected enumerated channels; these counts cannot establish global absence or quantify search coverage outside them."
+  ]
+ },
+ "completeness_conclusion": {
+  "classification": "REFUTED",
+  "counterexample": "0x09248080",
+  "global_project_nameable_set": "UNKNOWN",
+  "scope": "two enumerated channels only"
+ },
+ "definition_of_done": {
+  "build": {
+   "reason": "NOT_APPLICABLE: host-only static analysis; no live device contact occurred; retained hashed firmware artifacts were used",
+   "status": "NOT_APPLICABLE"
+  },
+  "commands": {
+   "command": "python3 tools/sm8150_observation_coverage_022a.py --output <public-manifest-path>",
+   "reason": "The default private firmware/SHRM inputs and output path are redacted; exact inputs are pinned by their published hashes. This template is not an executed-command receipt.",
+   "status": "REDACTED_REPRODUCTION_TEMPLATE"
+  },
+  "device_binding": {
+   "reason": "NOT_APPLICABLE: host-only static analysis; no live device contact occurred; retained hashed firmware artifacts were used",
+   "status": "NOT_APPLICABLE"
+  },
+  "live_repetitions": {
+   "reason": "No live device execution or observation is part of this host-only static experiment.",
+   "status": "NOT_APPLICABLE"
+  },
+  "recovery": {
+   "reason": "No device, boot, transport, or runtime state was touched; recovery is outside this static iteration.",
+   "status": "NOT_APPLICABLE"
+  },
+  "repetitions": {
+   "reason": "No live device execution or observation is part of this host-only static experiment.",
+   "status": "NOT_APPLICABLE"
+  },
+  "rollback": {
+   "reason": "No device or persistent state was changed; there is no effect to roll back.",
+   "status": "NOT_APPLICABLE"
+  },
+  "target": {
+   "binding": "PROVED_EXACT_FIRMWARE_INPUT_HASH",
+   "marketing_name": "A90 5G",
+   "model": "SM-A908N",
+   "soc": "SM8150",
+   "soc_name": "Snapdragon 855"
+  },
+  "timestamp": {
+   "reason": "Deterministic host-only publication does not embed a wall-clock timestamp.",
+   "status": "NOT_APPLICABLE"
+  },
+  "tool_and_build": {
+   "build": "NOT_APPLICABLE",
+   "build_reason": "The host-only analyzer is interpreted Python source and produces no firmware/kernel build output.",
+   "tool": "sm8150_observation_coverage_022a.py schema sm8150-observation-coverage-v2"
+  }
+ },
+ "denominator_note": "A 64-KiB block holds 16384 addressable word slots; the output reports observed-span address density and full-64-KiB word-slot density. The true implemented-register denominator and coverage are UNKNOWN.",
+ "dependency_files": {
+  "tools/shrm_dump_decode.py": "1cf33c9292890c2479c20c8f9470c05058348046a49dc2280d061a64e224b5a7"
+ },
+ "dependency_manifests": {
+  "004-live-firmware-readonly-20260825-01.manifest.json": "1ed4b8b14b2e0ccf2d4ae084ea413e0395d9dc488dd5d2bb1dd872fbe20d9247",
+  "006-xbl-memory-pipeline-inventory.json": "39469ac59ef0e3a2b9858b7435a4433def58d57407a4066da3854cfdd24409a5",
+  "017-xbl-mc-snapshot-xref-20260825-01.manifest.json": "b1db21235374c64de797c1a123c64ddb23c43fca9100bbd51cf7b4897ea5c61b",
+  "verification-012-a90-samsung-upload-shrm-20260825-01.manifest.json": "ab1ce8168fe52f358f9c670e1b734125ff078628fa0667568d7cdea115d6021b"
+ },
+ "device_access": "none",
+ "experiment_id": "022A-observation-coverage",
+ "image": "xbl--sdb1.bin",
+ "image_sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+ "known_counterexample_to_completeness": {
+  "address": "0x09248080",
+  "classification": "REFUTED",
+  "in_enumerated_union": false,
+  "in_shrm_snapshot": false,
+  "in_xbl_mc_table": false,
+  "source_field": "ddr_remapper/icb_property/records/0/register_bases/0/address",
+  "source_manifest": "006-xbl-memory-pipeline-inventory.json",
+  "source_manifest_sha256": "39469ac59ef0e3a2b9858b7435a4433def58d57407a4066da3854cfdd24409a5"
+ },
+ "mode": "HOST_ONLY_READ_ONLY",
+ "ranked_instances": {
+  "full_64k_word_slot_denominator": 65536,
+  "full_64k_word_slot_density_percent": 0.2563,
+  "full_64k_word_slot_numerator": 168,
+  "per_instance": {
+   "0x09260000": {
+    "full_64k_word_slot_denominator": 16384,
+    "full_64k_word_slot_density_percent": 0.2563,
+    "full_64k_word_slot_numerator": 42,
+    "observed": 42,
+    "observed_span_address_density_percent": 0.4514,
+    "observed_span_word_slots": 9305,
+    "ranked_offsets_observed": [
+     "0x400",
+     "0x404",
+     "0x4d0"
+    ]
+   },
+   "0x092e0000": {
+    "full_64k_word_slot_denominator": 16384,
+    "full_64k_word_slot_density_percent": 0.2563,
+    "full_64k_word_slot_numerator": 42,
+    "observed": 42,
+    "observed_span_address_density_percent": 0.4514,
+    "observed_span_word_slots": 9305,
+    "ranked_offsets_observed": [
+     "0x400",
+     "0x404",
+     "0x4d0"
+    ]
+   },
+   "0x09360000": {
+    "full_64k_word_slot_denominator": 16384,
+    "full_64k_word_slot_density_percent": 0.2563,
+    "full_64k_word_slot_numerator": 42,
+    "observed": 42,
+    "observed_span_address_density_percent": 0.4514,
+    "observed_span_word_slots": 9305,
+    "ranked_offsets_observed": [
+     "0x400",
+     "0x404",
+     "0x4d0"
+    ]
+   },
+   "0x093e0000": {
+    "full_64k_word_slot_denominator": 16384,
+    "full_64k_word_slot_density_percent": 0.2563,
+    "full_64k_word_slot_numerator": 42,
+    "observed": 42,
+    "observed_span_address_density_percent": 0.4514,
+    "observed_span_word_slots": 9305,
+    "ranked_offsets_observed": [
+     "0x400",
+     "0x404",
+     "0x4d0"
+    ]
+   }
+  },
+  "total_addressable_word_slots": 65536,
+  "total_observed": 168
+ },
+ "schema": "sm8150-observation-coverage-v2",
+ "shrm_dump": {
+  "name": "SHRM_MEM.BIN",
+  "sha256": "409550ad226443271a39b6bc060f0e8fb3224111cc03f07a6ee563eaa7098bb7",
+  "size": 65536
+ },
+ "true_implemented_register_coverage": {
+  "coverage": "UNKNOWN",
+  "denominator": "UNKNOWN",
+  "reason": "The implemented-register inventory is not available in these channels."
+ }
+}

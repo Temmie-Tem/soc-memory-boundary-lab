@@ -1,0 +1,835 @@
+{
+ "schema": "a90-region-relation-solver-v1",
+ "experiment_id": "023R-repaired-region-bank-relation",
+ "definition_of_done": {
+  "target": {
+   "binding": "SUPPORTED_RETAINED_DEVICE_CONTEXT",
+   "marketing_name": "A90 5G",
+   "model": "SM-A908N",
+   "soc": "SM8150",
+   "soc_name": "Snapdragon 855"
+  },
+  "build": {
+   "status": "SUPPORTED_RETAINED_CONTEXT",
+   "kernel": "4.14.190-Grass,SD855-Perf+",
+   "firmware_build": "UNKNOWN",
+   "reason": "The retained context is pinned by SHA-256 and identifies the recovery kernel; it contains no firmware build identifier."
+  },
+  "timestamp": {
+   "status": "SUPPORTED_RETAINED_CONTEXT",
+   "value": "2026-08-26 KST",
+   "reason": "Date is retained in the experiment record; individual probe line timestamps are not claimed."
+  },
+  "commands": {
+   "status": "REDACTED_REPRODUCTION_TEMPLATE",
+   "command": "python3 tools/a90_region_relation_solver.py --raw <private raw directory> --probe tools/a90_region_probe_r.c --output <public manifest path>",
+   "reason": "Private raw and output paths are redacted; the logical inputs are pinned by provenance. This template is not an executed-command receipt."
+  },
+  "repetitions": {
+   "status": "PROVED",
+   "per_measurement": 1001,
+   "pairs_per_difference": 64,
+   "warmups": 17
+  },
+  "rollback": {
+   "status": "NOT_APPLICABLE",
+   "reason": "Read-only allocation/map/read/free probe changed no persistent or device state requiring rollback."
+  },
+  "recovery": {
+   "status": "NOT_APPLICABLE",
+   "reason": "No recovery transition was performed by this host analysis; the retained experiment record describes the read-only recovery context."
+  },
+  "device_binding": {
+   "status": "SUPPORTED_RETAINED_DEVICE_CONTEXT",
+   "reason": "The retained context identifies SM-A908N/qsecom; no live re-enumeration occurred during host-side analysis."
+  }
+ },
+ "measurement_summary": {
+  "summary_count": 66,
+  "unique_difference_count": 58,
+  "duplicate_summary_count": 8
+ },
+ "summary_count": 66,
+ "unique_difference_count": 58,
+ "separation": {
+  "threshold": 359,
+  "gap": 355,
+  "low_max": 182,
+  "high_min": 537
+ },
+ "class_bounds": {
+  "kernel_min_p10": 512,
+  "negative_max_p90": 224,
+  "kernel_count": 34,
+  "negative_count": 32
+ },
+ "comparable_to_014": true,
+ "pa_provenance": {
+  "pagemap": [
+   {
+    "schema": "a90_region_probe_r_v1",
+    "type": "pa_provenance",
+    "source": "pagemap",
+    "pages": 8192,
+    "present": 0,
+    "nonzero_pfn": 0,
+    "first_pfn": "0x0",
+    "last_pfn": "0x0",
+    "status": "BLIND",
+    "reported_contiguous": true,
+    "effective_contiguity": "UNKNOWN",
+    "phase": "phaseA"
+   },
+   {
+    "schema": "a90_region_probe_r_v1",
+    "type": "pa_provenance",
+    "source": "pagemap",
+    "pages": 8192,
+    "present": 0,
+    "nonzero_pfn": 0,
+    "first_pfn": "0x0",
+    "last_pfn": "0x0",
+    "status": "BLIND",
+    "reported_contiguous": true,
+    "effective_contiguity": "UNKNOWN",
+    "phase": "phaseB"
+   },
+   {
+    "schema": "a90_region_probe_r_v1",
+    "type": "pa_provenance",
+    "source": "pagemap",
+    "pages": 8192,
+    "present": 0,
+    "nonzero_pfn": 0,
+    "first_pfn": "0x0",
+    "last_pfn": "0x0",
+    "status": "BLIND",
+    "reported_contiguous": true,
+    "effective_contiguity": "UNKNOWN",
+    "phase": "phaseC"
+   },
+   {
+    "schema": "a90_region_probe_r_v1",
+    "type": "pa_provenance",
+    "source": "pagemap",
+    "pages": 8192,
+    "present": 0,
+    "nonzero_pfn": 0,
+    "first_pfn": "0x0",
+    "last_pfn": "0x0",
+    "status": "BLIND",
+    "reported_contiguous": true,
+    "effective_contiguity": "UNKNOWN",
+    "phase": "phaseD"
+   },
+   {
+    "schema": "a90_region_probe_r_v1",
+    "type": "pa_provenance",
+    "source": "pagemap",
+    "pages": 8192,
+    "present": 0,
+    "nonzero_pfn": 0,
+    "first_pfn": "0x0",
+    "last_pfn": "0x0",
+    "status": "BLIND",
+    "reported_contiguous": true,
+    "effective_contiguity": "UNKNOWN",
+    "phase": "phaseEF"
+   }
+  ],
+  "pagemap_status": "BLIND",
+  "base_offset": {
+   "schema": "a90-region-relation-solver-v1",
+   "constraining_pairs": 2624,
+   "candidate_offsets": [
+    "0x0"
+   ],
+   "candidate_count": 1,
+   "resolved": true,
+   "offset": "0x0",
+   "coordinate_scope": "allocation-offset/model coordinates",
+   "classification": "SUPPORTED_WITHIN_MODEL",
+   "scope": "contiguous qsecom allocation + Experiment 014 relation over PA13..PA23"
+  }
+ },
+ "physical_provenance": {
+  "classification": "SUPPORTED_WITHIN_MODEL",
+  "pagemap_status": "BLIND",
+  "pagemap_records": 5,
+  "base": "0xa6000000",
+  "base_offset": "0x0",
+  "assumptions": [
+   "contiguous qsecom allocation within the declared qseecom carveout",
+   "Experiment 014 relation over PA13..PA23 is valid for the offset solve"
+  ],
+  "reason": "Pagemap is BLIND for every phase; the solved base is supported only under a contiguous qsecom allocation and the Experiment 014 relation over PA13..PA23.",
+  "coordinate_scope": "allocation-offset/model coordinates",
+  "physical_mapping_status": "SUPPORTED_WITHIN_MODEL"
+ },
+ "coordinate_scope": {
+  "measurement_separation": "allocation-offset/model coordinates",
+  "allocation_offset_algebra": "allocation-offset/model coordinates",
+  "pa24_contribution": "allocation-offset/model coordinates",
+  "kernel": "allocation-offset/model coordinates",
+  "rank": "allocation-offset/model coordinates",
+  "physical_mapping": "SUPPORTED_WITHIN_MODEL"
+ },
+ "new_bit": {
+  "schema": "a90-region-relation-solver-v1",
+  "new_bit": 24,
+  "surviving_contributions": [
+   "0b110"
+  ],
+  "survivor_count": 1,
+  "resolved": true,
+  "contribution": "0b110",
+  "coordinate_scope": "allocation-offset/model coordinates",
+  "physical_mapping_classification": "SUPPORTED_WITHIN_MODEL"
+ },
+ "rank": {
+  "schema": "a90-region-relation-solver-v1",
+  "by_rank": {
+   "1": {
+    "verdict": "REFUTED_NO_KERNEL_AVOIDS_NEGATIVES",
+    "kernel_dimension": 11,
+    "span_dimension": 9,
+    "consistent_kernel_count": 0
+   },
+   "2": {
+    "verdict": "REFUTED_NO_KERNEL_AVOIDS_NEGATIVES",
+    "kernel_dimension": 10,
+    "span_dimension": 9,
+    "consistent_kernel_count": 0
+   },
+   "3": {
+    "verdict": "CONSISTENT",
+    "kernel_dimension": 9,
+    "span_dimension": 9,
+    "consistent_kernel_count": 1
+   },
+   "4": {
+    "verdict": "REFUTED_SPAN_EXCEEDS_KERNEL",
+    "kernel_dimension": 8,
+    "span_dimension": 9,
+    "consistent_kernel_count": 0
+   },
+   "5": {
+    "verdict": "REFUTED_SPAN_EXCEEDS_KERNEL",
+    "kernel_dimension": 7,
+    "span_dimension": 9,
+    "consistent_kernel_count": 0
+   }
+  },
+  "surviving_ranks": [
+   3
+  ],
+  "resolved": true,
+  "rank": 3,
+  "coordinate_scope": "allocation-offset/model coordinates",
+  "physical_mapping_classification": "SUPPORTED_WITHIN_MODEL"
+ },
+ "kernel": {
+  "schema": "a90-region-relation-solver-v1",
+  "assumed_rank": 3,
+  "observed_kernel_differences": 34,
+  "observed_negative_differences": 32,
+  "span_dimension": 9,
+  "required_kernel_dimension": 9,
+  "span_basis": [
+   "0x100c000",
+   "0x806000",
+   "0x408000",
+   "0x204000",
+   "0x102000",
+   "0x8a000",
+   "0x4e000",
+   "0x2c000",
+   "0x16000"
+  ],
+  "contradictions": [],
+  "consistent_kernel_count": 1,
+  "unique": true,
+  "example_kernel_basis": [
+   "0x100c000",
+   "0x806000",
+   "0x408000",
+   "0x204000",
+   "0x102000",
+   "0x8a000",
+   "0x4e000",
+   "0x2c000",
+   "0x16000"
+  ],
+  "coordinate_scope": "allocation-offset/model coordinates",
+  "physical_mapping_classification": "SUPPORTED_WITHIN_MODEL"
+ },
+ "differences": [
+  {
+   "difference": 90112,
+   "label": "KERNEL",
+   "median": 551,
+   "p10": 523,
+   "p90": 579,
+   "phase": "phaseA"
+  },
+  {
+   "difference": 180224,
+   "label": "KERNEL",
+   "median": 546,
+   "p10": 525,
+   "p90": 568,
+   "phase": "phaseA"
+  },
+  {
+   "difference": 360448,
+   "label": "KERNEL",
+   "median": 544,
+   "p10": 523,
+   "p90": 566,
+   "phase": "phaseA"
+  },
+  {
+   "difference": 401408,
+   "label": "KERNEL",
+   "median": 540,
+   "p10": 519,
+   "p90": 568,
+   "phase": "phaseA"
+  },
+  {
+   "difference": 565248,
+   "label": "KERNEL",
+   "median": 542,
+   "p10": 518,
+   "p90": 566,
+   "phase": "phaseA"
+  },
+  {
+   "difference": 720896,
+   "label": "KERNEL",
+   "median": 539,
+   "p10": 521,
+   "p90": 559,
+   "phase": "phaseA"
+  },
+  {
+   "difference": 802816,
+   "label": "KERNEL",
+   "median": 537,
+   "p10": 512,
+   "p90": 561,
+   "phase": "phaseA"
+  },
+  {
+   "difference": 1056768,
+   "label": "KERNEL",
+   "median": 538,
+   "p10": 516,
+   "p90": 561,
+   "phase": "phaseA"
+  },
+  {
+   "difference": 1130496,
+   "label": "KERNEL",
+   "median": 543,
+   "p10": 516,
+   "p90": 559,
+   "phase": "phaseA"
+  },
+  {
+   "difference": 1441792,
+   "label": "KERNEL",
+   "median": 539,
+   "p10": 518,
+   "p90": 563,
+   "phase": "phaseA"
+  },
+  {
+   "difference": 1605632,
+   "label": "KERNEL",
+   "median": 549,
+   "p10": 527,
+   "p90": 573,
+   "phase": "phaseA"
+  },
+  {
+   "difference": 2113536,
+   "label": "KERNEL",
+   "median": 545,
+   "p10": 519,
+   "p90": 569,
+   "phase": "phaseA"
+  },
+  {
+   "difference": 2293760,
+   "label": "NEGATIVE",
+   "median": 179,
+   "p10": 153,
+   "p90": 196,
+   "phase": "phaseA"
+  },
+  {
+   "difference": 2654208,
+   "label": "NEGATIVE",
+   "median": 174,
+   "p10": 155,
+   "p90": 189,
+   "phase": "phaseA"
+  },
+  {
+   "difference": 8192,
+   "label": "NEGATIVE",
+   "median": 173,
+   "p10": 149,
+   "p90": 192,
+   "phase": "phaseA"
+  },
+  {
+   "difference": 16384,
+   "label": "NEGATIVE",
+   "median": 164,
+   "p10": 147,
+   "p90": 184,
+   "phase": "phaseA"
+  },
+  {
+   "difference": 32768,
+   "label": "NEGATIVE",
+   "median": 177,
+   "p10": 153,
+   "p90": 194,
+   "phase": "phaseA"
+  },
+  {
+   "difference": 65536,
+   "label": "NEGATIVE",
+   "median": 175,
+   "p10": 157,
+   "p90": 187,
+   "phase": "phaseA"
+  },
+  {
+   "difference": 131072,
+   "label": "NEGATIVE",
+   "median": 169,
+   "p10": 147,
+   "p90": 192,
+   "phase": "phaseA"
+  },
+  {
+   "difference": 262144,
+   "label": "NEGATIVE",
+   "median": 177,
+   "p10": 151,
+   "p90": 195,
+   "phase": "phaseA"
+  },
+  {
+   "difference": 524288,
+   "label": "NEGATIVE",
+   "median": 176,
+   "p10": 150,
+   "p90": 197,
+   "phase": "phaseA"
+  },
+  {
+   "difference": 1048576,
+   "label": "NEGATIVE",
+   "median": 167,
+   "p10": 150,
+   "p90": 189,
+   "phase": "phaseA"
+  },
+  {
+   "difference": 2097152,
+   "label": "NEGATIVE",
+   "median": 169,
+   "p10": 151,
+   "p90": 192,
+   "phase": "phaseA"
+  },
+  {
+   "difference": 4194304,
+   "label": "NEGATIVE",
+   "median": 174,
+   "p10": 147,
+   "p90": 205,
+   "phase": "phaseA"
+  },
+  {
+   "difference": 8388608,
+   "label": "NEGATIVE",
+   "median": 177,
+   "p10": 141,
+   "p90": 224,
+   "phase": "phaseA"
+  },
+  {
+   "difference": 90112,
+   "label": "KERNEL",
+   "median": 550,
+   "p10": 527,
+   "p90": 576,
+   "phase": "phaseB"
+  },
+  {
+   "difference": 180224,
+   "label": "KERNEL",
+   "median": 546,
+   "p10": 523,
+   "p90": 573,
+   "phase": "phaseB"
+  },
+  {
+   "difference": 1056768,
+   "label": "KERNEL",
+   "median": 542,
+   "p10": 515,
+   "p90": 565,
+   "phase": "phaseB"
+  },
+  {
+   "difference": 802816,
+   "label": "KERNEL",
+   "median": 551,
+   "p10": 520,
+   "p90": 575,
+   "phase": "phaseB"
+  },
+  {
+   "difference": 16777216,
+   "label": "NEGATIVE",
+   "median": 179,
+   "p10": 159,
+   "p90": 193,
+   "phase": "phaseC"
+  },
+  {
+   "difference": 16785408,
+   "label": "NEGATIVE",
+   "median": 176,
+   "p10": 152,
+   "p90": 197,
+   "phase": "phaseC"
+  },
+  {
+   "difference": 16793600,
+   "label": "NEGATIVE",
+   "median": 182,
+   "p10": 159,
+   "p90": 201,
+   "phase": "phaseC"
+  },
+  {
+   "difference": 16842752,
+   "label": "NEGATIVE",
+   "median": 181,
+   "p10": 154,
+   "p90": 199,
+   "phase": "phaseC"
+  },
+  {
+   "difference": 16809984,
+   "label": "NEGATIVE",
+   "median": 169,
+   "p10": 149,
+   "p90": 189,
+   "phase": "phaseC"
+  },
+  {
+   "difference": 17301504,
+   "label": "NEGATIVE",
+   "median": 169,
+   "p10": 154,
+   "p90": 193,
+   "phase": "phaseC"
+  },
+  {
+   "difference": 16908288,
+   "label": "KERNEL",
+   "median": 556,
+   "p10": 539,
+   "p90": 577,
+   "phase": "phaseC"
+  },
+  {
+   "difference": 17039360,
+   "label": "NEGATIVE",
+   "median": 167,
+   "p10": 148,
+   "p90": 186,
+   "phase": "phaseC"
+  },
+  {
+   "difference": 16826368,
+   "label": "KERNEL",
+   "median": 553,
+   "p10": 527,
+   "p90": 576,
+   "phase": "phaseD"
+  },
+  {
+   "difference": 16883712,
+   "label": "KERNEL",
+   "median": 548,
+   "p10": 526,
+   "p90": 575,
+   "phase": "phaseD"
+  },
+  {
+   "difference": 17047552,
+   "label": "KERNEL",
+   "median": 541,
+   "p10": 521,
+   "p90": 563,
+   "phase": "phaseD"
+  },
+  {
+   "difference": 17121280,
+   "label": "KERNEL",
+   "median": 546,
+   "p10": 519,
+   "p90": 565,
+   "phase": "phaseD"
+  },
+  {
+   "difference": 17326080,
+   "label": "KERNEL",
+   "median": 548,
+   "p10": 521,
+   "p90": 570,
+   "phase": "phaseD"
+  },
+  {
+   "difference": 17367040,
+   "label": "KERNEL",
+   "median": 546,
+   "p10": 526,
+   "p90": 564,
+   "phase": "phaseD"
+  },
+  {
+   "difference": 17596416,
+   "label": "KERNEL",
+   "median": 537,
+   "p10": 516,
+   "p90": 562,
+   "phase": "phaseD"
+  },
+  {
+   "difference": 17924096,
+   "label": "KERNEL",
+   "median": 548,
+   "p10": 528,
+   "p90": 569,
+   "phase": "phaseD"
+  },
+  {
+   "difference": 17965056,
+   "label": "KERNEL",
+   "median": 545,
+   "p10": 518,
+   "p90": 562,
+   "phase": "phaseD"
+  },
+  {
+   "difference": 18087936,
+   "label": "KERNEL",
+   "median": 543,
+   "p10": 519,
+   "p90": 569,
+   "phase": "phaseD"
+  },
+  {
+   "difference": 16801792,
+   "label": "NEGATIVE",
+   "median": 178,
+   "p10": 153,
+   "p90": 198,
+   "phase": "phaseD"
+  },
+  {
+   "difference": 16818176,
+   "label": "NEGATIVE",
+   "median": 177,
+   "p10": 150,
+   "p90": 194,
+   "phase": "phaseD"
+  },
+  {
+   "difference": 16834560,
+   "label": "NEGATIVE",
+   "median": 171,
+   "p10": 151,
+   "p90": 189,
+   "phase": "phaseD"
+  },
+  {
+   "difference": 16850944,
+   "label": "NEGATIVE",
+   "median": 174,
+   "p10": 156,
+   "p90": 197,
+   "phase": "phaseD"
+  },
+  {
+   "difference": 16859136,
+   "label": "NEGATIVE",
+   "median": 174,
+   "p10": 151,
+   "p90": 199,
+   "phase": "phaseD"
+  },
+  {
+   "difference": 16867328,
+   "label": "NEGATIVE",
+   "median": 169,
+   "p10": 149,
+   "p90": 194,
+   "phase": "phaseD"
+  },
+  {
+   "difference": 16875520,
+   "label": "NEGATIVE",
+   "median": 171,
+   "p10": 146,
+   "p90": 187,
+   "phase": "phaseD"
+  },
+  {
+   "difference": 16891904,
+   "label": "NEGATIVE",
+   "median": 182,
+   "p10": 135,
+   "p90": 208,
+   "phase": "phaseD"
+  },
+  {
+   "difference": 2113536,
+   "label": "KERNEL",
+   "median": 573,
+   "p10": 550,
+   "p90": 594,
+   "phase": "phaseEF"
+  },
+  {
+   "difference": 4227072,
+   "label": "KERNEL",
+   "median": 571,
+   "p10": 559,
+   "p90": 592,
+   "phase": "phaseEF"
+  },
+  {
+   "difference": 2170880,
+   "label": "KERNEL",
+   "median": 570,
+   "p10": 549,
+   "p90": 598,
+   "phase": "phaseEF"
+  },
+  {
+   "difference": 2260992,
+   "label": "KERNEL",
+   "median": 568,
+   "p10": 548,
+   "p90": 591,
+   "phase": "phaseEF"
+  },
+  {
+   "difference": 2883584,
+   "label": "KERNEL",
+   "median": 571,
+   "p10": 552,
+   "p90": 592,
+   "phase": "phaseEF"
+  },
+  {
+   "difference": 3211264,
+   "label": "KERNEL",
+   "median": 571,
+   "p10": 549,
+   "p90": 596,
+   "phase": "phaseEF"
+  },
+  {
+   "difference": 8454144,
+   "label": "KERNEL",
+   "median": 563,
+   "p10": 541,
+   "p90": 587,
+   "phase": "phaseEF"
+  },
+  {
+   "difference": 6291456,
+   "label": "NEGATIVE",
+   "median": 179,
+   "p10": 154,
+   "p90": 199,
+   "phase": "phaseEF"
+  },
+  {
+   "difference": 2293760,
+   "label": "NEGATIVE",
+   "median": 177,
+   "p10": 155,
+   "p90": 200,
+   "phase": "phaseEF"
+  },
+  {
+   "difference": 2097152,
+   "label": "NEGATIVE",
+   "median": 171,
+   "p10": 152,
+   "p90": 195,
+   "phase": "phaseEF"
+  },
+  {
+   "difference": 4194304,
+   "label": "NEGATIVE",
+   "median": 182,
+   "p10": 164,
+   "p90": 202,
+   "phase": "phaseEF"
+  }
+ ],
+ "claims": {
+  "PROVED": [
+   "The analysis records 66 measurement summaries over 58 unique differences.",
+   "The raw measurement separation is PROVED in allocation-offset/model coordinates.",
+   "The allocation-offset GF(2) algebra, allocation-offset bit-24/model-bit contribution 0b110, unique rank-3 kernel and model-rank results are PROVED in allocation-offset/model coordinates."
+  ],
+  "SUPPORTED": [
+   "Mapping the allocation-offset/model results to physical PA24, rank 3, base and a second physical region is SUPPORTED_WITHIN_MODEL only under a contiguous qsecom allocation and the Experiment 014 relation over PA13..PA23; pagemap is BLIND in every phase."
+  ],
+  "HYPOTHESIS": [],
+  "UNKNOWN": [
+   "A direct physical-page identity is UNKNOWN because /proc/self/pagemap is BLIND; PA25 and above and behavior beyond the measured regions remain UNKNOWN."
+  ],
+  "REFUTED": [
+   "Experiment 023's replay is refuted as verification of its physical-base assumption; agreement on low differences does not identify the base."
+  ]
+ },
+ "provenance": {
+  "experiment_id": "023R-repaired-region-bank-relation",
+  "role": "current_verifier",
+  "mode": "DEVICE_READ_ONLY",
+  "device_writes": "none: allocate, map, read, free only",
+  "solver_sha256": "036e530370f9118e873cfa7690111a3aa9502f1bcb0f9188bf1695dfa8fb4ed5",
+  "probe_sha256": "2dbc81ef7595d30f627df8d28d24e21603d8c1c174074e85593b9fe8df5569e9",
+  "raw_inputs": {
+   "phaseA": "04d785dcbac7400e763caeb04a5b600d979045449980fc6ee0041fdf84f0e869",
+   "phaseB": "6ac0570eef8845ac6cbf8bc929c9bd80bcaf8508105dfa3c3c570c94be5bf985",
+   "phaseC": "a36da3f8ea4f77e96df0015f0a2e73b1edf19609e6297b2f5c2edee77729d684",
+   "phaseD": "445986a92c7c4c803533d60cbe2a698e74e84599a8972212c1fce6d41756e6dd",
+   "phaseEF": "d0e76092ccef56d6645420a0a97466b7852bb950a4c3beb2fafba4b04acd20fa"
+  },
+  "retained_context": {
+   "name": "context.txt",
+   "sha256": "2733587759119ec48558a3a039da200fa4740033d7043e706f0e8919c1a94f3b",
+   "status": "SUPPORTED_RETAINED_CONTEXT"
+  },
+  "context_sha256": "2733587759119ec48558a3a039da200fa4740033d7043e706f0e8919c1a94f3b",
+  "retained_context_sha256": "2733587759119ec48558a3a039da200fa4740033d7043e706f0e8919c1a94f3b"
+ }
+}

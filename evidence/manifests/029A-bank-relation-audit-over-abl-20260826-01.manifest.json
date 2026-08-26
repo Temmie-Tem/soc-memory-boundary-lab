@@ -1,0 +1,186 @@
+{
+ "schema": "a90-bank-relation-encoding-audit-v1",
+ "experiment_id": "029A-bank-relation-audit-over-abl",
+ "mode": "HOST_ONLY_READ_ONLY",
+ "device_access": "none",
+ "rows": [
+  "0x009d2000",
+  "0x01a74000",
+  "0x014e8000"
+ ],
+ "row_space": [
+  "0x0074e000",
+  "0x009d2000",
+  "0x00e9c000",
+  "0x013a6000",
+  "0x014e8000",
+  "0x01a74000",
+  "0x01d3a000"
+ ],
+ "relation_dependency": {
+  "experiment_id": "023R-repaired-region-bank-relation",
+  "manifest": "023R-repaired-region-bank-relation-20260826-01.manifest.json",
+  "sha256": "5c3e14ff898c109de740d98260d974bca10751000f85977775cd467ac74aac2e",
+  "new_bit": 24,
+  "contribution": "0b110",
+  "rank": 3,
+  "coordinate_scope": "allocation-offset/model coordinates",
+  "physical_classification": "SUPPORTED_WITHIN_MODEL",
+  "validated": true
+ },
+ "relation_coordinate_scope": "allocation-offset/model coordinates",
+ "physical_attribution": {
+  "classification": "SUPPORTED_WITHIN_MODEL",
+  "reason": "Numeric-mask spans and search counts are proved only in allocation-offset/model coordinates; physical bank-row attribution inherits the validated 023R model assumptions."
+ },
+ "source_manifest_dependency": {
+  "experiment_id": "029A-abl-uefi-searchability",
+  "manifest": "029A-abl-uefi-extraction-20260826-01.manifest.json",
+  "sha256": "ce127f159db7008d1846750f73685e4afb081c7a769d65e0ea1ccf1afd92f701",
+  "schema": "abl-uefi-extract-v2",
+  "extracted_count": 4,
+  "validated": true
+ },
+ "targets": {
+  "abl_file@0x48_lzma.bin": {
+   "bytes": 4763976,
+   "sha256": "3fc653082e6acbfcfe3019c7d78b278326bc40de30a4f0325362fa6cce29011a"
+  },
+  "abl_file@0x48_lzma_fv@0x4_Cryptest_PE32.bin": {
+   "bytes": 520192,
+   "sha256": "053390db517fab8fe40460502faf227574af084172f758411b6a220e80a97375"
+  },
+  "abl_file@0x48_lzma_fv@0x4_LinuxLoader_PE32.bin": {
+   "bytes": 2433024,
+   "sha256": "51c1779a9d1462189bde201557564ab96e68bf352be05efae23cb0fe9dd1f9db"
+  },
+  "abl_file@0x48_lzma_fv@0x4_Odin_PE32.bin": {
+   "bytes": 1810432,
+   "sha256": "6203c19be5cf5fdeb7a95b770d30ed44518d19d7ecb8027ca5476912e83bed52"
+  }
+ },
+ "register_count": 0,
+ "nonzero_register_count": 0,
+ "register_observation_scope": {
+  "status": "NOT_APPLICABLE",
+  "negative_claim_status": "NOT_APPLICABLE",
+  "observed_register_count": 0,
+  "observed_nonzero_register_count": 0,
+  "ranked_instance_observed_address_count": null,
+  "observed_span_word_slots": null,
+  "observed_span_address_density_percent": null,
+  "full_64k_word_slot_density_percent": null,
+  "scope": "No decoded controller-register input was supplied; register observation is NOT_APPLICABLE for these targets."
+ },
+ "literal": {
+  "hits": [],
+  "count": 0
+ },
+ "chance_baseline": {
+  "trials": 200,
+  "decoy_hits": 202,
+  "hits_per_mask": 1.01,
+  "expected_for_real_masks": 7.07
+ },
+ "literal_verdict": "BELOW_CHANCE",
+ "register_mask": [],
+ "register_index_encoding": [],
+ "adjacent_triple": [],
+ "legacy_comparison": {
+  "legacy_targets": [
+   "0x003a6000",
+   "0x004e8000",
+   "0x0074e000",
+   "0x009d2000",
+   "0x00a74000",
+   "0x00d3a000",
+   "0x00e9c000"
+  ],
+  "current_targets": [
+   "0x0074e000",
+   "0x009d2000",
+   "0x00e9c000",
+   "0x013a6000",
+   "0x014e8000",
+   "0x01a74000",
+   "0x01d3a000"
+  ],
+  "shared": [
+   "0x0074e000",
+   "0x009d2000",
+   "0x00e9c000"
+  ],
+  "legacy_only_never_in_relation": [
+   "0x003a6000",
+   "0x004e8000",
+   "0x00a74000",
+   "0x00d3a000"
+  ],
+  "current_only_never_searched": [
+   "0x013a6000",
+   "0x014e8000",
+   "0x01a74000",
+   "0x01d3a000"
+  ]
+ },
+ "claim_scope": "Register observation and register-family negative claims are NOT_APPLICABLE because no decoded register input was supplied.",
+ "claims": {
+  "PROVED": [
+   "The validated 023R relation yields seven numeric covectors in allocation-offset/model coordinates, and the exact extracted target hashes produced the recorded bounded numeric-mask counts."
+  ],
+  "SUPPORTED": [
+   "Physical bank-row attribution of the numeric masks and spans is SUPPORTED_WITHIN_MODEL only under the validated 023R assumptions."
+  ],
+  "REFUTED": [
+   "In the searched target bytes, no validated allocation-offset/model row-space value occurs as an exact stored u32 little-endian literal.",
+   "In the searched target bytes, no tested adjacent three-word encoding spans the validated allocation-offset/model row space."
+  ],
+  "UNKNOWN": [
+   "Whether the relation is represented or used at runtime in the extracted target remains UNKNOWN; this audit did not disassemble or execute the target bytes."
+  ],
+  "HYPOTHESIS": []
+ },
+ "definition_of_done": {
+  "target": {
+   "binding": "PROVED_EXACT_EXTRACTED_TARGET_HASHES",
+   "marketing_name": "A90 5G",
+   "model": "SM-A908N",
+   "soc": "SM8150",
+   "soc_name": "Snapdragon 855"
+  },
+  "build": {
+   "status": "NOT_APPLICABLE",
+   "reason": "NOT_APPLICABLE: host-only static analysis; no live device contact occurred; exact extracted target hashes were validated against the source manifest."
+  },
+  "timestamp": {
+   "status": "NOT_APPLICABLE",
+   "reason": "Deterministic host-only publication does not embed a wall-clock timestamp."
+  },
+  "commands": {
+   "status": "REDACTED_REPRODUCTION_TEMPLATE",
+   "command": "python3 tools/a90_bank_relation_encoding_audit.py --capture <scratch> --experiment-id 029A-bank-relation-audit-over-abl --source-manifest <029A extraction manifest> --relation-manifest <023R public manifest> --output <029A bank-audit manifest>",
+   "reason": "Private input and output paths are redacted; exact target and relation hashes are pinned when dependencies are supplied. This template is not an executed-command receipt."
+  },
+  "repetitions": {
+   "status": "NOT_APPLICABLE",
+   "reason": "NOT_APPLICABLE: no live repetitions; only bounded host analysis was run"
+  },
+  "rollback": {
+   "status": "NOT_APPLICABLE",
+   "reason": "NOT_APPLICABLE: no device or persistent state was changed"
+  },
+  "recovery": {
+   "status": "NOT_APPLICABLE",
+   "reason": "NOT_APPLICABLE: no device, boot, transport, or runtime state was touched"
+  },
+  "device_binding": {
+   "status": "NOT_APPLICABLE",
+   "reason": "NOT_APPLICABLE: host-only analysis of retained artifacts; no live device was contacted"
+  },
+  "tool_and_build": {
+   "tool": "a90_bank_relation_encoding_audit.py schema a90-bank-relation-encoding-audit-v1",
+   "build": "NOT_APPLICABLE",
+   "build_reason": "The host-only analyzer is interpreted Python source and produces no firmware/kernel build output."
+  }
+ }
+}

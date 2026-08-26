@@ -231,11 +231,11 @@ focused and 556 full unittest PASS, 65 public JSON manifests, Python
 byte-compilation, byte-identical regeneration, and two independent
 artifact-review PASS results recorded in the
 [Experiment 025 integration review](docs/EXP025_INTEGRATION_REVIEW_2026-08-26.md).
-Experiment 023 remains
-`WITHHELD/NO-GO`, not integrated or public: its timing protocol is not
+The historical Experiment 023 artifact is retained as merge-history evidence
+but remains `WITHHELD/NO-GO` and unpromoted: its timing protocol is not
 comparable to Experiment 014, PA provenance is missing, and its full GF(2)
 matrix is non-unique. `PA24=b1^b2` is `SUPPORTED` only; raw evidence remains
-private.
+private. Experiment 023R is the separately repaired result described below.
 
 Experiment 024 is `COMPLETED` and integrated. `PROVED`: the exact
 `[0x148689a0,0x14868a64)` six-byte XBL walker has the `0x8000` terminator,
@@ -400,20 +400,38 @@ and independent hostile review `PASS` with no P0–P2 findings. Details and
 artifact pins are in
 [EXP033_INTEGRATION_REVIEW_2026-08-26.md](docs/EXP033_INTEGRATION_REVIEW_2026-08-26.md).
 
-The next non-overlapping host-only selection is Experiment 034, the highest
-information target at this point: resolve site 35's exact indirect jump-table
-target under a pinned, fail-closed static model. Current reconnaissance is
-`HYPOTHESIS`, not closure: `BR X1` is at `0x1484fa08`, the candidate table base
-is `0x14824cf0`, `W9` is guarded by `CMP W9,#4` plus `B.HI` at
-`0x1484f9f4/0x1484f9f8`, and `LDR X1,[X5,X9,LSL#3]` is at `0x1484fa04`.
-The five little-endian entries are `0x1484fa3c`, `0x1484fa50`,
-`0x1484fa88`, `0x1484fa0c`, and `0x1484fa0c`, all local. A pinned tool and
-tests must prove the pattern before site 35 is reclassified. This selection
-does not import or claim external Claude Experiments 028/030.
+Experiment 034 is `COMPLETED` in artifact commit `d5d8046`. It proves the
+guarded five-entry table at `0x14824cf0`, four unique local targets, and four
+CFG-complete in-memory direct-edge resolutions. The composed bounded result is
+71 `NO_TARGET_WITHIN_MODEL` / zero fail-closed sites, with no bounded DCB
+consumer or MC/SHRM symbolic target. The original 71 Experiment 033 site
+records remain verbatim and the composed result is published separately.
+Runtime `BR`/direct-`B` equivalence, execution, table contents, current
+destination, global writer/consumer absence, protected-memory semantics and
+security effect remain `UNKNOWN`. Validation is 14 focused and 699 full
+unittest PASS; final hostile review is `PASS` after repairing a `CMP W` width
+mask. See the
+[Experiment 034 integration review](docs/EXP034_INTEGRATION_REVIEW_2026-08-26.md).
 
-External Claude Experiments 028 and 030 remain outside this integration and
-unreviewed here. No result, score, authority, review, or commit from either is
-claimed or integrated.
+The external line is now reconciled at exact parent `247b0e1`; later moving-
+branch commits are excluded. `PROVED` in allocation-offset/model coordinates:
+023R records 66 summaries/58 unique differences, a unique rank-three kernel
+and model bit-24 contribution `0b110`. Physical PA24/rank/base attribution is
+only `SUPPORTED_WITHIN_MODEL` because all pagemap records are `BLIND`. 028's
+zero matches are limited to 494 observed registers/274 nonzero and tested
+numeric encodings. 029A deterministically extracts ABL and proves bounded
+stored-literal/triple negatives while runtime participation and live DT remain
+`UNKNOWN`. 030 preserves each phase and refutes only the inference that upward
+class departure proves an independent channel selector; PA9/PA10 physical roles
+remain `UNKNOWN` and phase-D PA10 is `INCOMPLETE`.
+
+Reconciliation validation is 296 focused and 995 full unittest PASS; fresh
+manifests are byte-identical/mode `0644`, and independent hostile review is
+`PASS`. See
+[the external-line reconciliation](docs/EXTERNAL_LINE_RECONCILIATION_2026-08-26.md).
+Class C and Experiments 015/016 eligibility remain unchanged. The next
+iteration is a commit-pinned repair/audit of later Verification-015 runtime-
+invariance evidence; the moving external branch will not be merged wholesale.
 
 Claim vocabulary is deliberately closed:
 

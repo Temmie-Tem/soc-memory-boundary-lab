@@ -1,37 +1,37 @@
 # Next-experiment scorecard — 2026-08-26
 
-This scorecard ranks host-only follow-up work after the integrated
-Experiments 019–022, 024–027, 029, and 031–033. It does not grant live,
-device, SMC, MMIO, write, or Experiments 015/016 authority. The integrated
-Experiments 024–027, 029, and 031–033 are complete as bounded static results;
-their conditional and semantic boundaries remain explicit below. External
-028/030 are excluded.
+This scorecard ranks follow-up work after Experiment 034 and the exact-parent
+`247b0e1` external-line reconciliation. It does not grant SMC, MMIO,
+controller-write, protected-memory, or Experiments 015/016 authority. Later
+moving-branch commits through observed `c91f473` are not integrated here; each
+must be pinned and audited independently.
 
 | Rank | Experiment | Information target | Scope and gate | Status |
 |---:|---|---|---|---|
-| 1 | 034 | Resolve the exact site-35 indirect jump-table target left by Experiment 033. | Host-only static reconstruction; validate `BR X1` at `0x1484fa08`, table base `0x14824cf0`, guarded `W9` index, scaled load at `0x1484fa04`, and five local entries with a pinned tool/tests; preserve fail-closed behavior until proven; no device/MMIO/write action. | `PRIMARY SELECTED`; 94/100 |
-| 2 | E — capture-feasibility | Assess whether a future host-only evidence capture has a safe, bounded path without promoting a device action. | Read-only feasibility review only; no capture, device, SMC, MMIO or write action. | `LATER`; 52/100 |
-| 3 | D — 023R | Re-test the timing claim only after the protocol and provenance defects are repaired. | Require a protocol comparable to Experiment 014 (including ordering, warmup, barriers, and reopen accounting), physical-allocation PA provenance, and a unique full GF(2) matrix. `PA24=b1^b2` can remain `SUPPORTED` until those gates pass. | `LATER`; 41/100; 023 is withheld/`NO-GO` and not public |
-| 4 | B — base currentness | Resolve initialized-base currentness as a bounded static/runtime-boundary question. | Preserve the unresolved runtime base and indirect `BLR` boundaries; no device action or live promotion. | `LATER`; 24/100 |
-| 5 | A — runtime slot/object observation | Reassess the runtime slot/object question only if a safe evidence path exists. | The existing 26-record catalog does not cover the target slot; no safe capture path is currently available. This is not selected; no device action is proposed by this scorecard; future action needs a separate exact-bound contract/gates. | `LATER`; 14/100 |
+| 1 | Verification 015 repair/audit | Determine whether the Experiment-014/023R relation is invariant across retained runtime transitions. | Pin one exact later commit; repair raw globs and six-level scope; bind raw/tool/probe/repeat/build/action/final-state evidence; preserve low-vote `REPEAT_REQUIRED`; retain dispersion/context consistency and deterministic no-clobber/public-safety controls. | `PRIMARY SELECTED`; numerical result reproducible, integration provenance incomplete |
+| 2 | 020A setter trace | Trace candidate setter `0x9fc06410` through caller `0x9fc023f0` to the runtime base-argument source. | Host-only exact-firmware control/data flow; bounded model only; no device/MMIO/controller write. | `FALLBACK` if Verification 015 provenance cannot be repaired |
+| 3 | E — capture-feasibility | Assess whether a future bounded evidence capture has a safe path without promoting a controller action. | Feasibility review only; no SMC/MMIO/protected-memory action. | `LATER` |
+| 4 | B — base currentness | Resolve initialized-base currentness as a bounded static/runtime-boundary question. | Preserve the unresolved runtime base and indirect `BLR` boundaries; no live promotion. | `LATER` |
+| 5 | A — runtime slot/object observation | Reassess the runtime slot/object question only if a safe evidence path exists. | The existing 26-record catalog does not cover the target slot; future action needs a separate exact-bound contract. | `LATER` |
+| — | 034 | Resolve the exact site-35 indirect jump table left by Experiment 033. | Completed bounded host-only reconstruction: five entries/four unique targets and 71/71 `NO_TARGET_WITHIN_MODEL`; no global absence claim. | `COMPLETED`; artifact commit `d5d8046` |
+| — | 023R/028/029A/030 | Repaired relation, encoding, ABL and low-bit evidence. | Reconciled at exact parent `247b0e1` after scope/provenance/phase repairs; model/physical and runtime boundaries remain explicit. | `RECONCILED`; later commits excluded |
 | — | 033 | Source-qualify and model the exact reached pair-memory, sign-extending-memory, and system-control residual left by Experiment 032. | Completed host-only extension: 352 selected occurrences, 308 reached events, 44 selected-not-reached; 44 new events (`LDP` 38, `STP` 3, `LDRSW` 1, `LDRSB` 1, `DAIFClr` 1), six explicit STP lane observations, and a single site-35 indirect blocker preserved fail-closed; no device/MMIO/write action. | `COMPLETED AND INTEGRATED`; 033 artifact commit `56b5ffa` |
 | — | 032 | Source-qualify and model the exact reached arithmetic frontier left by Experiment 031. | Completed host-only extension: 15 arithmetic rows across 7 sites, with all unsafe/unknown forms and site 35/site 56 blockers preserved fail-closed; no device/MMIO/write action. | `COMPLETED AND INTEGRATED`; 82/100 |
-| — | 028/030 (external Claude) | Bank-relation/SHRM encoding and low-bit selection work. | External work outside this integration and unreviewed here; no result, score, authority, or review is claimed here. | `OUTSIDE THIS INTEGRATION`; not scored |
 
 The scores are decision aids, not vulnerability probabilities, success
 probabilities, or evidence labels. They compare critical-`UNKNOWN` closure,
 discriminatory power, execution feasibility, cost/recoverability,
 dependency/non-overlap, and reuse value.
 
-Experiment 034's `94/100` selection score is explicit: information gain
+Experiment 034's historical `94/100` selection score was explicit: information gain
 20/20 (the sole remaining 033 fail-closed site), discriminating power 20/20
 (every guarded table target is separately testable), success feasibility
 13/15 (the exact sequence/table is reconstructed but not yet pinned by the
 034 artifact), cost 10/10 (existing retained inputs), safety/recoverability
 15/15 (pure host-memory copies, no device state), dependency/non-overlap 8/10
 (depends on exact 033 but not external 028/030), and reuse value 8/10 (a
-fail-closed guarded jump-table resolver is reusable). This total is a work
-selection score only.
+fail-closed guarded jump-table resolver is reusable). That selection is now
+completed; it is not the current scorecard choice.
 
 ## Experiment 024 integrated result
 
@@ -345,20 +345,14 @@ fresh publications, independent AArch64/QEMU and JSON safety checks, and
 hostile review `PASS` with no P0-P2 findings. The durable review is
 [EXP033_INTEGRATION_REVIEW_2026-08-26.md](EXP033_INTEGRATION_REVIEW_2026-08-26.md).
 
-## Experiment 034 selection rationale
+## Experiment 034 completed rationale
 
-Experiment 034 is the next non-overlapping host-only selection and the highest
-information target after 033. It will resolve site 35's exact indirect
-jump-table target with a pinned static decoder and tests. Current
-reconnaissance is `HYPOTHESIS`, not a closure: `BR X1` is at `0x1484fa08`,
-the candidate table base is `0x14824cf0`, `W9` is guarded by `CMP W9,#4` plus
-`B.HI` at `0x1484f9f4/0x1484f9f8`, and `LDR X1,[X5,X9,LSL#3]` is at
-`0x1484fa04`. The five little-endian entries are
-`0x1484fa3c`, `0x1484fa50`, `0x1484fa88`, `0x1484fa0c`, and `0x1484fa0c`,
-all local. Site 35 must remain fail-closed until the tool proves the guarded
-index, table-base, entry, and branch relationships. No device, MMIO, write,
-or live authority is selected; Experiments 028/030 remain external and
-unreviewed.
+Experiment 034 was the highest-information target after 033 and is now
+`COMPLETED` at artifact commit `d5d8046`. Its pinned tool proves the guarded
+index, table base, five entries/four unique local targets and four CFG-complete
+direct-edge substitutions. The composed bounded result is 71/71
+`NO_TARGET_WITHIN_MODEL`; runtime equivalence, execution, current destination
+and global writer/consumer absence remain `UNKNOWN`.
 
 ## Alternative A boundary — runtime slot/object observation
 
@@ -373,10 +367,10 @@ needs a separate exact-bound contract/gates.
 
 ## Experiment 023R prerequisites
 
-Experiment 023 is explicitly withheld as `NO-GO`: its timing order is not
-comparable to Experiment 014 (fixed order, half warmup, `ISB`, and summed
-reopen without `/2`), physical allocation PA provenance is missing so a
-`+0x1000` countermodel still fits the labels, and the full GF(2) matrix is
-non-unique. Its raw evidence is private and is not integrated or published.
-Only a repaired rerun satisfying all three prerequisites may enter the
-scorecard as evidence; until then `PA24=b1^b2` is `SUPPORTED`, not `PROVED`.
+Historical Experiment 023 remains `WITHHELD/NO-GO` and unpromoted: its timing
+order is not comparable to Experiment 014, physical-allocation PA provenance
+is missing, and the full GF(2) matrix is non-unique. Its audit artifact is now
+retained as merge-history evidence; raw evidence remains private. Repaired
+Experiment 023R proves allocation-offset/model algebra while physical
+PA24/rank/base attribution is only `SUPPORTED_WITHIN_MODEL` under its stated
+contiguity and Experiment-014-relation assumptions.
