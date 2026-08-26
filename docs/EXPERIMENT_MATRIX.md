@@ -51,6 +51,7 @@
 | 028 | Do the 023R numeric covectors appear in the decoded SHRM register snapshot under tested encodings? | `PROVED`: seven numeric model covectors; zero register-mask/index/triple matches among 494 decoded registers/274 nonzero. Two tested firmware literal hits are unaligned chance matches; the 200-decoy baseline averages 0.66 hits per mask. | Negative scope is only the observed register set and tested encodings; physical-bank attribution is `SUPPORTED_WITHIN_MODEL`. Derived state, writer and runtime mutation remain `UNKNOWN`. |
 | 029A | Can exact ABL be reproducibly extracted and searched for the bounded controller/model encodings? | `PROVED`: deterministic flat extraction of the exact ABL payload and zero exact stored controller-base, model-mask and tested adjacent-triple hits; exact diagnostic-string counts are retained. | PE32 execution/disassembly, computed values, controller participation/writes, SMEM value and live DT are `UNKNOWN`/`UNRETAINED_UNKNOWN`. |
 | 030 | Do retained low-bit timing phases prove PA9/PA10 are independent channel selectors? | `REFUTED` within the measured reopen model: upward departure from conflict does not prove an independent channel selector. Complete spread-mode triplets for PA9/PA10 and stride-mode PA9 are `SATURATING`; stride-mode PA10 is `INCOMPLETE`. | Whether PA9/PA10 jointly contribute channel, rank, bank group or another coordinate remains `UNKNOWN`; no phase is merged by filename/order. |
+| V015 | Is the repaired 023R relation stable across the exact retained condition-labelled runtime/reboot/coldboot transcript sets? | `PROVED` in allocation-offset/model coordinates: six equal 51-key condition sets; four clean zero-disagreement comparisons; L762 has two excursions and remains `REPEAT_REQUIRED`/`all_invariant=false`. Six independently split repeat groups cover both and have zero flips. The retained sweep is exactly six requested bus-vote levels × two. | Runtime/reboot/coldboot identities are only `SUPPORTED_BY_UNRETAINED_OPERATOR_REPORT`. Bus-vote data are excluded from DDR-frequency/transform-transition inference; pagemap is `BLIND`, effective contiguity and physical attribution are `UNKNOWN`. No alias, mutation, protected reach or bypass is observed or proved by V015; numbered Experiments 015/016 remain `NOT_ELIGIBLE`. |
 
 The integrated results remain `CLASS C (TRANSFORM ONLY)`, with Experiments 015
 and 016 `NOT ELIGIBLE`. Experiment 027 validation is 35 focused and 616 full
@@ -100,9 +101,11 @@ contents/destination, global absence and security effect remain `UNKNOWN`.
 External parent `247b0e1` is reconciled after phase-preserving 030 repair,
 bounded 019A–023R claims, reproducible 029A extraction, corrected
 IDs/commands/hashes, primary verification and independent hostile review.
-Later moving-branch commits through observed `c91f473` are excluded. The next
-selection is a separate commit-pinned repair/audit of Verification-015 runtime-
-invariance evidence; Experiment 035 remains deferred.
+Later moving-branch commits through observed `c91f473` remain excluded as
+history. Verification 015 is independently repaired from exact retained inputs:
+44 focused / 1,039 full serial tests and hostile review `PASS`. The next
+selection is a separate retained-input repair of Verification 016 high-bit
+evidence; Verification 017 remains blocked and Experiment 035 remains deferred.
 
 The Stage 2E row's writeback result is an exact audit of all recognized
 single/pair memory-writeback forms: four sites per function (two SP frame
@@ -1157,7 +1160,27 @@ observations, and a 70/1 bounded site split that Experiment 034 subsequently
 closes to 71/0 inside the static model. Exact external parent `247b0e1` is now
 reconciled for 019A–023R/028/029A/030 with the bounded rows above, 296 focused
 and 995 full tests, byte-identical fresh publications and hostile-review
-`PASS`. Later commits through observed `c91f473`, including Verification 015,
-remain outside this integration. The next iteration is a commit-pinned
-Verification-015 provenance and analysis repair, not a wholesale moving-tip
-merge.
+`PASS`. Verification 015 is subsequently repaired as the bounded V015 row
+above, with 44 focused / 1,039 full serial tests and hostile-review `PASS`; it
+was rebuilt rather than merged from the moving branch. The next iteration is a
+retained-input Verification-016 repair. Verification 017 remains outside and
+cannot consume the high-bit relation until that gate passes.
+
+## Verification 015 metadata
+
+- Intended target: `SM-A908N` / `SM8150`; transcript-attested target identity:
+  `UNKNOWN`; operator/project-context status: `SUPPORTED`.
+- Coordinate scope: `ALLOCATION_OFFSET_MODEL_COORDINATES`; pagemap: `BLIND`;
+  effective contiguity: `UNKNOWN`.
+- Exact private inputs: 15 condition transcripts + repeat + six-level sweep +
+  two journals, all basename/size/SHA-256 pinned in the public manifest.
+- Public manifest:
+  `evidence/manifests/verification-015-runtime-invariance-20260826-01.manifest.json`,
+  112,840 bytes, SHA-256
+  `fab880dc50f8e66e74828a0276f8e5ab5ef9b1f2b2f2f9f032dcef03b6b98592`.
+- Validation: 44 focused and 1,039 full serial unittest PASS; Python byte-
+  compilation, byte-identical fresh generation, public safety, JSON/link/diff
+  checks and stable-tree hostile review `PASS`. A fresh publisher output was
+  observed as mode `0644`; no checked-out POSIX mode is asserted.
+- Integration record:
+  [VERIFICATION015_INTEGRATION_REVIEW_2026-08-27.md](VERIFICATION015_INTEGRATION_REVIEW_2026-08-27.md).

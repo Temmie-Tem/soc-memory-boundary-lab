@@ -407,8 +407,18 @@ local targets close site 35 to 71/71 `NO_TARGET_WITHIN_MODEL` inside the
 bounded static model. Exact external parent `247b0e1` is also reconciled for
 019A–023R/028/029A/030 after claim/provenance/phase repairs; later commits
 through observed `c91f473` are excluded. These results do not identify the
-runtime transform owner or writer. The next selection is a separate commit-
-pinned repair/audit of Verification-015 runtime-invariance evidence.
+runtime transform owner or writer.
+
+Verification 015 subsequently proves six exact condition-labelled numerical
+classifications in allocation-offset/model coordinates. Four clean comparisons
+share all 51 labels; the weak L762 condition retains two excursions and remains
+`REPEAT_REQUIRED`/`all_invariant=false`, while six independently split repeat
+groups have zero flips. This `SUPPORTED` stability across operator-reported
+runtime/reboot/coldboot contexts does not prove transform immutability or a
+data-path location. Pagemap remains `BLIND`; physical provenance and effective
+contiguity remain `UNKNOWN`. The next selection is a retained-input repair of
+Verification 016 high-bit evidence, without allowing Verification 017 to
+consume it first.
 
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside

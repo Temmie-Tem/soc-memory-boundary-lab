@@ -1663,3 +1663,55 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
    of Verification-015 runtime-invariance evidence. Its numerical result is
    evidence to verify, not yet integrated authority; the moving branch tip
    will not be merged wholesale.
+
+## 2026-08-27 — Verification 015 runtime-invariance repair
+
+1. Rebuilt Verification 015 on clean base `5a803fa` from exact retained inputs.
+   Historical commits `05a4c5c`, `a297fde`, and `b2b5068` are evidence scope,
+   not imported implementation; `4b78b61` review prose and later `6b3abc7`/
+   `c91f473` results remain outside. No device, USB, reboot, bus-vote, SMC,
+   MMIO, memory, partition, protected-memory or controller action occurred.
+2. Bound 19 private artifacts by basename/size/SHA-256: 15 condition probe
+   files, one repeat, one six-level sweep and two journals. Each is parsed and
+   hashed from one stable snapshot, then independently re-read and required to
+   match before publication. Strict parsing covers 43 sections, 633 summaries
+   and 10,704 pair records; exact qsort-index recomputation has zero mismatches.
+3. `PROVED` in `ALLOCATION_OFFSET_MODEL_COORDINATES`: all six condition-labelled
+   sets contain the same 51 differences. Threshold/gap/runner-up/conflict tuples
+   are TWRP pre7980 `371/344/7/25`, pre6881 `573/396/3/25`, post7980
+   `365/346/13/25`, V2321 7980 `351/339/8/25`, V2321 L762
+   `274/165/140/27`, and coldboot7980 `350/338/8/25`.
+4. Four clean comparisons to V2321 L7980 have zero disagreements. L762 has
+   exactly `0x100e000` and `0x1012000` excursions; it remains
+   `REPEAT_REQUIRED`, so `all_invariant=false`. Six repeat groups derive their
+   own thresholds, cover both excursions, and contain zero low/high flips. The
+   repeat result does not promote the primary comparison.
+5. The retained sweep contains exactly six requested bus-vote levels × two,
+   not eleven. It is `RETRACTED_AND_EXCLUDED` from DDR-frequency or transform-
+   transition inference because the reported higher-voter observation has no
+   retained transcript. It is retained only as measurement-stability evidence.
+6. `SUPPORTED`: stability across the operator-reported TWRP/V2321, reboot,
+   kernel/userspace and coldboot contexts. Those identities are not attested by
+   the raw probe records. Exact timestamps, build/two-environment transfer,
+   reboot/power-cycle and complete rollback/recovery/final-state receipts remain
+   `UNKNOWN` or incomplete. Pagemap is `BLIND`; effective contiguity and
+   physical-page provenance remain `UNKNOWN`.
+7. Final pins are analyzer 97,572 bytes / SHA-256
+   `6fae489d27d03f94e9dcd89086027a4209988a67020620e54f1df7e22ca99e03`,
+   tests 28,904 bytes /
+   `ccd6604febeb3c16e40c253a51f5a3fe35c3c61dcd77f6757daa2a9b8ca23ceb`,
+   README 11,820 bytes /
+   `0c2166e25707ea1381850a64c3089afefccf4ec6f7102f7d1253addbc2461c2d`,
+   and public manifest 112,840 bytes /
+   `fab880dc50f8e66e74828a0276f8e5ab5ef9b1f2b2f2f9f032dcef03b6b98592`.
+8. Validation is 44/44 focused PASS (maximum RSS 31,576 KiB, swap 0) and
+   1,039/1,039 full serial unittest PASS in 109.389 seconds (maximum RSS
+   275,168 KiB, swap 0). Python byte-compilation, byte-identical fresh manifest
+   generation, public-safety/JSON/link/diff checks pass. Independent stable-tree
+   hostile review returns `PASS` with no remaining P0–P2.
+9. Class remains `CLASS C (TRANSFORM ONLY)`; numbered Experiments 015/016 remain
+   `NOT_ELIGIBLE`. No alias, mutation, protected reach, protection ordering or
+   bypass is proved. The next iteration is a retained-input Verification-016
+   repair: preserve phases, remove filename-order merging, reconcile raw and
+   prose, and keep PA25–PA27 physical attribution model-scoped until
+   base/alignment/contiguity is proved. Verification 017 remains blocked.

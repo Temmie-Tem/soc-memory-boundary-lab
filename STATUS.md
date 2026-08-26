@@ -336,9 +336,25 @@ computed ABL paths and live DT remain `UNKNOWN`; phase-D PA10 remains
 Validation is 296 focused and 995 full unittest PASS, deterministic fresh
 manifests are mode `0644`, and final hostile review is `PASS`; see
 [the external-line reconciliation](docs/EXTERNAL_LINE_RECONCILIATION_2026-08-26.md).
-Class C and Experiments 015/016 eligibility are unchanged. The next iteration
-is a separate commit-pinned repair/audit of later Verification-015 evidence,
-not a wholesale merge of the moving external branch.
+Class C and Experiments 015/016 eligibility are unchanged.
+
+Verification 015 runtime invariance is repaired from exact retained inputs.
+`PROVED` in allocation-offset/model coordinates: six 51-key condition-labelled
+sets; four clean comparisons with zero disagreements; and one weak L762
+comparison with two excursions that remains `REPEAT_REQUIRED` and keeps
+`all_invariant=false`. Six independently thresholded repeat groups cover both
+excursions and have zero flips without promoting that primary result. The
+retained bus-vote sweep is six levels × two and is excluded from DDR-frequency
+or transform-transition inference. Runtime/reboot/coldboot identities are only
+`SUPPORTED_BY_UNRETAINED_OPERATOR_REPORT`; pagemap is `BLIND`, and complete
+action/final-state receipts are absent. Validation is 44 focused / 1,039 full
+serial PASS with independent hostile-review `PASS`; see the
+[Verification 015 integration review](docs/VERIFICATION015_INTEGRATION_REVIEW_2026-08-27.md).
+
+Class C and numbered Experiments 015/016 eligibility remain unchanged. The next
+iteration is the separate retained-input repair of Verification 016's high-bit
+relation. Verification 017 remains blocked on that result; the moving branch
+will not be merged wholesale.
 
 ## A. 현재까지 PROVED
 
@@ -712,6 +728,12 @@ not a wholesale merge of the moving external branch.
 - External reconciliation validation is 296 focused / 995 full PASS, with
   byte-identical mode-`0644` publications and independent hostile-review
   `PASS`. Exact parent is `247b0e1`; later moving-branch work is not integrated.
+- Verification 015 proves the exact six-condition numerical classifications,
+  per-difference dispersion, two primary L762 excursions, zero flips across six
+  independently split repeat groups, and the exact six-level × two bus-vote
+  transcript scope. The comparison remains `REPEAT_REQUIRED`/
+  `all_invariant=false`; runtime-transition identity is only `SUPPORTED`, and
+  the bandwidth axis is excluded from DDR-frequency inference.
 - Experiment 024's integrated host-only validation record is 30 focused and 534 full
   unittest PASS, 64 public JSON manifests, byte-identical regeneration, and
   two independent review PASS results recorded in the
@@ -731,10 +753,11 @@ not a wholesale merge of the moving external branch.
 - One or more coherent set-0 MC/MCCC words may encode geometry, channel
   selection, or a hidden transform term. Their repeated/two-by-two structure
   makes this testable, but no semantic assignment is presently proved.
-- Later Verification-015 observations may support relation invariance across
-  runtime votes, reboot and TWRP/V2321 environments. Current numerical rows are
-  reproducible, but provenance paths, six-versus-eleven-level scope, repeat
-  binding and final-state journals require repair before promotion.
+- Retained Verification-016 measurements may extend the allocation-offset/model
+  relation through bits 25–27. Prediction: a phase-preserving repair will keep
+  the reported labels while rejecting filename-order merging. Physical PA
+  attribution remains a separate hypothesis until allocation base/alignment
+  and effective contiguity are proved.
 
 ## C. REFUTED
 
@@ -1020,29 +1043,26 @@ ordering remain `UNKNOWN`, so this is not yet a structural impossibility proof.
 
 ## M. 가장 값싼 다음 실험
 
-The highest-information next iteration is the later Verification-015 runtime-
-invariance line, because it tests whether a legitimate Normal-World-triggered
-transition changes the observed relation without requiring an unknown
-controller write. It outranks another static setter trace if its provenance can
-be repaired.
+Verification 015 is complete. The highest-information next iteration is the
+retained Verification-016 high-bit relation because it can extend the measured
+transform model beyond bit 24 without a new device action. It must be repaired,
+not cherry-picked:
 
-The numerical five-condition result is reproducible from retained inputs, but
-it is not integrated here. Its documented globs currently select zero files,
-only six rather than eleven DDR levels are retained, the repeat result is not
-manifest-bound, dispersion is dropped, and device action/final-state receipts
-are incomplete. Therefore the next action is a commit-pinned host repair/audit:
+1. pin every retained raw/tool/source/dependency input;
+2. preserve acquisition phases and reject the current `setdefault()` filename-
+   order merge of overlapping keys;
+3. reconcile the README's 17/17/threshold-352 account with the current
+   54-key/threshold-335 manifest and publish only facts present in raw bytes;
+4. include held-out prediction results in the generated manifest;
+5. keep PA25–PA27 as allocation-offset/model evidence unless source/DT/base-
+   alignment and effective-contiguity evidence justify physical attribution;
+6. add deterministic no-clobber/public-safety tests and independent review.
 
-1. pin an exact later commit rather than the moving branch tip;
-2. repair raw paths and six-level scope;
-3. bind raw/tool/probe/repeat/build/journal/final-state hashes;
-4. retain `REPEAT_REQUIRED` and `all_invariant=false` for the low-vote run;
-5. add context consistency, deterministic/no-clobber and public-safety tests;
-6. independently review before any result is promoted.
-
-If that line cannot satisfy provenance, the next fallback is the host-only
-trace from 020A's pinned candidate setter `0x9fc06410` through caller
-`0x9fc023f0` to the runtime base-argument source. No device/MMIO/controller
-write is selected. Experiments 015 and 016 remain `NOT_ELIGIBLE`.
+Verification 017 cannot consume the high-bit relation until this gate passes.
+No live allocation, device/MMIO/controller write or secure-heap action is
+selected. If the retained evidence cannot support a repaired result, the
+fallback remains the host-only 020A setter trace from `0x9fc06410` through
+caller `0x9fc023f0`. Numbered Experiments 015/016 remain `NOT_ELIGIBLE`.
 
 ## N. 가장 위험한 아직 금지된 실험
 
@@ -1083,6 +1103,10 @@ Evidence for the attack class being relevant:
   bank-selection relation with held-out positive and one-bank-bit negative
   controls. The transform side of the question is therefore real, rather than
   inferred from patents or diagnostic strings.
+- Verification 015 independently retains the same 51-key classification across
+  four clean operator-labelled runtime/reboot/coldboot comparisons. This
+  `SUPPORTED` stability makes the observed relation less likely to be a single-
+  boot artifact, but it is not an immutability or transition proof.
 - Experiment 017 adds exact-XBL table/read-copy observation confidence for the
   three qhs_mc candidate groups, but does not prove any writer, mutation,
   alias, protected reach or bypass. Experiments 015 and 016 remain `NOT
@@ -1165,6 +1189,10 @@ Evidence against a presently usable bypass:
   controller-base/model-mask literal or tested triple in extracted ABL, while
   computed/runtime paths remain `UNKNOWN`.
 - No normal-RAM physical-to-DRAM alias exists in evidence.
+- Verification 015's only requested bus-vote axis is excluded: retained data do
+  not prove a DDR-frequency transition, and the L762 primary comparison remains
+  `REPEAT_REQUIRED` even though its two excursions do not recur in the bounded
+  repeat transcript.
 - The recovered bank hash alone does not create a complete-coordinate alias;
   its conflict witnesses intentionally share a bank while selecting different
   rows. The exact XBL diagnostic coordinate formula is also bijective and

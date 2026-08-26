@@ -1,18 +1,19 @@
-# Next-experiment scorecard — 2026-08-26
+# Next-experiment scorecard — 2026-08-27
 
-This scorecard ranks follow-up work after Experiment 034 and the exact-parent
-`247b0e1` external-line reconciliation. It does not grant SMC, MMIO,
-controller-write, protected-memory, or Experiments 015/016 authority. Later
-moving-branch commits through observed `c91f473` are not integrated here; each
-must be pinned and audited independently.
+This scorecard ranks follow-up work after Experiment 034, the exact-parent
+`247b0e1` external-line reconciliation, and the independently rebuilt
+Verification 015 runtime-invariance result. It does not grant SMC, MMIO,
+controller-write, protected-memory, or numbered Experiments 015/016 authority.
+Later moving-branch commits are evidence to repair, never moving-tip authority.
 
 | Rank | Experiment | Information target | Scope and gate | Status |
 |---:|---|---|---|---|
-| 1 | Verification 015 repair/audit | Determine whether the Experiment-014/023R relation is invariant across retained runtime transitions. | Pin one exact later commit; repair raw globs and six-level scope; bind raw/tool/probe/repeat/build/action/final-state evidence; preserve low-vote `REPEAT_REQUIRED`; retain dispersion/context consistency and deterministic no-clobber/public-safety controls. | `PRIMARY SELECTED`; numerical result reproducible, integration provenance incomplete |
-| 2 | 020A setter trace | Trace candidate setter `0x9fc06410` through caller `0x9fc023f0` to the runtime base-argument source. | Host-only exact-firmware control/data flow; bounded model only; no device/MMIO/controller write. | `FALLBACK` if Verification 015 provenance cannot be repaired |
+| 1 | Verification 016 repair/audit | Determine what the retained camera-preview measurements establish above model bit 24. | Host-only retained-input repair: exact pins, phase preservation, no `setdefault()` filename-order merge, README/manifest reconciliation, generated held-outs, no-clobber publication, and allocation-offset/model scope unless base/alignment/contiguity is proved. No rerun or secure heap. | `PRIMARY SELECTED`; current external artifact is internally inconsistent and unpromoted |
+| 2 | 020A setter trace | Trace candidate setter `0x9fc06410` through caller `0x9fc023f0` to the runtime base-argument source. | Host-only exact-firmware control/data flow; bounded model only; no device/MMIO/controller write. | `FALLBACK` if Verification 016 retained evidence cannot support repair |
 | 3 | E — capture-feasibility | Assess whether a future bounded evidence capture has a safe path without promoting a controller action. | Feasibility review only; no SMC/MMIO/protected-memory action. | `LATER` |
 | 4 | B — base currentness | Resolve initialized-base currentness as a bounded static/runtime-boundary question. | Preserve the unresolved runtime base and indirect `BLR` boundaries; no live promotion. | `LATER` |
 | 5 | A — runtime slot/object observation | Reassess the runtime slot/object question only if a safe evidence path exists. | The existing 26-record catalog does not cover the target slot; future action needs a separate exact-bound contract. | `LATER` |
+| — | Verification 015 | Test relation stability across retained condition-labelled runtime/reboot/coldboot sets. | Rebuilt from 19 pinned inputs: four clean invariant comparisons; L762 remains `REPEAT_REQUIRED`/`all_invariant=false`; six independent repeat groups have zero flips; bus-vote axis excluded. | `COMPLETED`; 44 focused / 1,039 full PASS, hostile `PASS` |
 | — | 034 | Resolve the exact site-35 indirect jump table left by Experiment 033. | Completed bounded host-only reconstruction: five entries/four unique targets and 71/71 `NO_TARGET_WITHIN_MODEL`; no global absence claim. | `COMPLETED`; artifact commit `d5d8046` |
 | — | 023R/028/029A/030 | Repaired relation, encoding, ABL and low-bit evidence. | Reconciled at exact parent `247b0e1` after scope/provenance/phase repairs; model/physical and runtime boundaries remain explicit. | `RECONCILED`; later commits excluded |
 | — | 033 | Source-qualify and model the exact reached pair-memory, sign-extending-memory, and system-control residual left by Experiment 032. | Completed host-only extension: 352 selected occurrences, 308 reached events, 44 selected-not-reached; 44 new events (`LDP` 38, `STP` 3, `LDRSW` 1, `LDRSB` 1, `DAIFClr` 1), six explicit STP lane observations, and a single site-35 indirect blocker preserved fail-closed; no device/MMIO/write action. | `COMPLETED AND INTEGRATED`; 033 artifact commit `56b5ffa` |

@@ -429,9 +429,26 @@ Reconciliation validation is 296 focused and 995 full unittest PASS; fresh
 manifests are byte-identical/mode `0644`, and independent hostile review is
 `PASS`. See
 [the external-line reconciliation](docs/EXTERNAL_LINE_RECONCILIATION_2026-08-26.md).
-Class C and Experiments 015/016 eligibility remain unchanged. The next
-iteration is a commit-pinned repair/audit of later Verification-015 runtime-
-invariance evidence; the moving external branch will not be merged wholesale.
+Class C and Experiments 015/016 eligibility remain unchanged.
+
+Verification 015 runtime invariance is now repaired and integrated from exact
+retained inputs rather than by merging the later branch. `PROVED` in
+allocation-offset/model coordinates: six condition-labelled 51-key sets, four
+clean zero-disagreement comparisons, and one weak L762 comparison with exactly
+two excursions that remains `REPEAT_REQUIRED` and keeps
+`all_invariant=false`. Six independently split repeat groups cover both
+excursions and contain zero repeated flips without promoting that primary
+status. The retained bus-vote sweep is six levels × two, not eleven, and is
+excluded from DDR-frequency/transform-transition inference. Runtime/reboot/
+coldboot identities are only `SUPPORTED_BY_UNRETAINED_OPERATOR_REPORT`;
+pagemap is `BLIND`, and action/final-state receipts are incomplete. Validation
+is 44 focused and 1,039 full serial tests with hostile-review `PASS`; see the
+[Verification 015 integration review](docs/VERIFICATION015_INTEGRATION_REVIEW_2026-08-27.md).
+
+Class C and numbered Experiments 015/016 eligibility remain unchanged. The
+next iteration is the separate retained-input repair of Verification 016's
+PA25–PA27 high-bit relation. Verification 017 remains blocked on that repair;
+the moving external branch will not be merged wholesale.
 
 Claim vocabulary is deliberately closed:
 
