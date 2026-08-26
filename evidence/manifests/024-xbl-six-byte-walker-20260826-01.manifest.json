@@ -1,0 +1,1255 @@
+{
+ "boundary_bypass": "NO_BOUNDARY_BYPASS_OBSERVED",
+ "claims": {
+  "HYPOTHESIS": [],
+  "PROVED": [
+   "The exact XBL contains the pinned six-byte record walker at [0x148689a0,0x14868a64), with UMADDL pointer arithmetic, LDRH fields at +0/+2, LDRB at +4, a 0x8000 comparison, and B.EQ to RET before the conditional store.",
+   "The walker uses a six-byte record stride; when the flag-gated store path is taken, LDRB zero-extends the byte and STR writes a 32-bit word. Other nonterminator flag combinations may skip the store, and flag semantics remain UNKNOWN.",
+   "Exactly three direct BL callers to the walker exist across all file-backed executable PT_LOAD words; each loads X1 from the stack slot and passes W2 from the provider return, while only the five nonzero alternatives prove a provider-written table pointer.",
+   "The five provider-selected table ranges are file-backed in the exact XBL, each has an exact six-byte stride and terminating flags 0x8000/0/0/0 record; selector==0xf has 53 unique offsets, selector!=0xf has 127, and their cross-alternative union has 170.",
+   "If the initializer's 0x01d80000 base remains current, the public and OSRC DTS snapshots independently pin byte-identical UFS design blocks and all 170 symbolic BASE+offset destinations derived from the cross-alternative syntactic offset superset lie inside broader ufshc ufs_phy [0x01d87000,0x01d87e00); three then lie beyond standalone ufsphy_mem [0x01d87000,0x01d87da8). Actual current destinations remain UNKNOWN.",
+   "The direct provider pointer targets are structurally XBL-resident six-byte tables, distinct from the pinned Experiment 019 eight-byte xbl_config candidate-pair-array representation; semantic DCB identity remains UNKNOWN.",
+   "On selector==0xf, provider3 writes no table pointer and returns count zero; the pinned walker zero-count control reaches RET before any table dereference, conditional on that returned count."
+  ],
+  "REFUTED": [],
+  "SUPPORTED": [
+   "The direct-call positive control supports a table-driven path that is conditional on the initialized base remaining current and on flag-gated store reach; it does not prove or refute a ranked DDR/MC/DCB path.",
+   "The five selector alternatives and counts are supported by exact provider instruction pins; the selector's current value and runtime execution remain UNKNOWN."
+  ],
+  "UNKNOWN": [
+   "The current runtime value at selector address 0x146b3000, runtime execution, flag-gated reached subsets, postboot mutation, and equality of either design source to the live DTB.",
+   "Whether the initialized 0x01d80000 base remains current through every reachable direct success-path callee or alias; the unresolved BLR X9 at 0x1486ac1c prevents a global current-base proof.",
+   "Whether any table is a DCB consumer, which indirect callers or other walkers exist, global DCB consumer/writer presence, and any xbl_config semantic alias.",
+   "Register semantics, the Experiment 014 GF(2) relation, physical ownership, aliases, boundary bypass, and any device authority."
+  ]
+ },
+ "classification": "CLASS C (TRANSFORM ONLY)",
+ "conditional_ufs_destinations": {
+  "actual_current_destinations": "UNKNOWN",
+  "actual_reached_store_subset": "UNKNOWN",
+  "base": "0x01d80000",
+  "base_currentness": "UNKNOWN",
+  "broader_resource": {
+   "reg_name": "ufs_phy",
+   "resource_end_exclusive": "0x01d87e00",
+   "resource_start": "0x01d87000",
+   "size": 3584
+  },
+  "condition": "If the initializer's stored base remains current at walker execution.",
+  "conditional_destination_count": 170,
+  "conditional_destinations_within_standalone_ufsphy_mem": 167,
+  "conditional_destinations_within_ufshc_ufs_phy": 170,
+  "domain": "CROSS_ALTERNATIVE_SYMBOLIC_OFFSET_SUPERSET",
+  "flag_semantics": "UNKNOWN",
+  "outside_standalone_ufsphy_mem_offsets": [
+   "0x00007dc4",
+   "0x00007dd8",
+   "0x00007de0"
+  ],
+  "standalone_resource": {
+   "reg_name": "phy_mem",
+   "resource_end_exclusive": "0x01d87da8",
+   "resource_start": "0x01d87000",
+   "size": 3496
+  }
+ },
+ "dependencies": {
+  "experiment_019": {
+   "candidate_pair_array_count": 28,
+   "dcb_image": "xbl_config--sdb2.bin",
+   "dcb_image_sha256": "0e9dfac1ddd0f9acc2cc899213e621490308f0cadf329814048edb7712e2484c",
+   "filename": "019-dcb-register-programming-20260826-01.manifest.json",
+   "representation": "EIGHT_BYTE_XBL_CONFIG_CANDIDATE_PAIR_ARRAYS",
+   "sha256": "232eb0375fadf96db1fd303d83d707cf47cb668a24129d7e4791b193fb3fc70c",
+   "size": 40368
+  }
+ },
+ "device_access": "none",
+ "direct_callers": {
+  "argument_flow": [
+   {
+    "arguments": {
+     "W2": "PROVIDER_RETURN_W0",
+     "X0": "X19_CONTEXT",
+     "X1": "LDR_X1_FROM_SP_PLUS_0x18"
+    },
+    "caller": "0x14868640",
+    "provider": "0x1486a9b4",
+    "range": {
+     "end_exclusive": "0x14868644",
+     "file_offset": "0x4f630",
+     "sha256": "1d7e401a13707cbaa29ff269455873361933578348afd19d2d62a76af7388aa9",
+     "size": 20,
+     "start": "0x14868630"
+    },
+    "x1_pointer_status": "PROVIDER_POINTER_STORE_FOR_BOTH_SELECTOR_ALTERNATIVES"
+   },
+   {
+    "arguments": {
+     "W2": "PROVIDER_RETURN_W0",
+     "X0": "X19_CONTEXT",
+     "X1": "LDR_X1_FROM_SP_PLUS_0x18"
+    },
+    "caller": "0x1486867c",
+    "provider": "0x1486a9ec",
+    "range": {
+     "end_exclusive": "0x14868680",
+     "file_offset": "0x4f668",
+     "sha256": "caa59b79905c6c50ecd4ef655e4322056c3720e5f05fe897df6772d1b6c7956d",
+     "size": 24,
+     "start": "0x14868668"
+    },
+    "x1_pointer_status": "PROVIDER_POINTER_STORE_FOR_BOTH_SELECTOR_ALTERNATIVES"
+   },
+   {
+    "arguments": {
+     "W2": "PROVIDER_RETURN_W0",
+     "X0": "X19_CONTEXT",
+     "X1": "LDR_X1_FROM_SP_PLUS_0x18"
+    },
+    "caller": "0x14868698",
+    "provider": "0x1486aa20",
+    "range": {
+     "end_exclusive": "0x1486869c",
+     "file_offset": "0x4f684",
+     "sha256": "87216c3a25738009addf922396bb7e9e26c302340a8cd322743f15bb553f18af",
+     "size": 24,
+     "start": "0x14868684"
+    },
+    "x1_pointer_status": "NO_POINTER_STORE_ON_SELECTOR_EQ_0XF;PREEXISTING_STACK_SLOT_UNKNOWN"
+   }
+  ],
+  "argument_flow_boundary": "Every caller loads X1 from the stack slot and passes W2 from the provider return; only the five nonzero alternatives prove that X1 is a provider-written table pointer.",
+  "direct_bl_caller_count": 3,
+  "direct_bl_callers": [
+   "0x14868640",
+   "0x1486867c",
+   "0x14868698"
+  ],
+  "scan_scope": "ALL_FILE_BACKED_EXECUTABLE_PT_LOAD_WORDS",
+  "target": "0x148689a0"
+ },
+ "dts_resources": {
+  "live_dtb_equality": "UNKNOWN",
+  "osrc": {
+   "ufshc_ufs_phy": {
+    "reg_name": "ufs_phy",
+    "resource_end_exclusive": "0x01d87e00",
+    "resource_start": "0x01d87000",
+    "size": 3584
+   },
+   "ufsphy_mem": {
+    "reg_name": "phy_mem",
+    "resource_end_exclusive": "0x01d87da8",
+    "resource_start": "0x01d87000",
+    "size": 3496
+   }
+  },
+  "public": {
+   "ufshc_ufs_phy": {
+    "reg_name": "ufs_phy",
+    "resource_end_exclusive": "0x01d87e00",
+    "resource_start": "0x01d87000",
+    "size": 3584
+   },
+   "ufsphy_mem": {
+    "reg_name": "phy_mem",
+    "resource_end_exclusive": "0x01d87da8",
+    "resource_start": "0x01d87000",
+    "size": 3496
+   }
+  },
+  "ufs_design_block": {
+   "byte_identical": true,
+   "sha256": "cea31db3785be5916a1ff08d1c99b92155a7914b07d09ecb6c3638d8c16ff10a",
+   "size": 4464
+  }
+ },
+ "elf": {
+  "file_backed_executable_aligned_word_count": 847465,
+  "file_backed_executable_pt_load_count": 6,
+  "file_backed_pt_loads": [
+   {
+    "file_offset": "0x3000",
+    "file_size": 323032,
+    "flags": 5,
+    "kind": "RX",
+    "mem_size": 323032,
+    "segment_index": 2,
+    "vaddr": "0x1481c000"
+   },
+   {
+    "file_offset": "0x51de0",
+    "file_size": 66560,
+    "flags": 6,
+    "kind": "RW",
+    "mem_size": 66560,
+    "segment_index": 4,
+    "vaddr": "0x14872400"
+   },
+   {
+    "file_offset": "0x621e0",
+    "file_size": 3264,
+    "flags": 5,
+    "kind": "RX",
+    "mem_size": 3264,
+    "segment_index": 7,
+    "vaddr": "0x146ae000"
+   },
+   {
+    "file_offset": "0x62ea0",
+    "file_size": 2132,
+    "flags": 6,
+    "kind": "RW",
+    "mem_size": 2132,
+    "segment_index": 8,
+    "vaddr": "0x146b1000"
+   },
+   {
+    "file_offset": "0x63700",
+    "file_size": 145608,
+    "flags": 7,
+    "kind": "RWX",
+    "mem_size": 145608,
+    "segment_index": 9,
+    "vaddr": "0x1489f800"
+   },
+   {
+    "file_offset": "0x86fd0",
+    "file_size": 2359296,
+    "flags": 7,
+    "kind": "RWX",
+    "mem_size": 2359296,
+    "segment_index": 11,
+    "vaddr": "0x9fc00000"
+   },
+   {
+    "file_offset": "0x2c6fd0",
+    "file_size": 90112,
+    "flags": 83886085,
+    "kind": "F83886085",
+    "mem_size": 90112,
+    "segment_index": 12,
+    "vaddr": "0x14698000"
+   },
+   {
+    "file_offset": "0x2dcfd0",
+    "file_size": 468548,
+    "flags": 5,
+    "kind": "RX",
+    "mem_size": 468548,
+    "segment_index": 13,
+    "vaddr": "0x14900000"
+   },
+   {
+    "file_offset": "0x34f620",
+    "file_size": 276000,
+    "flags": 6,
+    "kind": "RW",
+    "mem_size": 417848,
+    "segment_index": 14,
+    "vaddr": "0x85e44000"
+   }
+  ],
+  "format": "ELF64_LITTLE_AARCH64",
+  "runtime_selector_pt_load": {
+   "address": "0x146b3000",
+   "file_backed": false,
+   "memory_only": true
+  },
+  "scan_scope": "ALL_FILE_BACKED_EXECUTABLE_PT_LOAD_WORDS"
+ },
+ "eligibility": {
+  "class": "C",
+  "device_action": "NONE",
+  "experiments_015_016": "NOT_ELIGIBLE"
+ },
+ "experiment_id": "024-xbl-six-byte-walker",
+ "initializer_and_base_audit": {
+  "base_currentness": "UNKNOWN",
+  "initializer": {
+   "direct_caller": "0x14868464",
+   "range": {
+    "end_exclusive": "0x1486ab04",
+    "file_offset": "0x51afc",
+    "sha256": "40fb695e26eac295c251383a0077146e9dd820231a85feedeb791b456086d8a4",
+    "size": 8,
+    "start": "0x1486aafc"
+   },
+   "return_value": 30932992,
+   "returns": "0x01d80000",
+   "store": {
+    "field_offset": 8,
+    "instruction": "STR X0,[X19,#8]",
+    "va": "0x14868468"
+   }
+  },
+  "local_context_base_store_census": {
+   "no_second_direct_store": true,
+   "store_count": 1,
+   "store_vas": [
+    "0x14868468"
+   ]
+  },
+  "main_init": {
+   "end_exclusive": "0x148688f0",
+   "file_offset": "0x4f418",
+   "sha256": "28fd589dc6e2d47fdf592b3a08aa8883e9e0d90a648f76733dab5376dfd369da",
+   "size": 1240,
+   "start": "0x14868418"
+  },
+  "mapping": {
+   "condition": "Conditional on the initialized 0x01d80000 base remaining current through every reachable direct success-path callee and alias.",
+   "conditional": true,
+   "status": "SUPPORTED"
+  },
+  "unresolved_success_path": {
+   "direct_call": "0x1486847c",
+   "helper_range": {
+    "end_exclusive": "0x1486acac",
+    "file_offset": "0x51bec",
+    "sha256": "679384b78fab5cf3903f5c7a34e5efa45552c983b4d2bb1fcc8dc12e66d555c2",
+    "size": 192,
+    "start": "0x1486abec"
+   },
+   "reason": "RUNTIME_BSS_OBJECT_INDIRECT_CALL_CONTINUES_TO_WALKER_PATH",
+   "runtime_bss_slot": {
+    "address": "0x14890590",
+    "address_xref": {
+     "va": "0x1486ac40",
+     "word": "0x91164021"
+    },
+    "load_xref": {
+     "va": "0x1486ac04",
+     "word": "0xf942ca88"
+    },
+    "reload_xref": {
+     "va": "0x1486aca4",
+     "word": "0xf942ca88"
+    },
+    "segment_file_size": 0,
+    "segment_index": 5,
+    "segment_mem_size": 117760,
+    "segment_vaddr": "0x14882800"
+   },
+   "unresolved_blr": {
+    "target": "UNKNOWN",
+    "target_register": "X9",
+    "va": "0x1486ac1c",
+    "word": "0xd63f0120"
+   }
+  }
+ },
+ "inputs": {
+  "firmware": {
+   "filename": "xbl--sdb1.bin",
+   "sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+   "size": 4194304
+  },
+  "osrc_kernel_dtsi": {
+   "filename": "sm8150.dtsi",
+   "provenance": "A908N OSRC Kernel.tar.gz sha256 403fdc49f086d238c01a796c390083c3c47c1754c218e228f29b55cc7c35d554; correspondence to installed config is SUPPORTED by A90_SELF_BUILT_KERNEL_H0 report",
+   "sha256": "c0d42e66ddd5640e2dd7b65527c25fb617008d94a6a04062b9e1077f0eb63849",
+   "size": 102419
+  },
+  "public_kernel_dtsi": {
+   "filename": "sm8150.dtsi",
+   "provenance": "kernel_samsung_r3q@e1d271581eff",
+   "sha256": "38db804d589bb01206adbf2a351c4d074f5c92f7ef351dc3976cbcb846f1a31c",
+   "size": 101386
+  },
+  "ufs_design_block": {
+   "byte_identical": true,
+   "sha256": "cea31db3785be5916a1ff08d1c99b92155a7914b07d09ecb6c3638d8c16ff10a",
+   "size": 4464
+  }
+ },
+ "mode": "HOST_ONLY_READ_ONLY",
+ "provider_pointer_proof": {
+  "instruction_pins": [
+   {
+    "va": "0x1486a9b8",
+    "word": "0xd00000aa"
+   },
+   {
+    "va": "0x1486a9bc",
+    "word": "0x912e814a"
+   },
+   {
+    "va": "0x1486a9cc",
+    "word": "0x910b414b"
+   },
+   {
+    "va": "0x1486a9dc",
+    "word": "0x9101394c"
+   },
+   {
+    "va": "0x1486a9e0",
+    "word": "0x9a8b0189"
+   },
+   {
+    "va": "0x1486a9e4",
+    "word": "0xf9000109"
+   },
+   {
+    "va": "0x1486a9ec",
+    "word": "0xb0fff249"
+   },
+   {
+    "va": "0x1486a9f0",
+    "word": "0xd00000aa"
+   },
+   {
+    "va": "0x1486a9f4",
+    "word": "0x912e814a"
+   },
+   {
+    "va": "0x1486aa10",
+    "word": "0x9105414b"
+   },
+   {
+    "va": "0x1486aa14",
+    "word": "0x9a8b0149"
+   },
+   {
+    "va": "0x1486aa18",
+    "word": "0xf9000109"
+   },
+   {
+    "va": "0x1486aa3c",
+    "word": "0xd00000a9"
+   },
+   {
+    "va": "0x1486aa44",
+    "word": "0x912d0129"
+   },
+   {
+    "va": "0x1486aa48",
+    "word": "0xf9000109"
+   }
+  ],
+  "not_xbl_config_8byte_candidate_arrays": "PROVED_BY_XBL_RESIDENCE_AND_SIX_BYTE_STRIDE_PLUS_PINNED_019_COMPARISON",
+  "pointer_targets": [
+   {
+    "pointer_storage": "X9",
+    "provider": "0x1486a9b4",
+    "selection": "selector == 0xf",
+    "table": "0x14880bee"
+   },
+   {
+    "pointer_storage": "X9",
+    "provider": "0x1486a9b4",
+    "selection": "selector != 0xf",
+    "table": "0x14880e70"
+   },
+   {
+    "pointer_storage": "X9",
+    "provider": "0x1486a9ec",
+    "selection": "selector == 0xf",
+    "table": "0x14880ba0"
+   },
+   {
+    "pointer_storage": "X9",
+    "provider": "0x1486a9ec",
+    "selection": "selector != 0xf",
+    "table": "0x14880cf0"
+   },
+   {
+    "pointer_storage": "X9",
+    "provider": "0x1486aa20",
+    "selection": "selector != 0xf",
+    "table": "0x14880b40"
+   }
+  ],
+  "record_stride": 6,
+  "status": "PROVED",
+  "target_residence": "EXACT_XBL_FILE_BACKED_PT_LOAD",
+  "xbl_config_semantic_identity": "UNKNOWN"
+ },
+ "providers": {
+  "derived_pointer_targets": {
+   "provider1_eq": "0x14880bee",
+   "provider1_ne": "0x14880e70",
+   "provider2_eq": "0x14880ba0",
+   "provider2_ne": "0x14880cf0",
+   "provider3_ne": "0x14880b40"
+  },
+  "five_table_alternatives": [
+   {
+    "condition": "selector == 0xf",
+    "count": 43,
+    "provider": "0x1486a9b4",
+    "table": "0x14880bee"
+   },
+   {
+    "condition": "selector != 0xf",
+    "count": 90,
+    "provider": "0x1486a9b4",
+    "table": "0x14880e70"
+   },
+   {
+    "condition": "selector == 0xf",
+    "count": 13,
+    "provider": "0x1486a9ec",
+    "table": "0x14880ba0"
+   },
+   {
+    "condition": "selector != 0xf",
+    "count": 64,
+    "provider": "0x1486a9ec",
+    "table": "0x14880cf0"
+   },
+   {
+    "condition": "selector != 0xf",
+    "count": 16,
+    "provider": "0x1486aa20",
+    "table": "0x14880b40"
+   }
+  ],
+  "flags_semantics": "UNKNOWN",
+  "functions": [
+   {
+    "end_exclusive": "0x1486a9ec",
+    "entry": "0x1486a9b4",
+    "file_offset": "0x519b4",
+    "selector_address": "0x146b3000",
+    "sha256": "abd87bf51feb5731a66a0ff258b90f365e818a93fab36e702be701b9534a8720",
+    "size": 56,
+    "start": "0x1486a9b4"
+   },
+   {
+    "end_exclusive": "0x1486aa20",
+    "entry": "0x1486a9ec",
+    "file_offset": "0x519ec",
+    "selector_address": "0x146b3000",
+    "sha256": "027a60ffefe19ec8537e2253915e292ea8bb26e82bce2046d8c067a007cc3437",
+    "size": 52,
+    "start": "0x1486a9ec"
+   },
+   {
+    "end_exclusive": "0x1486aa50",
+    "entry": "0x1486aa20",
+    "file_offset": "0x51a20",
+    "selector_address": "0x146b3000",
+    "sha256": "6760464b6a32ca9a5c8d7f800b247e9643e592f972a629796852a8edbf2091d8",
+    "size": 48,
+    "start": "0x1486aa20"
+   }
+  ],
+  "runtime_selector": {
+   "address": "0x146b3000",
+   "current_value": "UNKNOWN",
+   "file_backed": false,
+   "semantics": "UNKNOWN",
+   "storage": "MEMORY_ONLY_PT_LOAD"
+  },
+  "selector_eq_0xf_provider3": {
+   "branch": {
+    "instruction": "B.NE",
+    "target": "0x1486aa3c",
+    "va": "0x1486aa30"
+   },
+   "caller_w2": "0",
+   "caller_x1": "LDR_X1_FROM_PREEXISTING_STACK_SLOT_UNKNOWN",
+   "count": 0,
+   "eq_return": {
+    "instruction": "RET",
+    "va": "0x1486aa38"
+   },
+   "eq_return_range": {
+    "end_exclusive": "0x1486aa3c",
+    "size": 8,
+    "start": "0x1486aa34"
+   },
+   "status": "NO_TABLE_POINTER_STORE",
+   "table": null,
+   "walker_zero_count_control": "CONDITIONALLY_RETURNS_BEFORE_ANY_TABLE_DEREFERENCE"
+  }
+ },
+ "schema": "sm8150-xbl-six-byte-walker-v1",
+ "tables": {
+  "all_offsets_aligned": true,
+  "cross_alternative_union": {
+   "offset_max": "0x00007de0",
+   "offset_min": "0x00007000",
+   "unique_offset_count": 170
+  },
+  "excluded_offsets_absent": [
+   "0x00000400",
+   "0x00000404",
+   "0x000004d0"
+  ],
+  "nonterminator_offset_max": "0x00007de0",
+  "nonterminator_offset_min": "0x00007000",
+  "nonterminator_offset_union": [
+   "0x00007000",
+   "0x00007004",
+   "0x00007014",
+   "0x00007018",
+   "0x00007020",
+   "0x00007024",
+   "0x00007028",
+   "0x0000702c",
+   "0x00007038",
+   "0x0000703c",
+   "0x00007040",
+   "0x00007044",
+   "0x00007048",
+   "0x0000704c",
+   "0x00007050",
+   "0x00007058",
+   "0x00007064",
+   "0x00007074",
+   "0x00007078",
+   "0x0000707c",
+   "0x00007080",
+   "0x00007084",
+   "0x00007088",
+   "0x00007094",
+   "0x00007098",
+   "0x0000709c",
+   "0x000070a0",
+   "0x000070a4",
+   "0x000070a8",
+   "0x000070ac",
+   "0x000070b0",
+   "0x000070b4",
+   "0x000070b8",
+   "0x000070bc",
+   "0x000070c4",
+   "0x0000710c",
+   "0x00007124",
+   "0x00007158",
+   "0x0000715c",
+   "0x000071ac",
+   "0x000071b0",
+   "0x000071b4",
+   "0x000071b8",
+   "0x000071bc",
+   "0x00007404",
+   "0x00007484",
+   "0x000074b8",
+   "0x000074d8",
+   "0x000074dc",
+   "0x000074e0",
+   "0x000074e4",
+   "0x00007600",
+   "0x00007608",
+   "0x00007614",
+   "0x00007628",
+   "0x00007630",
+   "0x00007634",
+   "0x00007638",
+   "0x0000763c",
+   "0x00007644",
+   "0x00007648",
+   "0x00007668",
+   "0x00007678",
+   "0x00007680",
+   "0x00007684",
+   "0x00007688",
+   "0x0000768c",
+   "0x00007690",
+   "0x00007698",
+   "0x0000769c",
+   "0x000076ec",
+   "0x000076f0",
+   "0x000076f4",
+   "0x000076f8",
+   "0x000076fc",
+   "0x00007700",
+   "0x00007714",
+   "0x0000771c",
+   "0x00007720",
+   "0x00007724",
+   "0x00007728",
+   "0x00007770",
+   "0x00007774",
+   "0x00007778",
+   "0x0000777c",
+   "0x00007780",
+   "0x00007784",
+   "0x00007788",
+   "0x0000778c",
+   "0x00007790",
+   "0x00007794",
+   "0x00007798",
+   "0x0000779c",
+   "0x000077a0",
+   "0x000077a4",
+   "0x000077a8",
+   "0x000077bc",
+   "0x00007804",
+   "0x00007884",
+   "0x000078b8",
+   "0x000078d8",
+   "0x000078dc",
+   "0x000078e0",
+   "0x000078e4",
+   "0x00007a00",
+   "0x00007a08",
+   "0x00007a14",
+   "0x00007a28",
+   "0x00007a30",
+   "0x00007a34",
+   "0x00007a38",
+   "0x00007a3c",
+   "0x00007a44",
+   "0x00007a48",
+   "0x00007a68",
+   "0x00007a78",
+   "0x00007a80",
+   "0x00007a84",
+   "0x00007a88",
+   "0x00007a8c",
+   "0x00007a90",
+   "0x00007a98",
+   "0x00007a9c",
+   "0x00007aec",
+   "0x00007af0",
+   "0x00007af4",
+   "0x00007af8",
+   "0x00007afc",
+   "0x00007b00",
+   "0x00007b14",
+   "0x00007b1c",
+   "0x00007b20",
+   "0x00007b24",
+   "0x00007b28",
+   "0x00007b70",
+   "0x00007b74",
+   "0x00007b78",
+   "0x00007b7c",
+   "0x00007b80",
+   "0x00007b84",
+   "0x00007b88",
+   "0x00007b8c",
+   "0x00007b90",
+   "0x00007b94",
+   "0x00007b98",
+   "0x00007b9c",
+   "0x00007ba0",
+   "0x00007ba4",
+   "0x00007ba8",
+   "0x00007bbc",
+   "0x00007c00",
+   "0x00007c04",
+   "0x00007c08",
+   "0x00007c0c",
+   "0x00007c10",
+   "0x00007c2c",
+   "0x00007c30",
+   "0x00007c38",
+   "0x00007c60",
+   "0x00007c74",
+   "0x00007cb4",
+   "0x00007d24",
+   "0x00007d34",
+   "0x00007d50",
+   "0x00007d58",
+   "0x00007d60",
+   "0x00007d68",
+   "0x00007dc4",
+   "0x00007dd8",
+   "0x00007de0"
+  ],
+  "nonterminator_offset_union_count": 170,
+  "nonterminator_record_count": 221,
+  "record_interpretation": "LDRH_FLAGS_PLUS_0;LDRH_OFFSET_PLUS_2;LDRB_VALUE_PLUS_4;TERMINATOR_FLAGS_0x8000",
+  "scenario_offset_unions": {
+   "selector_eq_0xf": {
+    "nonterminator_record_count": 54,
+    "offset_max": "0x00007dc4",
+    "offset_min": "0x00007000",
+    "offsets": [
+     "0x00007000",
+     "0x00007004",
+     "0x00007014",
+     "0x00007018",
+     "0x00007020",
+     "0x00007024",
+     "0x00007028",
+     "0x0000702c",
+     "0x00007038",
+     "0x0000703c",
+     "0x00007040",
+     "0x00007044",
+     "0x00007048",
+     "0x0000704c",
+     "0x00007050",
+     "0x00007064",
+     "0x00007098",
+     "0x0000709c",
+     "0x000070a0",
+     "0x000070a4",
+     "0x000070a8",
+     "0x000070ac",
+     "0x000070b0",
+     "0x00007404",
+     "0x00007600",
+     "0x00007628",
+     "0x00007634",
+     "0x00007638",
+     "0x00007680",
+     "0x00007684",
+     "0x00007688",
+     "0x0000768c",
+     "0x00007690",
+     "0x00007698",
+     "0x0000769c",
+     "0x00007804",
+     "0x00007a00",
+     "0x00007a28",
+     "0x00007a34",
+     "0x00007a38",
+     "0x00007a80",
+     "0x00007a84",
+     "0x00007a88",
+     "0x00007a8c",
+     "0x00007a90",
+     "0x00007a98",
+     "0x00007a9c",
+     "0x00007c00",
+     "0x00007c04",
+     "0x00007c08",
+     "0x00007c0c",
+     "0x00007d34",
+     "0x00007dc4"
+    ],
+    "table_starts": [
+     "0x14880bee",
+     "0x14880ba0"
+    ],
+    "unique_offset_count": 53
+   },
+   "selector_ne_0xf": {
+    "nonterminator_record_count": 167,
+    "offset_max": "0x00007de0",
+    "offset_min": "0x00007058",
+    "offsets": [
+     "0x00007058",
+     "0x00007074",
+     "0x00007078",
+     "0x0000707c",
+     "0x00007080",
+     "0x00007084",
+     "0x00007088",
+     "0x00007094",
+     "0x000070a4",
+     "0x000070ac",
+     "0x000070b0",
+     "0x000070b4",
+     "0x000070b8",
+     "0x000070bc",
+     "0x000070c4",
+     "0x0000710c",
+     "0x00007124",
+     "0x00007158",
+     "0x0000715c",
+     "0x000071ac",
+     "0x000071b0",
+     "0x000071b4",
+     "0x000071b8",
+     "0x000071bc",
+     "0x00007484",
+     "0x000074b8",
+     "0x000074d8",
+     "0x000074dc",
+     "0x000074e0",
+     "0x000074e4",
+     "0x00007608",
+     "0x00007614",
+     "0x00007630",
+     "0x00007634",
+     "0x0000763c",
+     "0x00007644",
+     "0x00007648",
+     "0x00007668",
+     "0x00007678",
+     "0x00007680",
+     "0x000076ec",
+     "0x000076f0",
+     "0x000076f4",
+     "0x000076f8",
+     "0x000076fc",
+     "0x00007700",
+     "0x00007714",
+     "0x0000771c",
+     "0x00007720",
+     "0x00007724",
+     "0x00007728",
+     "0x00007770",
+     "0x00007774",
+     "0x00007778",
+     "0x0000777c",
+     "0x00007780",
+     "0x00007784",
+     "0x00007788",
+     "0x0000778c",
+     "0x00007790",
+     "0x00007794",
+     "0x00007798",
+     "0x0000779c",
+     "0x000077a0",
+     "0x000077a4",
+     "0x000077a8",
+     "0x000077bc",
+     "0x00007884",
+     "0x000078b8",
+     "0x000078d8",
+     "0x000078dc",
+     "0x000078e0",
+     "0x000078e4",
+     "0x00007a08",
+     "0x00007a14",
+     "0x00007a30",
+     "0x00007a34",
+     "0x00007a3c",
+     "0x00007a44",
+     "0x00007a48",
+     "0x00007a68",
+     "0x00007a78",
+     "0x00007a80",
+     "0x00007aec",
+     "0x00007af0",
+     "0x00007af4",
+     "0x00007af8",
+     "0x00007afc",
+     "0x00007b00",
+     "0x00007b14",
+     "0x00007b1c",
+     "0x00007b20",
+     "0x00007b24",
+     "0x00007b28",
+     "0x00007b70",
+     "0x00007b74",
+     "0x00007b78",
+     "0x00007b7c",
+     "0x00007b80",
+     "0x00007b84",
+     "0x00007b88",
+     "0x00007b8c",
+     "0x00007b90",
+     "0x00007b94",
+     "0x00007b98",
+     "0x00007b9c",
+     "0x00007ba0",
+     "0x00007ba4",
+     "0x00007ba8",
+     "0x00007bbc",
+     "0x00007c04",
+     "0x00007c08",
+     "0x00007c0c",
+     "0x00007c10",
+     "0x00007c2c",
+     "0x00007c30",
+     "0x00007c38",
+     "0x00007c60",
+     "0x00007c74",
+     "0x00007cb4",
+     "0x00007d24",
+     "0x00007d50",
+     "0x00007d58",
+     "0x00007d60",
+     "0x00007d68",
+     "0x00007dd8",
+     "0x00007de0"
+    ],
+    "table_starts": [
+     "0x14880e70",
+     "0x14880cf0",
+     "0x14880b40"
+    ],
+    "unique_offset_count": 127
+   }
+  },
+  "table_count": 5,
+  "tables": [
+   {
+    "count": 16,
+    "end_exclusive": "0x14880ba0",
+    "file_backed_pt_load": {
+     "file_offset": "0x60520",
+     "flags": 6,
+     "kind": "RW",
+     "segment_index": 4
+    },
+    "nonterminator_count": 15,
+    "offset_alignment": 4,
+    "sha256": "1c596a44cbec1cdbcc5b23e81eccde1c20556b17ab3c434ef393c29ab63aa015",
+    "start": "0x14880b40",
+    "stride": 6,
+    "terminator": {
+     "flags": "0x8000",
+     "offset": "0x0000",
+     "reserved": "0x00",
+     "value": "0x00"
+    }
+   },
+   {
+    "count": 13,
+    "end_exclusive": "0x14880bee",
+    "file_backed_pt_load": {
+     "file_offset": "0x60580",
+     "flags": 6,
+     "kind": "RW",
+     "segment_index": 4
+    },
+    "nonterminator_count": 12,
+    "offset_alignment": 4,
+    "sha256": "eac051599765de4842c6ecf7a6076813eac93a07cd052d829787b1095fa353b1",
+    "start": "0x14880ba0",
+    "stride": 6,
+    "terminator": {
+     "flags": "0x8000",
+     "offset": "0x0000",
+     "reserved": "0x00",
+     "value": "0x00"
+    }
+   },
+   {
+    "count": 43,
+    "end_exclusive": "0x14880cf0",
+    "file_backed_pt_load": {
+     "file_offset": "0x605ce",
+     "flags": 6,
+     "kind": "RW",
+     "segment_index": 4
+    },
+    "nonterminator_count": 42,
+    "offset_alignment": 4,
+    "sha256": "f7b7ca7dae26320d69c87c9b4c59472eb0933aa7216936ed7564f78b770f643c",
+    "start": "0x14880bee",
+    "stride": 6,
+    "terminator": {
+     "flags": "0x8000",
+     "offset": "0x0000",
+     "reserved": "0x00",
+     "value": "0x00"
+    }
+   },
+   {
+    "count": 64,
+    "end_exclusive": "0x14880e70",
+    "file_backed_pt_load": {
+     "file_offset": "0x606d0",
+     "flags": 6,
+     "kind": "RW",
+     "segment_index": 4
+    },
+    "nonterminator_count": 63,
+    "offset_alignment": 4,
+    "sha256": "7c0fb81701455fb380cf4a2d1af4120a444a6be66235c2a87dad5ca2c932711f",
+    "start": "0x14880cf0",
+    "stride": 6,
+    "terminator": {
+     "flags": "0x8000",
+     "offset": "0x0000",
+     "reserved": "0x00",
+     "value": "0x00"
+    }
+   },
+   {
+    "count": 90,
+    "end_exclusive": "0x1488108c",
+    "file_backed_pt_load": {
+     "file_offset": "0x60850",
+     "flags": 6,
+     "kind": "RW",
+     "segment_index": 4
+    },
+    "nonterminator_count": 89,
+    "offset_alignment": 4,
+    "sha256": "8c26948bb9e7e24ae9c2d950412e851dd1e60e412aa4f82d7936c247103ac240",
+    "start": "0x14880e70",
+    "stride": 6,
+    "terminator": {
+     "flags": "0x8000",
+     "offset": "0x0000",
+     "reserved": "0x00",
+     "value": "0x00"
+    }
+   }
+  ]
+ },
+ "walker": {
+  "back_edge": "0x14868a5c",
+  "base_load": {
+   "base_register": "X0",
+   "destination": "X15",
+   "load": "LDR X15,[X0,#8]",
+   "offset": 8
+  },
+  "branch_pins": {
+   "back_edge": {
+    "condition": "CC",
+    "target": "0x148689dc",
+    "va": "0x14868a5c"
+   },
+   "preheader_to_loop": {
+    "target": "0x14868a58",
+    "va": "0x148689d8"
+   },
+   "terminator_to_return": {
+    "condition": "EQ",
+    "target": "0x14868a60",
+    "va": "0x148689f4"
+   }
+  },
+  "fields": {
+   "flags": {
+    "load": "LDRH",
+    "offset": 0,
+    "register": "W15",
+    "semantics": "UNKNOWN"
+   },
+   "offset": {
+    "load": "LDRH",
+    "offset": 2,
+    "register": "W13"
+   },
+   "value": {
+    "load": "LDRB",
+    "offset": 4,
+    "register": "W14",
+    "zero_extended": true
+   }
+  },
+  "flag_gate_range": {
+   "end_exclusive": "0x14868a4c",
+   "file_offset": "0x4f9f8",
+   "sha256": "0f5f409b78e51bc7aad6c1a7d0472a184670bf8b908cd897e621af9c5db80698",
+   "size": 84,
+   "start": "0x148689f8"
+  },
+  "flags_semantics": "UNKNOWN_EXCEPT_EXACT_TERMINATOR_COMPARISON",
+  "induction": {
+   "back_edge_condition": "B.CC",
+   "compare": "CMP W9,W2",
+   "instruction": "ADD W9,W9,#1"
+  },
+  "instruction_pins": [
+   {
+    "va": "0x148689a0",
+    "word": "0xf9400408"
+   },
+   {
+    "va": "0x148689c8",
+    "word": "0x2a1f03e9"
+   },
+   {
+    "va": "0x148689cc",
+    "word": "0x321f07ea"
+   },
+   {
+    "va": "0x148689d8",
+    "word": "0x14000020"
+   },
+   {
+    "va": "0x148689dc",
+    "word": "0x9baa052e"
+   },
+   {
+    "va": "0x148689e0",
+    "word": "0x794005cd"
+   },
+   {
+    "va": "0x148689e4",
+    "word": "0x794001cf"
+   },
+   {
+    "va": "0x148689e8",
+    "word": "0x394011ce"
+   },
+   {
+    "va": "0x148689f0",
+    "word": "0x714021ff"
+   },
+   {
+    "va": "0x148689f4",
+    "word": "0x54000360"
+   },
+   {
+    "va": "0x14868a4c",
+    "word": "0xf940040f"
+   },
+   {
+    "va": "0x14868a50",
+    "word": "0xb82d69ee"
+   },
+   {
+    "va": "0x14868a54",
+    "word": "0x11000529"
+   },
+   {
+    "va": "0x14868a58",
+    "word": "0x6b02013f"
+   },
+   {
+    "va": "0x14868a5c",
+    "word": "0x54fffc03"
+   }
+  ],
+  "loop_head": "0x148689dc",
+  "preheader_loop_range": {
+   "end_exclusive": "0x14868a60",
+   "file_offset": "0x4f9c8",
+   "sha256": "02248b786ffb501a5fa9242aa3952e1e4d783f47464952e96ca2704a9f94341e",
+   "size": 152,
+   "start": "0x148689c8"
+  },
+  "range": {
+   "end_exclusive": "0x14868a64",
+   "file_offset": "0x4f9a0",
+   "sha256": "08265307d79c5f82b85266613f241ae160151dcfe51b19da108f9ad6c4e15021",
+   "size": 196,
+   "start": "0x148689a0"
+  },
+  "record": {
+   "flags_offset": 0,
+   "offset_offset": 2,
+   "stride": 6,
+   "terminator_flags": "0x8000",
+   "value_load": "LDRB",
+   "value_offset": 4,
+   "value_store_width": 32
+  },
+  "record_shape": "DIRECT_SIX_BYTE_RECORD_OFFSET_VALUE_STORE_SHAPE",
+  "record_stride": 6,
+  "store": {
+   "conditional_on_flag_gate": true,
+   "flag_gate_semantics": "UNKNOWN",
+   "instruction": "STR W14,[X15,X13]",
+   "va": "0x14868a50",
+   "value_width": 32,
+   "value_zero_extended_from_byte": true
+  },
+  "terminator": {
+   "branch": "B.EQ",
+   "branch_target": "0x14868a60",
+   "branch_va": "0x148689f4",
+   "comparison": "CMP W15,#0x8000",
+   "comparison_va": "0x148689f0",
+   "flags_register": "W15",
+   "flags_value": "0x8000",
+   "semantics": "TERMINATOR_BRANCHES_TO_RETURN_BEFORE_STORE"
+  },
+  "umaddl": {
+   "destination": "X14",
+   "index_register": "W9",
+   "stride": 6,
+   "stride_register": "W10",
+   "table_register": "X1",
+   "va": "0x148689dc"
+  },
+  "zero_count_control": {
+   "branch": "B.CC",
+   "branch_va": "0x14868a5c",
+   "compare": "CMP W9,W2",
+   "compare_va": "0x14868a58",
+   "count_register": "W2",
+   "if_count_is_zero": "B.CC is false for 0 < 0; RET 0x14868a60 is reached before any table dereference",
+   "initial_index": "W9=0"
+  }
+ }
+}

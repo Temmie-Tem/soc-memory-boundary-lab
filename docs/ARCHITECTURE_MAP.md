@@ -18,9 +18,11 @@ CPU virtual address
 Evidence: exact source `sm8150-bus.dtsi:1091-1098` and `:1573-1581`, SHA-256
 `2f72785b42496ff21ade9bc2ee5bfc06253daaf6352e1caf2683d0d8a06f4c4d`.
 
-`PROVED`: The exact DT supplies LLCC at `0x09200000 + 0x450000`, four bank
-offsets, and broadcast offset `0x400000`. Evidence: `sm8150.dtsi:1971-1999`,
-SHA-256 `c0d42e66ddd5640e2dd7b65527c25fb617008d94a6a04062b9e1077f0eb63849`.
+`PROVED` as selected OSRC source evidence, not live-DTB identity: its
+`sm8150.dtsi` supplies LLCC at `0x09200000 + 0x450000`, four bank offsets, and
+broadcast offset `0x400000`. Evidence: `sm8150.dtsi:1971-1999`, SHA-256
+`c0d42e66ddd5640e2dd7b65527c25fb617008d94a6a04062b9e1077f0eb63849`. The
+live-DTB hash remains `UNKNOWN`.
 
 `PROVED`: The Linux LLCC driver fields at offsets `0x21000 + 8*n`,
 `0x21004 + 8*n`, `0x21f00`, and `0x21f04` configure cache slice allocation,
@@ -165,6 +167,247 @@ superset, not proof that every store executes. `REFUTED` only: numeric target
 equality in this model; physical destination, runtime execution, indirect
 callers, other X8 writers and writer identity outside this path remain
 `UNKNOWN`.
+
+`PROVED` by host-only Experiment 018 Stage 2D: the remaining X19 store has one
+direct-BL caller and the caller supplies W0=0 on its pinned success edge. Exact
+dispatch and `CBNZ W0,0x14935ce8` pins make the pre-MADD success result an
+explicit runtime precondition. The callee constructs X23/X24 and MADD X19; the
+initializer statically assigns import-slot value `0x1483c904`, and the
+resolved target range has zero BL/BLR/BR transfers, one RET, and zero X19-X29
+definitions under an exact instruction-class/write-set audit. Under explicit
+normal-return and initialized-slot conditions, the computed effective value is
+`0x85e9e970`, outside the file-backed portion of the RW PT_LOAD and numerically
+outside the 12 targets. Runtime initialization, slot currentness, import
+conformance, physical destination and indirect paths remain `UNKNOWN`; no
+writer absence is claimed.
+
+`PROVED` by host-only Experiment 018 Stage 2E: all seven RX SP-base STR W/X
+candidates map to the exact F1/F2 functions, whose local `SUB SP` allocations,
+frame updates and unique direct-BL callers are pinned. Each access lies within
+its local allocation. The same-function immediate-control CFG (BL modeled as
+fallthrough) has no recognized SP-write-class instruction after allocation on a
+path to each candidate; unsupported instruction effects remain `UNKNOWN`.
+The explicit memory-writeback audit accounts for four recognized sites per
+function (two SP frame updates and two non-SP writebacks); recognized BR/BLR
+counts are zero, and the all-file-backed-executable-PT_LOAD-words direct-entry
+census finds one external BL to each function start and none to interiors.
+Absolute runtime stack address, stack integrity, physical destination,
+execution and writer identity remain `UNKNOWN`; the three RWE candidates are
+outside this RX-only stage.
+
+## Host-only DCB follow-up — Experiments 019–022
+
+`PROVED` by Experiment 019, narrowly: the exact bounded DCB blocks contain
+strict syntactic candidate address/offset-value pair arrays in absolute and
+base-relative key domains. These are not proved register tables or consumers;
+absolute keys do not reach ranked MC bases, and section/base semantics,
+consumer identity, register meaning and writer identity remain `UNKNOWN`.
+The bounded stored-word/exact-wide/ORR audit finds `0x00003333` and
+`0x00300014` absent and two adjacent sequences for `0x00300033`; it does not
+prove writer absence.
+
+`PROVED` by Experiment 020, within its decoder model: the XBL contains 719
+register-offset stores, but the narrow classifier has a pinned false negative
+at `0x14868a50`. `SUPPORTED`: the largest RWE segment is only a candidate
+segment selected by bounded size/content criteria. General six-byte walkers,
+DCB consumers, runtime bases and writers remain `UNKNOWN`; a general
+zero-walker conclusion is `REFUTED` by the pinned false negative.
+
+`PROVED` by Experiment 021 for one pinned bounded-copy target: direct census is
+seven `BL` and zero direct `B` edges; five calls have local labels for sections
+`{0,1,2,15,16}`, and two are unlabelled. Other-section, indirect, other-copy
+and global delivery remain `UNKNOWN`, not refuted. Only local label
+completeness is `REFUTED`.
+
+`PROVED` by Experiment 022: `430/470/122/492` are counts for two enumerated
+retained-evidence channels, and their observed density is sparse. Completeness
+of those channels is `REFUTED` by known `0x09248080`; implemented-register
+coverage and the unenumerated address set remain `UNKNOWN`. These results do
+not identify the final decode owner or advance Experiments 015/016, which
+remain `NOT ELIGIBLE`.
+
+Experiment 023 is explicitly `WITHHELD/NO-GO`, not integrated or public. Its
+protocol is not comparable to Experiment 014, physical-allocation PA
+provenance is missing, its full GF(2) matrix is non-unique, and
+`PA24=b1^b2` is `SUPPORTED` only. Experiment 024 is now `COMPLETED` and
+integrated as host-only, read-only static evidence. `PROVED`: its exact
+`[0x148689a0,0x14868a64)` walker has six-byte records, the exact `0x8000`
+terminator and `B.EQ` return-before-store, and a conditional 32-bit store of
+the zero-extended byte; exactly three direct callers select five XBL-resident
+table alternatives plus the selector-`0xf` zero-count/no-pointer path. The
+selector unions contain 53 and 127 unique offsets, a 170-offset
+cross-alternative syntactic superset, and 221 nonterminator records. The two
+pinned design-source UFS blocks are byte-identical, and under initialized-base
+retention all 170 symbolic destinations lie in the broader `ufshc` `ufs_phy`
+resource. `SUPPORTED`: this is a table-driven positive control only under base
+retention and store reach. Current base, selector/runtime execution,
+reached-store subset, flag semantics, live-DTB equality, DCB semantic
+alias/global consumer/writer, DDR/MC relation, GF(2), and alias/bypass remain
+`UNKNOWN`; the mappings are conditional symbolic supersets, not current
+destinations. Class C remains unchanged and Experiments 015/016 remain
+`NOT ELIGIBLE`.
+
+Experiment 025 is now `COMPLETED` and integrated from commit `d743150` (parent
+`a68d2f1`). `PROVED`: the exact platform-query helper
+`[0x1486abec,0x1486acac)` has caller `0x1486847c` with `X0=SP+0x10`, not main
+context `X19`; it loads, addresses, and reloads slot `0x14890590`, and pins
+semantic ID `0x02000139` via `MOVZ/MOVK`. The static seed
+`X0=0x14875668`, outer record `X1=0x14875590` count five, descriptor
+`0x14824ab8`, factory `0x1484a880`, constructed candidate `0x1488f418`, inline
+vtable `0x14824ad0 + 0x48`, and callback `0x1484a9d4` form the pinned chain.
+The bounded callback graph `a9d4->a730->a824->aa30->a854` has one recognized
+output write at `0x1484a9f4` to helper `SP+0xc`; nested writes are only to
+`0x1488f3f9`, `0x14890ba0`, and `0x14890b90`, with one decoded MMIO read at
+`0x01fc8004` and zero recognized MMIO writes. The all-executable census and
+pinned loop blocks are conservative recognized coverage, not arbitrary-write
+absence. `SUPPORTED`: conditional intended binding can populate the slot and
+the recognized callback flow does not write caller context `+8`. `UNKNOWN`:
+runtime registration/order, slot/object identity, actual `BLR X9` target,
+alternate BSS mutation/global aliases/unsupported writes, full `0x01d80000`
+base currentness, and live mapping or authority. Experiment 024's UFS mapping
+remains conditional; Class C and 015/016 eligibility are unchanged.
+
+Experiment 026 is now `COMPLETED` and integrated from commit `0305a03` as
+host-only, read-only static evidence. `PROVED`: registration helpers
+`[0x1482ecb4,0x1482edac)`, initializer loop `[0x1482edac,0x1482f0b4)`, and
+table header `[0x14875534,0x14875568)` pin the 24-byte node shape, list head
+`0x14890f60`, count two, row start `0x14875538`, cursor `0x1487554c`, and
+stride `0x18`. `PROVED`: bounded bootstrap, veneer, alternates, dispatcher,
+and caller local/control/data edges include the dispatcher base/stride/index
+guard and symbolic pointer escape `0x146b30c0 + runtime_index*0x3f8` for
+modeled index `0..1`, not an exact runtime base. `SUPPORTED`: memory-only
+initializer-pool shape `[0x146b30c0,0x146b38b0)`, two-row `0x3f8` geometry.
+Pool contents and runtime values remain `UNKNOWN`.
+
+The complementary census scans 847,465 executable words, excludes 622 words
+covered by the Experiment 025 dependency, and recognizes 9 accesses (3
+writes, 6 reads) plus 2 pointer escapes. It finds zero recognized access
+intervals overlapping slot `[0x14890590,0x14890598)`. Its taxonomy is
+`ORDER_OPEN` and `PROVED_BOUNDED_NO_RECOGNIZED_SLOT_MUTATION`; this is not
+global writer absence. Runtime execution/order, slot value, object identity,
+`BLR` target, base currentness, writer absence, and live authority remain
+`UNKNOWN`. Validation is 25 focused and 581 full unittest PASS, Python
+byte-compilation, JSON safety, byte-identical regeneration, mode `0644`, and
+exact-XBL/final decoder hostile-review `PASS`, recorded in
+[EXP026_INTEGRATION_REVIEW_2026-08-26.md](EXP026_INTEGRATION_REVIEW_2026-08-26.md).
+Experiment 027 is now `COMPLETED` and integrated from commit `7aa1df7` as a
+host-only, read-only bounded CFG/dataflow result. It analyzes 73 sites: 65 of
+67 register-offset sites after two dependency-owned exclusions plus all 8
+computed-address idioms (three complete loop contexts and five local forms).
+The implemented census returns 71 `INDIRECT_OR_UNSUPPORTED`, 2
+`NO_TARGET_WITHIN_MODEL`, zero `DCB_CONSUMER_PATH`, and zero
+`MC_OR_SHRM_SYMBOLIC_TARGET`; the zero labels are bounded-model results, not
+global absence claims. Two nonexclusive `SECTION_READER_PROXIMITY_ONLY`
+hypotheses remain: `0x148aa758` is signed `-2528`/absolute `2528` from reader
+`0x148ab138`, and `0x148ab4f8` is signed `960`/absolute `960` from the same
+reader; threshold is `0x1000`, with `link_proof: NONE`. Runtime base/current
+destination, execution, writer/global consumer identity, aliases, register
+semantics, and unsupported paths remain `UNKNOWN`.
+
+The public manifest is 334,847 bytes, mode `0644`, SHA-256
+`d11785969f16ba09155a2305eefd091158abfc515bc64cf94cb34d573a302277`.
+Validation is 35 focused and 616 full unittest PASS in 86.100 s, Python
+byte-compilation, 67 public JSON manifests parsed, two fresh byte-identical
+generations, public safety/no-clobber checks, and independent hostile review
+`PASS` after fixes, recorded in
+[EXP027_INTEGRATION_REVIEW_2026-08-26.md](EXP027_INTEGRATION_REVIEW_2026-08-26.md).
+The candidate setter remains `[0x9fc06410,0x9fc0643c)` with caller
+`0x9fc023f0`; DCB sections 6/7/8/10/11/12, loader/readers, and the 024
+positive-control exclusions remain exact boundaries as recorded in the review.
+
+Experiment 029 is `COMPLETED` and integrated from commit `a495bdc` as a
+host-only, read-only unsupported-frontier inventory. It covers the exact 71
+Experiment 027 fail-closed ranges and proves 1,992 range occurrences / 1,180
+unique VAs, including a 352-occurrence / 219-unique-VA / 197-unique-word
+frontier. Source provenance, reachability, and decoder safety remain
+`UNKNOWN`/`NOT_CLAIMED`; its 17 focused / 633 full validation and final hostile
+review `PASS` are recorded in the integration review.
+
+Experiment 031 is `COMPLETED` and integrated from artifact commit `cd9f26e`
+plus reconciliation repair `12a8ebe`. Its source-qualified scalar-plus-
+dispatch v2 model selects 283 occurrences / 160 unique VAs / 148 unique
+words, reaches 250 selected events, and retains 69 occurrences / 59 unique
+VAs / 49 unique words across 20 sites. The combined model transitions 51 of
+71 baseline sites to bounded `NO_TARGET_WITHIN_MODEL`; 20 remain
+`INDIRECT_OR_UNSUPPORTED`. This is `V2_MODEL_ONLY` and `NO_ABSENCE_CLAIM`, not
+scalar-only closure; no DCB consumer/MC/SHRM path is promoted. Class C and
+015/016 eligibility remain unchanged.
+
+The selected membership is 283 occurrences / 160 unique VAs / 148 unique
+words, with 250 reached selected events and 33 selected-not-reached; family or
+label mismatches and events outside the selected domain are zero. The separate
+`DIRECT_CONTROL_DISPATCH_REPAIR` contributes 143 events across 62 sites, with
+outcomes 48 no-target/14 fail-closed when present and 3/6 without it. The
+residual 69 occurrences / 59 unique VAs / 49 unique words remains fail-closed.
+The reconciled 031 public manifest is 1,327,118 bytes, mode `0644`, SHA-256
+`51a187195c16eb609d337305540fc6d20a09297f5ab76b054497c5c58c3a2e86`; the
+tool/test/README pins and validation are recorded in the integration review.
+
+Experiment 032 is `COMPLETED` and integrated from artifact commit `d46c44c`
+after docs commit `e063181`. It is a host-only, read-only, source-qualified
+arithmetic extension of the exact 031 scalar-plus-dispatch model. The combined
+selection is 298 occurrences / 175 unique VAs / 162 unique raw words, with
+264 reached selected events and 34 selected-not-reached occurrences. The
+arithmetic addition is 15 selected rows across seven sites and 14 reached
+events (`MADD` 3, `UMADDL` 7, `EOR` 2, `BIC` 2). The model transitions 55 of
+71 baseline sites to bounded `NO_TARGET_WITHIN_MODEL`; 16 remain
+`INDIRECT_OR_UNSUPPORTED`. Relative to 031, sites 1, 36, 37, and 52
+transition, with zero regressions. The residual is 54 occurrences / 44 unique
+VAs / 35 unique raw words across 15 sites: `PAIR_MEMORY` 48,
+`SIGN_EXTENDING_MEMORY` 2, and `SYSTEM_CONTROL` 4.
+
+The inherited 031 canonical full-record equivalence is exact for 250 scalar
+events, 143 direct-control events, and 23 taint-kill events. Qualified forms
+are limited to modulo-width `MADD/UMADDL` plus shifted `EOR/BIC` and explicit
+identity cases; pair/sign-extending memory, system/control, indirect aliases,
+reserved encodings, and unknown forms remain fail-closed. Zero
+`DCB_CONSUMER_PATH` and zero `MC_OR_SHRM_SYMBOLIC_TARGET` paths are promoted;
+`current_destination` and `writer_absence` remain `UNKNOWN`. The source,
+artifact pins, and validation are recorded in
+[EXP032_INTEGRATION_REVIEW_2026-08-26.md](EXP032_INTEGRATION_REVIEW_2026-08-26.md).
+
+Experiment 033 is now `COMPLETED` and integrated from artifact commit
+`56b5ffa`. It is a host-only, read-only v4 extension of the exact 032 bounded
+model. The complete 029 frontier is selected as 352 occurrences / 219 unique
+VAs / 197 unique words; 308 events are reached and 44 selected occurrences
+are not reached. The inherited 032 full-record equality is exact for 264
+extension events, 143 direct-control events, and 23 taint-kill events. The 44
+new residual events are `LDP` 38, `STP` 3, `LDRSW` 1, `LDRSB` 1, and
+`DAIFClr` 1. The three `STP` instructions are represented by six explicit
+lane observations.
+
+`PROVED`: source-qualified `LDP W/X`, `LDP X` post-index, `STP W/X`,
+`LDRSW X`, `LDRSB W`, and exact `DAIFClr #IRQ` forms are modeled with
+fail-closed handling for pre-index/unseen pair modes, SIMD/FP pairs, LDPSW,
+overlap/unpredictable forms, other system forms, indirect aliases, and
+malformed words. The bounded site result is 70
+`NO_TARGET_WITHIN_MODEL` and one `INDIRECT_OR_UNSUPPORTED` at site 35; no
+bounded `DCB_CONSUMER_PATH` or `MC_OR_SHRM_SYMBOLIC_TARGET` path is promoted.
+`UNKNOWN`: global writer identity/absence, current physical destination,
+protected-memory semantics, and the runtime exception level or
+`CheckDAIFAccess` result for `DAIFClr`. Class C remains unchanged and
+Experiments 015/016 remain `NOT_ELIGIBLE`.
+
+The checked public manifest is 2,017,356 bytes, mode `0644`, SHA-256
+`606723e5125d661c800b167133f2a9b69a3b8d47361b39176665a49be539e598`.
+Validation is 15 focused / 685 full unittest PASS, full maximum RSS
+253,944 KiB with zero swap, byte-identical fresh publications, and an
+independent hostile review `PASS` with no P0-P2 findings. The tool and focused
+test pins are recorded in the integration review.
+
+The next non-overlapping host-only selection is Experiment 034. Current
+site-35 jump-table evidence is `HYPOTHESIS`, not a closure: `BR X1` is at
+`0x1484fa08`, the candidate table base is `0x14824cf0`, `W9` is guarded by
+`CMP W9,#4` plus `B.HI` at `0x1484f9f4/0x1484f9f8`, and
+`LDR X1,[X5,X9,LSL#3]` is at `0x1484fa04`. The five local little-endian
+entries are `0x1484fa3c`, `0x1484fa50`, `0x1484fa88`, `0x1484fa0c`, and
+`0x1484fa0c`. A pinned tool and tests must prove this pattern before site 35
+is reclassified. The selection does not import external Claude Experiments
+028/030.
+
+External Claude Experiments 028 and 030 remain outside this integration and
+unreviewed here. No result, score, authority, review, or commit from either is
+claimed or integrated.
 
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside
@@ -365,7 +608,7 @@ all protection ordering relative to DRAM decode remain `UNKNOWN`.
 | Question | Current answer |
 |---|---|
 | Which block owns the final mapping? | `PROVED`: qhs_llcc ICB windows own boot region remapping; live timing proves a distinct low-24 XOR bank-selection relation. MCCC/MC/DDRSS token families are exact candidates; final hardware decode owner remains `UNKNOWN`. |
-| Who programs it? | `PROVED`: XBL programs the region remapper through `icbcfg` and copies section 16 to SHRM. `PROVED`: the exact SHRM section-16 consumers read listed controller words into a read-copy buffer; the observed section-16 paths do not write those addresses. Experiment 017 independently proves the exact XBL helper's store-base dataflow does not program candidate registers. Experiment 018 Stage 1A adds only literal/offset census evidence, Stage 2A refutes only its supported direct-definition path for four RX candidates, Stage 2B refutes only numeric target equality for two W-wide-move-resolved values, and Stage 2C refutes only numeric target equality for a 48-row possible-value superset; none proves writer absence or physical destination. AOP runtime DDR management is `PROVED`; final-decode writer remains `UNKNOWN`. |
+| Who programs it? | `PROVED`: XBL programs the region remapper through `icbcfg` and copies section 16 to SHRM. `PROVED`: the exact SHRM section-16 consumers read listed controller words into a read-copy buffer; the observed section-16 paths do not write those addresses. Experiment 017 independently proves the exact XBL helper's store-base dataflow does not program candidate registers. Experiment 018 Stage 1A adds only literal/offset census evidence, Stage 2A refutes only its supported direct-definition path for four RX candidates, Stage 2B refutes only numeric target equality for two W-wide-move-resolved values, Stage 2C refutes only numeric target equality for a 48-row possible-value superset, and Stage 2D refutes only numeric target equality under explicit preservation/slot conditions; none proves writer absence or physical destination. Experiments 019–022 add only syntactic pair arrays, a bounded register-offset census with a false-negative control, one bounded-copy direct-edge census, and two-channel sparse density. Their consumer/base/writer boundaries remain `UNKNOWN`; 021 other-section/global delivery is not refuted and 022 channel completeness is `REFUTED`. AOP runtime DDR management is `PROVED`; final-decode writer remains `UNKNOWN`. |
 | At what stage? | Region-remap programming during XBL DDR initialization before HLOS is `PROVED`; later mutability remains `UNKNOWN`. |
 | Can EL1 observe it? | `PROVED` behaviorally: non-secure ION/CNTVCT timing exposes the low-24 bank-equivalence relation. Direct register routes remain `REFUTED`: `/dev/mem` is absent and the fixed protected load returned no value. After reset, Samsung Upload exports coherent set-0 words, but is not an EL1 runtime interface and omits remapper controls. Experiment 017 adds host-only static XBL read-copy evidence, not current-boot EL1 observability. |
 | Can EL1 modify it? | No mutation is proved. The exact HLOS-visible XPU-disable allowlist has zero entries, and all known configuration apertures have branch-invariant TZ-owned coverage. Final runtime policy/lock readback is `UNKNOWN`. |

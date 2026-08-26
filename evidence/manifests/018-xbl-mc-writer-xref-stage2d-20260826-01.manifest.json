@@ -1,0 +1,395 @@
+{
+  "accounting": {
+    "all_four_non_sp_rx_candidates_examined": true,
+    "current_candidate": "0x14935bf4",
+    "current_candidate_status": "CONDITIONAL_NOT_UNCONDITIONALLY_RESOLVED",
+    "non_sp_rx_candidate_count": 4,
+    "prior_stage2a_candidates": 4,
+    "remaining_non_sp_rx_static_candidate_count": 0,
+    "rwe_candidate_count_unknown": 3,
+    "sp_rx_candidate_count_unknown": 7
+  },
+  "baseline": {
+    "stage2a_manifest_sha256": "eeed732e4a6cecd60453e9088d8c3d4c7ed207a1e7c723bae91e27033d134a4b",
+    "stage2a_test_sha256": "1272fadb0bcc6b883f74577284312ee34678975fa7ba60377d05d86927960b3b",
+    "stage2a_tool_sha256": "eb0a8ce21154d97d052de9f7e4e0de40f85087a8cb517179f7c44332e9d85eb0",
+    "stage2b_manifest_sha256": "a4715112e27c74e5548ecb49f09106c236146c8a0216c87446ddbd3c355ccca6",
+    "stage2b_test_sha256": "af7ca7b46550dda13e85e517c0c1c1df19b6414549d06415316b6d428e020fc9",
+    "stage2b_tool_sha256": "aa35d8b303a7ea32a086d601b1f08390b1cad0932f105209ac337f394813dbcb",
+    "stage2c_classification": "NO_NUMERIC_TARGET_ADDRESS_MATCH_WITHIN_STAGE2C_UNIQUE_DIRECT_CALLER_TABLE_MODEL",
+    "stage2c_direct_caller_count": 1,
+    "stage2c_manifest_sha256": "e096562a35da93a1dac10a1651fc7eff08eecf05dafca4a789bae2fd50540c01",
+    "stage2c_table_entry_count": 48,
+    "stage2c_test_sha256": "92c95472940937a7001fe48dd055b4c598fd290c28a1e15757d1c297ebf5f526",
+    "stage2c_tool_sha256": "d53d820eb8d10e8417247fabbc0e3196f73c73584a6b7d79d583a96834c34d53"
+  },
+  "callee_path": {
+    "critical_pins_verified": true,
+    "input_w20_source": "W0",
+    "intrinsic_pre_call_x19_base_values": [
+      "0x85e9e570",
+      "0x85e9eb70"
+    ],
+    "intrinsic_w0_domain": [
+      "0x0",
+      "0x1"
+    ],
+    "madd_multiplier_register": "X13",
+    "madd_multiplier_value": "0x600",
+    "madd_site": "0x14935b60",
+    "pre_madd_result_gate": {
+      "branch_site": "0x14935ac0",
+      "kind": "CBNZ W0",
+      "nonzero_target": "0x14935ce8",
+      "requires_w0_zero_to_reach_madd": true,
+      "result_of_pre_madd_direct_callee": "UNKNOWN"
+    },
+    "w0_guard_domain": [
+      "0x0",
+      "0x1"
+    ],
+    "w0_le_one_branch_site": "0x14935ab0",
+    "w0_le_one_branch_target": "0x14935d20",
+    "w20_dispatch": {
+      "branch_site": "0x149359cc",
+      "branch_target": "0x14935aac",
+      "compare": "CMP W12,#3",
+      "compare_site": "0x149359c8",
+      "condition": "CS",
+      "sub": "SUB W12,W20,#2",
+      "sub_site": "0x149359c4",
+      "w0_le_one_path_reaches_dispatch_target": true
+    },
+    "x1_nonzero_required": true,
+    "x23_selection": "CSEL X23,W20-or-zero under W20<8",
+    "x24_value": "0x85e9e570"
+  },
+  "caller_success_path": {
+    "critical_pins_verified": true,
+    "lookup_call_site": "0x14949ed0",
+    "lookup_call_target": "0x14935868",
+    "lookup_result_branch_site": "0x14949ed4",
+    "lookup_result_branch_target": "0x14949ee4",
+    "w2_zero_site": "0x14949ee8",
+    "writer_call_site": "0x14949eec",
+    "writer_call_target": "0x14935960",
+    "writer_call_w0_domain": [
+      "0x0"
+    ],
+    "x1_immediate": "0xe0",
+    "x1_setup_site": "0x14949ee4",
+    "x1_source": "SP",
+    "zero_site": "0x14949ec8"
+  },
+  "candidate": {
+    "base_register": "X19",
+    "byte_offset": "0x400",
+    "file_offset": "0x312bc4",
+    "form": "STR X9,[X19,#0x400]",
+    "source_register": "X9",
+    "virtual_address": "0x14935bf4",
+    "width_bits": 64
+  },
+  "claims": {
+    "HYPOTHESIS": [
+      "If the scoped direct-BL path executes, the pinned pre-MADD direct callee returns normally, both pre-MADD import wrappers preserve X23/X24, and the post-MADD callee preserves X19, the direct-caller effective store value is 0x85e9e970.",
+      "If the initializer executes, the import slot remains unchanged, the pinned pre-MADD direct callee returns normally, and both pre-MADD import wrappers preserve X23/X24, the statically resolved import target supports the same 0x85e9e970 effective value without relying on that target to preserve X19."
+    ],
+    "PROVED": [
+      "The exact XBL size/hash, containing function, candidate store, unique direct-BL caller, initializer, wrapper/thunk ranges, and RW PT_LOAD facts are verified.",
+      "The unique direct-BL caller statically zeroes W0, takes the CBZ W0 success edge, sets X1=SP+0xe0 and W2=0, then directly calls the scoped function; therefore W0=0 at that direct callsite in the pinned static path.",
+      "The callee pins W20=W0, W0<=7 and X1-nonzero guards, W20<=1 path, X23 selection, X24=0x85e9e570 construction, and MADD X19,X23,0x600,X24.",
+      "BL link state is X30; the pinned lookup wrapper/thunk do not define X19. The current runtime import-slot target/currentness is UNKNOWN; the initializer statically assigns 0x1483c904.",
+      "The initializer statically stores 0x1483c904 into import slot 0x1489f3b0, and the exact resolved target range has zero BL/BLR/BR transfers, one RET, and zero X19-X29 definitions under its exact audited instruction-class manifest.",
+      "The static construction pins and model arithmetic yield intrinsic and unique-direct-caller effective sets with zero numeric matches to the 12 targets; the conditional runtime premises remain separate."
+    ],
+    "REFUTED": [
+      "Within the unique-direct-BL caller plus conforming-AAPCS64-X19/X23/X24-preservation model, the intrinsic two-value and direct-caller effective sets have no numeric equality to the 12 target values.",
+      "Within the STATIC_INITIALIZED_SLOT_UNCHANGED model plus normal-return preservation across the pinned pre-MADD direct callee and the two pre-MADD import wrappers, the direct-caller effective value has no numeric equality to the 12 target values."
+    ],
+    "SUPPORTED": [
+      "AAPCS64 conditionally supports preservation of X19, X23 and X24 by a conforming callee; the current runtime import-slot value/target and its conformance/currentness are not established here."
+    ],
+    "UNKNOWN": [
+      "Actual initializer execution, later slot mutation, current runtime import-slot target/currentness, indirect callee/target identity and conformance, pre-MADD result success, post-call register values without the stated conditions, VA-to-PA/identity, physical destination/ownership, runtime semantics, mutability/lock, table/state mutation, alias, bypass and other firmware paths.",
+      "Seven SP RX candidates and three RWE ambiguous candidates remain outside this static accounting result."
+    ]
+  },
+  "classification": "NO_NUMERIC_TARGET_ADDRESS_MATCH_WITHIN_STAGE2D_UNIQUE_DIRECT_CALLER_CONDITIONAL_CALLEE_SAVED_PRESERVATION_MODEL",
+  "conditional_values": {
+    "conditional_effective_values": [
+      "0x85e9e970"
+    ],
+    "conditional_numeric_target_matches": [
+      false
+    ],
+    "conditional_pre_call_x19_base_values": [
+      "0x85e9e570"
+    ],
+    "intrinsic_numeric_target_matches": [
+      false,
+      false
+    ],
+    "intrinsic_possible_effective_values": [
+      "0x85e9e970",
+      "0x85e9ef70"
+    ],
+    "intrinsic_pre_call_x19_base_values": [
+      "0x85e9e570",
+      "0x85e9eb70"
+    ],
+    "numeric_target_match_count": 0,
+    "unique_direct_caller_w0": "0x0"
+  },
+  "device_access": false,
+  "direct_callers": {
+    "direct_b_callers": [],
+    "direct_b_count": 0,
+    "direct_bl_callers": [
+      {
+        "file_offset": "0x326ebc",
+        "segment_class": "RX",
+        "target": "0x14935960",
+        "virtual_address": "0x14949eec"
+      }
+    ],
+    "direct_bl_count": 1,
+    "file_backed_executable_pt_loads_only": true,
+    "indirect_callers": "UNKNOWN",
+    "target": "0x14935960"
+  },
+  "elf_memory_facts": {
+    "effective_value_segment": {
+      "file_backed_end": "0x85e87620",
+      "file_size": "0x43620",
+      "memory_end": "0x85eaa038",
+      "memory_size": "0x66038",
+      "p_vaddr_equals_p_paddr": true,
+      "values_inside_file_backed_range": {
+        "2246699376": false,
+        "2246700912": false
+      },
+      "values_inside_pt_load_memory_range": {
+        "2246699376": true,
+        "2246700912": true
+      },
+      "virtual_address": "0x85e44000"
+    },
+    "import_slot": {
+      "filesz": 0,
+      "memory_only_rw_pt_load_end": "0x1489f400",
+      "memory_only_rw_pt_load_start": "0x14882800",
+      "runtime_pointer": "UNKNOWN",
+      "virtual_address": "0x1489f3b0"
+    }
+  },
+  "firmware_bytes_emitted": false,
+  "function": {
+    "byte_length": 1404,
+    "end_exclusive": "0x14935edc",
+    "file_offset": "0x312930",
+    "segment_class": "RX",
+    "sha256": "68739df6f843f790376eb0af47da22f0af5ebeb2421f05d29c3b5a8673983fd9",
+    "virtual_address": "0x14935960"
+  },
+  "initializer": {
+    "boot_entry_call_site": "0x1481c9b4",
+    "boot_entry_call_target": "0x14828198",
+    "boot_entry_skip_site": "0x148281c0",
+    "boot_entry_skip_target": "0x148282c8",
+    "control_transfer_census": [
+      {
+        "kind": "RET",
+        "virtual_address": "0x14844da8"
+      }
+    ],
+    "critical_pins_verified": true,
+    "direct_b_caller_count": 0,
+    "direct_bl_caller_count": 1,
+    "direct_bl_callers": [
+      {
+        "file_offset": "0xf270",
+        "segment_class": "RX",
+        "target": "0x14844580",
+        "virtual_address": "0x14828270"
+      }
+    ],
+    "later_slot_mutation": "UNKNOWN",
+    "range": {
+      "byte_length": 2092,
+      "end_exclusive": "0x14844dac",
+      "file_offset": "0x2b580",
+      "segment_class": "RX",
+      "sha256": "65e117b99fd109cbb01531bd70fc2befe70c0b672a01afe6dd523bbebf1486cb",
+      "virtual_address": "0x14844580"
+    },
+    "resolved_import_slot": "0x1489f3b0",
+    "runtime_execution": "UNKNOWN",
+    "store_offset": "0x3b0",
+    "store_site": "0x14844ae0",
+    "x5_value": "0x1483c904",
+    "x8_value": "0x1489f000"
+  },
+  "input": {
+    "filename": "xbl--sdb1.bin",
+    "pin_verified": true,
+    "sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+    "size": 4194304
+  },
+  "intervening_calls": [
+    {
+      "call_site": "0x14935abc",
+      "phase": "PRE_MADD",
+      "target": "0x1493641c"
+    },
+    {
+      "call_site": "0x14935b48",
+      "phase": "PRE_MADD",
+      "target": "0x149396f4"
+    },
+    {
+      "call_site": "0x14935b54",
+      "phase": "PRE_MADD",
+      "target": "0x149396f4"
+    },
+    {
+      "call_site": "0x14935b68",
+      "phase": "POST_MADD_X19",
+      "target": "0x149396f4"
+    }
+  ],
+  "mmio_access": false,
+  "mode": "HOST_ONLY_READ_ONLY",
+  "post_call_x9": {
+    "add_site": "0x14935ba0",
+    "audited_instruction_count": 20,
+    "candidate_source_register": "X9",
+    "candidate_store_site": "0x14935bf4",
+    "conditional_on_post_madd_X19": true,
+    "exact_instruction_class_manifest": true,
+    "no_intervening_direct_bl": true,
+    "no_intervening_indirect_control_transfer": true,
+    "offset": "0x428",
+    "range": {
+      "byte_length": 84,
+      "end_exclusive": "0x14935bf4",
+      "file_offset": "0x312b70",
+      "segment_class": "RX",
+      "sha256": "94e85068fba48edb7f799e0ab51fb8e3f9e4ffd8c8d7b5d2a4f10705ed8e8318",
+      "virtual_address": "0x14935ba0"
+    },
+    "source_register": "X19"
+  },
+  "pre_madd_direct_callee": {
+    "direct_b_caller_count": 0,
+    "direct_bl_caller_count": 1,
+    "direct_bl_callers": [
+      {
+        "file_offset": "0x312a8c",
+        "segment_class": "RX",
+        "target": "0x1493641c",
+        "virtual_address": "0x14935abc"
+      }
+    ],
+    "normal_return_preserves_x23_x24": true,
+    "range": {
+      "byte_length": 1376,
+      "end_exclusive": "0x1493697c",
+      "file_offset": "0x3133ec",
+      "segment_class": "RX",
+      "sha256": "43fa9c70453b7ad1d8ff88d4ca07b375d2dc6b3b06e805339b2ad1927e4487e0",
+      "virtual_address": "0x1493641c"
+    },
+    "restore_site": "0x149365a8",
+    "ret_site": "0x149365b4",
+    "runtime_execution_and_nonreturning_paths": "UNKNOWN",
+    "save_site": "0x14936428",
+    "saved_registers": [
+      "X23",
+      "X24"
+    ],
+    "unique_ret_count": 1
+  },
+  "schema": "sdm855-xbl-mc-writer-xref-stage2d-public-v1",
+  "smc_access": false,
+  "stage": "STAGE2D_UNIQUE_DIRECT_CALLER_CONDITIONAL_CALLEE_SAVED_PRESERVATION_MODEL",
+  "static_initialized_slot_model": {
+    "conditional_effective_value": "0x85e9e970",
+    "initializer_value": "0x1483c904",
+    "model_name": "STATIC_INITIALIZED_SLOT_UNCHANGED",
+    "numeric_target_match": false,
+    "post_madd_import_target_preserves_X19_under_static_range": true,
+    "pre_madd_direct_callee_normal_return_preservation": [
+      "0x14935abc"
+    ],
+    "remaining_pre_madd_import_wrapper_preservation": [
+      "0x14935b48",
+      "0x14935b54"
+    ],
+    "resolved_import_target_has_no_X19_X29_writes": true,
+    "resolved_import_target_static_range": "0x1483c904",
+    "slot_later_mutation": "UNKNOWN",
+    "slot_runtime_execution": "UNKNOWN"
+  },
+  "target_callee": {
+    "callee_saved_registers": [
+      "X19",
+      "X20",
+      "X21",
+      "X22",
+      "X23",
+      "X24",
+      "X25",
+      "X26",
+      "X27",
+      "X28",
+      "X29"
+    ],
+    "callee_saved_write_count": 0,
+    "callee_saved_write_virtual_addresses": [],
+    "control_transfer_count": 16,
+    "critical_pins_verified": true,
+    "direct_b_count": 6,
+    "direct_bl_count": 0,
+    "direct_blr_count": 0,
+    "direct_br_count": 0,
+    "exact_instruction_class_manifest": true,
+    "range": {
+      "byte_length": 228,
+      "end_exclusive": "0x1483c9e8",
+      "file_offset": "0x23904",
+      "segment_class": "RX",
+      "sha256": "5c979955c6d1cdfd541766ca3ea6964460803d61aa3d07bed0c74f60d3eec34e",
+      "virtual_address": "0x1483c904"
+    },
+    "ret_count": 1,
+    "semantic_name": "UNKNOWN"
+  },
+  "wrapper_thunk": {
+    "critical_pins_verified": true,
+    "current_runtime_import_slot_target": "UNKNOWN",
+    "direct_bl_link_register": "X30",
+    "tail_target": "0x14900254",
+    "thunk_import_slot": "0x1489f3b0",
+    "thunk_range": {
+      "byte_length": 16,
+      "end_exclusive": "0x14900264",
+      "file_offset": "0x2dd224",
+      "segment_class": "RX",
+      "sha256": "85978d37e0b5ccb6ee6ecc601e21cb4901a5953382872ac9e928c0476c8a2493",
+      "virtual_address": "0x14900254"
+    },
+    "thunk_runtime_target": "UNKNOWN",
+    "wrapper_range": {
+      "byte_length": 16,
+      "end_exclusive": "0x14939704",
+      "file_offset": "0x3166c4",
+      "segment_class": "RX",
+      "sha256": "bdacf0c0105dcf377f9f0a431bae20513fdf216669a69c35ad34a141186e1ac4",
+      "virtual_address": "0x149396f4"
+    },
+    "wrapper_x2_source": "X8",
+    "wrapper_x8_source": "X1",
+    "x19_defined_by_wrapper_or_thunk": false
+  }
+}
