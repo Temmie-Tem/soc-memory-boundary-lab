@@ -80,3 +80,8 @@ input pin, Q1/Q4 status, site identity, scope and byte-identical manifest
 assertions.  The full serial repository suite is 1,151/1,151 PASS
 (`skipped=1`) in 113.671 seconds, maximum RSS 290,844 KiB, with zero swap.  No
 device action is applicable.
+
+The final independent hostile review is `PASS`: it rechecked the exact pins,
+row-derived aggregate counts, all five quadrant maps, regression metadata,
+coupled-row mutation rejection, current documentation and the unchanged
+`CLASS C (TRANSFORM ONLY)` boundary.
