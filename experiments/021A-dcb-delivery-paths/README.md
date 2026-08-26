@@ -1,15 +1,23 @@
-# Experiment 021 — DCB delivery paths, SHRM and abl
+# Experiment 021A — DCB delivery paths, SHRM and abl
+
+Numbered `021A`, not `021`. This experiment and the concurrent `021-dcb-delivery-paths`
+were created independently on 2026-08-26 and given the same number: at the
+common ancestor `b78879a` neither existed. They are different investigations,
+not two revisions of one. That one is on `main`, integrated across the shared
+documents, with Experiments 024-034 built on top of it, so it keeps the bare
+number and this one takes the suffix, following the `023R` precedent. Nothing
+about this result changed.
 
 ## Question
 
-Experiment 020 found no consumer in the exact XBL that programs controller
+Experiment 020A found no consumer in the exact XBL that programs controller
 registers from the DCB base-relative tables, and no reference to the ranked MC
 instances in AOP. This asks the prior question: is that data delivered anywhere
 at all?
 
 A section reaches a consumer either by being copied out of the DCB or by being
 read in place. The copy path is enumerable, and the in-place consumers
-Experiment 020 identified are a checksum accumulator over sections 5–10 and a
+Experiment 020A identified are a checksum accumulator over sections 5–10 and a
 bounds check on section 10.
 
 ## Scope and eligibility
@@ -24,7 +32,7 @@ remain reserved and `NOT ELIGIBLE`.
 `PROVED`: the loader's bounded copy at `0x1483ab24` has exactly **seven** call
 sites in the exact XBL. Five are the DCB loader, each preceded by a directory
 read, and they cover sections **{0, 1, 2, 15, 16}** — matching the set
-Experiment 004 records and Experiment 020 re-derived. The other two carry no
+Experiment 004 records and Experiment 020A re-derived. The other two carry no
 directory read within sixteen instructions and are unrelated copies.
 
 `REFUTED`: the DCB base-relative tables are delivered to a consumer by the XBL
@@ -95,7 +103,7 @@ interpreting. It is equally consistent with SHRM being per-channel, with the
 other bases being derived by adding a stride, and with those paths living
 outside the 23,776 bytes examined.
 
-## Reading this with Experiment 020
+## Reading this with Experiment 020A
 
 Four facts now hold together. The base-relative tables are never copied out of
 the DCB. The in-place consumers XBL does contain compute a checksum and check
@@ -108,7 +116,7 @@ and a path outside these images entirely.
 
 ## Evidence
 
-- `evidence/manifests/021-dcb-delivery-paths-20260826-01.manifest.json`
+- `evidence/manifests/021A-dcb-delivery-paths-20260826-01.manifest.json`
 
 The manifest contains hashes, addresses, counts and classifications only. It
 contains no raw firmware bytes and no private paths.
@@ -116,8 +124,8 @@ contains no raw firmware bytes and no private paths.
 ## Reproduce
 
 ```sh
-python3 tools/sm8150_dcb_delivery_paths.py \
-  --output evidence/manifests/021-dcb-delivery-paths-20260826-01.manifest.json
+python3 tools/sm8150_dcb_delivery_paths_021a.py \
+  --output evidence/manifests/021A-dcb-delivery-paths-20260826-01.manifest.json
 python3 -m unittest -v tests.test_sm8150_dcb_delivery_paths
 ```
 

@@ -1,4 +1,4 @@
-"""Tests for the Experiment 021 DCB delivery-path audit.
+"""Tests for the Experiment 021A DCB delivery-path audit.
 
 Structural tests use synthetic fixtures. Tests that need the exact Experiment
 004 artifacts skip when they are absent.
@@ -10,7 +10,7 @@ import struct
 import unittest
 from pathlib import Path
 
-from tools import sm8150_dcb_delivery_paths as delivery
+from tools import sm8150_dcb_delivery_paths_021a as delivery
 
 
 def build_elf64(segments: list[tuple[int, int, bytes]]) -> bytes:

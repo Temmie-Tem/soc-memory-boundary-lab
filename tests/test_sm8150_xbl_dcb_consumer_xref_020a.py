@@ -1,4 +1,4 @@
-"""Tests for the Experiment 020 DCB consumer / DDR base cross-reference.
+"""Tests for the Experiment 020A DCB consumer / DDR base cross-reference.
 
 Decoder and analysis tests run on synthetic fixtures and need no private bytes.
 The exact-image tests skip when the Experiment 004 artifacts are absent.
@@ -10,7 +10,7 @@ import struct
 import unittest
 from pathlib import Path
 
-from tools import sm8150_xbl_dcb_consumer_xref as xref
+from tools import sm8150_xbl_dcb_consumer_xref_020a as xref
 
 
 def build_elf(segments: list[tuple[int, int, bytes]]) -> bytes:

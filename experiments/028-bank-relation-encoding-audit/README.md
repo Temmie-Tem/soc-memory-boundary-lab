@@ -81,7 +81,7 @@ instances — `0x00300014` on two and `0x00300033` on the other two.
 
 ## What this negative does and does not bound
 
-It is bounded by observability, and Experiment 022 already measured that
+It is bounded by observability, and Experiment 022A already measured that
 bound. Each MC instance contributes 42 observed addresses across a 9,305-word
 observed span — **0.4514%** of that span, and 0.2563% of the instance's full
 64 KiB. A register holding the relation outside those 42 addresses would not
@@ -89,7 +89,7 @@ appear here. This refutes the hypothesis *for the observed register set*, not
 for the controller.
 
 It is bounded by image searchability. `abl` is included among the targets, but
-Experiment 021 measured its `PT_LOAD` payload at 2,293,760 bytes with `_FVH`
+Experiment 021A measured its `PT_LOAD` payload at 2,293,760 bytes with `_FVH`
 at payload offset `0x28` and Shannon entropy 8.000 bits/byte. A literal search
 over compressed content cannot fail informatively, so `abl` contributes a void
 rather than a negative and its inclusion in the target list must not be read
@@ -130,7 +130,7 @@ and 016 remain `NOT ELIGIBLE`.
 ## Cheapest next discriminator
 
 Make `abl` searchable. It is the only captured image whose literal search is
-currently vacuous, and Experiment 021 recorded it as `NOT SEARCHABLE` rather
+currently vacuous, and Experiment 021A recorded it as `NOT SEARCHABLE` rather
 than negative. Walking the UEFI firmware volume — FV header, FFS files,
 sections, LZMA/Tiano decompression — turns a void into evidence either way, and
 is host-only.

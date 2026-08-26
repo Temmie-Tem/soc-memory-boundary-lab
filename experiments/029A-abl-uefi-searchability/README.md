@@ -8,7 +8,7 @@ of it, so it keeps the bare number and this one takes the suffix, following the
 
 ## Why
 
-Experiment 021 measured the `abl` `PT_LOAD` payload at 2,293,760 bytes with
+Experiment 021A measured the `abl` `PT_LOAD` payload at 2,293,760 bytes with
 `_FVH` at payload offset `0x28` and Shannon entropy 8.000 bits/byte, and
 recorded it `NOT SEARCHABLE`. That was the right call, and it was deliberately
 distinguished from a negative — but it left one captured image as a void.
@@ -103,7 +103,7 @@ against a measured chance expectation of about 7 hits; that no `qhs_mc`,
 `qhs_mccc` or `qhs_mccc_master` instance base occurs in it; and that the live
 device tree carries `ddr_device_type` only.
 
-`REFUTED`: Experiment 021's `NOT SEARCHABLE` status for `abl`, which no longer
+`REFUTED`: Experiment 021A's `NOT SEARCHABLE` status for `abl`, which no longer
 holds — the image is searchable and has been searched. Also refuted, for `abl`
 specifically, is any suggestion that it participates in controller
 programming: it neither names a controller base nor carries the relation.

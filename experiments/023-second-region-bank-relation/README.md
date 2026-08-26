@@ -127,7 +127,7 @@ region-programmed, and the Experiment 006 remapper is either inactive or does
 not affect bank selection between them.
 
 That is a bounded statement about two regions. It is not a claim about the
-whole address space, and it is the kind of claim Experiment 022 exists to keep
+whole address space, and it is the kind of claim Experiment 022A exists to keep
 honest: 32 MiB of roughly 6 GiB is about half a percent, twice Experiment 014's
 reach and still a sliver.
 

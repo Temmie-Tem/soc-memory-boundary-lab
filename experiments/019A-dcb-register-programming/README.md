@@ -1,4 +1,12 @@
-# Experiment 019 — DCB register-programming tables
+# Experiment 019A — DCB register-programming tables
+
+Numbered `019A`, not `019`. This experiment and the concurrent `019-dcb-register-programming`
+were created independently on 2026-08-26 and given the same number: at the
+common ancestor `b78879a` neither existed. They are different investigations,
+not two revisions of one. That one is on `main`, integrated across the shared
+documents, with Experiments 024-034 built on top of it, so it keeps the bare
+number and this one takes the suffix, following the `023R` precedent. Nothing
+about this result changed.
 
 ## Question
 
@@ -193,7 +201,7 @@ arrived in consecutive four-address runs, the signature of coincidence.
 
 ## Evidence
 
-- `evidence/manifests/019-dcb-register-programming-20260826-01.manifest.json`
+- `evidence/manifests/019A-dcb-register-programming-20260826-01.manifest.json`
 
 The manifest contains hashes, addresses, counts, classifications and claim
 metadata only. It contains no raw firmware bytes and no private paths.
@@ -201,8 +209,8 @@ metadata only. It contains no raw firmware bytes and no private paths.
 ## Reproduce
 
 ```sh
-python3 tools/sm8150_dcb_register_program_inventory.py \
-  --output evidence/manifests/019-dcb-register-programming-20260826-01.manifest.json
+python3 tools/sm8150_dcb_register_program_inventory_019a.py \
+  --output evidence/manifests/019A-dcb-register-programming-20260826-01.manifest.json
 python3 -m unittest -v tests.test_sm8150_dcb_register_program_inventory
 ```
 

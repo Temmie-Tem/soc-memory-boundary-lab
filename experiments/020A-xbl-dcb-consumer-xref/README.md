@@ -1,11 +1,19 @@
-# Experiment 020 — XBL DCB consumers and DDR controller bases
+# Experiment 020A — XBL DCB consumers and DDR controller bases
+
+Numbered `020A`, not `020`. This experiment and the concurrent `020-xbl-dcb-consumer-xref`
+were created independently on 2026-08-26 and given the same number: at the
+common ancestor `b78879a` neither existed. They are different investigations,
+not two revisions of one. That one is on `main`, integrated across the shared
+documents, with Experiments 024-034 built on top of it, so it keeps the bare
+number and this one takes the suffix, following the `023R` precedent. Nothing
+about this result changed.
 
 ## Question
 
 Experiment 018 resolved candidate controller stores through four static models —
 direct constant definition, a wide-move extension, a unique-caller retained
 table, and a conditional callee-preservation model — and every one returned no
-target match. Experiment 019 then showed the boot chain programs registers from
+target match. Experiment 019A then showed the boot chain programs registers from
 base-relative DCB data rather than from code-resident absolute addresses.
 
 That raises a question about the negative itself. Is Experiment 018 evidence
@@ -108,7 +116,7 @@ instructions whose target lies within 64 instructions before the store, so a
 walker with a longer back edge, an indirect branch, or a test-before-store
 shape falls outside it. A walker would also be missed if a DCB key were a word
 index rather than a byte offset, since the scaled store form is excluded — the
-keys decoded in Experiment 019 are byte offsets, but not every section was
+keys decoded in Experiment 019A are byte offsets, but not every section was
 decoded.
 
 ## The other store idiom, and AOP
@@ -196,7 +204,7 @@ pattern to separate them from coincidence.
 ## Why this reframes the search
 
 Three independent facts now line up. The DCB encodes programming data as
-base-relative offsets (Experiment 019). A consumer of such data must write
+base-relative offsets (Experiment 019A). A consumer of such data must write
 through a register offset, which Stage 1A does not count. And the DDR driver's
 bases are runtime arguments held in zero-initialised globals, so they are absent
 from the image as constants.
@@ -205,7 +213,7 @@ Taken together these do not show that a writer exists. They show that the
 Experiment 018 search could not have found one, which is a different statement
 and a weaker premise than the accumulated-negative reading the earlier
 experiments support. The ranked-candidate negatives from Experiments 014, 017
-and 019 are unaffected; what changes is how much additional weight Experiment
+and 019A are unaffected; what changes is how much additional weight Experiment
 018 adds to them, and the answer is less than it appeared.
 
 ## Limits
@@ -221,7 +229,7 @@ is an inference, not a symbol.
 
 ## Evidence
 
-- `evidence/manifests/020-xbl-dcb-consumer-xref-20260826-01.manifest.json`
+- `evidence/manifests/020A-xbl-dcb-consumer-xref-20260826-01.manifest.json`
 
 The manifest contains hashes, addresses, counts and classifications only. It
 contains no raw firmware bytes and no private paths.
@@ -229,8 +237,8 @@ contains no raw firmware bytes and no private paths.
 ## Reproduce
 
 ```sh
-python3 tools/sm8150_xbl_dcb_consumer_xref.py \
-  --output evidence/manifests/020-xbl-dcb-consumer-xref-20260826-01.manifest.json
+python3 tools/sm8150_xbl_dcb_consumer_xref_020a.py \
+  --output evidence/manifests/020A-xbl-dcb-consumer-xref-20260826-01.manifest.json
 python3 -m unittest -v tests.test_sm8150_xbl_dcb_consumer_xref
 ```
 

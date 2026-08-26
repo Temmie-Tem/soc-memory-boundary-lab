@@ -1,4 +1,4 @@
-"""Tests for the Experiment 022 observation-coverage measure.
+"""Tests for the Experiment 022A observation-coverage measure.
 
 Arithmetic and structural tests use synthetic inputs. Tests that need the exact
 Experiment 004 XBL and the live SHRM dump skip when they are absent.
@@ -10,7 +10,7 @@ import struct
 import unittest
 from pathlib import Path
 
-from tools import sm8150_observation_coverage as coverage
+from tools import sm8150_observation_coverage_022a as coverage
 
 
 def build_elf64(vaddr: int, payload: bytes) -> bytes:

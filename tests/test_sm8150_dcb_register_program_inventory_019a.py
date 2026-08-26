@@ -1,4 +1,4 @@
-"""Tests for the Experiment 019 DCB register-programming inventory.
+"""Tests for the Experiment 019A DCB register-programming inventory.
 
 Every structural test runs on synthetic fixtures, so the suite needs no private
 firmware bytes.  The two tests that do need the exact images skip when they are
@@ -11,7 +11,7 @@ import struct
 import unittest
 from pathlib import Path
 
-from tools import sm8150_dcb_register_program_inventory as inv
+from tools import sm8150_dcb_register_program_inventory_019a as inv
 
 
 def build_elf(segments: list[tuple[int, bytes]]) -> bytes:

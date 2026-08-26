@@ -1,8 +1,16 @@
-# Experiment 022 — How much controller state is observable at all
+# Experiment 022A — How much controller state is observable at all
+
+Numbered `022A`, not `022`. This experiment and the concurrent `022-observation-coverage`
+were created independently on 2026-08-26 and given the same number: at the
+common ancestor `b78879a` neither existed. They are different investigations,
+not two revisions of one. That one is on `main`, integrated across the shared
+documents, with Experiments 024-034 built on top of it, so it keeps the bare
+number and this one takes the suffix, following the `023R` precedent. Nothing
+about this result changed.
 
 ## Question
 
-Experiments 014, 017, 018, 019 and 021 all return negatives about the same
+Experiments 014, 017, 018, 019A and 021A all return negatives about the same
 twelve ranked MC targets. Those targets come from Verification 012's Top-5
 ranking, which ranked among the registers the SHRM snapshot happens to sample.
 
@@ -49,8 +57,8 @@ Across the four instances, 168 addresses out of 65,536 addressable word slots:
 `PROVED`: the union of every static observation channel names 42 of the 9,305
 word slots each ranked MC instance spans.
 
-`REFUTED`: the ranked-candidate negatives from Experiments 014, 017, 018, 019
-and 021 bound where the Experiment 014 bank relation can live. The candidate
+`REFUTED`: the ranked-candidate negatives from Experiments 014, 017, 018, 019A
+and 021A bound where the Experiment 014 bank relation can live. The candidate
 set was drawn from this sample, and this sample is a small fraction of the
 space it is drawn from.
 
@@ -85,18 +93,18 @@ in play rather than about an assumed one.
 
 It weakens exactly one class of result: negatives whose search space is the
 ranked candidate set. Experiment 017's read-only snapshot copier, Experiment
-019's absence of the ranked addresses from the DCB, and Experiment 021's SHRM
+019A's absence of the ranked addresses from the DCB, and Experiment 021A's SHRM
 literal audit all speak about twelve addresses chosen from 0.451 % of each
 instance. All three ranked offsets lie inside the sample, which is not a
 coincidence and not evidence: they were selected from it.
 
 It does not weaken the searches that scan firmware for a value. Experiment 014's
 literal audit of the bank relation, the field-encoded and AMD `ROWXOR` forms
-tested since, and Experiment 019's materialisation audit all search whole
+tested since, and Experiment 019A's materialisation audit all search whole
 images and are independent of what the snapshot samples. Their limit is the set
 of encodings tried, not the observation channel.
 
-It also does not touch Experiment 020's finding, which is about the shape of a
+It also does not touch Experiment 020A's finding, which is about the shape of a
 search rather than its space.
 
 ## Consequence
@@ -116,7 +124,7 @@ transition. Neither outcome requires naming, reading or writing a register.
 
 ## Evidence
 
-- `evidence/manifests/022-observation-coverage-20260826-01.manifest.json`
+- `evidence/manifests/022A-observation-coverage-20260826-01.manifest.json`
 
 The manifest contains counts, addresses and classifications only. It contains
 no raw firmware bytes and no private paths.
@@ -124,8 +132,8 @@ no raw firmware bytes and no private paths.
 ## Reproduce
 
 ```sh
-python3 tools/sm8150_observation_coverage.py \
-  --output evidence/manifests/022-observation-coverage-20260826-01.manifest.json
+python3 tools/sm8150_observation_coverage_022a.py \
+  --output evidence/manifests/022A-observation-coverage-20260826-01.manifest.json
 python3 -m unittest -v tests.test_sm8150_observation_coverage
 ```
 
