@@ -149,6 +149,6 @@ firmware bytes, or `xbl_config` artifact.
 
 | Artifact | Size | SHA-256 |
 |---|---:|---|
-| Experiment 031 tool | 90,725 | `ab5cfceed7f835818082d152b6689e58087593d522053b912b72e1f3d53c250b` |
-| Focused tests | 18,492 | `5d54b0e48bf36726c0847ec4b4200634ce091b4e82dadecff999ef0860b60b90` |
-| Checked public manifest | 1,298,730 | `ad34697e84d0b58e85fcd37bd74767a9eb9e1d05299891169092474ec9053fe1` |
+| Experiment 031 tool | 91,221 | `5263d8975e9d64809aed04763e0c5573458dabcc6ae7432763d2858a36fc267b` |
+| Focused tests | 18,751 | `3a81fb4b4fc3023e70918a1648b6f04bb50e0967d27a8f09dbf939f9b55eff6d` |
+| Checked public manifest | 1,327,118 | `51a187195c16eb609d337305540fc6d20a09297f5ab76b054497c5c58c3a2e86` |
