@@ -1,0 +1,88 @@
+{
+ "schema": "a90-bank-relation-encoding-audit-v1",
+ "rows": [
+  "0x009d2000",
+  "0x01a74000",
+  "0x014e8000"
+ ],
+ "row_space": [
+  "0x0074e000",
+  "0x009d2000",
+  "0x00e9c000",
+  "0x013a6000",
+  "0x014e8000",
+  "0x01a74000",
+  "0x01d3a000"
+ ],
+ "targets": {
+  "abl_file@0x48_lzma.bin": {
+   "bytes": 4763976,
+   "sha256": "3fc653082e6acbfcfe3019c7d78b278326bc40de30a4f0325362fa6cce29011a"
+  },
+  "abl_file@0x48_lzma_fv@0x4_Cryptest_PE32.bin": {
+   "bytes": 520192,
+   "sha256": "053390db517fab8fe40460502faf227574af084172f758411b6a220e80a97375"
+  },
+  "abl_file@0x48_lzma_fv@0x4_LinuxLoader_PE32.bin": {
+   "bytes": 2433024,
+   "sha256": "51c1779a9d1462189bde201557564ab96e68bf352be05efae23cb0fe9dd1f9db"
+  },
+  "abl_file@0x48_lzma_fv@0x4_Odin_PE32.bin": {
+   "bytes": 1810432,
+   "sha256": "6203c19be5cf5fdeb7a95b770d30ed44518d19d7ecb8027ca5476912e83bed52"
+  }
+ },
+ "register_count": 0,
+ "nonzero_register_count": 0,
+ "literal": {
+  "hits": [],
+  "count": 0
+ },
+ "chance_baseline": {
+  "trials": 200,
+  "decoy_hits": 202,
+  "hits_per_mask": 1.01,
+  "expected_for_real_masks": 7.07
+ },
+ "literal_verdict": "BELOW_CHANCE",
+ "register_mask": [],
+ "register_index_encoding": [],
+ "adjacent_triple": [],
+ "legacy_comparison": {
+  "legacy_targets": [
+   "0x003a6000",
+   "0x004e8000",
+   "0x0074e000",
+   "0x009d2000",
+   "0x00a74000",
+   "0x00d3a000",
+   "0x00e9c000"
+  ],
+  "current_targets": [
+   "0x0074e000",
+   "0x009d2000",
+   "0x00e9c000",
+   "0x013a6000",
+   "0x014e8000",
+   "0x01a74000",
+   "0x01d3a000"
+  ],
+  "shared": [
+   "0x0074e000",
+   "0x009d2000",
+   "0x00e9c000"
+  ],
+  "legacy_only_never_in_relation": [
+   "0x003a6000",
+   "0x004e8000",
+   "0x00a74000",
+   "0x00d3a000"
+  ],
+  "current_only_never_searched": [
+   "0x013a6000",
+   "0x014e8000",
+   "0x01a74000",
+   "0x01d3a000"
+  ]
+ }
+}

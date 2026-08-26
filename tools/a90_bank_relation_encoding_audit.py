@@ -294,8 +294,9 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--capture", required=True,
                         help="directory of captured firmware images")
     parser.add_argument("--shrm", help="SHRM_MEM.BIN path")
-    parser.add_argument("--analysis", required=True,
-                        help="decoded-register analysis JSON")
+    parser.add_argument("--analysis",
+                        help="decoded-register analysis JSON; omit to audit "
+                             "images only")
     parser.add_argument("--output", required=True, help="manifest path")
     args = parser.parse_args(argv)
 
@@ -304,8 +305,10 @@ def main(argv: list[str]) -> int:
     if args.shrm:
         shrm = pathlib.Path(args.shrm)
         targets[shrm.name] = shrm.read_bytes()
-    analysis = json.loads(pathlib.Path(args.analysis).read_text())
-    registers = analysis["decoded_registers"]
+    registers = []
+    if args.analysis:
+        analysis = json.loads(pathlib.Path(args.analysis).read_text())
+        registers = analysis["decoded_registers"]
 
     result = audit(targets, registers)
     pathlib.Path(args.output).write_text(json.dumps(result, indent=1) + "\n")

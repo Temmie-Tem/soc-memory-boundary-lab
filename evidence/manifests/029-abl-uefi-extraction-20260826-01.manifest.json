@@ -1,0 +1,80 @@
+{
+ "schema": "abl-uefi-extract-v1",
+ "image_sha256": "1db19d11a5ce6865e3fbcabadfbdaa9045e75f144b8bc8593a58338c20a3120c",
+ "image_bytes": 4194304,
+ "pt_load": {
+  "index": 2,
+  "file_offset": 12288,
+  "vaddr": 2678063104,
+  "file_size": 2293760,
+  "memory_size": 2293760,
+  "flags": 7
+ },
+ "volumes": [
+  {
+   "origin": "abl",
+   "depth": 0,
+   "files": 1,
+   "bytes": 2293760,
+   "file_system_guid": "8C8CE578-8A3D-4F1C-9935-896185C32DD3",
+   "length": 2293760,
+   "header_length": 72,
+   "revision": 2
+  },
+  {
+   "origin": "abl/file@0x48/lzma/fv@0x4",
+   "depth": 1,
+   "files": 4,
+   "bytes": 4763968,
+   "file_system_guid": "8C8CE578-8A3D-4F1C-9935-896185C32DD3",
+   "length": 4763968,
+   "header_length": 72,
+   "revision": 2
+  }
+ ],
+ "modules": [
+  {
+   "origin": "abl/file@0x48/lzma/fv@0x4",
+   "name": "Odin",
+   "file_type": "APPLICATION",
+   "section_type": "PE32",
+   "bytes": 1810432,
+   "sha256": "6203c19be5cf5fdeb7a95b770d30ed44518d19d7ecb8027ca5476912e83bed52"
+  },
+  {
+   "origin": "abl/file@0x48/lzma/fv@0x4",
+   "name": "LinuxLoader",
+   "file_type": "APPLICATION",
+   "section_type": "PE32",
+   "bytes": 2433024,
+   "sha256": "51c1779a9d1462189bde201557564ab96e68bf352be05efae23cb0fe9dd1f9db"
+  },
+  {
+   "origin": "abl/file@0x48/lzma/fv@0x4",
+   "name": "Cryptest",
+   "file_type": "APPLICATION",
+   "section_type": "PE32",
+   "bytes": 520192,
+   "sha256": "053390db517fab8fe40460502faf227574af084172f758411b6a220e80a97375"
+  }
+ ],
+ "extracted": {
+  "abl/file@0x48/lzma": {
+   "bytes": 4763976,
+   "sha256": "3fc653082e6acbfcfe3019c7d78b278326bc40de30a4f0325362fa6cce29011a"
+  },
+  "abl/file@0x48/lzma/fv@0x4/Cryptest/PE32": {
+   "bytes": 520192,
+   "sha256": "053390db517fab8fe40460502faf227574af084172f758411b6a220e80a97375"
+  },
+  "abl/file@0x48/lzma/fv@0x4/LinuxLoader/PE32": {
+   "bytes": 2433024,
+   "sha256": "51c1779a9d1462189bde201557564ab96e68bf352be05efae23cb0fe9dd1f9db"
+  },
+  "abl/file@0x48/lzma/fv@0x4/Odin/PE32": {
+   "bytes": 1810432,
+   "sha256": "6203c19be5cf5fdeb7a95b770d30ed44518d19d7ecb8027ca5476912e83bed52"
+  }
+ },
+ "extracted_total_bytes": 9527624
+}
