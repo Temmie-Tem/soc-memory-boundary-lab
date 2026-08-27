@@ -559,6 +559,22 @@ The focused suite is 6/6 and the full serial suite is 1,179/1,179 PASS
 (`skipped=1`, no swaps); no device action occurred.  The next candidate is a
 bounded consumer/writer census for those six static slots.
 
+Verification 020E completed that census.  The exact XBL contains 18 unique
+direct scalar accesses to the six slots (6 `STR` stores and 12 `LDR` loads).
+Caller-saved direct `BL` windows fail closed; X19–X29 continuation is
+conditional on an explicit AAPCS64 callee-saved assumption.  The scan retains
+95 barriers (8 caller-saved calls and 87 unknown-instruction barriers).  This
+is static cross-reference evidence only: global writer/consumer absence, ABI
+compliance, runtime values/currentness/execution, slot semantics,
+physical-to-DRAM meaning, mutability, protected reach and alias/bypass remain
+`UNKNOWN`; Class C and `NOT_ELIGIBLE` remain unchanged.  The experiment,
+review and manifest are [documented](experiments/verification-020E-static-slot-census/README.md),
+[reviewed](docs/VERIFICATION020E_INTEGRATION_REVIEW_2026-08-27.md), and
+[published](evidence/manifests/020E-static-slot-census-20260827-01.manifest.json).
+The focused suite is 7/7 and the full serial suite is 1,186/1,186 PASS
+(`skipped=1`, no swaps); no device action occurred.  The next candidate is a
+bounded load-use trace (020F).
+
 Claim vocabulary is deliberately closed:
 
 - `PROVED`: directly demonstrated by named source, artifact, or repeated result.

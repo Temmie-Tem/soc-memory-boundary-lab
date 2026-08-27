@@ -28,7 +28,9 @@
 | 017 | Does exact XBL expose a table-driven MC read-copy path that independently covers the ranked MC candidates? | The pinned u64 table parses to 122 entries plus a zero terminator; the exact helper's static flow conditionally loads each table-derived address and stores results to a distinct buffer. | Exact XBL size/hash, PT_LOAD mapping, inclusive table/helper hashes, AArch64 word pins, direct-BL scan limited to file-backed executable PT_LOADs, SHRM-plan address-list cross-check; host-only, no device/SMC/MMIO. | `PROVED`: 30×4 MC groups + 2 globals, all 12 qhs_mc candidates covered, helper read-copy store-base dataflow, exactly two direct BL callsites. `REFUTED`: helper as candidate-register writer and independent hard 122-entry cap. Runtime completion/coherence/currentness, mutable table state, indirect reachability and writer semantics `UNKNOWN`; 015/016 remain `NOT ELIGIBLE`. |
 | 018 | Does exact XBL contain literal and syntactic store-offset evidence for the 12 ranked MC targets, and do the non-SP RX candidates resolve through narrow direct-definition models? | Each target's single 8-byte table encoding yields one aligned u64 match and the overlapping aligned u32 match at the same file offset; strict STR W/X unsigned-immediate offsets enumerate candidates. Stage 2A resolves only 64-bit MOVZ/MOVK or same-register `ADRP Xn; ADD Xn,Xn,#imm` within 128 instructions; Stage 2B extends only its two X8 window-limit candidates with same-register W MOVZ/MOVK within 512 instructions; Stage 2C analyzes one X8 writer through its unique direct caller and 48-row retained table; Stage 2D analyzes the remaining X19 store under explicit dispatch, normal-return, and initialized-slot conditions; Stage 2E analyzes only the seven RX SP-base stores against exact F1/F2 local frame allocations. | Exact XBL size/SHA-256, PT_LOAD RX/RWE/RW/OTHER census, scalar STR decoder negatives, literal mapping/table membership, exact candidate/code/table/initializer pins, exact target instruction-class/write-set audit, exact SP-write/site manifest bound to both function hashes, explicit memory-writeback, BR/BLR, all-file-backed executable PT_LOAD-word direct-entry, direct BL/B and success-path cutoffs, unsupported/mixed-width definition negatives; host-only, no device/SMC/MMIO. | `PROVED`: the two aligned matches per target are views of one table entry, not independent literals, with no separate target literal elsewhere; outside-table aligned u32 only for base `0x09260000` at file `0x80154` / VA `0x148bc254` in RWE; 14 matching offsets (RX11/RWE3), seven RX SP-based; Stage 2A has two window-limit no-definitions, one unsupported LDR, one BL control boundary, zero resolved bases/hits. Stage 2B resolves two W-wide-move bases to XBL virtual-address values `0x1489f000`, computing `0x1489f400`/`0x1489f4d0`, with zero numeric target hits. Stage 2C proves one direct BL, the 56/108/272-byte code-range hashes, and 48 unique ID/pointer rows with zero numeric target matches; these are a descriptor-eligibility-dependent possible-value superset. Stage 2D proves the remaining caller/function/initializer/target static pins, exact target no-call/no-saved-register audit, dispatch and normal-return pins, and computes `0x85e9e970` only within explicit runtime/slot conditions; its conditional value has zero numeric target matches. Stage 2E proves all seven SP forms, both frame ranges/hashes and callers, four recognized explicit writeback sites per function (two SP frame updates and two non-SP writebacks), zero recognized BR/BLR transfers, one external direct BL to each function start with zero external entries to interiors, and in-allocation bounds. The same-function immediate-control CFG (BL modeled as fallthrough) has no recognized SP-write-class instruction after allocation on a path to each candidate; unsupported instruction effects remain `UNKNOWN`; absolute stack address and runtime destination remain `UNKNOWN`. `REFUTED` only: the supported Stage 2A direct-definition path, Stage 2B/2C/2D numeric target equality in their stated models, and static absolute/controller-base interpretation of these seven stores within the normal frame model. Physical destination, runtime execution, writer identity outside scoped paths and all SP/RWE/unsupported/dynamic paths remain `UNKNOWN`; 015/016 remain `NOT ELIGIBLE`. |
 
-## Integrated host-only rows 019–022, 024–027, 029, and 031–033
+| 020E-SS | Do the six 020D static slots have additional bounded direct consumers or writers? | `PROVED` within the finite model: 18 unique direct unsigned scalar accesses (6 `STR`, 12 `LDR`) to the six slots; 95 bounded barriers are retained (8 caller-saved `BL`, 87 unknown-instruction). | Exact XBL/helper/caller/object hashes; ADRP-to-slot-page window of 8 instructions; strict scalar decoders, page-register kill rules, caller-saved `BL` barriers and explicit AAPCS64 X19–X29 continuation assumption; synthetic call-flow negatives; no device/SMC/MMIO/write. | `SUPPORTED` bounded cross-reference only; global writer/consumer absence, ABI compliance, runtime values/currentness, slot semantics, physical/DRAM mapping, mutability, protected reach and alias/bypass `UNKNOWN`; `CLASS C`, `NOT_ELIGIBLE`. |
+
+## Integrated host-only rows 019–022, 024–027, 029, 031–033, and 020E
 
 | ID | Question | Bounded result | Classification and boundary |
 |---:|---|---|---|
@@ -1151,6 +1153,34 @@ preserve the already allocated Experiment 014–016 sequence.
   generations, and exact-XBL/final decoder hostile-review `PASS`. The durable
   integration-doc review is `PASS` in
   [EXP026_INTEGRATION_REVIEW_2026-08-26.md](EXP026_INTEGRATION_REVIEW_2026-08-26.md).
+
+## Experiment 020E static-slot census metadata
+
+Verification 020E is a host-only, read-only bounded cross-reference of the
+six static ELF slots populated by 020D.  The exact XBL is pinned by size
+4,194,304 and SHA-256
+`e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37`; the
+020C helper, 020D caller, and 020D object ranges are independently hash-pinned
+as dependencies.  An `ADRP` to page `0x9fc3e000` followed within eight
+instructions by an unsigned scalar `LDR`/`STR` to one of offsets
+`0x138,0x140,0x148,0x150,0x158,0x160` is recognized.  Unknown forms terminate
+the local window.  Caller-saved direct `BL` is a barrier; continuation across
+X19–X29 is explicitly conditional on AAPCS64 callee preservation.
+
+`PROVED`: 18 unique direct accesses in the exact XBL (6 stores and 12 loads),
+with 95 retained barriers (8 caller-saved calls and 87 unknown instructions).
+`SUPPORTED`: the slots have additional static uses.  `HYPOTHESIS`: they may
+be shared configuration state.  `UNKNOWN`: global writer/consumer absence,
+ABI compliance, runtime values/currentness/execution, slot semantics,
+MMIO/physical/DRAM identity, mutability/locking, protected reach, aliasing and
+bypass.  Class C remains unchanged and 015/016 remain `NOT_ELIGIBLE`.
+
+The tool/test/manifest SHA-256 values are recorded by the integration review;
+the public manifest is 29,826 bytes, mode `0644`, SHA-256
+`4c28b0cc0a113e099fe3b0ce2bd16a77ce0c9d9bfc799ca9494c52eed9c349ad`.
+Validation is 7 focused and 1,186 full serial unittest PASS (`skipped=1`) in
+119.090 seconds, maximum RSS 343,404 KiB, zero swap, with deterministic
+regeneration and independent hostile-review `PASS`.
 
 ## Integration validation and current reconciliation
 

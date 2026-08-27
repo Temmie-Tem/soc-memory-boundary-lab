@@ -1189,6 +1189,19 @@ suite is 6/6 and the full serial suite is 1,179/1,179 PASS (`skipped=1`, no
 swaps); no device action occurred.  The next scored candidate is a bounded
 static-slot consumer census (020E).
 
+Verification 020E is now complete.  The bounded exact-XBL census found 18
+unique direct scalar accesses to the six 020D static slots: 6 `STR` stores and
+12 `LDR` loads.  It retained 95 barriers (8 caller-saved direct `BL` barriers
+and 87 unknown-instruction barriers); continuation across X19–X29 is only an
+explicit AAPCS64 callee-saved assumption.  This does not establish global
+writer/consumer absence, ABI compliance, runtime execution/currentness or
+values, slot semantics, physical-to-DRAM identity, mutability, protected reach
+or alias/bypass.  The focused suite is 7/7 and the full serial suite is
+1,186/1,186 PASS (`skipped=1`) in 119.090 seconds, maximum RSS 343,404 KiB,
+zero swap; no device action occurred.  The manifest and hostile review are
+recorded in `docs/VERIFICATION020E_INTEGRATION_REVIEW_2026-08-27.md`.  The
+next scored candidate is a bounded load-use trace (020F).
+
 ## N. 가장 위험한 아직 금지된 실험
 
 Treating a section-16 offset token as a byte offset and writing the resulting

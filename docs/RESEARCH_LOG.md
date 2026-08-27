@@ -2052,3 +2052,33 @@ regeneration, public JSON/redaction, no-clobber and decoder/cardinality
 negative checks pass.  Independent hostile review is `PASS` in
 `docs/VERIFICATION020D_INTEGRATION_REVIEW_2026-08-27.md`.  The next scored
 candidate is a bounded static-slot consumer census (020E).
+
+# 2026-08-27 — Verification 020E bounded static-slot consumer census
+
+This host-only, read-only iteration follows the six static ELF slots populated
+by 020D.  An exact-XBL executable census recognizes only an `ADRP` to page
+`0x9fc3e000` followed within eight instructions by an unsigned scalar
+`LDR`/`STR` to one of the six pinned offsets.  Caller-saved direct `BL` is a
+barrier; continuation across X19–X29 is explicitly conditional on AAPCS64
+callee preservation.  Unknown instructions and indirect paths remain outside
+the model.
+
+`PROVED`: exact input/helper/caller/object hashes and 18 unique direct accesses
+(6 stores, 12 loads), with 95 retained barriers (8 caller-saved calls and 87
+unknown-instruction barriers).  `SUPPORTED`: the six slots have additional
+static uses.  `HYPOTHESIS`: they may be shared configuration state.
+`UNKNOWN`: global writer/consumer absence, ABI compliance/callee side effects,
+runtime values/currentness/execution, slot semantics, MMIO/physical/DRAM
+identity, mutability/locking, protected reach, aliasing and bypass.  `CLASS C
+(TRANSFORM ONLY)` and `NOT_ELIGIBLE` remain unchanged; no device action
+occurred.
+
+The sanitized manifest is
+`evidence/manifests/020E-static-slot-census-20260827-01.manifest.json`, 29,826
+bytes, mode `0644`, SHA-256
+`4c28b0cc0a113e099fe3b0ce2bd16a77ce0c9d9bfc799ca9494c52eed9c349ad`.
+Validation is 7/7 focused and 1,186/1,186 full serial tests (`skipped=1`) in
+119.090 seconds, maximum RSS 343,404 KiB, zero swap; deterministic
+regeneration, public JSON/redaction, mode/no-clobber checks and independent
+hostile review `PASS`.  The next scored candidate is a bounded load-use trace
+over the twelve recognized loads (020F).

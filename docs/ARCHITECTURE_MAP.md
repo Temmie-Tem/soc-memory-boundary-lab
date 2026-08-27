@@ -495,6 +495,17 @@ mutability, physical-to-DRAM destination, protected reach and alias/bypass
 remain `UNKNOWN`.  The next discriminator is a bounded census of those slots'
 other consumers and writers.
 
+Verification 020E completed that bounded census without promoting static VAs to
+runtime state.  In the exact XBL it recognizes 18 unique direct scalar
+accesses to the six slots (6 stores and 12 loads).  Caller-saved direct `BL`
+windows are barriers; continuation across X19–X29 is conditional on an
+explicit AAPCS64 callee-saved assumption.  Ninety-five barriers are retained
+(8 caller-saved calls and 87 unknown instructions).  Global writer/consumer
+absence, ABI compliance, runtime execution/currentness/values, slot semantics,
+physical-to-DRAM identity, mutability, protected reach and alias/bypass remain
+`UNKNOWN`; Class C is unchanged.  The next discriminator is a bounded load-use
+trace over the twelve recognized loads.
+
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside
 `DC_NOC_NON_BROADCAST_MPU`, `MEMNOC_MS_MPU`, and `CNOC_SNOC_MS_MPU` regions.
