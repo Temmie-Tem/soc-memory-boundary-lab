@@ -33,8 +33,9 @@
 | 020G-PO | Do the exact 020F address-use events resolve to bounded pointer/object shapes? | `PROVED` within the finite model: 12 witnesses, consisting of 10 immediate object-field-shaped accesses (7 `LDR`, 3 `STR`) and 2 `UXTX` register-offset array-element-shaped loads; 11 unique access VAs and 1 duplicate witness. | Exact XBL plus mechanically hash-pinned 020F manifest; strict unsigned scalar and `UXTX` register-offset decoders at the exact event VAs; no runtime pointer/physical/MMIO/DRAM promotion or device/SMC/write. | `SUPPORTED` local pointer/object/array shape only; runtime base/currentness, object semantics, global writer/consumer absence, mutability, protected reach and alias/bypass remain `UNKNOWN`; `CLASS C`, `NOT_ELIGIBLE`. |
 | 020H-FR | Do the exact 020G witnesses belong to bounded local function/role blocks with statically recoverable base origins? | `PROVED` within the finite model: 12 witnesses group into 11 unique access VAs and 7 return/direct-branch-delimited blocks; 9 blocks contain unsupported forms and 2 are local-read-shaped. Ten unique bases are `STATIC_SLOT_SEED`; indexed `0x9fc26ea0` is `ARITHMETIC_DERIVED` from `MADD`. | Exact XBL plus mechanically hash-pinned 020G manifest and 220-byte role region; strict RET X30/direct-B/direct-BL and bounded base decoders; no true-function/PA/DRAM/MMIO promotion or device/SMC/write. | `SUPPORTED` local helper/object role consistency only; true function boundaries, runtime/global/physical semantics, mutability, protected reach and alias/bypass remain `UNKNOWN`; `CLASS C`, `NOT_ELIGIBLE`. |
 | 020I-CE | Do the exact 020H block-entry direct-BL sources reveal a bounded caller-context or argument-origin role? | `PROVED` within the finite model: 20 unique source/target BL edges traced for at most 16 preceding instructions; 12 windows stop on unsupported forms, 6 remain `ARGUMENT_OR_UNKNOWN`, and 2 are `ARGUMENT_COPY_OR_CONSTANT`. No static-slot-origin caller was reached. | Exact XBL plus mechanically hash-pinned 020H manifest; strict RET X30/direct-B/BL, scalar/register-offset memory, ADRP, ADD/SUB, MADD and MOV decoders; no true-function/PA/DRAM/MMIO promotion or device/SMC/write. | `SUPPORTED` caller-context shape only; runtime/true-function/global/physical semantics, mutability, protected reach and alias/bypass remain `UNKNOWN`; `CLASS C`, `NOT_ELIGIBLE`. |
+| 020J-BO | Do the exact 020I unsupported caller-context barriers resolve to ordinary ARM64 opcode families without extending the trace? | `PROVED` within the finite model: 12 unique stop VAs classify as `B_COND` 5, `CBZ_CBNZ` 2, `LDP_STP_PAIR` 2, logical-immediate 2 and `BITFIELD` 1 (`BFXIL`); `UNKNOWN_OPCODE` count 0. | Exact XBL plus mechanically hash-pinned 020I manifest; inspect only the first unsupported stop word; strict family masks, exact 12/12 and family-count gates, raw-word hash only, no path continuation or device/SMC/MMIO/write. | `SUPPORTED` ordinary finite opcode shape only; full semantics, true functions, runtime/physical/DRAM identity, mutability, protected reach and alias/bypass remain `UNKNOWN`; `CLASS C`, `NOT_ELIGIBLE`. |
 
-## Integrated host-only rows 019–022, 024–027, 029, 031–033, 020E, 020F, 020G, 020H and 020I
+## Integrated host-only rows 019–022, 024–027, 029, 031–033, 020E, 020F, 020G, 020H, 020I and 020J
 
 | ID | Question | Bounded result | Classification and boundary |
 |---:|---|---|---|
@@ -51,6 +52,7 @@
 | 032 | Can source-qualified arithmetic semantics reduce the exact reached 031/029 frontier without promoting a consumer or writer? | `PROVED`: the combined selection is 298 occurrences / 175 unique VAs / 162 unique words across 71 ranges, with 264 reached selected events and 34 selected-not-reached occurrences. The arithmetic extension contributes 15 selected rows across 7 sites and 14 reached events (`MADD` 3, `UMADDL` 7, `EOR` 2, `BIC` 2). The result transitions 55/71 sites to `NO_TARGET_WITHIN_MODEL`; 16 remain `INDIRECT_OR_UNSUPPORTED`; relative to 031, sites 1/36/37/52 transition with zero regressions. The residual is 54 occurrences / 44 unique VAs / 35 unique words across 15 sites (`PAIR_MEMORY` 48, `SIGN_EXTENDING_MEMORY` 2, `SYSTEM_CONTROL` 4). | `V3_MODEL_ONLY` / `NO_ABSENCE_CLAIM`: exact full-record equivalence preserves 250 scalar, 143 direct-control, and 23 taint-kill 031 events. Qualified arithmetic is modulo-width and identity-limited; pair/sign-extending memory, system/control, indirect aliases, reserved/unknown forms remain fail-closed. Zero `DCB_CONSUMER_PATH` and zero `MC_OR_SHRM_SYMBOLIC_TARGET`; current destination, writer absence, execution and live authority remain `UNKNOWN`. Host-only, no device/MMIO/write action. |
 | 033 | Can source-qualified pair-memory, sign-extending-memory, and system-control semantics reduce the exact residual left by Experiment 032 without promoting a consumer or writer? | `PROVED`: the complete 029 frontier is selected as 352 occurrences / 219 unique VAs / 197 unique words; 308 selected events are reached and 44 selected occurrences are not reached. The new residual admission is 44 events: `LDP` 38, `STP` 3, `LDRSW` 1, `LDRSB` 1, and `DAIFClr` 1. Three `STP` instructions publish six explicit lane observations. The bounded site outcome is 70 `NO_TARGET_WITHIN_MODEL` / 1 `INDIRECT_OR_UNSUPPORTED`, with site 35 remaining unresolved. | `V4_MODEL_ONLY` / `NO_ABSENCE_CLAIM`: inherited 032 full-record equality is exact for 264 extension, 143 direct-control, and 23 taint-kill events. Zero bounded `DCB_CONSUMER_PATH` and `MC_OR_SHRM_SYMBOLIC_TARGET`; global writer/current destination/protected-memory semantics and `DAIFClr` current-EL/`CheckDAIFAccess` remain `UNKNOWN`. Host-only, no device/MMIO/write action; Class C and 015/016 eligibility unchanged. |
 | 034 | Does site 35's exact guarded jump table resolve the final Experiment 033 fail-closed edge without promoting a consumer or controller target? | `PROVED`: contiguous `LDR W9`/`CMP W9,#4`/`B.HI`/`ADRP+ADD`/indexed `LDR X1`/`BR X1` dispatch, table `0x14824cf0`, five entries and four unique mapped local targets. Four independent in-memory direct-edge runs are CFG-complete with no unsupported form. The composed result is 71 `NO_TARGET_WITHIN_MODEL` / zero fail-closed sites, with exactly one transition from 033 and no regression. | `BOUNDED_STATIC_RESOLUTION_ONLY` / `NO_ABSENCE_CLAIM`: baseline 033 site records remain verbatim; zero bounded consumer/controller targets are promoted. External/unmodeled entries, runtime `BR`/direct-`B` equivalence, execution/index/table contents, current destination, writer/consumer absence and security effect remain `UNKNOWN`. Host-only; Class C and 015/016 eligibility unchanged. |
+| 020J | Do the exact 020I unsupported caller-context barriers resolve to ordinary ARM64 families without extending the trace? | `PROVED` within the finite model: 12 unique first-stop VAs classify as `B_COND` 5, `CBZ_CBNZ` 2, `LDP_STP_PAIR` 2, logical-immediate 2 and `BITFIELD` 1 (`BFXIL`); `UNKNOWN_OPCODE` count 0. | Exact XBL plus hash-pinned 020I manifest; inspect only first stop words; strict family masks, exact 12/12 and family-count gates, raw-word hashes only, no path continuation or device/SMC/MMIO/write. | `SUPPORTED` finite opcode shape only; full semantics, true functions, runtime/physical/DRAM identity, mutability, protected reach and alias/bypass remain `UNKNOWN`; `CLASS C`, `NOT_ELIGIBLE`. |
 
 ## Reconciled external A-line and repaired runtime evidence
 
@@ -134,8 +136,10 @@ events to 12 bounded pointer/object witnesses (10 immediate and 2 `UXTX`
 register-offset, with 11 unique VAs and 1 duplicate witness); 020H then
 grouped them into 7 bounded local blocks and classified their base origins;
 020I then checked 20 direct-BL caller contexts with 12 unsupported stops, 6
-unknown and 2 argument-shaped rows.  The next candidate is a bounded
-caller-context barrier/opcode inventory (020J).
+unknown and 2 argument-shaped rows; 020J then classified those 12 first stop
+words as `B_COND` 5, `CBZ_CBNZ` 2, `LDP_STP_PAIR` 2, logical-immediate 2 and
+`BITFIELD` 1, with no `UNKNOWN_OPCODE` fallback.  The next candidate is a
+bounded barrier operand/target metadata inventory (020K).
 Experiment 035 remains deferred.
 
 The Stage 2E row's writeback result is an exact audit of all recognized
@@ -1287,6 +1291,26 @@ Validation is 11 focused and 1,227 full serial unittest PASS (`skipped=1`) in
 regeneration, redaction, no-clobber, and independent hostile-review `PASS`.
 The next scored candidate is a bounded caller-context barrier/opcode inventory
 (020J).
+
+## Experiment 020J caller-context barrier/opcode metadata
+
+Verification 020J re-derived the exact 020I callsite set and inspected only
+the first unsupported word in each of 12 bounded caller windows.  The 12 stop
+VAs are unique and classify as `B_COND` 5, `CBZ_CBNZ` 2, `LDP_STP_PAIR` 2,
+logical-immediate 2 and `BITFIELD` 1 (`BFXIL`); no row uses the
+`UNKNOWN_OPCODE` fallback.  This is a strict finite opcode-family inventory,
+not a continuation of data flow or a true-function/runtime/control-register
+claim.  Runtime execution/currentness/values, indirect paths, object meaning,
+MMIO/physical/DRAM identity, mutability/locking, protected reach and
+alias/bypass remain `UNKNOWN`; Class C and `NOT_ELIGIBLE` remain unchanged.
+
+The public manifest is 7,657 bytes, mode `0644`, SHA-256
+`1fdb1f4ade702fdb2d6ffdc68669a9710c8152e225f89f02fb65c0d10f4c3d55`.
+Validation is 7 focused and 1,234 full serial unittest PASS (`skipped=1`) in
+164.114 seconds, maximum RSS 355,764 KiB, zero swap, with byte-identical
+regeneration, redaction, no-clobber, exact-family and mutation negatives, and
+independent hostile-review `PASS`.  The next scored candidate is a bounded
+barrier operand/target metadata inventory (020K).
 
 ## Integration validation and current reconciliation
 

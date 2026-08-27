@@ -1262,6 +1262,21 @@ Focused tests are 11/11 and the full serial suite is 1,227/1,227 PASS
 next scored candidate is a bounded caller-context barrier/opcode inventory
 (020J).
 
+Verification 020J is now complete.  The exact 020I dependency re-decodes to
+12 unique unsupported stop VAs; inspecting only those first words yields
+`B_COND` 5, `CBZ_CBNZ` 2, `LDP_STP_PAIR` 2, logical-immediate 2 and
+`BITFIELD` 1 (`BFXIL`).  No word uses the `UNKNOWN_OPCODE` fallback.  The
+result is a finite opcode-family inventory only: full instruction semantics,
+true function boundaries, runtime execution/currentness, MMIO/physical/DRAM
+identity, mutability/locking, protected reach and alias/bypass remain
+`UNKNOWN`.  Class C and `NOT_ELIGIBLE` remain unchanged; no device action
+occurred.  The manifest is 7,657 bytes, mode `0644`, SHA-256
+`1fdb1f4ade702fdb2d6ffdc68669a9710c8152e225f89f02fb65c0d10f4c3d55`.
+Focused tests are 7/7 and the full serial suite is 1,234/1,234 PASS
+(`skipped=1`) in 164.114 seconds, maximum RSS 355,764 KiB, zero swap.  The
+next scored candidate is a bounded barrier operand/target metadata inventory
+(020K), still host-only and read-only.
+
 ## N. 가장 위험한 아직 금지된 실험
 
 Treating a section-16 offset token as a byte offset and writing the resulting

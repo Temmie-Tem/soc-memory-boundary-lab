@@ -2164,3 +2164,46 @@ The sanitized manifest is
 Focused tests are 11/11 and the full serial suite is 1,216/1,216 PASS
 (`skipped=1`) in 140.860 seconds, maximum RSS 349,728 KiB, zero swap.  The
 next scored candidate is a bounded caller-context/entry-role trace (020I).
+
+# 2026-08-27 — Verification 020I caller-context/entry-role trace
+
+This host-only, read-only iteration re-derived the exact 020H role rows and
+checked 20 unique block-entry direct-BL source/target edges.  A strict
+backward window of at most 16 instructions yielded 12
+`CALLER_CONTEXT_UNSUPPORTED`, 6 `ARGUMENT_OR_UNKNOWN`, and 2
+`ARGUMENT_COPY_OR_CONSTANT` rows; no static-slot-origin caller was reached.
+This is bounded negative/unknown evidence, not a global writer/consumer or
+function-boundary proof.  Runtime values/currentness, indirect effects,
+MMIO/physical/DRAM identity, mutability, protected reach and alias/bypass
+remain `UNKNOWN`; `CLASS C (TRANSFORM ONLY)` and `NOT_ELIGIBLE` remain
+unchanged.
+
+The sanitized manifest is
+`evidence/manifests/020I-static-slot-caller-context-entry-role-20260827-01.manifest.json`,
+12,472 bytes, mode `0644`, SHA-256
+`03c463f667142a21641264ec2e4080d9d5f963c67776037ca9d6194a8a621608`.
+Focused tests are 11/11 and the full serial suite is 1,227/1,227 PASS
+(`skipped=1`) in 151.571 seconds, maximum RSS 356,228 KiB, zero swap.
+
+# 2026-08-27 — Verification 020J caller-context barrier/opcode inventory
+
+This host-only, read-only iteration re-derived the exact 020I caller-context
+set and inspected only the first unsupported instruction at each of its 12
+bounded stop windows.  All 12 stop VAs are unique.  Strict ARM64 family masks
+classify five `B_COND`, two `CBZ_CBNZ`, two scalar `LDP_STP_PAIR` (offset and
+pre-index), two logical-immediate forms, and one 32-bit `BITFIELD` (`BFXIL`).
+The `UNKNOWN_OPCODE` fallback is unused for this exact set.  No trace continues
+past a barrier and no word is promoted to a pointer, PA, MMIO, controller,
+DRAM, ownership or bypass claim.  `CLASS C (TRANSFORM ONLY)` and
+`NOT_ELIGIBLE` remain unchanged; no device action occurred.
+
+The sanitized manifest is
+`evidence/manifests/020J-caller-context-barrier-opcode-inventory-20260827-01.manifest.json`,
+7,657 bytes, mode `0644`, SHA-256
+`1fdb1f4ade702fdb2d6ffdc68669a9710c8152e225f89f02fb65c0d10f4c3d55`.
+Focused tests are 7/7 and the full serial suite is 1,234/1,234 PASS
+(`skipped=1`) in 164.114 seconds, maximum RSS 355,764 KiB, zero swap.
+Deterministic regeneration, redaction, no-clobber, dependency/cardinality/
+family mutation negatives and independent hostile review all pass.  The next
+scored candidate is a bounded barrier operand/target metadata inventory
+(020K).

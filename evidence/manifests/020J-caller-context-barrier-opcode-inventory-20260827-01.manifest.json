@@ -1,0 +1,255 @@
+{
+ "boundary_bypass": {
+  "device": "none",
+  "mmio": "none",
+  "protected_memory": "none",
+  "reason": "Host-only stop-word inventory; no activation or live state was accessed.",
+  "smc": "none",
+  "status": "NOT_AUTHORIZED"
+ },
+ "census": {
+  "family_counts": {
+   "BITFIELD": 1,
+   "B_COND": 5,
+   "CBZ_CBNZ": 2,
+   "LDP_STP_PAIR": 2,
+   "LOGICAL_OR_BITMASK_IMMEDIATE": 2
+  },
+  "status": "SUPPORTED_BOUNDED_BARRIER_OPCODE_INVENTORY",
+  "stops": [
+   {
+    "family": {
+     "condition": "0x00000001",
+     "family": "B_COND"
+    },
+    "source_va": "0x9fc263ec",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc263e8",
+    "target_va": "0x9fc26ee4",
+    "word_sha256": "f8abca8e691c38c583cef2c39c929f43f061ec158c0456ee3c772d4d1a8ac8f0"
+   },
+   {
+    "family": {
+     "condition": "0x00000000",
+     "family": "B_COND"
+    },
+    "source_va": "0x9fc26524",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc26520",
+    "target_va": "0x9fc26ee4",
+    "word_sha256": "d48b9c6adfbaa93bffec2a185dde12cdcadf0cc1aa58e3cfac499a7b4d7b546c"
+   },
+   {
+    "family": {
+     "family": "LDP_STP_PAIR",
+     "rn": 31,
+     "rt": 29,
+     "rt2": 30,
+     "width_bits": 64
+    },
+    "source_va": "0x9fc265fc",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc265e4",
+    "target_va": "0x9fc26e84",
+    "word_sha256": "500a78ad10b44cb8445edc95b5d7721f4aab70c598a0930158ac8fef7bae6f43"
+   },
+   {
+    "family": {
+     "family": "CBZ_CBNZ",
+     "register": "0x00000017"
+    },
+    "source_va": "0x9fc26b3c",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc26b38",
+    "target_va": "0x9fc26ec0",
+    "word_sha256": "9fca51f54ab119c1708f465d249ce95ade60e7e1ef79b75fc0597ec8ad89f039"
+   },
+   {
+    "family": {
+     "family": "CBZ_CBNZ",
+     "register": "0x00000016"
+    },
+    "source_va": "0x9fc26c78",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc26c74",
+    "target_va": "0x9fc26ec0",
+    "word_sha256": "6f726895ab25a2481776ee9bd260b8fa8eaa027c936260864c6273bfac702e01"
+   },
+   {
+    "family": {
+     "family": "LDP_STP_PAIR",
+     "rn": 31,
+     "rt": 29,
+     "rt2": 30,
+     "width_bits": 64
+    },
+    "source_va": "0x9fc26f78",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc26f60",
+    "target_va": "0x9fc26f50",
+    "word_sha256": "f29fb5887e2eb991d4e7be54d62d078b4c5d6a88d6e6e9463b5dabe5eb3b4ae5"
+   },
+   {
+    "family": {
+     "family": "LOGICAL_OR_BITMASK_IMMEDIATE",
+     "rd": 0,
+     "rn": 31,
+     "width_bits": 32
+    },
+    "source_va": "0x9fc26fb0",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc26fac",
+    "target_va": "0x9fc26f30",
+    "word_sha256": "af63c85b85683556cb7f3636cf056c83608038ba33e5e8656029f7cbae8b5b93"
+   },
+   {
+    "family": {
+     "family": "LOGICAL_OR_BITMASK_IMMEDIATE",
+     "rd": 0,
+     "rn": 31,
+     "width_bits": 32
+    },
+    "source_va": "0x9fc26ff0",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc26fec",
+    "target_va": "0x9fc26f30",
+    "word_sha256": "af63c85b85683556cb7f3636cf056c83608038ba33e5e8656029f7cbae8b5b93"
+   },
+   {
+    "family": {
+     "condition": "0x00000001",
+     "family": "B_COND"
+    },
+    "source_va": "0x9fc27fd4",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc27fd0",
+    "target_va": "0x9fc26ec0",
+    "word_sha256": "e8f4379a05dd7fe7ca6404e85a99dc5f4b9ee52b4ae627cd7126bfaf7e88ca4a"
+   },
+   {
+    "family": {
+     "condition": "0x00000001",
+     "family": "B_COND"
+    },
+    "source_va": "0x9fc281a0",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc28188",
+    "target_va": "0x9fc26ec0",
+    "word_sha256": "2e88d4a8c850ce230db594daf0cd56bb0e7700c71008791b720f4561b95466b4"
+   },
+   {
+    "family": {
+     "family": "BITFIELD",
+     "rd": 2,
+     "rn": 17,
+     "width_bits": 32
+    },
+    "source_va": "0x9fc28218",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc28210",
+    "target_va": "0x9fc26ec0",
+    "word_sha256": "a4758037c9cfc46adec682f2392f3f029941bb26fc9dc512d80a711cf6cb0e9f"
+   },
+   {
+    "family": {
+     "condition": "0x00000001",
+     "family": "B_COND"
+    },
+    "source_va": "0x9fc2c340",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc2c338",
+    "target_va": "0x9fc26ec0",
+    "word_sha256": "19a8813834e10a1cada14a387cb97cdc870836a73501a887f110e5d005db2db0"
+   }
+  ],
+  "unique_stop_va_count": 12,
+  "unsupported_stop_count": 12
+ },
+ "claims": {
+  "HYPOTHESIS": [
+   "The unsupported barriers may be ABI/prologue/control artifacts rather than controller programming, but this inventory does not prove that interpretation."
+  ],
+  "PROVED": [
+   "The exact retained A90 XBL and public 020I manifest are bound by size/SHA-256 before analysis.",
+   "Only the first unsupported stop word for each of the 12 exact 020I unsupported windows is classified by strict opcode-family rules; no trace continues past a barrier."
+  ],
+  "REFUTED": [],
+  "SUPPORTED": [
+   "Most retained barriers can be separated into ordinary conditional/prologue/bitfield families or remain explicitly unknown within this bounded inventory."
+  ],
+  "UNKNOWN": [
+   "Instruction semantics beyond family labels, true function boundaries, runtime execution/currentness/values, indirect paths, object semantics, MMIO/physical/DRAM identity, mutability/locking, protected reach, aliasing and bypass."
+  ]
+ },
+ "classification": "CLASS C (TRANSFORM ONLY)",
+ "definition_of_done": {
+  "build": {
+   "reason": "Interpreted host Python; no device/kernel build.",
+   "status": "NOT_APPLICABLE"
+  },
+  "commands": {
+   "command": "python3 tools/sm8150_xbl_caller_context_barrier_opcode_inventory_020j.py --output <public-manifest-path>",
+   "reason": "Private input paths are redacted; exact hashes are pinned.",
+   "status": "REDACTED_REPRODUCTION_TEMPLATE"
+  },
+  "device_binding": {
+   "reason": "Host-only static trace; no device contact.",
+   "status": "NOT_APPLICABLE"
+  },
+  "recovery": {
+   "reason": "Host-only static trace; no device state.",
+   "status": "NOT_APPLICABLE"
+  },
+  "repetitions": {
+   "reason": "Host-only static trace; no runtime repetitions.",
+   "status": "NOT_APPLICABLE"
+  },
+  "rollback": {
+   "reason": "Host-only static trace; no device state.",
+   "status": "NOT_APPLICABLE"
+  },
+  "target": {
+   "binding": "PROVED_EXACT_XBL_INPUT_HASH",
+   "marketing_name": "A90 5G",
+   "model": "SM-A908N",
+   "soc": "SM8150",
+   "soc_name": "Snapdragon 855"
+  },
+  "timestamp": {
+   "reason": "Deterministic publication does not embed a wall-clock timestamp.",
+   "status": "NOT_APPLICABLE"
+  },
+  "tool_and_build": {
+   "build": "NOT_APPLICABLE",
+   "tool": "sm8150_xbl_caller_context_barrier_opcode_inventory_020j.py schema sm8150-xbl-caller-context-barrier-opcode-inventory-v1"
+  }
+ },
+ "device_access": "none",
+ "eligibility": "NOT_ELIGIBLE",
+ "experiment_id": "020J-caller-context-barrier-opcode-inventory",
+ "inputs": {
+  "dependency_020i": {
+   "experiment_id": "020I-static-slot-caller-context-entry-role",
+   "filename": "020I-static-slot-caller-context-entry-role-20260827-01.manifest.json",
+   "sha256": "03c463f667142a21641264ec2e4080d9d5f963c67776037ca9d6194a8a621608",
+   "size": 12472
+  },
+  "firmware": {
+   "filename": "xbl--sdb1.bin",
+   "sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+   "size": 4194304
+  }
+ },
+ "mode": "HOST_ONLY_READ_ONLY",
+ "schema": "sm8150-xbl-caller-context-barrier-opcode-inventory-v1",
+ "scope": {
+  "global_writer_consumer_absence": "UNKNOWN",
+  "mmio_identity": "UNKNOWN",
+  "model": "EXACT_020I_UNSUPPORTED_STOP_WORD_ONLY",
+  "never_scan_arbitrary_ranges": true,
+  "no_trace_past_barrier": true,
+  "physical_to_dram": "UNKNOWN",
+  "raw_word_values": "REDACTED_HASH_ONLY",
+  "runtime_base": "UNKNOWN"
+ }
+}

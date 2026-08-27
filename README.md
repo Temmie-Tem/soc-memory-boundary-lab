@@ -654,6 +654,25 @@ Focused tests are 11/11 and the full serial suite is 1,227/1,227 PASS
 (`skipped=1`) in 151.571 seconds, maximum RSS 356,228 KiB, zero swap.  The
 next candidate is a bounded caller-context barrier/opcode inventory (020J).
 
+Verification 020J completed that non-overlapping follow-up.  It re-derived the
+exact 12 unsupported 020I stops and inspected only each first stop word.  All
+12 stop VAs are unique and classify as ordinary strict ARM64 families:
+`B_COND` 5, `CBZ_CBNZ` 2, `LDP_STP_PAIR` 2, logical-immediate 2, and
+`BITFIELD` 1 (`BFXIL`); the `UNKNOWN_OPCODE` fallback is unused for this exact
+set.  This is a bounded opcode inventory, not a function-boundary, runtime,
+MMIO, physical/DRAM, ownership or bypass proof.  Class C and `NOT_ELIGIBLE`
+remain unchanged, with no device action.  The experiment, contract, review and
+manifest are [documented](experiments/verification-020J-caller-context-barrier-opcode-inventory/README.md),
+[contracted](docs/VERIFICATION020J_CONTRACT_2026-08-27.md),
+[reviewed](docs/VERIFICATION020J_INTEGRATION_REVIEW_2026-08-27.md), and
+[published](evidence/manifests/020J-caller-context-barrier-opcode-inventory-20260827-01.manifest.json).
+The manifest is 7,657 bytes, mode `0644`, SHA-256
+`1fdb1f4ade702fdb2d6ffdc68669a9710c8152e225f89f02fb65c0d10f4c3d55`.
+Focused tests are 7/7 and the full serial suite is 1,234/1,234 PASS
+(`skipped=1`) in 164.114 seconds, maximum RSS 355,764 KiB, zero swap.  The
+next scored candidate is a bounded barrier operand/target metadata inventory
+(020K), still host-only and read-only.
+
 Claim vocabulary is deliberately closed:
 
 - `PROVED`: directly demonstrated by named source, artifact, or repeated result.

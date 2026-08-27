@@ -560,6 +560,20 @@ focused tests are 11/11 and the full serial suite is 1,227/1,227 PASS
 (`skipped=1`) in 151.571 seconds, maximum RSS 356,228 KiB, zero swap.  The
 next discriminator is a bounded caller-context barrier/opcode inventory (020J).
 
+Verification 020J then re-derived the exact 12 unsupported 020I stops and
+inspected only each first stop word.  All 12 stop VAs are unique and classify
+as `B_COND` 5, `CBZ_CBNZ` 2, `LDP_STP_PAIR` 2, logical-immediate 2 and
+`BITFIELD` 1 (`BFXIL`); no stop requires the `UNKNOWN_OPCODE` fallback.  This
+does not extend the caller trace or identify true functions, runtime values,
+MMIO/physical/DRAM identity, ownership or a bypass.  Class C and
+`NOT_ELIGIBLE` remain unchanged.  The public manifest is 7,657 bytes, mode
+`0644`, SHA-256
+`1fdb1f4ade702fdb2d6ffdc68669a9710c8152e225f89f02fb65c0d10f4c3d55`;
+focused tests are 7/7 and the full serial suite is 1,234/1,234 PASS
+(`skipped=1`) in 164.114 seconds, maximum RSS 355,764 KiB, zero swap.  The
+next discriminator is a bounded barrier operand/target metadata inventory
+(020K).
+
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside
 `DC_NOC_NON_BROADCAST_MPU`, `MEMNOC_MS_MPU`, and `CNOC_SNOC_MS_MPU` regions.
