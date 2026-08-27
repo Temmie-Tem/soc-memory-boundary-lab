@@ -10,10 +10,13 @@ The completed static-trace top row is 020L. The 020M/021/022 chain and the
 fresh 022R acquisition now establish the same model-level PA28 result with
 complete same-run provenance and without touching a controller. The next
 candidate must answer a different residual `UNKNOWN`; repeating 022R again has
-low information value and is not automatically selected.
+low information value. Verification 024 is selected because Verification 023
+substituted an SHRM address for the originally proposed remapper address, which
+has a distinct narrow XPU policy and remains untested at `DMID`.
 
 | Rank | Experiment | Information target | Scope and gate | Status |
 |---:|---|---|---|---|
+| 0 | Verification 024 exact remapper page at DMID | Determine whether the exact `0x09248080` remapper page remains refused with dumps enabled, after a same-state map/unmap-only control. | Existing fixed no-load/read candidates; exact A90/TWRP/MID binding; one read dispatch; complete boot/param rollback; no MMIO write or protected-memory access. A returned value is an immediate disclosure stop. | `SELECTED / PRE_REGISTERED / HOST IMPLEMENTATION PENDING` |
 | 1 | 020K barrier operand/target metadata inventory | Decode the operands, branch targets, addressing modes and immediate fields of the exact 020J barrier words without extending the caller trace, to separate control/prologue context from data-manipulation shape. | Host-only exact-XBL follow-up from 020J stop rows; strict family-specific operand/target decoders, raw hashes only, no path continuation and no device/MMIO/controller write. | `COMPLETED; 13/13 / CLASS C UNCHANGED` |
 | 2 | 1b known-aperture reachability checkpoint | Determine whether any exact identified transform aperture is demonstrably reachable from Normal World after the retained TZ/XPU/SMMU evidence, without inventing a new writer or mutating ownership. | Host-only reconciliation of the eight known remapper/BIMC candidates, TZ policy coverage, `/dev/mem` availability and prior fixed-EL1 failure; no SCM/XPU/SMMU mutation, no controller write and no protected-memory access. | `COMPLETED; BOUNDED STATIC COVERAGE / GLOBAL UNKNOWN / CLASS C UNCHANGED` |
 | 3 | 020J caller-context barrier/opcode inventory | Decode the first unsupported barriers in 020I caller windows to distinguish ordinary prologue/control forms from a remaining unknown path without extending runtime or controller claims. | Host-only exact-XBL follow-up from 020I stop VAs; strict opcode-family inventory only, no path continuation past the stop and no device/MMIO/controller write. | `COMPLETED; 12/12 / CLASS C UNCHANGED` |
