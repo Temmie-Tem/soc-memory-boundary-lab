@@ -597,8 +597,26 @@ MMIO/physical/DRAM identity, ownership or a bypass.  Class C and
 `1fdb1f4ade702fdb2d6ffdc68669a9710c8152e225f89f02fb65c0d10f4c3d55`;
 focused tests are 7/7 and the full serial suite is 1,234/1,234 PASS
 (`skipped=1`) in 164.114 seconds, maximum RSS 355,764 KiB, zero swap.  The
-next discriminator is a bounded barrier operand/target metadata inventory
-(020K).
+next bounded result is recorded below.
+
+Verification 020K decodes only the first word at each of those 12 stops.  The
+exact family split is preserved; the five conditional branches and two compare
+branches have aligned targets inside their source executable segment, the two
+pair words are scalar 64-bit `STP` with `+64` offset and `-16` pre-index
+offset, the two logical-immediate words are identical 32-bit forms, and the
+bitfield word is the 32-bit `BFXIL` alias.  The local 020K loader independently
+pins the XBL rather than inheriting another experiment's constants.  This is
+bounded operand/target metadata only: instruction effects, true-function and
+runtime semantics, physical/DRAM identity, mutability, protected reach and
+alias/bypass remain `UNKNOWN`; Class C and `NOT_ELIGIBLE` are unchanged.  The
+public manifest is 9,961 bytes, mode `0644`, SHA-256
+`90a0cf4d264c64d0d2836b567a2dc8ac5abff7809be839e5131fc7e91e32975a`;
+focused tests are 13/13 and the full serial suite is 1,288/1,288 PASS
+(`skipped=1`) in 180.173 seconds, maximum RSS 363,772 KiB, zero swap.  An
+independent hostile review is `PASS` after the local-pin repair; no device
+action occurred.  The next discriminator is 020L, a one-word census of the
+unique conditional branch landing VAs, still host-only/read-only and without
+path continuation.
 
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside

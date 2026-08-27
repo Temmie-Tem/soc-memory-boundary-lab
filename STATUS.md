@@ -1305,8 +1305,24 @@ occurred.  The manifest is 7,657 bytes, mode `0644`, SHA-256
 `1fdb1f4ade702fdb2d6ffdc68669a9710c8152e225f89f02fb65c0d10f4c3d55`.
 Focused tests are 7/7 and the full serial suite is 1,234/1,234 PASS
 (`skipped=1`) in 164.114 seconds, maximum RSS 355,764 KiB, zero swap.  The
-next scored candidate is a bounded barrier operand/target metadata inventory
-(020K), still host-only and read-only.
+next bounded result is recorded below.
+
+Verification 020K completed the operand/target metadata follow-up.  The exact
+12 stop words retain the family split `B_COND` 5, `CBZ_CBNZ` 2,
+`LDP_STP_PAIR` 2, logical-immediate 2 and `BITFIELD`/`BFXIL` 1.  Conditional
+targets are aligned and remain in the same executable file-backed segment;
+the pair forms are scalar 64-bit `STP` with `+64` offset and `-16` pre-index
+offset.  The local 020K firmware loader independently pins the XBL; no trace
+continues past a stop and raw words are hash-only.  Instruction effects,
+runtime/true-function semantics, physical/DRAM identity, mutability, protected
+reach and bypass remain `UNKNOWN`; Class C and `NOT_ELIGIBLE` are unchanged.
+The manifest is 9,961 bytes, mode `0644`, SHA-256
+`90a0cf4d264c64d0d2836b567a2dc8ac5abff7809be839e5131fc7e91e32975a`.
+Focused tests are 13/13 and the full serial suite is 1,288/1,288 PASS
+(`skipped=1`) in 180.173 seconds, maximum RSS 363,772 KiB, zero swap; hostile
+review is `PASS` after the local-pin repair.  The next discriminator is 020L,
+a one-word census of the unique conditional branch landing VAs, still
+host-only/read-only and without path continuation.
 
 ## N. 가장 위험한 아직 금지된 실험
 

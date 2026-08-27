@@ -37,7 +37,9 @@
 | 020I-CE | Do the exact 020H block-entry direct-BL sources reveal a bounded caller-context or argument-origin role? | `PROVED` within the finite model: 20 unique source/target BL edges traced for at most 16 preceding instructions; 12 windows stop on unsupported forms, 6 remain `ARGUMENT_OR_UNKNOWN`, and 2 are `ARGUMENT_COPY_OR_CONSTANT`. No static-slot-origin caller was reached. | Exact XBL plus mechanically hash-pinned 020H manifest; strict RET X30/direct-B/BL, scalar/register-offset memory, ADRP, ADD/SUB, MADD and MOV decoders; no true-function/PA/DRAM/MMIO promotion or device/SMC/write. | `SUPPORTED` caller-context shape only; runtime/true-function/global/physical semantics, mutability, protected reach and alias/bypass remain `UNKNOWN`; `CLASS C`, `NOT_ELIGIBLE`. |
 | 020J-BO | Do the exact 020I unsupported caller-context barriers resolve to ordinary ARM64 opcode families without extending the trace? | `PROVED` within the finite model: 12 unique stop VAs classify as `B_COND` 5, `CBZ_CBNZ` 2, `LDP_STP_PAIR` 2, logical-immediate 2 and `BITFIELD` 1 (`BFXIL`); `UNKNOWN_OPCODE` count 0. | Exact XBL plus mechanically hash-pinned 020I manifest; inspect only the first unsupported stop word; strict family masks, exact 12/12 and family-count gates, raw-word hash only, no path continuation or device/SMC/MMIO/write. | `SUPPORTED` ordinary finite opcode shape only; full semantics, true functions, runtime/physical/DRAM identity, mutability, protected reach and alias/bypass remain `UNKNOWN`; `CLASS C`, `NOT_ELIGIBLE`. |
 
-## Integrated host-only rows 019–022, 024–027, 029, 031–033, 020E, 020F, 020G, 020H, 020I, 020J, V019 and 1b
+| 020K-OT | Do the exact 020J stop words resolve to bounded operands and local branch targets without extending the trace? | `PROVED` within the finite model: 12 unique stops preserve the 5/2/2/2/1 family split; conditional targets are aligned and remain in the same executable file-backed segment; pair offsets are `+64` and `-16`, both scalar 64-bit `STP`; the bitfield word is `BFXIL`. | Exact XBL, 020J producer and 020J manifest pins; local XBL loader; strict signed immediates, pair modes/scales, logical/bitfield width/N checks, target alignment/segment gates, word hashes only; no path continuation or device/SMC/MMIO/write. | `SUPPORTED` bounded operand/target shape only; instruction effects, true functions, runtime/physical/DRAM identity, mutability, protected reach and alias/bypass remain `UNKNOWN`; `CLASS C`, `NOT_ELIGIBLE`. |
+
+## Integrated host-only rows 019–022, 024–027, 029, 031–033, 020E, 020F, 020G, 020H, 020I, 020J, 020K, V019 and 1b
 
 | ID | Question | Bounded result | Classification and boundary |
 |---:|---|---|---|
@@ -1343,8 +1345,31 @@ The public manifest is 7,657 bytes, mode `0644`, SHA-256
 Validation is 7 focused and 1,234 full serial unittest PASS (`skipped=1`) in
 164.114 seconds, maximum RSS 355,764 KiB, zero swap, with byte-identical
 regeneration, redaction, no-clobber, exact-family and mutation negatives, and
-independent hostile-review `PASS`.  The next scored candidate is a bounded
-barrier operand/target metadata inventory (020K).
+independent hostile-review `PASS`.  The next bounded result is recorded below.
+
+## Experiment 020K caller-context barrier operand/target metadata
+
+Verification 020K re-derived the exact 12 020J unsupported stops and decoded
+only their first words.  The 5/2/2/2/1 family split is unchanged; conditional
+targets are four-byte aligned and remain in the same executable file-backed
+segment.  The pair forms are scalar 64-bit `STP` with `+64` offset and `-16`
+pre-index offset, the logical forms are identical 32-bit immediate encodings,
+and the bitfield word is the 32-bit `BFXIL` alias.  A local loader independently
+pins the XBL; raw words are published only as hashes and no trace continues
+past a stop.
+
+`PROVED` is limited to these finite operand fields and target checks.
+Instruction effects, true-function/runtime semantics, physical/DRAM identity,
+mutability, protected reach and alias/bypass remain `UNKNOWN`; Class C and
+`NOT_ELIGIBLE` are unchanged.  The public manifest is 9,961 bytes, mode
+`0644`, SHA-256
+`90a0cf4d264c64d0d2836b567a2dc8ac5abff7809be839e5131fc7e91e32975a`.
+Focused validation is 13/13 and the full serial suite is 1,288/1,288 PASS
+(`skipped=1`) in 180.173 seconds, maximum RSS 363,772 KiB, zero swap.  The
+independent hostile review is `PASS` after the XBL-loader provenance repair;
+no device action occurred.  The next discriminator is 020L, a one-word census
+of the unique conditional branch landing VAs, without path continuation.  See
+`docs/VERIFICATION020K_INTEGRATION_REVIEW_2026-08-27.md`.
 
 ## Integration validation and current reconciliation
 

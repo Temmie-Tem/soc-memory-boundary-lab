@@ -2257,3 +2257,27 @@ mapping and bypass remain `UNKNOWN`.  Classification is still `CLASS C
 `b4135f22bff47df22cda674eeabfff909ef4d3bc2a1843b358be7556b6d5ff02`; focused
 tests are 9/9 PASS.  No device action occurred.  The next scored candidate is
 020K, still host-only and read-only.
+
+# 2026-08-27 — Verification 020K caller-context barrier operands/targets
+
+The exact 020J unsupported-stop set was re-derived from the pinned A90 XBL and
+020J producer/manifest.  One word at each of 12 stops was decoded without
+continuing the trace: `B_COND` 5, `CBZ_CBNZ` 2, scalar 64-bit `STP` pairs 2
+(offset `+64` and pre-index `-16`), logical-immediate 2, and 32-bit `BFXIL` 1.
+All conditional targets are aligned and remain in the same executable
+file-backed segment.  A local 020K firmware loader independently enforces the
+XBL size/hash; raw words are hash-only.
+
+`PROVED` is limited to these operand fields and local target checks.
+Instruction effects, true-function/runtime semantics, physical/DRAM identity,
+mutability, protected reach and alias/bypass remain `UNKNOWN`; Class C and
+`NOT_ELIGIBLE` are unchanged.  The public manifest is 9,961 bytes, mode
+`0644`, SHA-256
+`90a0cf4d264c64d0d2836b567a2dc8ac5abff7809be839e5131fc7e91e32975a`.
+Focused tests are 13/13 and the full serial suite is 1,288/1,288 PASS
+(`skipped=1`) in 180.173 seconds, maximum RSS 363,772 KiB, zero swap.  The
+initial hostile review found the inherited-loader provenance defect; after the
+local-loader repair the independent review returned `PASS`.  No device action
+occurred.  The next discriminator is 020L, a one-word census of the unique
+conditional branch landing VAs, still host-only/read-only and without path
+continuation.

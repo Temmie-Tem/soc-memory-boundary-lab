@@ -707,8 +707,29 @@ The manifest is 7,657 bytes, mode `0644`, SHA-256
 `1fdb1f4ade702fdb2d6ffdc68669a9710c8152e225f89f02fb65c0d10f4c3d55`.
 Focused tests are 7/7 and the full serial suite is 1,234/1,234 PASS
 (`skipped=1`) in 164.114 seconds, maximum RSS 355,764 KiB, zero swap.  The
-next scored candidate is a bounded barrier operand/target metadata inventory
-(020K), still host-only and read-only.
+next bounded result is recorded below.
+
+Verification 020K completed the non-overlapping operand/target follow-up.  It
+re-derived the exact 12 020J unsupported stops and decoded one word per stop:
+five `B_COND`, two `CBZ_CBNZ`, two scalar 64-bit `STP` pairs (one offset `+64`,
+one pre-index `-16`), two identical 32-bit logical-immediate forms, and one
+32-bit `BFXIL` alias.  Conditional targets are four-byte aligned and remain in
+the same file-backed executable segment.  The local firmware loader pins the
+020K XBL size/hash independently; raw words are retained only as hashes and no
+trace continues past a stop.  This is bounded instruction metadata, not a
+writer, runtime, physical/DRAM, mutability or bypass proof.  Those properties
+remain `UNKNOWN`; Class C and `NOT_ELIGIBLE` are unchanged.  The experiment,
+contract, review and manifest are [documented](experiments/verification-020K-caller-context-barrier-operand-target/README.md),
+[contracted](docs/VERIFICATION020K_CONTRACT_2026-08-27.md),
+[reviewed](docs/VERIFICATION020K_INTEGRATION_REVIEW_2026-08-27.md), and
+[published](evidence/manifests/020K-caller-context-barrier-operand-target-inventory-20260827-01.manifest.json).
+The manifest is 9,961 bytes, mode `0644`, SHA-256
+`90a0cf4d264c64d0d2836b567a2dc8ac5abff7809be839e5131fc7e91e32975a`.
+Focused tests are 13/13 and the full serial suite is 1,288/1,288 PASS
+(`skipped=1`) in 180.173 seconds, maximum RSS 363,772 KiB, zero swap; the
+independent hostile review is `PASS`.  The next discriminator is 020L, a
+one-word census of the unique conditional branch landing VAs, still
+host-only/read-only and without path continuation.
 
 Claim vocabulary is deliberately closed:
 
