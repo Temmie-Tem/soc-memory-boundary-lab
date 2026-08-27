@@ -1,0 +1,376 @@
+{
+ "boundary_bypass": {
+  "device": "none",
+  "mmio": "none",
+  "protected_memory": "none",
+  "reason": "Host-only static trace; no activation or live state was accessed.",
+  "smc": "none",
+  "status": "NOT_AUTHORIZED"
+ },
+ "claims": {
+  "HYPOTHESIS": [
+   "The shared static object and slots may be configuration state consumed by multiple XBL paths."
+  ],
+  "PROVED": [
+   "The exact retained A90 XBL is bound by size and SHA-256 before analysis.",
+   "The second helper caller at 0x9fc26e24 loads object fields at +0x0c, +0x18, +0x20, +0x28, +0x30 and +0x38 under the exact finite model.",
+   "Six symbolic object-field origins are stored to static ELF VADDR slots 0x9fc3e138, 0x9fc3e140, 0x9fc3e148, 0x9fc3e150, 0x9fc3e158 and 0x9fc3e160."
+  ],
+  "REFUTED": [],
+  "SUPPORTED": [
+   "The second caller is a bounded static field-use edge from the shared 020C object; static slot identity is not a runtime controller/DRAM proof."
+  ],
+  "UNKNOWN": [
+   "Runtime field values/type/currentness, slot semantics, writer timing, mutability/locking, physical-to-DRAM mapping, MMIO meaning, protected reach, aliasing/bypass, and indirect paths."
+  ]
+ },
+ "classification": "CLASS C (TRANSFORM ONLY)",
+ "definition_of_done": {
+  "build": {
+   "reason": "NOT_APPLICABLE: bounded host-only static trace; no device or runtime state was touched",
+   "status": "NOT_APPLICABLE"
+  },
+  "commands": {
+   "command": "python3 tools/sm8150_xbl_second_caller_field_use_020d.py --output <public-manifest-path>",
+   "reason": "Private input paths are redacted; exact hashes are pinned.",
+   "status": "REDACTED_REPRODUCTION_TEMPLATE"
+  },
+  "device_binding": {
+   "reason": "NOT_APPLICABLE: bounded host-only static trace; no device or runtime state was touched",
+   "status": "NOT_APPLICABLE"
+  },
+  "recovery": {
+   "reason": "NOT_APPLICABLE: bounded host-only static trace; no device or runtime state was touched",
+   "status": "NOT_APPLICABLE"
+  },
+  "repetitions": {
+   "reason": "NOT_APPLICABLE: bounded host-only static trace; no device or runtime state was touched",
+   "status": "NOT_APPLICABLE"
+  },
+  "rollback": {
+   "reason": "NOT_APPLICABLE: bounded host-only static trace; no device or runtime state was touched",
+   "status": "NOT_APPLICABLE"
+  },
+  "target": {
+   "binding": "PROVED_EXACT_XBL_INPUT_HASH",
+   "marketing_name": "A90 5G",
+   "model": "SM-A908N",
+   "soc": "SM8150",
+   "soc_name": "Snapdragon 855"
+  },
+  "timestamp": {
+   "reason": "Deterministic publication does not embed a wall-clock timestamp.",
+   "status": "NOT_APPLICABLE"
+  },
+  "tool_and_build": {
+   "build": "NOT_APPLICABLE",
+   "build_reason": "Interpreted host Python; no firmware/kernel build.",
+   "tool": "sm8150_xbl_second_caller_field_use_020d.py schema sm8150-xbl-second-caller-field-use-v1"
+  }
+ },
+ "device_access": "none",
+ "eligibility": "NOT_ELIGIBLE",
+ "experiment_id": "020D-second-caller-field-use",
+ "inputs": {
+  "caller": {
+   "end_exclusive": "0x9fc26e78",
+   "file_offset": "0x000addf4",
+   "sha256": "4c3100f3dff6b8684aa17fc616f6737b283484bb92199dbe98b747a8ab85721d",
+   "size": 84,
+   "start": "0x9fc26e24"
+  },
+  "firmware": {
+   "filename": "xbl--sdb1.bin",
+   "sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+   "size": 4194304
+  },
+  "helper": {
+   "end_exclusive": "0x9fc160c4",
+   "file_offset": "0x0009d088",
+   "sha256": "aa23cc5c16d3e14a931184f48199c3891359b3074b3433e0b8a82901bc619ff9",
+   "size": 12,
+   "start": "0x9fc160b8"
+  },
+  "helper_direct_callers": {
+   "callers": [
+    {
+     "kind": "BL",
+     "target": "0x9fc160b8",
+     "va": "0x9fc22cc0"
+    },
+    {
+     "kind": "BL",
+     "target": "0x9fc160b8",
+     "va": "0x9fc26e2c"
+    }
+   ],
+   "count": 2
+  },
+  "object_fields": {
+   "end_exclusive": "0x9fc36300",
+   "file_offset": "0x000bd290",
+   "sha256": "07f284b58048d944e3d6ef2e19438d9d1e04bde32eafb5541f2eabe294af8277",
+   "size": 64,
+   "start": "0x9fc362c0"
+  }
+ },
+ "mode": "HOST_ONLY_READ_ONLY",
+ "schema": "sm8150-xbl-second-caller-field-use-v1",
+ "scope": {
+  "indirect_paths": "UNKNOWN",
+  "model": "ONE_EXACT_SECOND_HELPER_CALLER",
+  "never_scan_arbitrary_ranges": true,
+  "physical_to_dram": "UNKNOWN",
+  "recognized_forms": [
+   "BL_DIRECT",
+   "ADRP",
+   "LDR/STR_UNSIGNED",
+   "LDP_UNSIGNED",
+   "FRAME_RAW_PIN"
+  ],
+  "runtime_values": "UNKNOWN",
+  "static_destinations_only": true
+ },
+ "trace": {
+  "caller": {
+   "call_va": "0x9fc26e2c",
+   "helper": "0x9fc160b8",
+   "object_base": "0x9fc362c0",
+   "start": "0x9fc26e24"
+  },
+  "caller_range": {
+   "end_exclusive": "0x9fc26e78",
+   "file_offset": "0x000addf4",
+   "sha256": "4c3100f3dff6b8684aa17fc616f6737b283484bb92199dbe98b747a8ab85721d",
+   "size": 84,
+   "start": "0x9fc26e24"
+  },
+  "current_values": "UNKNOWN",
+  "direct_callers": {
+   "callers": [
+    {
+     "kind": "BL",
+     "target": "0x9fc160b8",
+     "va": "0x9fc22cc0"
+    },
+    {
+     "kind": "BL",
+     "target": "0x9fc160b8",
+     "va": "0x9fc26e2c"
+    }
+   ],
+   "count": 2
+  },
+  "helper_range": {
+   "end_exclusive": "0x9fc160c4",
+   "file_offset": "0x0009d088",
+   "sha256": "aa23cc5c16d3e14a931184f48199c3891359b3074b3433e0b8a82901bc619ff9",
+   "size": 12,
+   "start": "0x9fc160b8"
+  },
+  "object_loads": [
+   {
+    "object_offset": "0x00000028",
+    "register": "X10",
+    "va": "0x9fc26e30",
+    "value": {
+     "base": "0x9fc362c0",
+     "kind": "STATIC_OBJECT_FIELD",
+     "offset": "0x00000028",
+     "origin": "UNKNOWN",
+     "provenance": "static ELF object field; runtime value UNKNOWN",
+     "width_bits": 64
+    },
+    "width_bits": 64
+   },
+   {
+    "object_offset": "0x00000030",
+    "register": "X9",
+    "va": "0x9fc26e30",
+    "value": {
+     "base": "0x9fc362c0",
+     "kind": "STATIC_OBJECT_FIELD",
+     "offset": "0x00000030",
+     "origin": "UNKNOWN",
+     "provenance": "static ELF object field; runtime value UNKNOWN",
+     "width_bits": 64
+    },
+    "width_bits": 64
+   },
+   {
+    "object_offset": "0x00000038",
+    "register": "X11",
+    "va": "0x9fc26e38",
+    "value": {
+     "base": "0x9fc362c0",
+     "kind": "STATIC_OBJECT_FIELD",
+     "offset": "0x00000038",
+     "origin": "UNKNOWN",
+     "provenance": "static ELF object field; runtime value UNKNOWN",
+     "width_bits": 64
+    },
+    "width_bits": 64
+   },
+   {
+    "object_offset": "0x0000000c",
+    "register": "W12",
+    "va": "0x9fc26e40",
+    "value": {
+     "base": "0x9fc362c0",
+     "kind": "STATIC_OBJECT_FIELD",
+     "offset": "0x0000000c",
+     "origin": "UNKNOWN",
+     "provenance": "static ELF object field; runtime value UNKNOWN",
+     "width_bits": 32
+    },
+    "width_bits": 32
+   },
+   {
+    "object_offset": "0x00000018",
+    "register": "X8",
+    "va": "0x9fc26e50",
+    "value": {
+     "base": "0x9fc362c0",
+     "kind": "STATIC_OBJECT_FIELD",
+     "offset": "0x00000018",
+     "origin": "UNKNOWN",
+     "provenance": "static ELF object field; runtime value UNKNOWN",
+     "width_bits": 64
+    },
+    "width_bits": 64
+   },
+   {
+    "object_offset": "0x00000020",
+    "register": "X15",
+    "va": "0x9fc26e50",
+    "value": {
+     "base": "0x9fc362c0",
+     "kind": "STATIC_OBJECT_FIELD",
+     "offset": "0x00000020",
+     "origin": "UNKNOWN",
+     "provenance": "static ELF object field; runtime value UNKNOWN",
+     "width_bits": 64
+    },
+    "width_bits": 64
+   }
+  ],
+  "object_range": {
+   "end_exclusive": "0x9fc36300",
+   "file_offset": "0x000bd290",
+   "sha256": "07f284b58048d944e3d6ef2e19438d9d1e04bde32eafb5541f2eabe294af8277",
+   "size": 64,
+   "start": "0x9fc362c0"
+  },
+  "static_slot_stores": [
+   {
+    "destination": {
+     "kind": "STATIC_ELF_VADDR",
+     "runtime_value": "UNKNOWN",
+     "va": "0x9fc3e138"
+    },
+    "source": "X9",
+    "source_value": {
+     "base": "0x9fc362c0",
+     "kind": "STATIC_OBJECT_FIELD",
+     "offset": "0x00000030",
+     "origin": "UNKNOWN",
+     "provenance": "static ELF object field; runtime value UNKNOWN",
+     "width_bits": 64
+    },
+    "va": "0x9fc26e48",
+    "width_bits": 64
+   },
+   {
+    "destination": {
+     "kind": "STATIC_ELF_VADDR",
+     "runtime_value": "UNKNOWN",
+     "va": "0x9fc3e140"
+    },
+    "source": "X11",
+    "source_value": {
+     "base": "0x9fc362c0",
+     "kind": "STATIC_OBJECT_FIELD",
+     "offset": "0x00000038",
+     "origin": "UNKNOWN",
+     "provenance": "static ELF object field; runtime value UNKNOWN",
+     "width_bits": 64
+    },
+    "va": "0x9fc26e54",
+    "width_bits": 64
+   },
+   {
+    "destination": {
+     "kind": "STATIC_ELF_VADDR",
+     "runtime_value": "UNKNOWN",
+     "va": "0x9fc3e148"
+    },
+    "source": "X12",
+    "source_value": {
+     "base": "0x9fc362c0",
+     "kind": "STATIC_OBJECT_FIELD",
+     "offset": "0x0000000c",
+     "origin": "UNKNOWN",
+     "provenance": "static ELF object field; runtime value UNKNOWN",
+     "width_bits": 32
+    },
+    "va": "0x9fc26e5c",
+    "width_bits": 64
+   },
+   {
+    "destination": {
+     "kind": "STATIC_ELF_VADDR",
+     "runtime_value": "UNKNOWN",
+     "va": "0x9fc3e150"
+    },
+    "source": "X8",
+    "source_value": {
+     "base": "0x9fc362c0",
+     "kind": "STATIC_OBJECT_FIELD",
+     "offset": "0x00000018",
+     "origin": "UNKNOWN",
+     "provenance": "static ELF object field; runtime value UNKNOWN",
+     "width_bits": 64
+    },
+    "va": "0x9fc26e64",
+    "width_bits": 64
+   },
+   {
+    "destination": {
+     "kind": "STATIC_ELF_VADDR",
+     "runtime_value": "UNKNOWN",
+     "va": "0x9fc3e158"
+    },
+    "source": "X15",
+    "source_value": {
+     "base": "0x9fc362c0",
+     "kind": "STATIC_OBJECT_FIELD",
+     "offset": "0x00000020",
+     "origin": "UNKNOWN",
+     "provenance": "static ELF object field; runtime value UNKNOWN",
+     "width_bits": 64
+    },
+    "va": "0x9fc26e68",
+    "width_bits": 64
+   },
+   {
+    "destination": {
+     "kind": "STATIC_ELF_VADDR",
+     "runtime_value": "UNKNOWN",
+     "va": "0x9fc3e160"
+    },
+    "source": "X10",
+    "source_value": {
+     "base": "0x9fc362c0",
+     "kind": "STATIC_OBJECT_FIELD",
+     "offset": "0x00000028",
+     "origin": "UNKNOWN",
+     "provenance": "static ELF object field; runtime value UNKNOWN",
+     "width_bits": 64
+    },
+    "va": "0x9fc26e6c",
+    "width_bits": 64
+   }
+  ],
+  "status": "SUPPORTED_BOUNDED_SECOND_CALLER_FIELD_USE_TRACE"
+ }
+}

@@ -545,6 +545,20 @@ The focused suite is 6/6 and the full serial suite is 1,173/1,173 PASS
 (`skipped=1`, no swaps); no device action occurred.  The next candidate is a
 bounded trace of the second helper caller at `0x9fc26e2c`.
 
+Verification 020D traced that second caller.  It loads object fields
+`+0x28,+0x30,+0x38,+0x0c,+0x18,+0x20` and stores symbolic origins to static
+ELF slots `0x9fc3e138`, `0x9fc3e140`, `0x9fc3e148`, `0x9fc3e150`,
+`0x9fc3e158`, and `0x9fc3e160`.  Field values, slot semantics, runtime
+currentness, mutability, physical-to-DRAM mapping, protected reach and
+alias/bypass remain `UNKNOWN`; Class C and `NOT_ELIGIBLE` remain unchanged.
+The 020D experiment, review and manifest are
+[documented](experiments/verification-020D-second-caller-field-use/README.md),
+[reviewed](docs/VERIFICATION020D_INTEGRATION_REVIEW_2026-08-27.md), and
+[published](evidence/manifests/020D-second-caller-field-use-20260827-01.manifest.json).
+The focused suite is 6/6 and the full serial suite is 1,179/1,179 PASS
+(`skipped=1`, no swaps); no device action occurred.  The next candidate is a
+bounded consumer/writer census for those six static slots.
+
 Claim vocabulary is deliberately closed:
 
 - `PROVED`: directly demonstrated by named source, artifact, or repeated result.

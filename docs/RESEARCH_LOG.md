@@ -2025,3 +2025,30 @@ regeneration, public JSON/redaction, no-clobber and decoder/cardinality
 negative checks pass.  Independent hostile review is `PASS` in
 `docs/VERIFICATION020C_INTEGRATION_REVIEW_2026-08-27.md`.  The next scored
 candidate is a bounded trace of the second helper caller at `0x9fc26e2c`.
+
+# 2026-08-27 — Verification 020D second-caller field-use trace
+
+This host-only iteration traces the second direct caller at `0x9fc26e2c` of
+the 020C helper.  The exact function loads object fields `+0x28`, `+0x30`,
+`+0x38`, `+0x0c`, `+0x18`, and `+0x20`; six symbolic origins are stored to
+static ELF VAs `0x9fc3e138`, `0x9fc3e140`, `0x9fc3e148`, `0x9fc3e150`,
+`0x9fc3e158`, and `0x9fc3e160`.
+
+`PROVED`: exact XBL/helper/caller/object hashes, decoder pins and the six
+field-to-slot edges.  `SUPPORTED`: this is a second static consumer of the
+shared 020C object.  `HYPOTHESIS`: the object/slots may be configuration state.
+`UNKNOWN`: field values/type/currentness, slot semantics, writer timing,
+mutability/locking, indirect paths, physical-to-DRAM mapping, protected reach,
+aliasing and bypass.  `CLASS C (TRANSFORM ONLY)` and `NOT_ELIGIBLE` remain
+unchanged; no device action occurred.
+
+The sanitized manifest is
+`evidence/manifests/020D-second-caller-field-use-20260827-01.manifest.json`,
+10,181 bytes, mode `0644`, SHA-256
+`9aa50ba0d1389584bb6b32435ff68b176d60aad9e822aabd6c503be21741b223`.
+Validation is 6/6 focused and 1,179/1,179 full serial tests (`skipped=1`) in
+117.908 seconds, maximum RSS 297,080 KiB, zero swap; deterministic
+regeneration, public JSON/redaction, no-clobber and decoder/cardinality
+negative checks pass.  Independent hostile review is `PASS` in
+`docs/VERIFICATION020D_INTEGRATION_REVIEW_2026-08-27.md`.  The next scored
+candidate is a bounded static-slot consumer census (020E).

@@ -1180,6 +1180,15 @@ The 020C focused suite is 6/6 and the full serial suite is 1,173/1,173 PASS
 is a bounded trace of the second helper caller at `0x9fc26e2c`. Numbered
 Experiments 015/016 remain `NOT_ELIGIBLE`.
 
+Verification 020D is now complete.  The second helper caller loads six fields
+from the static object and stores symbolic origins to static slots
+`0x9fc3e138`, `0x9fc3e140`, `0x9fc3e148`, `0x9fc3e150`, `0x9fc3e158`, and
+`0x9fc3e160`.  Field values, slot semantics, runtime currentness, mutability,
+physical-to-DRAM mapping and protected reach remain `UNKNOWN`.  Its focused
+suite is 6/6 and the full serial suite is 1,179/1,179 PASS (`skipped=1`, no
+swaps); no device action occurred.  The next scored candidate is a bounded
+static-slot consumer census (020E).
+
 ## N. 가장 위험한 아직 금지된 실험
 
 Treating a section-16 offset token as a byte offset and writing the resulting

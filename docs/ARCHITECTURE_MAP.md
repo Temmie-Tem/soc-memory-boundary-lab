@@ -486,6 +486,15 @@ runtime pointer/physical or DRAM destination, and object semantics, writer or
 mutability state, protected reach and alias/bypass remain `UNKNOWN`.  The
 second caller is the next bounded discriminator.
 
+Verification 020D then traced that second caller at `0x9fc26e2c`.  It loads
+object fields `+0x28`, `+0x30`, `+0x38`, `+0x0c`, `+0x18` and `+0x20`, and
+stores their symbolic origins to static ELF slots `0x9fc3e138`,
+`0x9fc3e140`, `0x9fc3e148`, `0x9fc3e150`, `0x9fc3e158` and `0x9fc3e160`.
+These are static code/data edges only; slot values, runtime currentness,
+mutability, physical-to-DRAM destination, protected reach and alias/bypass
+remain `UNKNOWN`.  The next discriminator is a bounded census of those slots'
+other consumers and writers.
+
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside
 `DC_NOC_NON_BROADCAST_MPU`, `MEMNOC_MS_MPU`, and `CNOC_SNOC_MS_MPU` regions.
