@@ -675,6 +675,17 @@ remain `UNKNOWN`, and Class C/`NOT_ELIGIBLE` are unchanged.  The public
 manifest is 6,698 bytes, SHA-256
 `f583bd4f4fe30ad4822832e708edd87e2e049333f2a6c0cf014467b5a33bc2d2`.
 
+Verification 022R repeats that model question with a provenance-complete exact
+A90 acquisition. Both leading and trailing control brackets produce threshold
+`369` and uniquely classify `0x10004000` as conflict; 1,787 accepted pair rows
+and their address/XOR arithmetic independently recheck. This `SUPPORTED`
+same-run result extends the recovered relation to
+`f(PA28)=010=f(PA14)`. It identifies a bank-selection relation, not a storage
+alias or full physical-to-DRAM map: physical-page identity, row/channel/rank/
+column coordinates, transform mutability, post-transform enforcement,
+protected reach and bypass remain `UNKNOWN`. Exact cleanup and final V2321
+health are `PROVED`; no controller or protected-memory action occurred.
+
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside
 `DC_NOC_NON_BROADCAST_MPU`, `MEMNOC_MS_MPU`, and `CNOC_SNOC_MS_MPU` regions.

@@ -1,0 +1,473 @@
+{
+  "acquisition": {
+    "raw": {
+      "basename": "pa28-identification.jsonl",
+      "sha256": "75e762b8e66dc96ef00d14401483aa27107cba890c29c9b797e3d1a7b65399a8",
+      "size_bytes": 294218
+    },
+    "receipt": {
+      "basename": "receipt.json",
+      "sha256": "83adc32fe8c75ae81af22abffb4a3a173d8eb33ac7c92d97dfa39a4cb85c6956",
+      "size_bytes": 1314648
+    },
+    "record_count": 1802
+  },
+  "artifacts": {
+    "binary": {
+      "basename": "v022r-pa28-probe",
+      "sha256": "ed826cc75dee1eafad3b1b1ea4b0b779147364a330201e284b9e24c92adf1b92",
+      "size_bytes": 776408
+    },
+    "bridge_script": {
+      "basename": "serial_tcp_bridge.py",
+      "sha256": "febfb95f408f62f516c2e4f6c25f5da61535f7b75366c3f73cc47bfd91fba077",
+      "size_bytes": 21170
+    },
+    "build_receipt": {
+      "basename": "build-receipt.json",
+      "sha256": "ee76191dcdd594060b1ec22a40dfe4db935ea8c92210dfd2feb16f0daa2361cd",
+      "size_bytes": 819
+    },
+    "runner": {
+      "basename": "a90_pa28_live.py",
+      "sha256": "0f50a20453f00a6f647d52cc2c3cd10ba52f8869d6b9264d5b9c47671197bc66",
+      "size_bytes": 150104
+    },
+    "source": {
+      "basename": "a90_pa28_probe_v022r.c",
+      "sha256": "d66e8930fdf8456cb99ee6d4e6d9b8386d3f645d3a902091c39b814b3f73b315",
+      "size_bytes": 27415
+    }
+  },
+  "claim_disposition": {
+    "alias": "UNKNOWN_NOT_TESTED",
+    "model_extension": "SUPPORTED",
+    "physical_page_identity": "UNKNOWN_NOT_TESTED",
+    "protected_boundary": "UNKNOWN_NOT_TESTED",
+    "transform_mutability": "UNKNOWN_NOT_TESTED"
+  },
+  "claims": {
+    "access_control_bypass": "UNKNOWN",
+    "complete_dram_coordinates": "UNKNOWN",
+    "device_authority": "NONE",
+    "normal_ram_only": true,
+    "physical_alias": "UNKNOWN",
+    "physical_page_identity": "UNKNOWN",
+    "protected_memory_reach": "UNKNOWN",
+    "timing_model_surface": "SUPPORTED",
+    "transform_mutability": "UNKNOWN"
+  },
+  "classification": "CLASS C (TRANSFORM ONLY)",
+  "dependencies": {
+    "020m": {
+      "basename": "verification-020m-pa28-dt-20260827-03.manifest.json",
+      "semantic": {
+        "experiment_id": "verification-020m-pa28-dt-20260827-03",
+        "schema": "a90-pa28-dt-snapshot-v1",
+        "semantic": {
+          "camera_base": "0xc2000000",
+          "camera_end_exclusive": "0xd6000000",
+          "camera_phandle": "0x67a",
+          "camera_size": "0x14000000",
+          "heap30_memory_region_phandle": "0x67a",
+          "heap30_reg": "0x1e"
+        },
+        "target": {
+          "model": "SM-A908N",
+          "soc": "SM8150",
+          "version": "A90 Linux init 0.9.285"
+        }
+      },
+      "sha256": "69b087bd5a6aa279fff9c943405b46491381f3461c5ea1ac57f4d2f287d8ad9a",
+      "size_bytes": 8246
+    },
+    "021": {
+      "basename": "verification-021-carveout-exhaustion-20260827-01.manifest.json",
+      "semantic": {
+        "controls_fired": true,
+        "device_tree_region": {
+          "base": "0xc2000000",
+          "heap_id": 30,
+          "heap_name": "camera_preview",
+          "memory_region_phandle": "0x67a",
+          "node": "camera_mem_region",
+          "size": "0x14000000"
+        },
+        "heap": {
+          "heap_id": 30,
+          "heap_type": 10,
+          "name": "camera_preview"
+        },
+        "hold_bytes": 335544320,
+        "pool_exhausted": true,
+        "schema": "a90_carveout_exhaustion_v2",
+        "verdict": "HOLD_CONSUMES_POOL"
+      },
+      "sha256": "82471b458f87e1ed86596ab08c97bab743ee868edf98d7d272c1d131046c168b",
+      "size_bytes": 4586
+    }
+  },
+  "eligibility": "NOT_ELIGIBLE",
+  "experiment_id": "verification-022r-pa28-live",
+  "inputs": {
+    "dependency_020m": {
+      "basename": "verification-020m-pa28-dt-20260827-03.manifest.json",
+      "sha256": "69b087bd5a6aa279fff9c943405b46491381f3461c5ea1ac57f4d2f287d8ad9a",
+      "size_bytes": 8246
+    },
+    "dependency_021": {
+      "basename": "verification-021-carveout-exhaustion-20260827-01.manifest.json",
+      "sha256": "82471b458f87e1ed86596ab08c97bab743ee868edf98d7d272c1d131046c168b",
+      "size_bytes": 4586
+    },
+    "raw": {
+      "basename": "pa28-identification.jsonl",
+      "sha256": "75e762b8e66dc96ef00d14401483aa27107cba890c29c9b797e3d1a7b65399a8",
+      "size_bytes": 294218
+    },
+    "receipt": {
+      "basename": "receipt.json",
+      "sha256": "83adc32fe8c75ae81af22abffb4a3a173d8eb33ac7c92d97dfa39a4cb85c6956",
+      "size_bytes": 1314648
+    }
+  },
+  "measurement": {
+    "allocation_mib": 320,
+    "brackets": {
+      "leading": {
+        "labels": {
+          "0x10002000": "NON_CONFLICT",
+          "0x10004000": "CONFLICT",
+          "0x10006000": "NON_CONFLICT",
+          "0x10008000": "NON_CONFLICT",
+          "0x1000a000": "NON_CONFLICT",
+          "0x1000c000": "NON_CONFLICT",
+          "0x1000e000": "NON_CONFLICT",
+          "0x16000": "CONFLICT",
+          "0x2000": "NON_CONFLICT"
+        },
+        "medians": {
+          "0x10002000": 152,
+          "0x10004000": 537,
+          "0x10006000": 136,
+          "0x10008000": 201,
+          "0x1000a000": 164,
+          "0x1000c000": 164,
+          "0x1000e000": 198,
+          "0x16000": 540,
+          "0x2000": 145
+        },
+        "ordered": [
+          [
+            "0x10006000",
+            136
+          ],
+          [
+            "0x2000",
+            145
+          ],
+          [
+            "0x10002000",
+            152
+          ],
+          [
+            "0x1000a000",
+            164
+          ],
+          [
+            "0x1000c000",
+            164
+          ],
+          [
+            "0x1000e000",
+            198
+          ],
+          [
+            "0x10008000",
+            201
+          ],
+          [
+            "0x10004000",
+            537
+          ],
+          [
+            "0x16000",
+            540
+          ]
+        ],
+        "runner_up_gap": 34,
+        "split_index": 6,
+        "status": "OK",
+        "threshold": 369.0,
+        "widest_gap": 336
+      },
+      "trailing": {
+        "labels": {
+          "0x10002000": "NON_CONFLICT",
+          "0x10004000": "CONFLICT",
+          "0x10006000": "NON_CONFLICT",
+          "0x10008000": "NON_CONFLICT",
+          "0x1000a000": "NON_CONFLICT",
+          "0x1000c000": "NON_CONFLICT",
+          "0x1000e000": "NON_CONFLICT",
+          "0x16000": "CONFLICT",
+          "0x2000": "NON_CONFLICT"
+        },
+        "medians": {
+          "0x10002000": 152,
+          "0x10004000": 537,
+          "0x10006000": 136,
+          "0x10008000": 201,
+          "0x1000a000": 164,
+          "0x1000c000": 164,
+          "0x1000e000": 198,
+          "0x16000": 543,
+          "0x2000": 133
+        },
+        "ordered": [
+          [
+            "0x2000",
+            133
+          ],
+          [
+            "0x10006000",
+            136
+          ],
+          [
+            "0x10002000",
+            152
+          ],
+          [
+            "0x1000a000",
+            164
+          ],
+          [
+            "0x1000c000",
+            164
+          ],
+          [
+            "0x1000e000",
+            198
+          ],
+          [
+            "0x10008000",
+            201
+          ],
+          [
+            "0x10004000",
+            537
+          ],
+          [
+            "0x16000",
+            543
+          ]
+        ],
+        "runner_up_gap": 34,
+        "split_index": 6,
+        "status": "OK",
+        "threshold": 369.0,
+        "widest_gap": 336
+      }
+    },
+    "candidate_labels": {
+      "0x10002000": {
+        "leading": "NON_CONFLICT",
+        "median": 152,
+        "trailing": "NON_CONFLICT",
+        "vector": "001"
+      },
+      "0x10004000": {
+        "leading": "CONFLICT",
+        "median": 537,
+        "trailing": "CONFLICT",
+        "vector": "010"
+      },
+      "0x10006000": {
+        "leading": "NON_CONFLICT",
+        "median": 136,
+        "trailing": "NON_CONFLICT",
+        "vector": "011"
+      },
+      "0x10008000": {
+        "leading": "NON_CONFLICT",
+        "median": 201,
+        "trailing": "NON_CONFLICT",
+        "vector": "100"
+      },
+      "0x1000a000": {
+        "leading": "NON_CONFLICT",
+        "median": 164,
+        "trailing": "NON_CONFLICT",
+        "vector": "101"
+      },
+      "0x1000c000": {
+        "leading": "NON_CONFLICT",
+        "median": 164,
+        "trailing": "NON_CONFLICT",
+        "vector": "110"
+      },
+      "0x1000e000": {
+        "leading": "NON_CONFLICT",
+        "median": 198,
+        "trailing": "NON_CONFLICT",
+        "vector": "111"
+      }
+    },
+    "control_drift": {
+      "0x16000": 3,
+      "0x2000": 12
+    },
+    "cpu": 7,
+    "declared_base": "0xc2000000",
+    "drift_limit": 84.0,
+    "fixed_difference_order": [
+      "0x16000",
+      "0x2000",
+      "0x10002000",
+      "0x10004000",
+      "0x10006000",
+      "0x10008000",
+      "0x1000a000",
+      "0x1000c000",
+      "0x1000e000",
+      "0x16000",
+      "0x2000"
+    ],
+    "repetitions": 201,
+    "requested_pairs": 256,
+    "summaries": [
+      {
+        "median": 540,
+        "occurrence": 0,
+        "p10": 496,
+        "p90": 590,
+        "pairs": 256,
+        "rejected_carry": 0,
+        "rejected_range": 0,
+        "value": 90112,
+        "value_text": "0x16000"
+      },
+      {
+        "median": 145,
+        "occurrence": 1,
+        "p10": 80,
+        "p90": 201,
+        "pairs": 256,
+        "rejected_carry": 0,
+        "rejected_range": 0,
+        "value": 8192,
+        "value_text": "0x2000"
+      },
+      {
+        "median": 152,
+        "occurrence": 2,
+        "p10": 105,
+        "p90": 242,
+        "pairs": 109,
+        "rejected_carry": 0,
+        "rejected_range": 147,
+        "value": 268443648,
+        "value_text": "0x10002000"
+      },
+      {
+        "median": 537,
+        "occurrence": 3,
+        "p10": 500,
+        "p90": 586,
+        "pairs": 109,
+        "rejected_carry": 0,
+        "rejected_range": 147,
+        "value": 268451840,
+        "value_text": "0x10004000"
+      },
+      {
+        "median": 136,
+        "occurrence": 4,
+        "p10": 74,
+        "p90": 195,
+        "pairs": 109,
+        "rejected_carry": 0,
+        "rejected_range": 147,
+        "value": 268460032,
+        "value_text": "0x10006000"
+      },
+      {
+        "median": 201,
+        "occurrence": 5,
+        "p10": 118,
+        "p90": 263,
+        "pairs": 109,
+        "rejected_carry": 0,
+        "rejected_range": 147,
+        "value": 268468224,
+        "value_text": "0x10008000"
+      },
+      {
+        "median": 164,
+        "occurrence": 6,
+        "p10": 102,
+        "p90": 263,
+        "pairs": 109,
+        "rejected_carry": 0,
+        "rejected_range": 147,
+        "value": 268476416,
+        "value_text": "0x1000a000"
+      },
+      {
+        "median": 164,
+        "occurrence": 7,
+        "p10": 105,
+        "p90": 242,
+        "pairs": 109,
+        "rejected_carry": 0,
+        "rejected_range": 147,
+        "value": 268484608,
+        "value_text": "0x1000c000"
+      },
+      {
+        "median": 198,
+        "occurrence": 8,
+        "p10": 130,
+        "p90": 260,
+        "pairs": 109,
+        "rejected_carry": 0,
+        "rejected_range": 147,
+        "value": 268492800,
+        "value_text": "0x1000e000"
+      },
+      {
+        "median": 543,
+        "occurrence": 9,
+        "p10": 493,
+        "p90": 590,
+        "pairs": 256,
+        "rejected_carry": 0,
+        "rejected_range": 0,
+        "value": 90112,
+        "value_text": "0x16000"
+      },
+      {
+        "median": 133,
+        "occurrence": 10,
+        "p10": 77,
+        "p90": 195,
+        "pairs": 256,
+        "rejected_carry": 0,
+        "rejected_range": 0,
+        "value": 8192,
+        "value_text": "0x2000"
+      }
+    ],
+    "threshold_drift": 0.0
+  },
+  "publication": "REDACTED_FROM_VALIDATED_PRIVATE_RECEIPT",
+  "result_disposition": "SUPPORTED_MODEL_EXTENSION",
+  "schema": "a90_pa28_live_analysis_v1",
+  "status": "SUPPORTED_MODEL_EXTENSION",
+  "verdict": "SUPPORTED_MODEL_EXTENSION",
+  "winner": {
+    "difference": "0x10004000",
+    "f_pa28": "010",
+    "vector": "010"
+  }
+}

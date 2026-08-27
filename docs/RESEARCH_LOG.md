@@ -2412,3 +2412,27 @@ The highest-value next step is a fresh provenance-complete repeat of the same
 normal-RAM probe, retaining exact target/bridge/argv/binary/cleanup/final-health
 records.  It must not be interpreted as permission to enter the protected
 boundary or mutate controller/security state.
+
+# 2026-08-27 — Verification 022R provenance-complete PA28 acquisition
+
+The fixed 022R implementation was built reproducibly as a static AArch64
+binary, reviewed independently, and dispatched exactly once on the exact
+`SM-A908N`/`SM8150` V2321 runtime. The private receipt records 317 framed
+commands, child exit zero, 1,802 probe records, a terminal cleanup record,
+remote cleanup and strict absence checks, and final native health
+`pass=11 warn=1 fail=0 entries=12`. No MMIO, controller, SMC, protected-memory,
+partition, firmware, reboot, or reset action occurred.
+
+The reducer independently rechecked all 1,787 accepted pair rows, 11 ordered
+difference summaries, address/XOR arithmetic, percentiles, frame hashes and
+control brackets. Both brackets produced threshold `369`, widest gap `336`,
+runner-up gap `34`, and the unique candidate `0x10004000`. The same-run result
+therefore supports `f(PA28)=010=f(PA14)`. The 11,989-byte public manifest is
+SHA-256 `f88a81bd3aabbd76cf2bcb8575f45d1cca7c29433a0279403d76d3affbfa2ca2`
+and regenerates byte-identically; hostile review is `PASS`.
+
+`PROVED`: exact-target lifecycle, one-dispatch execution, arithmetic integrity,
+cleanup and final health. `SUPPORTED`: the bounded normal-RAM timing/model
+extension. `UNKNOWN`: physical-page identity, physical alias, complete DRAM
+coordinates, transform mutability, protected reach and bypass. Classification
+remains `CLASS C (TRANSFORM ONLY)` and eligibility remains `NOT_ELIGIBLE`.

@@ -6,12 +6,11 @@ Verifications 015/016. It does not grant SMC, MMIO,
 controller-write, protected-memory, or numbered Experiments 015/016 authority.
 Later moving-branch commits are evidence to repair, never moving-tip authority.
 
-The current completed static-trace top row is 020L.  The live 020M DT snapshot,
-retained 021 extent observation and the strict 022 retained-receipt reduction
-now establish a model-level PA28 result without touching a controller.  The
-next scored candidate is a same-run, provenance-complete repeat with the fixed
-022 probe; it remains normal-RAM-only and must stop before any protected-memory
-question.
+The completed static-trace top row is 020L. The 020M/021/022 chain and the
+fresh 022R acquisition now establish the same model-level PA28 result with
+complete same-run provenance and without touching a controller. The next
+candidate must answer a different residual `UNKNOWN`; repeating 022R again has
+low information value and is not automatically selected.
 
 | Rank | Experiment | Information target | Scope and gate | Status |
 |---:|---|---|---|---|
@@ -40,9 +39,9 @@ question.
 | — | 020L branch-target landing-word metadata inventory | Classify one instruction at each unique conditional target emitted by 020K, without following any target block or extending the caller trace. | Host-only exact-XBL follow-up from 020K target VAs; strict one-word family/operand inventory, file-backed executable-segment and hash gates; no path continuation or device/MMIO/controller write. | `COMPLETED; 7/7 focused; CLASS C UNCHANGED` |
 | — | 020M PA28 DT precondition snapshot | Verify the live heap-30 to `camera_mem_region` phandle/reg chain before a PA28 normal-RAM timing test. | Exact A90/SM8150 identity; fixed read-only DT allowlist, retained raw receipt, explicit ENOENT absence checks, no ION allocation or controller/protected-memory action. | `COMPLETED; 6/6 focused; DT CHAIN PROVED / ALLOCATION PLACEMENT UNKNOWN / CLASS C UNCHANGED` |
 | — | 021 carveout-exhaustion extent check | Determine whether the full 320 MiB `camera_preview` hold leaves any residual allocation capacity. | Retained receipt-level 5/5 before and after controls, five probes down to 4 KiB, canonical 020M dependency pin, no mapping/read/write or controller/protected action; missing same-run target/bridge/health remains explicit. | `SUPPORTED_WITHIN_RETAINED_RECEIPT; CONDITIONAL SPAN SUPPORTED_ON_020M_CHAIN; EXACT TARGET UNKNOWN; CLASS C UNCHANGED` |
-| — | 020N PA28 normal-RAM timing | Measure the recovered bank relation for a single-bit-28 offset difference inside a full 320 MiB camera carveout, with V018-style controls and no protected-memory access. | Must first bind 020M receipt and a successful full 320 MiB allocation; use the existing timing core with cache/negative controls; stop if allocation size, heap identity or controls fail. | `NEXT CANDIDATE; DEVICE ACCESS ONLY INSIDE OWN NORMAL-RAM ALLOCATION; NO CONTROLLER/PROTECTED WRITE` |
+| — | 020N PA28 normal-RAM timing | Measure the recovered bank relation for a single-bit-28 offset difference inside a full 320 MiB camera carveout, with V018-style controls and no protected-memory access. | Superseded by the stronger 022R fixed, provenance-complete acquisition. | `SUPERSEDED BY 022R; CLASS C UNCHANGED` |
 | — | 022 PA28 retained-receipt reduction | Recheck the existing full-320 MiB PA28 timing result with exact phase/cardinality, arithmetic and dependency pins. | Host-only strict reducer; canonical raw receipts; fixed-gated source; no device action in this pass. | `COMPLETED; 28 focused; SUPPORTED_WITHIN_RETAINED_RECEIPT / CLASS C UNCHANGED` |
-| — | 022R PA28 provenance-complete repeat | Replace the retained receipt's missing same-run identity with a fresh exact-target run of the fixed probe, retaining target, bridge, argv, binary hash, cleanup and final health. | Reversible normal-RAM allocation only; 020M/021 dependencies and controls must pass; no MMIO/SMC/controller/protected/partition writes; stop on any identity or cleanup failure. | `NEXT CANDIDATE; no protected-boundary route` |
+| — | 022R PA28 provenance-complete repeat | Replace the retained receipt's missing same-run identity with a fresh exact-target run of the fixed probe, retaining target, bridge, argv, binary hash, cleanup and final health. | Reversible normal-RAM allocation only; 020M/021 dependencies and controls passed; no MMIO/SMC/controller/protected/partition writes. | `COMPLETED; 36 focused; ACQUISITION PASS / SUPPORTED_MODEL_EXTENSION / CLASS C UNCHANGED` |
 | — | 034 | Resolve the exact site-35 indirect jump table left by Experiment 033. | Completed bounded host-only reconstruction: five entries/four unique targets and 71/71 `NO_TARGET_WITHIN_MODEL`; no global absence claim. | `COMPLETED`; artifact commit `d5d8046` |
 | — | 023R/028/029A/030 | Repaired relation, encoding, ABL and low-bit evidence. | Reconciled at exact parent `247b0e1` after scope/provenance/phase repairs; model/physical and runtime boundaries remain explicit. | `RECONCILED`; later commits excluded |
 | — | 033 | Source-qualify and model the exact reached pair-memory, sign-extending-memory, and system-control residual left by Experiment 032. | Completed host-only extension: 352 selected occurrences, 308 reached events, 44 selected-not-reached; 44 new events (`LDP` 38, `STP` 3, `LDRSW` 1, `LDRSB` 1, `DAIFClr` 1), six explicit STP lane observations, and a single site-35 indirect blocker preserved fail-closed; no device/MMIO/write action. | `COMPLETED AND INTEGRATED`; 033 artifact commit `56b5ffa` |

@@ -582,6 +582,20 @@ unchanged.  See the [022 experiment record](experiments/verification-022-pa28-re
 [redacted manifest](evidence/manifests/verification-022-pa28-relation-20260827-01.manifest.json)
 (`6,698` bytes, SHA-256 `f583bd4f4fe30ad4822832e708edd87e2e049333f2a6c0cf014467b5a33bc2d2`).
 
+Verification 022R then repeated the identification measurement on the exact
+`SM-A908N`/`SM8150` V2321 runtime with complete same-run provenance. One fixed
+normal-RAM probe dispatch produced 1,802 records and independently rechecked
+1,787 pair rows; both bracketing reductions selected only `0x10004000`, with
+threshold `369`, yielding `f(PA28)=010=f(PA14)`. The acquisition, cleanup and
+final `11/1/0/12` self-test are `PROVED`; the model extension is `SUPPORTED`.
+Physical-page identity, aliasing, complete coordinates, mutability, protected
+reach and bypass remain `UNKNOWN`. No MMIO/controller/SMC/protected-memory or
+partition action occurred, so `CLASS C (TRANSFORM ONLY)` / `NOT_ELIGIBLE`
+remain unchanged. See the [022R record](experiments/verification-022R-pa28-live/README.md),
+[final review](docs/VERIFICATION022R_INTEGRATION_REVIEW_2026-08-27.md), and
+[11,989-byte manifest](evidence/manifests/verification-022r-pa28-live-20260827-01.manifest.json)
+(SHA-256 `f88a81bd3aabbd76cf2bcb8575f45d1cca7c29433a0279403d76d3affbfa2ca2`).
+
 The 1b known-aperture reachability checkpoint is now complete as a bounded
 host-only reconciliation.  Both exact selector branches enumerate the same
 eight known qhs_llcc-remapper/BIMC candidates; every candidate is covered by

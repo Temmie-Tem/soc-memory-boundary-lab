@@ -508,6 +508,17 @@ Class C and `NOT_ELIGIBLE` remain unchanged.  The 6,698-byte public manifest is
 `evidence/manifests/verification-022-pa28-relation-20260827-01.manifest.json`,
 SHA-256 `f583bd4f4fe30ad4822832e708edd87e2e049333f2a6c0cf014467b5a33bc2d2`.
 
+Verification 022R closes those provenance gaps with one exact-bound V2321
+normal-RAM run. It records 317 framed commands, one probe dispatch, child exit
+zero, 1,802 records, complete process/remote cleanup and final self-test
+`pass=11 warn=1 fail=0 entries=12`. The strict reduction rechecks 1,787 pair
+rows and finds the same unique `0x10004000` conflict in both brackets, so
+`f(PA28)=010=f(PA14)` is now a same-run `SUPPORTED_MODEL_EXTENSION`.
+Physical-page identity, physical alias, complete coordinates, transform
+mutability, protected reach and bypass remain `UNKNOWN_NOT_TESTED`; Class C
+and `NOT_ELIGIBLE` are unchanged. The public manifest is 11,989 bytes,
+SHA-256 `f88a81bd3aabbd76cf2bcb8575f45d1cca7c29433a0279403d76d3affbfa2ca2`.
+
 The 1b known-aperture reachability checkpoint is now complete as a bounded
 host-only reconciliation.  Both selector branches enumerate the same eight
 known remapper/BIMC candidates, and all eight are covered by the retained
