@@ -1,0 +1,399 @@
+{
+  "branch_agreement": {
+    "apcs_glb_mailbox": [
+      true
+    ],
+    "apcs_syscon_ipc": [
+      true
+    ],
+    "apss_watchdog": [
+      true
+    ],
+    "qhs_llcc_remapper_instance0": [
+      true
+    ],
+    "qhs_llcc_remapper_page": [
+      true
+    ]
+  },
+  "branches": {
+    "selector_result_ge_2": {
+      "distinct_instances": 15,
+      "highest_end_exclusive": "0x87900000",
+      "lowest_start": "0x0",
+      "mpu_instances": 18,
+      "mpu_regions_declared": 261,
+      "not_decoded": {
+        "instance_names": [
+          "BAM_BLSP1_DMA",
+          "BAM_BLSP2_DMA",
+          "BAM_BLSP3_DMA",
+          "BOOT_ROM",
+          "CFG_SSC",
+          "CRYPTO0_BAM",
+          "DCC",
+          "GCC_RPU",
+          "IMEM_APU",
+          "IPA_0_GSI_TOP",
+          "IPA_0_GSI_TOP",
+          "IPA_0_GSI_TOP",
+          "MMSS",
+          "PMIC_ARB",
+          "RAMBLUR_PIMEM_APU",
+          "SEC_CTRL_APU",
+          "SP_SCSR",
+          "SSC_BLSP_BAM",
+          "TCSR_MUTEX",
+          "TCSR_REGS",
+          "TITAN_SS_APU",
+          "TLMM_XPU_EAST",
+          "TLMM_XPU_NORTH",
+          "TLMM_XPU_SOUTH",
+          "TLMM_XPU_WEST",
+          "UFS_ICE"
+        ],
+        "instances": 26,
+        "reason": "non-MPU region record layout is UNKNOWN",
+        "regions_declared": 1465
+      },
+      "queries": {
+        "apcs_glb_mailbox": {
+          "covered": true,
+          "covering_region_count": 1,
+          "covering_regions": [
+            {
+              "hlos_read": false,
+              "hlos_write": false,
+              "instance": "CNOC_AOSS_MPU",
+              "ordinal": 5,
+              "owner": "TZ",
+              "range": "0x17c00000..0x18200000",
+              "read_vmid": "0x00000000",
+              "resource_id": "0x39",
+              "write_vmid": "0x00000000"
+            }
+          ],
+          "query_range": "0x17c00000..0x17c01000"
+        },
+        "apcs_syscon_ipc": {
+          "covered": true,
+          "covering_region_count": 1,
+          "covering_regions": [
+            {
+              "hlos_read": false,
+              "hlos_write": false,
+              "instance": "CNOC_AOSS_MPU",
+              "ordinal": 5,
+              "owner": "TZ",
+              "range": "0x17c00000..0x18200000",
+              "read_vmid": "0x00000000",
+              "resource_id": "0x39",
+              "write_vmid": "0x00000000"
+            }
+          ],
+          "query_range": "0x17c0000c..0x17c00010"
+        },
+        "apss_watchdog": {
+          "covered": true,
+          "covering_region_count": 1,
+          "covering_regions": [
+            {
+              "hlos_read": false,
+              "hlos_write": false,
+              "instance": "CNOC_AOSS_MPU",
+              "ordinal": 5,
+              "owner": "TZ",
+              "range": "0x17c00000..0x18200000",
+              "read_vmid": "0x00000000",
+              "resource_id": "0x39",
+              "write_vmid": "0x00000000"
+            }
+          ],
+          "query_range": "0x17c10000..0x17c11000"
+        },
+        "qhs_llcc_remapper_instance0": {
+          "covered": true,
+          "covering_region_count": 3,
+          "covering_regions": [
+            {
+              "hlos_read": false,
+              "hlos_write": false,
+              "instance": "DC_NOC_BROADCAST_MPU",
+              "ordinal": 11,
+              "owner": "TZ",
+              "range": "0x9248000..0x9249000",
+              "read_vmid": "0x80000000",
+              "resource_id": "0x3c",
+              "write_vmid": "0x00000000"
+            },
+            {
+              "hlos_read": false,
+              "hlos_write": false,
+              "instance": "MEMNOC_MS_MPU",
+              "ordinal": 0,
+              "owner": "TZ",
+              "range": "0x0..0x10000000",
+              "read_vmid": "0x80000000",
+              "resource_id": "0x4b",
+              "write_vmid": "0x80000000"
+            },
+            {
+              "hlos_read": false,
+              "hlos_write": false,
+              "instance": "CNOC_SNOC_MS_MPU",
+              "ordinal": 5,
+              "owner": "TZ",
+              "range": "0x9000000..0x9800000",
+              "read_vmid": "0xf0000000",
+              "resource_id": "0x23",
+              "write_vmid": "0xf0000000"
+            }
+          ],
+          "query_range": "0x9248080..0x9248084"
+        },
+        "qhs_llcc_remapper_page": {
+          "covered": true,
+          "covering_region_count": 3,
+          "covering_regions": [
+            {
+              "hlos_read": false,
+              "hlos_write": false,
+              "instance": "DC_NOC_BROADCAST_MPU",
+              "ordinal": 11,
+              "owner": "TZ",
+              "range": "0x9248000..0x9249000",
+              "read_vmid": "0x80000000",
+              "resource_id": "0x3c",
+              "write_vmid": "0x00000000"
+            },
+            {
+              "hlos_read": false,
+              "hlos_write": false,
+              "instance": "MEMNOC_MS_MPU",
+              "ordinal": 0,
+              "owner": "TZ",
+              "range": "0x0..0x10000000",
+              "read_vmid": "0x80000000",
+              "resource_id": "0x4b",
+              "write_vmid": "0x80000000"
+            },
+            {
+              "hlos_read": false,
+              "hlos_write": false,
+              "instance": "CNOC_SNOC_MS_MPU",
+              "ordinal": 5,
+              "owner": "TZ",
+              "range": "0x9000000..0x9800000",
+              "read_vmid": "0xf0000000",
+              "resource_id": "0x23",
+              "write_vmid": "0xf0000000"
+            }
+          ],
+          "query_range": "0x9248000..0x9249000"
+        }
+      },
+      "regions_decoded": 164,
+      "unused_slots": 97
+    },
+    "selector_result_lt_2": {
+      "distinct_instances": 15,
+      "highest_end_exclusive": "0x87900000",
+      "lowest_start": "0x0",
+      "mpu_instances": 18,
+      "mpu_regions_declared": 259,
+      "not_decoded": {
+        "instance_names": [
+          "BAM_BLSP1_DMA",
+          "BAM_BLSP2_DMA",
+          "BAM_BLSP3_DMA",
+          "BOOT_ROM",
+          "CFG_SSC",
+          "CRYPTO0_BAM",
+          "DCC",
+          "GCC_RPU",
+          "IMEM_APU",
+          "IPA_0_GSI_TOP",
+          "MMSS",
+          "PMIC_ARB",
+          "RAMBLUR_PIMEM_APU",
+          "SDC1_SDCC_ICE",
+          "SEC_CTRL_APU",
+          "SP_SCSR",
+          "SSC_BLSP_BAM",
+          "TCSR_MUTEX",
+          "TCSR_REGS",
+          "TITAN_SS_APU",
+          "TLMM_XPU_EAST",
+          "TLMM_XPU_NORTH",
+          "TLMM_XPU_SOUTH",
+          "TLMM_XPU_WEST",
+          "UFS_ICE"
+        ],
+        "instances": 25,
+        "reason": "non-MPU region record layout is UNKNOWN",
+        "regions_declared": 1427
+      },
+      "queries": {
+        "apcs_glb_mailbox": {
+          "covered": true,
+          "covering_region_count": 1,
+          "covering_regions": [
+            {
+              "hlos_read": false,
+              "hlos_write": false,
+              "instance": "CNOC_AOSS_MPU",
+              "ordinal": 5,
+              "owner": "TZ",
+              "range": "0x17c00000..0x18200000",
+              "read_vmid": "0x00000000",
+              "resource_id": "0x39",
+              "write_vmid": "0x00000000"
+            }
+          ],
+          "query_range": "0x17c00000..0x17c01000"
+        },
+        "apcs_syscon_ipc": {
+          "covered": true,
+          "covering_region_count": 1,
+          "covering_regions": [
+            {
+              "hlos_read": false,
+              "hlos_write": false,
+              "instance": "CNOC_AOSS_MPU",
+              "ordinal": 5,
+              "owner": "TZ",
+              "range": "0x17c00000..0x18200000",
+              "read_vmid": "0x00000000",
+              "resource_id": "0x39",
+              "write_vmid": "0x00000000"
+            }
+          ],
+          "query_range": "0x17c0000c..0x17c00010"
+        },
+        "apss_watchdog": {
+          "covered": true,
+          "covering_region_count": 1,
+          "covering_regions": [
+            {
+              "hlos_read": false,
+              "hlos_write": false,
+              "instance": "CNOC_AOSS_MPU",
+              "ordinal": 5,
+              "owner": "TZ",
+              "range": "0x17c00000..0x18200000",
+              "read_vmid": "0x00000000",
+              "resource_id": "0x39",
+              "write_vmid": "0x00000000"
+            }
+          ],
+          "query_range": "0x17c10000..0x17c11000"
+        },
+        "qhs_llcc_remapper_instance0": {
+          "covered": true,
+          "covering_region_count": 3,
+          "covering_regions": [
+            {
+              "hlos_read": false,
+              "hlos_write": false,
+              "instance": "DC_NOC_BROADCAST_MPU",
+              "ordinal": 11,
+              "owner": "TZ",
+              "range": "0x9248000..0x9249000",
+              "read_vmid": "0x80000000",
+              "resource_id": "0x3c",
+              "write_vmid": "0x00000000"
+            },
+            {
+              "hlos_read": false,
+              "hlos_write": false,
+              "instance": "MEMNOC_MS_MPU",
+              "ordinal": 0,
+              "owner": "TZ",
+              "range": "0x0..0x10000000",
+              "read_vmid": "0x80000000",
+              "resource_id": "0x4b",
+              "write_vmid": "0x80000000"
+            },
+            {
+              "hlos_read": false,
+              "hlos_write": false,
+              "instance": "CNOC_SNOC_MS_MPU",
+              "ordinal": 5,
+              "owner": "TZ",
+              "range": "0x9000000..0x9800000",
+              "read_vmid": "0xf0000000",
+              "resource_id": "0x23",
+              "write_vmid": "0xf0000000"
+            }
+          ],
+          "query_range": "0x9248080..0x9248084"
+        },
+        "qhs_llcc_remapper_page": {
+          "covered": true,
+          "covering_region_count": 3,
+          "covering_regions": [
+            {
+              "hlos_read": false,
+              "hlos_write": false,
+              "instance": "DC_NOC_BROADCAST_MPU",
+              "ordinal": 11,
+              "owner": "TZ",
+              "range": "0x9248000..0x9249000",
+              "read_vmid": "0x80000000",
+              "resource_id": "0x3c",
+              "write_vmid": "0x00000000"
+            },
+            {
+              "hlos_read": false,
+              "hlos_write": false,
+              "instance": "MEMNOC_MS_MPU",
+              "ordinal": 0,
+              "owner": "TZ",
+              "range": "0x0..0x10000000",
+              "read_vmid": "0x80000000",
+              "resource_id": "0x4b",
+              "write_vmid": "0x80000000"
+            },
+            {
+              "hlos_read": false,
+              "hlos_write": false,
+              "instance": "CNOC_SNOC_MS_MPU",
+              "ordinal": 5,
+              "owner": "TZ",
+              "range": "0x9000000..0x9800000",
+              "read_vmid": "0xf0000000",
+              "resource_id": "0x23",
+              "write_vmid": "0xf0000000"
+            }
+          ],
+          "query_range": "0x9248000..0x9249000"
+        }
+      },
+      "regions_decoded": 163,
+      "unused_slots": 96
+    }
+  },
+  "control_query": "qhs_llcc_remapper_page",
+  "device_access": false,
+  "firmware_bytes_emitted": false,
+  "inputs": {
+    "policy_manifest": {
+      "filename": "009-xpu-policy-inventory-20260825-01.manifest.json",
+      "pin_verified": true,
+      "sha256": "f5c661af73cd6b4a0d423ef44a59b11cba0e208ad178670ff2dabf097bf2e4e6"
+    },
+    "trustzone": {
+      "filename": "tz--sdd5.bin",
+      "pin_verified": true,
+      "sha256": "a5e6c574e18e2e576a25df6274b20bdb142386811dfda6383f86d7b1b3c102ab",
+      "size": 4194304
+    }
+  },
+  "mmio_access": false,
+  "mode": "HOST_ONLY_READ_ONLY",
+  "prior_extraction_scope": {
+    "note": "Verification 009 decoded the critical region and its qhs_llcc neighbours only.  Absence-of-address claims made against that manifest were bounded by extraction scope, not by policy.",
+    "regions_decoded_by_verification_009": 5
+  },
+  "schema": "sm8150-xpu-region-coverage-v1"
+}

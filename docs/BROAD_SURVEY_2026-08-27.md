@@ -50,6 +50,14 @@ at 8, SDM845/SC7180/SM8150 at 12); this is that register, not a boot remapper.
 
 ### What survives as `UNKNOWN`
 
+> **Resolved 2026-08-27 by Verification 025 — it is protected.** Decoding the
+> complete MPU region set instead of the five ranges Verification 009 retained
+> shows `0x17c00000` inside `CNOC_AOSS_MPU` region `0x17c00000..0x18200000`,
+> TZ-owned, granting no HLOS read or write, identical in both selector branches.
+> The absence below was extraction scope: the 009 manifest declares 1,726
+> regions and retained decoded ranges for 5. See
+> `experiments/verification-025-xpu-region-coverage/README.md`.
+
 The retained XPU policy inventories (009, 010) and the 1b reachability
 checkpoint contain **no address inside `0x17c00000..0x17c01000`**. That is not
 evidence of absent protection — those inventories were built from XBL
@@ -159,9 +167,13 @@ remapper, from the documented per-SoC offset convention.
 `REFUTED`: that the literature adds nothing. It adds nothing to the
 allocation-size problem and a substantial amount to mapping recovery.
 
-`UNKNOWN`: whether SM8150 has an `APCS_BOOT_START_ADDR` analogue anywhere;
-whether `0x17c00000` is protected; the physical base of any allocation; and
-whether the carry-phase lever survives contact with real timing noise.
+`PROVED` (Verification 025, 2026-08-27): `0x17c00000` **is** protected —
+`CNOC_AOSS_MPU` `0x17c00000..0x18200000`, TZ-owned, no HLOS grant, both
+selector branches.
+
+`UNKNOWN`: whether SM8150 has an `APCS_BOOT_START_ADDR` analogue anywhere; the
+physical base of any allocation; and whether the carry-phase lever survives
+contact with real timing noise.
 
 `CLASS C (TRANSFORM ONLY)` and `NOT_ELIGIBLE` are unchanged. Nothing in this
 survey is a boundary-bypass indicator, and nothing in it authorises a write.

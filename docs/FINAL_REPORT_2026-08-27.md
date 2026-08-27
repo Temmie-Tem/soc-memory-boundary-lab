@@ -226,8 +226,11 @@ level.
 - **Rank and channel.** The relation separates selection bits from row bits and
   stops there.
 - **Global reachability.** Eight known apertures were covered in both selector
-  branches. Undiscovered apertures are not excluded; static policy coverage must
-  not be restated as global writer absence.
+  branches, and Verification 025 decoded the complete MPU region set (164 of 164
+  MPU regions, both branches). The 1,465 regions belonging to the 26 non-MPU
+  instance classes remain undecoded — their record layout is not established.
+  Undiscovered apertures are not excluded; static policy coverage must not be
+  restated as global writer absence.
 - **Other configurations.** One load, one address, two debug levels. Other dump
   sinks, force-upload states and apertures are untested.
 - **Untriggered state changes.** Modem SSR and AOP-driven retraining are closed
@@ -275,7 +278,7 @@ grade or model resolution.
 | Item | Nature | State |
 |---|---|---|
 | Exact remapper read at DMID | Repeats §4 at `0x09248080` instead of the SHRM word, closing the address substitution | in progress |
-| `0x17c00000` `apcs_glb` aperture | No address inside `0x17c00000..0x17c01000` appears in any retained XPU inventory. Host-only, no device contact. | not started |
+| `0x17c00000` `apcs_glb` aperture | ~~No address inside the range appears in any retained XPU inventory.~~ Closed by Verification 025: it is covered by `CNOC_AOSS_MPU` `0x17c00000..0x18200000`, TZ-owned, no HLOS grant. The absence was extraction scope — 5 of 1,726 regions decoded. | **done** |
 | Knock-Knock / Sudoku method port | Would separate bank from rank from channel | not started |
 | Scorecard `LATER` rows | E — capture feasibility; B — base currentness | deferred |
 
