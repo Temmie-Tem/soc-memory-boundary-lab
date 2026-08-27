@@ -141,3 +141,28 @@ region size, and the allocation spans `[0xC2000000, 0xD6000000)`.
 `UNKNOWN`, unchanged: the value of `f(PA28)`; whether the relation changes
 character above the rank boundary; complete DRAM coordinates; transform
 mutability; and every access-control question.
+
+## Superseding retained-receipt reduction — 2026-08-27
+
+The proposal above has now been exercised against the retained Verification
+022 receipts.  The exact device-tree base and heap identity remain `PROVED`
+within the pinned 020M snapshot, while the full-size extent remains
+`SUPPORTED_WITHIN_RETAINED_RECEIPT`/conditional on the pinned 021 dependency;
+the 021 receipt does not retain same-run target, bridge, command, or final-health
+attestation.
+
+The repaired host reducer rechecks both canonical phases, all 3,029 emitted
+pairs, and the base/offset/XOR arithmetic.  It selects one conflict among the
+seven rank-3 candidates and reports `f(PA28) = 010 = f(PA14)`.  This is
+`SUPPORTED_WITHIN_RETAINED_RECEIPT` / `SUPPORTED_MODEL_EXTENSION`, not a new
+device run: the raw 022 inputs have no same-run target/bridge/argv/timestamp
+receipt and the historical binary is not retained.  The repaired source is
+bounded and retained, but was not the binary used for that acquisition.
+
+The result is therefore a model extension only.  It does not prove a complete
+DRAM coordinate, physical alias, transform mutability, protected-memory reach,
+or an access-control bypass.  `CLASS C (TRANSFORM ONLY)` and `NOT_ELIGIBLE`
+remain unchanged.  The canonical public reduction is
+`evidence/manifests/verification-022-pa28-relation-20260827-01.manifest.json`;
+its contract and integration review record the exact pins and remaining
+`UNKNOWN` fields.

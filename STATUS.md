@@ -443,13 +443,70 @@ swaps); no device action occurred.  The follow-on host-only 020A setter/base
 trace is now complete and remains bounded by the same no-writer/no-live-
 authority rule.
 
-Verification 019 is integrated additively from the external suspend/permutation
-line.  Its 23-test synthetic detector suite and C probe syntax checks pass; the
-public 657-byte manifest reports 4,194,304 tags unchanged across a reported
-25.09 s deep suspend.  The private raw receipt is absent from this worktree,
-so the live result is `SUPPORTED_EXTERNAL_MANIFEST_ONLY` and does not
-independently close reopen condition 3.  Physical contiguity, complete
-coordinates and other state transitions remain `UNKNOWN`.
+Verification 019 is integrated with retained raw receipts.  The original and
+an independent second deep-suspend run each passed the baseline and
+suspend-corroboration gates, reporting 0 of 4,194,304 tags moved after 25.090 s
+and 25.151 s.  Analyzer regeneration is byte-identical for both public
+manifests; the cable-attached control is retained as `SUSPEND_NOT_REACHED`.
+This is `PROVED`/`REFUTED` only for the tested transition and offset domain;
+effective contiguity, complete coordinates, other transitions and global
+mutability remain `UNKNOWN`.  The retention/repetition commit is `1bc494e`.
+
+Verification 020 then measured the previously unbacked contiguous-allocation
+claim.  The attempted non-secure heaps are monotone: `camera_preview` reaches
+320 MiB (320 success / 352 failure), `qsecom` 32 MiB, and `user_contig` 16 MiB;
+no attempted heap reaches the 512-MiB reopen threshold, so condition 2 is
+`NOT_MET` as measured.  This `REFUTES` the old 256-MiB ceiling and old 512-MiB
+PA28-span wording.  A later 020M read-only DT receipt proves the advertised
+heap-30 chain to `camera_mem_region` at base `0xc2000000`, size 320 MiB; actual
+allocation placement and physical-page identity remain `UNKNOWN` until the
+normal-RAM test.  Secure/remote heaps were enumerated but withheld and remain
+`UNKNOWN`; Class C and `NOT_ELIGIBLE` are unchanged.  The retained manifest is
+`evidence/manifests/verification-020-heap-capacity-20260827-01.manifest.json`;
+the provenance and focused tests are reviewed in
+`docs/VERIFICATION020_HEAP_CAPACITY_INTEGRATION_REVIEW_2026-08-27.md`.
+
+Verification 020M captured the read-only DT precondition on the exact A90
+runtime: heap 30 reported `reg=0x1e` and `memory-region=0x67a`, while
+`camera_mem_region` reported the same phandle and `reg=<0,c2000000,0,14000000>`.
+`no-map` and `reusable` returned expected `ENOENT`; `ion,recyclable` was
+present.  The raw receipt is private and the public manifest is
+`evidence/manifests/verification-020m-pa28-dt-20260827-03.manifest.json`,
+8,246 bytes, SHA-256
+`69b087bd5a6aa279fff9c943405b46491381f3461c5ea1ac57f4d2f287d8ad9a`.
+This proves only the advertised DT chain; full-allocation placement,
+`f(PA28)`, mutability and protection remain `UNKNOWN`.  Class C and
+`NOT_ELIGIBLE` are unchanged.
+
+Verification 021 is retained as a bounded allocation-extent observation.  A
+320 MiB `camera_preview` hold left zero allocatable probes at 16 MiB, 4 MiB,
+1 MiB, 64 KiB and 4 KiB, while 5/5 controls succeeded before and after the
+hold.  The receipt-level result is `SUPPORTED_WITHIN_RETAINED_RECEIPT`; exact
+021 target/bridge/argv/timestamp/health are `UNKNOWN_UNRETAINED`.  The
+conditional span `[0xc2000000,0xd6000000)` is
+`SUPPORTED_CONDITIONAL_ON_020M_CHAIN`; no physical page, DRAM or security
+boundary claim follows.  See
+`docs/VERIFICATION021_INTEGRATION_REVIEW_2026-08-27.md` and
+`evidence/manifests/verification-021-carveout-exhaustion-20260827-01.manifest.json`.
+
+Verification 020N is implemented but not live-executed as its own design.  It is a fixed
+no-argument, normal-RAM-only 320 MiB PA28 timing candidate with exact 020M/021
+dependency pins, same-offset and negative controls, and no pagemap/MMIO/SMC or
+protected-memory path.  A possible `PA28_TIMING_CANDIDATE` is still only a
+timing classification; current state is `HOST_ONLY_DESIGN / CLASS C /
+NOT_ELIGIBLE`.  See `docs/VERIFICATION020N_CONTRACT_2026-08-27.md`.
+
+Verification 022 is now reduced from the retained two-phase PA28 receipts by a
+strict host-only reducer.  It rechecks 3,029 pair arithmetic records, exact
+phase/cardinality gates and same-phase controls, and selects
+`f(PA28) = 010 = f(PA14)` within the recovered rank-3 model.  The disposition
+is `SUPPORTED_WITHIN_RETAINED_RECEIPT` / `SUPPORTED_MODEL_EXTENSION` only:
+same-run target, bridge, argv, timestamp, final health and the historical
+binary are not retained.  The repaired probe source is fixed-gated but was not
+rerun on the device; no protected/controller/MMIO/SMC/partition write occurred.
+Class C and `NOT_ELIGIBLE` remain unchanged.  The 6,698-byte public manifest is
+`evidence/manifests/verification-022-pa28-relation-20260827-01.manifest.json`,
+SHA-256 `f583bd4f4fe30ad4822832e708edd87e2e049333f2a6c0cf014467b5a33bc2d2`.
 
 The 1b known-aperture reachability checkpoint is now complete as a bounded
 host-only reconciliation.  Both selector branches enumerate the same eight
@@ -461,7 +518,8 @@ separate control-node route recorded one failed read and zero writes.  These
 facts are `PROVED` only for the bounded candidates.  Global reachability,
 alternate apertures, runtime register state, watchdog causality, ordering,
 mutability and bypass remain `UNKNOWN`.  The result remains `CLASS C
-(TRANSFORM ONLY)` / `NOT_ELIGIBLE`; 020K is now the next host-only candidate.
+(TRANSFORM ONLY)` / `NOT_ELIGIBLE`; the later 020K/020L static follow-ups
+remain host-only and read-only.
 The 13,885-byte manifest has SHA-256
 `b4135f22bff47df22cda674eeabfff909ef4d3bc2a1843b358be7556b6d5ff02`; focused
 tests are 9/9 PASS and no device action occurred.  See
@@ -1323,6 +1381,19 @@ Focused tests are 13/13 and the full serial suite is 1,288/1,288 PASS
 review is `PASS` after the local-pin repair.  The next discriminator is 020L,
 a one-word census of the unique conditional branch landing VAs, still
 host-only/read-only and without path continuation.
+
+Verification 020L completed that bounded landing-word census.  It re-derived
+the exact seven unique conditional target VAs from 020K and inspected one word
+at each: ADRP x2, LDR_UNSIGNED x1, logical-immediate x2, MOV_REGISTER x1 and
+scalar LDP x1.  The landing-word reader and decoder reject unaligned VAs
+before reading; executable file-backed segment and source/dependency hash
+checks remain in force.  Raw words are hash-only and no target block is
+followed, so execution, pointer/PA meaning, MMIO/DRAM identity, mutability,
+protected reach and bypass remain `UNKNOWN`.  Class C and `NOT_ELIGIBLE` are
+unchanged.  The manifest is 5,109 bytes, SHA-256
+`cdb0db05596ad06ae179861a4083e08b116ce283f683dd5fae44efde020f85dc`; focused
+tests are 7/7 PASS and no device action occurred.  The independent hostile
+review is `PASS` in `docs/VERIFICATION020L_INTEGRATION_REVIEW_2026-08-27.md`.
 
 ## N. 가장 위험한 아직 금지된 실험
 

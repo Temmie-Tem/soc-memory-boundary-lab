@@ -146,10 +146,40 @@
    "smallest_failure_mib": 32
   }
  },
- "inputs": [
-  "heap-capacity-coarse.jsonl",
-  "heap-capacity-fine.jsonl"
- ],
+ "inputs": {
+  "probe": {
+   "executed_binary": {
+    "basename": "heap_cap.c",
+    "retained": false,
+    "sha256": "cf0b3caf834213fd0d8db22f09b85e1a58084c94dc69193b49fe141111390457",
+    "size": 706184
+   },
+   "reproducible_build": {
+    "basename": "a90_heap_capacity_probe.c",
+    "retained": false,
+    "sha256": "d913d633ed5edea38025318658f61b2175318ec1c18ad3859b616f746723fedf",
+    "size": 706192,
+    "source_basename_difference_only": true
+   },
+   "source": {
+    "filename": "a90_heap_capacity_probe.c",
+    "sha256": "26b320115e0a23884e633709a13afa40276c66c0d95c54882bd2399fd31c8876",
+    "size": 4176
+   }
+  },
+  "raw_ladders": [
+   {
+    "filename": "heap-capacity-coarse.jsonl",
+    "sha256": "ea8a9d477195cfec449e76c522c9c87981717cd5ea339b35039c86ef180467ab",
+    "size": 3655
+   },
+   {
+    "filename": "heap-capacity-fine.jsonl",
+    "sha256": "2761238820b845987ae55ac13e408ecd9a0566f2e8c95efdd160efb199105625",
+    "size": 5881
+   }
+  ]
+ },
  "instrument_ok": true,
  "ladders_reduced": 2,
  "largest_non_secure_ceiling_mib": 320,

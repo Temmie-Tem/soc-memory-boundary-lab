@@ -125,6 +125,13 @@ constant (`{1024, 768, 512, 384, 256, 128}`), SHA-256
 retained as a receipt and used only to cross-check the fine ladder, never as the
 source of a published number.
 
+The public manifest records exact size/SHA pins for both retained raw ladders,
+checks the checked-in probe source against its size/SHA, and carries the two
+producer-reported binary attestations with `retained: false`.  The executed
+binary itself is not present in the public or private tree; the basename-only
+difference and its two hashes remain an explicit provenance limitation rather
+than an implicit executable claim.
+
 | Receipt | Bytes | SHA-256 |
 |---|---:|---|
 | `heap-capacity-coarse.jsonl` | 3,655 | `ea8a9d477195cfec449e76c522c9c87981717cd5ea339b35039c86ef180467ab` |

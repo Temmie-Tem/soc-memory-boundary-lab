@@ -20,7 +20,11 @@
 | 016 | A normal-RAM alias reaches a protected boundary. | Only after 015, a minimal non-secret marker/boundary test differs between normal and alias path. | No dump, exact ordering proof, secondary enforcement control. | `NOT ELIGIBLE`. |
 | V017 | Can a bank-only post-decode enforcement check separate the listed protected carveouts from ordinary System RAM? | Apply the exact rank-3 allocation-offset/model relation to the pinned live memory-map ranges; a bank-only check would need a class-set difference. | Host-only source-pinned algebra and range histograms; subtract reserved carveouts nested inside broad System RAM; retain complete-coordinate, protection-ordering and physical-mapping unknowns. No device/SMC/MMIO/write. | `REFUTED` only for the narrow bank-only shape in the model projection: minimum class-change span 8 KiB; a 64-KiB-aligned span covers all eight classes and 128 KiB guarantees coverage at an arbitrary base; every listed protected/unprotected comparison range meets that bound. Finite GF(2) countermodels show complete-coordinate injectivity remains underdetermined. Complete post-decode check, actual ordering, transform mutability and bypass remain `UNKNOWN`; Class C unchanged. |
 | V018 | Does one exact A90 non-secure ION allocation expose a single-state storage-identity collision at any tested one-bit offset pair? | A marker written at an anchor is observed through a candidate offset that received only a sentinel; the exact 190-record transcript recomputes every verdict. | Exact source/binary/build pins before bridge contact; type-10/id-30 `camera_preview` allocation; same-storage two-VA positive control; distinct-offset negative; two trials; strict target/bridge/cleanup/final-health receipt; no MMIO/SMC/secure/protected/partition access. | `PROVED` bounded live baseline: both controls passed, 176/176 candidates `DISTINCT`, zero disturbance/clobber/disagreement, `NO_ALIAS` only over the retained one-state allocation-offset pairs. Pagemap `BLIND`; physical PA/contiguity/final DRAM coordinates `UNKNOWN`; cross-state Skitter permutation, transform mutation and protected reach are not tested. Numbered 015/016 remain `NOT ELIGIBLE`. |
-| V019 | Does the address-to-DRAM map survive a Normal-World-triggerable deep-suspend transition while the allocation remains in place? | External public manifest reports a 25.09-second corroborated suspend and 0/4,194,304 moved tags; this branch validates the synthetic detector and records the live result as external-manifest-only because the private receipt is absent. | Exact imported analyzer/probe/test hashes; baseline-before-suspend gate, suspend_stats/RPMh/time corroboration fields, splitmix permutation positive control, no protected/controller/partition write. | `SUPPORTED_EXTERNAL_MANIFEST_ONLY`: no moved tags in the declared offset domain is not independently machine-proved here; effective physical contiguity, complete coordinates, other transitions and mutability remain `UNKNOWN`; Class C unchanged. |
+| V019 | Does the address-to-DRAM map survive a Normal-World-triggerable deep-suspend transition while the allocation remains in place? | Two retained, independently acquired deep-suspend receipts report 25.090 s and 25.151 s with 0/4,194,304 moved tags; the cable-attached control is explicitly `SUSPEND_NOT_REACHED`. | Exact analyzer/probe/source pins; baseline-before-suspend gate, suspend_stats/RPMh/time corroboration fields, splitmix permutation positive control, retained regular-file receipts with no-follow guard, no protected/controller/partition write. | `PROVED`/`REFUTED` only for the two retained deep-suspend runs and declared offset domain: a map change in that transition is refuted; effective physical contiguity, complete coordinates, other transitions and global mutability remain `UNKNOWN`; Class C unchanged. |
+| 020M | Does the live DT bind measured ION heap 30 to a fixed `camera_mem_region` large enough for a PA28 test? | Heap 30 reports `reg=0x1e`, `memory-region=0x67a`; the matching region reports `reg=<0,c2000000,0,14000000>`, `no-map`/`reusable` return ENOENT and `ion,recyclable` is present. | Exact A90/SM8150 target validation; fixed DT allowlist; private raw receipt and redacted manifest; explicit bridge identity; no ION allocation, MMIO, SMC, controller or protected-memory action. | `PROVED` advertised DT chain; `SUPPORTED` fixed-carveout consistency; allocation placement, `f(PA28)`, complete coordinates and mutability remain `UNKNOWN`; Class C unchanged. |
+| 021-CE | Does a full-size `camera_preview` hold consume the selected heap's residual capacity? | 320 MiB hold succeeds; 16 MiB, 4 MiB, 1 MiB, 64 KiB and 4 KiB probes fail under hold; all five controls succeed before and after release. | Retained private receipt with v2 reducer; exact heap/type/id and canonical 020M dependency; stable no-follow reads; no mapping/read/write/MMIO/SMC/protected action. Same-run target/bridge/argv/health are explicitly unavailable. | `SUPPORTED_WITHIN_RETAINED_RECEIPT`; conditional physical span `SUPPORTED_CONDITIONAL_ON_020M_CHAIN`; exact target, physical page identity, DRAM coordinates and security effect `UNKNOWN`; Class C unchanged. |
+| 020N | Does a full 320 MiB normal-RAM allocation expose a single-bit-28 timing discriminator? | Fixed no-argument probe measures `0x10000000` against same-offset, two bank-bit negatives and a cache-maintenance control; host reduction emits `PA28_TIMING_CANDIDATE` only if all strict gates pass. | Host-only implementation currently; 020M/021 hash+semantic dependencies, exact heap/type/id and allocation size, no pagemap/physical claim, no MMIO/SMC/protected action. No live receipt yet. | `HOST_ONLY_DESIGN`; any timing candidate remains below `PROVED`, does not establish `f(PA28)` or alias, and keeps `CLASS C` / `NOT_ELIGIBLE`. |
+| 022-PA28 | What does the retained full-320 MiB timing receipt say about `f(PA28)` within the recovered rank-3 model? | Strict existence/identification reductions recheck 3,029 pair rows, both same-phase controls and exact phase/cardinality sets; one of seven candidates conflicts, selecting `f(PA28)=010=f(PA14)`. | Canonical raw/dependency/source pins; per-phase controls; recomputed base/offset/XOR arithmetic; fixed-gated normal-RAM probe source; no protected/controller/MMIO/SMC/partition write. Same-run target/bridge/argv/timestamp/final-health and historical binary are not retained. | `SUPPORTED_WITHIN_RETAINED_RECEIPT` / `SUPPORTED_MODEL_EXTENSION`; physical coordinates, alias, mutability, protection ordering and bypass `UNKNOWN`; `CLASS C` / `NOT_ELIGIBLE` unchanged. Manifest 6,698 B, SHA-256 `f583bd4f4fe30ad4822832e708edd87e2e049333f2a6c0cf014467b5a33bc2d2`. |
 | 1b | Are the eight currently identified remapper/BIMC apertures demonstrably reachable from Normal World? | Both exact selector branches enumerate the same eight candidates; every candidate is covered by TZ-owned `MEMNOC_MS_MPU` and `CNOC_SNOC_MS_MPU` policy hits with no HLOS read/write grant. The tested `0x09248080` narrow region is branch-invariant; the fixed EL1 load produced no value before a recorded watchdog, and the control-node route failed before a read. | Host-only exact-hash reconciliation of `MEMORY_MAP.md` plus 009/010/007/005 manifests; known candidates only; no device, controller, SMC, SCM, ownership or protected-memory mutation. | `PROVED` bounded static-policy coverage and fixed observations; `SUPPORTED` constrained tested route; global reachability, alternate apertures, final runtime policy, watchdog causality, ordering, mutability and bypass remain `UNKNOWN`; `CLASS C`, `NOT_ELIGIBLE`. |
 | R2 | Do the exact 029–034 bounded static manifests leave a promoted writer path or a contradiction with the repaired rank-3 relation? | Pinned JSON semantics preserve zero DCB-consumer/MC-symbolic paths, stable 71-site identities, transition-count invariants, and 030's inherited rank-3 dependency; a complete relation-row contradiction would be separately visible. | Host-only exact-byte/hash and duplicate-key checks; 027/029/030/031/032/033/034 plus 023R/V016 pins; no device/SMC/MMIO/write. | `SUPPORTED_BOUNDED_CLOSURE_UNKNOWN_GLOBAL` for Q1; Q4 `UNKNOWN_NO_COMPLETE_029_034_RELATION_ROW_SET`. No global writer absence, runtime execution, physical mapping or bypass claim; Class C unchanged. |
 | 020A-ST | Does the exact candidate setter's incoming argument block resolve to a runtime base source? | `PROVED`: setter `[0x9fc06410,0x9fc0643c)` has one `XZR` zero and four argument-sourced stores; its sole direct caller `0x9fc023f0` supplies `W3=[X0+0x10]`, `X0=[X0+0x18]`, `X1=[X0+0x20]`, and `X2=[X0+0x28]` in a bounded linear model. | Exact XBL/range hashes and singleton direct-caller check; 20-byte trace plus 92-byte context; synthetic decoder/data-flow negatives; no device/SMC/MMIO/write. | `SUPPORTED` symbolic setter/base edge; runtime object values/type/currentness, physical mapping, mutability and protected reach `UNKNOWN`; `CLASS C`, `NOT_ELIGIBLE`. |
@@ -1300,15 +1304,17 @@ The next scored candidate is a bounded caller-context barrier/opcode inventory
 
 The imported V019 analyzer demonstrates a two-state tag oracle: an injective
 synthetic map remains `MAP_INVARIANT`, while injected address-line permutations
-are detected and decoded.  Its public manifest reports 4,194,304 tags, a
-25.09-second corroborated deep suspend and zero moved tags.  Because the
-external private raw receipt is not present in this worktree, the live result
-is `SUPPORTED_EXTERNAL_MANIFEST_ONLY`, not a fresh machine-proved receipt;
-physical-page provenance and complete DRAM coordinates remain `UNKNOWN`.
-The public manifest is 657 bytes, mode `0644`, SHA-256
-`bf7c66c78993b24d02a46735abb77e7e40298d6230bc5438c3eb21028c51238b`.
-Focused validation is 23/23, with C probe syntax checks and synthetic positive
-and negative gates; no new device action occurred.  See
+are detected and decoded.  Two retained receipts report 4,194,304 tags,
+25.090-second and 25.151-second corroborated deep suspends, and zero moved
+tags in each run.  The bounded result is `PROVED`/`REFUTED` for those exact
+receipts and offset domain; physical-page provenance, complete DRAM
+coordinates, other state transitions and global mutability remain `UNKNOWN`.
+The public manifests are 657 and 658 bytes, mode `0644`, SHA-256
+`bf7c66c78993b24d02a46735abb77e7e40298d6230bc5438c3eb21028c51238b` and
+`b9d5717f33349727da7523ea6ab003ce33ec6694fce3487370a802a1d2f4b4eb`.
+Focused validation is 24/24 analyzer tests plus 5/5 private-receipt guard
+tests, with C probe syntax checks and synthetic positive/negative gates; no
+new device action occurred in this integration.  See
 `docs/VERIFICATION019_INTEGRATION_REVIEW_2026-08-27.md`.
 
 ## 1b known-aperture reachability metadata
@@ -1370,6 +1376,25 @@ independent hostile review is `PASS` after the XBL-loader provenance repair;
 no device action occurred.  The next discriminator is 020L, a one-word census
 of the unique conditional branch landing VAs, without path continuation.  See
 `docs/VERIFICATION020K_INTEGRATION_REVIEW_2026-08-27.md`.
+
+## Experiment 020L branch-target landing-word metadata
+
+Verification 020L re-derived the exact seven unique conditional target VAs
+from 020K and inspected one instruction word at each.  The strict family split
+is ADRP x2, LDR_UNSIGNED x1, logical-immediate x2, MOV_REGISTER x1 and scalar
+LDP x1.  The landing-word reader rejects `va % 4 != 0` before reading, then
+requires an executable file-backed segment; source/dependency hashes are
+pinned, raw words are hash-only and no target block is followed.
+
+`PROVED` is limited to this finite target/family census and its gates.
+Execution, function boundaries, runtime values, pointer/PA meaning,
+MMIO/DRAM identity, mutability, protected reach and alias/bypass remain
+`UNKNOWN`; Class C and `NOT_ELIGIBLE` are unchanged.  The public manifest is
+5,109 bytes, mode `0644`, SHA-256
+`cdb0db05596ad06ae179861a4083e08b116ce283f683dd5fae44efde020f85dc`.
+Focused validation is 7/7 PASS, regeneration is byte-identical, and the
+independent hostile review is `PASS`.  No device action occurred.  See
+`docs/VERIFICATION020L_INTEGRATION_REVIEW_2026-08-27.md`.
 
 ## Integration validation and current reconciliation
 

@@ -16,6 +16,7 @@ from __future__ import annotations
 import json
 import pathlib
 import re
+import tempfile
 import unittest
 
 from tools import a90_suspend_permutation_analysis as sp
@@ -154,6 +155,16 @@ class GateTests(unittest.TestCase):
 
 
 class SelfTestTests(unittest.TestCase):
+    def test_cli_rejects_symlink_raw_transcript(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = pathlib.Path(directory) / "raw.jsonl"
+            target.write_text(sp.simulate(SEED, 32, 64, None))
+            link = pathlib.Path(directory) / "link.jsonl"
+            link.symlink_to(target)
+            output = pathlib.Path(directory) / "m.json"
+            with self.assertRaises(sp.PermutationError):
+                sp.main(["--raw", str(link), "--output", str(output)])
+
     def test_the_module_self_test_passes(self):
         result = sp.self_test()
         self.assertTrue(result["passed"])

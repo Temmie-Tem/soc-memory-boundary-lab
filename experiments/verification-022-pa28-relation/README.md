@@ -1,7 +1,9 @@
-# Verification 022 — f(PA28)
+# Verification 022 — f(PA28) (retained-receipt model extension)
 
-**`f(PA28) = 010 = f(PA14)`.** The bank relation extends above PA27, and bit 28
-contributes the same vector as bit 14.
+**Disposition: `SUPPORTED_WITHIN_RETAINED_RECEIPT`.** The retained two-phase
+receipt selects `f(PA28) = 010 = f(PA14)` within the recovered rank-3 model.
+This is not a new device run and does not prove a physical alias, complete
+address mapping, transform mutability, or a bypass.
 
 ## What made this runnable
 
@@ -18,8 +20,10 @@ Three results removed it, in order:
 | V021 | proved a full-size allocation **consumes the whole carveout** — with 320 MiB held, not one 4 KiB page remains, between two 5/5 controls |
 | device tree | publishes that carveout at base **`0xC2000000`** |
 
-So offset `o` is physical `0xC2000000 + o`, and a 320 MiB span holds a
-single-bit-28 pair across 64 MiB of slack.
+The retained dependencies therefore provide the model's declared relation
+`offset o -> 0xC2000000 + o`; the analyzer still treats the 022 target and
+bridge provenance as `UNKNOWN_UNRETAINED` because no same-run preflight receipt
+was retained.
 
 ## What changed in the instrument
 
@@ -42,11 +46,11 @@ The timing core, barriers, warmups, alternation, trimming and divisor are copied
 verbatim from `a90_region_probe_r.c`, which copied them verbatim from Experiment
 014. No instrumentation difference is introduced.
 
-Across both runs, **3,029 pairs were measured and 0 mismatched** — every pair
-isolated exactly the bit its difference names. For `0x10000000` the probe
-additionally rejected 147 of 256 offsets for range and **0 for carry**, which is
-what the base arithmetic predicts: bit 28 of `0xC2000000 + o` is zero across the
-whole valid window.
+Across the retained phases, **3,029 pair records re-check with 0 mismatches** —
+every retained pair isolates exactly the bit its difference names. For
+`0x10000000` the receipt reports 147 of 256 offsets rejected for range and **0
+for carry**. These are receipt facts, not an assertion that a current device
+run has been reproduced.
 
 ## Question one — is `f(2^28)` nonzero?
 
@@ -106,12 +110,15 @@ the data rather than baked in.
 
 ## Claims and ranking
 
-`PROVED`: the measured medians and bands above; that every one of 3,029 pairs
-isolated the bit its difference named; that the same-phase controls fired in
-every phase; and that exactly one of seven candidates conflicted.
+`SUPPORTED_WITHIN_RETAINED_RECEIPT`: the retained medians and bands above;
+that every one of 3,029 retained pairs re-checks as isolating its named bit;
+that the same-phase controls fired in both retained phases; and that exactly
+one of seven candidates conflicted. The reducer emits
+`SUPPORTED_MODEL_EXTENSION`, not `PROVED`.
 
-`SUPPORTED`: `f(PA28) = 010 = f(PA14)`, within the rank-3 model, on this
-allocation, this boot, this CPU and this firmware.
+`UNKNOWN_UNRETAINED`: exact same-run target, bridge, command-line, and timing
+identity for the retained raw receipts. The current source is a repaired
+bounded probe and was not the binary used for the retained receipt.
 
 `UNKNOWN`, unchanged: whether the pair `0x10000000` presented as negative
 because bit 28 selects a bank, a rank, or a channel — the measurement separates
@@ -120,9 +127,9 @@ DRAM coordinates; whether the relation holds above PA28, which this allocation
 cannot reach; transform mutability; protection ordering; and every
 access-control question.
 
-`pagemap` was `BLIND` for the whole mapping, as it has been throughout — the
-base came from the device tree and V021's extent measurement, not from the
-kernel.
+`pagemap` was `BLIND` for the whole retained mapping, as it has been
+throughout — the model base came from the pinned device-tree snapshot and
+V021's pinned extent measurement, not from the kernel.
 
 `CLASS C (TRANSFORM ONLY)` and `NOT_ELIGIBLE` unchanged. This extends the model
 by one bit. It is a measurement, not an aperture: it says where bits land, not
@@ -130,23 +137,31 @@ who may write the transform. No boundary-bypass indicator appeared.
 
 ## Provenance
 
-Built from the retained repository path, so the executed binary and the
-reproducible build are the same bytes:
+The raw receipts and dependency manifests are pinned by the reducer. The
+source below includes the post-review range, overflow, fixed-argument, heap,
+and ION-path gates; it was not run on a device in this hardening pass:
 
 | | SHA-256 |
 |---|---|
-| `tools/a90_pa28_probe.c` | `7ee1cbf5264babd571b11acf4a586068ca7baaf9dee5fcea8af9b2332881f617` |
-| built binary, local and verified on device | `9959674add623891a80be57d1f139d6af1cc622359e4972a08b61133500afa51` |
+| `tools/a90_pa28_probe.c` (25,030 B, repaired source) | `b324c1c3332c61b00f6d6e5c75891721be4a5fb2a998c7f0222900d4eba5e199` |
+| historical binary pin (776,256 B, not retained) | `9959674add623891a80be57d1f139d6af1cc622359e4972a08b61133500afa51` |
 | `…-01/pa28-existence.jsonl` (194,481 B) | `d0136222fe6b9d211c6f073fec6844b3817c92e25b6e5a00d15cb9b3787ec49b` |
 | `…-01/pa28-identification.jsonl` (283,197 B) | `12cd383679524978b4beff7801816e5a4dc8fa9852972701c1395b50f205fa79` |
+| pinned 020M public dependency (8,246 B) | `69b087bd5a6aa279fff9c943405b46491381f3461c5ea1ac57f4d2f287d8ad9a` |
+| pinned 021 public dependency (4,586 B) | `82471b458f87e1ed86596ab08c97bab743ee868edf98d7d272c1d131046c168b` |
+
+The public manifest is redacted: private receipt paths and payloads are not
+published. Its `provenance` section deliberately records target, bridge,
+commands, and timestamp as `UNKNOWN_UNRETAINED` / not same-run attested.
 
 ## Device actions
 
-One ION allocation of 320 MiB in `camera_preview`, mapped, zeroed, read, freed;
-one 16 MiB anonymous eviction buffer; one temporary ION node, removed. No
-register, MMIO, SMC, SCM, EL2/EL3, protected-memory, partition or firmware
-operation. Uptime advanced continuously with no reset; `/tmp/a90-native` was
-left holding only the pre-existing `native-init.log` and the V019 receipt.
+The retained raw receipt records one 320 MiB `camera_preview` allocation,
+mapping, reads, free, and a temporary ION node. This hardening pass performed
+no device action and did not rerun the probe. The bounded source contains no
+MMIO, SMC, SCM, EL2/EL3, protected-memory, partition, firmware, or protected
+write operation; allocation and mapping remain the probe's stated read-only
+evidence surface.
 
 ## Reproduce
 
@@ -163,3 +178,13 @@ python3 tools/a90_pa28_relation_analysis.py \
   --output evidence/manifests/verification-022-pa28-relation-20260827-01.manifest.json
 python3 -m unittest tests.test_a90_pa28_relation_analysis
 ```
+
+The direct probe command is an exact, bounded interface: heap, allocation,
+repetitions, pair count, CPU, `spread`, base, and the difference vocabulary are
+fixed; the ION node must be `/dev/ion` or a safe basename below
+`/tmp/a90-native/`, and the final open uses `O_NOFOLLOW`. Do not execute it as
+part of host verification. The host analyzer's production path is the command
+above with the two retained raw inputs; it rechecks canonical raw pins, both
+phase/cardinality/control gates, 020M/021 semantic and hash pins, source hash,
+pair arithmetic, and redacted publication before emitting the model-only
+manifest.

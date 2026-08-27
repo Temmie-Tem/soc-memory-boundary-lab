@@ -14,6 +14,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
@@ -90,6 +91,101 @@ class Gate(unittest.TestCase):
 
 
 class Validation(unittest.TestCase):
+    def _write_receipt(self, path: Path) -> None:
+        path.write_text("\n".join(json.dumps(record) for record in _receipt(ALL, NONE, ALL)) + "\n")
+
+    def test_receipt_metadata_is_content_pinned(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "receipt.jsonl"
+            self._write_receipt(p)
+            _, pin = cx.load_records(p)
+            self.assertEqual(pin["basename"], p.name)
+            self.assertEqual(pin["size_bytes"], p.stat().st_size)
+            self.assertEqual(len(pin["sha256"]), 64)
+
+    def test_metadata_mutation_is_rejected_against_retained_pin(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "receipt.jsonl"
+            self._write_receipt(p)
+            _, pin = cx.load_records(p)
+            p.write_text(p.read_text() + "\n")
+            _, mutated = cx.load_records(p)
+            with self.assertRaises(ValueError):
+                cx.require_metadata(mutated, pin, "receipt")
+
+    def test_hash_mutation_with_same_size_is_rejected_against_retained_pin(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "receipt.jsonl"
+            original = "\n".join(
+                json.dumps(record, separators=(",", ":"))
+                for record in _receipt(ALL, NONE, ALL)
+            ) + "\n"
+            p.write_text(original)
+            _, pin = cx.load_records(p)
+            mutated = original.replace('"hold_mib":320', '"hold_mib":321', 1)
+            self.assertEqual(len(mutated), len(original))
+            p.write_text(mutated)
+            _, current = cx.load_records(p)
+            self.assertEqual(current["size_bytes"], pin["size_bytes"])
+            self.assertNotEqual(current["sha256"], pin["sha256"])
+            with self.assertRaises(ValueError):
+                cx.require_metadata(current, pin, "receipt")
+
+    def test_non_regular_receipt_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(ValueError):
+                cx.load_records(Path(tmp))
+
+    def test_020m_dependency_metadata_is_pinned(self) -> None:
+        dependency = cx.load_020m_dependency()
+        self.assertEqual(dependency["basename"], cx.DEPENDENCY_020M_PIN["basename"])
+        self.assertEqual(dependency["size_bytes"], cx.DEPENDENCY_020M_PIN["size_bytes"])
+        self.assertEqual(dependency["sha256"], cx.DEPENDENCY_020M_PIN["sha256"])
+        self.assertEqual(
+            dependency["semantic_attestation"]["semantic"]["camera_size"],
+            "0x14000000",
+        )
+
+    def test_020m_dependency_hash_mutation_fails_closed(self) -> None:
+        original = cx.DEPENDENCY_020M_PATH.read_bytes()
+        mutated = bytearray(original)
+        mutated[-2] = ord(" ") if mutated[-2] != ord(" ") else ord("\n")
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / cx.DEPENDENCY_020M_PATH.name
+            path.write_bytes(mutated)
+            with self.assertRaises(ValueError):
+                cx.load_020m_dependency(path)
+
+    def test_direct_analysis_fails_closed_when_020m_dependency_mutates(self) -> None:
+        original = cx.DEPENDENCY_020M_PATH.read_bytes()
+        mutated = bytearray(original)
+        mutated[-2] = ord(" ") if mutated[-2] != ord(" ") else ord("\n")
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / cx.DEPENDENCY_020M_PATH.name
+            path.write_bytes(mutated)
+            with mock.patch.object(cx, "DEPENDENCY_020M_PATH", path):
+                with self.assertRaises(ValueError):
+                    cx.analyse(_receipt(ALL, NONE, ALL))
+
+    def test_cli_rejects_same_size_mutated_canonical_receipt(self) -> None:
+        original = RAW.read_bytes()
+        mutated = original.replace(b'"hold_mib":320', b'"hold_mib":321', 1)
+        self.assertEqual(len(mutated), len(original))
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / cx.CANONICAL_RAW_PIN["basename"]
+            path.write_bytes(mutated)
+            with mock.patch.object(sys, "argv", ["a90_carveout_exhaustion_analysis.py",
+                                                   "--raw", str(path)]):
+                with self.assertRaises(ValueError):
+                    cx.main()
+
+    def test_analysis_rejects_noncanonical_input_metadata(self) -> None:
+        records, metadata = cx.load_records(RAW)
+        mutated = dict(metadata)
+        mutated["sha256"] = "0" * 64
+        with self.assertRaises(ValueError):
+            cx.analyse(records, input_metadata=mutated)
+
     def test_foreign_schema_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             p = Path(tmp) / "x.jsonl"
@@ -156,11 +252,52 @@ class RetainedResult(unittest.TestCase):
         if not MANIFEST.exists():
             self.skipTest("manifest absent")
         published = json.loads(MANIFEST.read_text())
-        records, _ = cx.load_records(RAW)
-        recomputed = cx.analyse(records)
+        records, input_metadata = cx.load_records(RAW)
+        recomputed = cx.analyse(records, input_metadata=input_metadata)
         for key in ("verdict", "pool_exhausted", "controls_fired",
-                    "under_hold_ok", "implied_physical_span"):
+                    "under_hold_ok", "implied_physical_span",
+                    "implied_physical_span_status", "claim_disposition",
+                    "residual_assumption"):
             self.assertEqual(published[key], recomputed[key], key)
+        self.assertEqual(published["input"], input_metadata)
+        self.assertEqual(published["canonical_raw_pin"], cx.CANONICAL_RAW_PIN)
+        self.assertEqual(published["provenance"]["raw_receipt"], input_metadata)
+        self.assertEqual(
+            published["provenance"]["dependency_020m"],
+            cx.provenance(input_metadata)["dependency_020m"],
+        )
+
+    def test_provenance_does_not_infer_same_run_target_or_bridge(self) -> None:
+        records, input_metadata = cx.load_records(RAW)
+        result = cx.analyse(records)
+        result["input"] = input_metadata
+        result["provenance"] = cx.provenance(input_metadata)
+        self.assertEqual(result["provenance"]["attestation_status"],
+                         "INCOMPLETE_SAME_RUN_ATTESTATION")
+        self.assertFalse(result["provenance"]["target"]["same_run_attested"])
+        self.assertEqual(result["provenance"]["target"]["status"],
+                         "UNKNOWN_UNRETAINED")
+        self.assertEqual(
+            result["provenance"]["dependency_020m"]["sha256"],
+            cx.DEPENDENCY_020M_PIN["sha256"],
+        )
+        self.assertFalse(result["provenance"]["bridge"]["same_run_attested"])
+        self.assertFalse(result["provenance"]["commands"]["argv_recorded"])
+        self.assertEqual(result["provenance"]["probe_binary"]["status"],
+                         "NOT_RETAINED")
+
+    def test_manifest_keeps_conditional_span_and_receipt_claim_separate(self) -> None:
+        records, input_metadata = cx.load_records(RAW)
+        result = cx.analyse(records)
+        result["input"] = input_metadata
+        result["provenance"] = cx.provenance(input_metadata)
+        self.assertEqual(result["claim_disposition"]["receipt_result"],
+                         "SUPPORTED_WITHIN_RETAINED_RECEIPT")
+        self.assertEqual(result["claim_disposition"]["physical_span"],
+                         "SUPPORTED_CONDITIONAL_ON_020M_CHAIN")
+        self.assertEqual(result["implied_physical_span_status"],
+                         "SUPPORTED_CONDITIONAL_ON_020M_CHAIN")
+        self.assertNotIn("proved exactly", result["residual_assumption"].lower())
 
 
 if __name__ == "__main__":

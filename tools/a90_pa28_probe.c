@@ -36,6 +36,7 @@
 #include <fcntl.h>
 #include <sched.h>
 #include <stdint.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -53,10 +54,31 @@
 #define EVICTION_BYTES (UINT64_C(16) * 1024 * 1024)
 #define MAX_PAIRS 256U
 #define MAX_REPETITIONS 10001U
-#define MAX_DIFFERENCES 96U
+#define MAX_DIFFERENCES 11U
 #define OFFSET_SEED UINT64_C(0x5da9f0e3c17b2846)
 #define ION_MAX_HEAPS 64U
 #define ION_HEAP_NAME_BYTES 32U
+#define NODE_PATH_BYTES 256U
+#define EXPECTED_HEAP_NAME "camera_preview"
+#define EXPECTED_HEAP_TYPE 10U
+#define EXPECTED_HEAP_ID 30U
+#define EXPECTED_MIB UINT64_C(320)
+#define EXPECTED_BYTES (EXPECTED_MIB * UINT64_C(1024) * UINT64_C(1024))
+#define EXPECTED_REPETITIONS 201U
+#define EXPECTED_PAIRS 256U
+#define EXPECTED_CPU 7U
+#define EXPECTED_CNTFRQ UINT64_C(19200000)
+#define EXPECTED_BASE UINT64_C(0xc2000000)
+#define DIFFERENCE_CONFLICT UINT64_C(0x16000)
+#define DIFFERENCE_NEGATIVE UINT64_C(0x2000)
+#define DIFFERENCE_PA28 UINT64_C(0x10000000)
+#define DIFFERENCE_PA28_BANK13 UINT64_C(0x10002000)
+#define DIFFERENCE_PA28_BANK14 UINT64_C(0x10004000)
+#define DIFFERENCE_PA28_BANK13_14 UINT64_C(0x10006000)
+#define DIFFERENCE_PA28_BANK15 UINT64_C(0x10008000)
+#define DIFFERENCE_PA28_BANK13_15 UINT64_C(0x1000a000)
+#define DIFFERENCE_PA28_BANK14_15 UINT64_C(0x1000c000)
+#define DIFFERENCE_PA28_BANK13_14_15 UINT64_C(0x1000e000)
 
 struct ion_allocation_data_uapi {
     uint64_t len;
@@ -124,6 +146,75 @@ static int compare_i64(const void *left, const void *right)
     const int64_t a = *(const int64_t *)left;
     const int64_t b = *(const int64_t *)right;
     return a < b ? -1 : (a > b ? 1 : 0);
+}
+
+static int parse_u64(const char *text, uint64_t *value)
+{
+    char *end = NULL;
+    unsigned long long parsed;
+
+    if (text == NULL || *text == '\0' || text[0] == '-' || text[0] == '+')
+        return -1;
+    errno = 0;
+    parsed = strtoull(text, &end, 0);
+    if (errno == ERANGE || end == text || end == NULL || *end != '\0')
+        return -1;
+    *value = (uint64_t)parsed;
+    return 0;
+}
+
+/* The fixed 022 acquisition accepts only the canonical temporary ION node
+ * convention used by the A90 bridge.  In particular, no caller-controlled
+ * traversal, alternate device, or symlinked final component is admissible. */
+static int safe_ion_path(const char *path)
+{
+    static const char prefix[] = "/tmp/a90-native/";
+    size_t length;
+
+    if (path == NULL)
+        return 0;
+    length = strlen(path);
+    if (length == 0 || length >= NODE_PATH_BYTES)
+        return 0;
+    if (strcmp(path, "/dev/ion") == 0)
+        return 1;
+    if (strncmp(path, prefix, sizeof(prefix) - 1U) != 0 ||
+        path[sizeof(prefix) - 1U] == '\0')
+        return 0;
+    if (strcmp(path + sizeof(prefix) - 1U, ".") == 0 ||
+        strcmp(path + sizeof(prefix) - 1U, "..") == 0)
+        return 0;
+    for (size_t index = sizeof(prefix) - 1U; index < length; ++index) {
+        const unsigned char character = (unsigned char)path[index];
+        if (!((character >= 'a' && character <= 'z') ||
+              (character >= 'A' && character <= 'Z') ||
+              (character >= '0' && character <= '9') ||
+              character == '.' || character == '_' || character == '-'))
+            return 0;
+    }
+    return 1;
+}
+
+/* The analyzer's two phases intentionally use a bounded, explicit difference
+ * vocabulary.  Rejecting a new value here prevents a future direct invocation
+ * from silently creating an unreviewed 022 measurement surface. */
+static int allowed_difference(uint64_t difference)
+{
+    switch (difference) {
+    case DIFFERENCE_CONFLICT:
+    case DIFFERENCE_NEGATIVE:
+    case DIFFERENCE_PA28:
+    case DIFFERENCE_PA28_BANK13:
+    case DIFFERENCE_PA28_BANK14:
+    case DIFFERENCE_PA28_BANK13_14:
+    case DIFFERENCE_PA28_BANK15:
+    case DIFFERENCE_PA28_BANK13_15:
+    case DIFFERENCE_PA28_BANK14_15:
+    case DIFFERENCE_PA28_BANK13_14_15:
+        return 1;
+    default:
+        return 0;
+    }
 }
 
 /* Copied verbatim from Experiment 014: prime, intervene, then time the
@@ -218,7 +309,7 @@ int main(int argc, char **argv)
     const char *heap_name;
     const char *offset_mode;
     const char *ion_path;
-    uint64_t mib, repetitions, pairs, base;
+    uint64_t mib, repetitions, pairs, base, value;
     unsigned int cpu = 7;
     int ion_fd = -1;
     struct ion_heap_query_uapi query;
@@ -226,8 +317,10 @@ int main(int argc, char **argv)
     struct ion_allocation_data_uapi allocation;
     uint8_t *map = NULL, *eviction = NULL;
     uint64_t bytes;
+    uint64_t cntfrq;
     uint64_t *relation = NULL, *baseline = NULL;
     int difference_start;
+    int difference_count;
 
     setvbuf(stdout, NULL, _IOLBF, 0);
     if (argc < 9) {
@@ -241,36 +334,60 @@ int main(int argc, char **argv)
         return 2;
     }
     heap_name = argv[1];
-    mib = strtoull(argv[2], NULL, 0);
-    repetitions = strtoull(argv[3], NULL, 0);
-    pairs = strtoull(argv[4], NULL, 0);
-    cpu = (unsigned int)strtoul(argv[5], NULL, 0);
+    if (parse_u64(argv[2], &mib) != 0 ||
+        parse_u64(argv[3], &repetitions) != 0 ||
+        parse_u64(argv[4], &pairs) != 0 ||
+        parse_u64(argv[5], &value) != 0 || value > UINT_MAX) {
+        fprintf(stderr, "numeric argument is invalid\n");
+        return 2;
+    }
+    cpu = (unsigned int)value;
     offset_mode = argv[6];
-    base = strtoull(argv[7], NULL, 0);
+    if (parse_u64(argv[7], &base) != 0) {
+        fprintf(stderr, "declared base is invalid\n");
+        return 2;
+    }
     ion_path = argv[8];
     difference_start = 9;
-    if (strcmp(offset_mode, "stride") != 0 && strcmp(offset_mode, "spread") != 0) {
-        fprintf(stderr, "offset-mode must be stride or spread\n");
+    difference_count = argc - difference_start;
+    if (strcmp(heap_name, EXPECTED_HEAP_NAME) != 0 ||
+        mib != EXPECTED_MIB || repetitions != EXPECTED_REPETITIONS ||
+        pairs != EXPECTED_PAIRS || cpu != EXPECTED_CPU ||
+        strcmp(offset_mode, "spread") != 0 || base != EXPECTED_BASE) {
+        fprintf(stderr,
+                "022 probe requires camera_preview/320/201/256/7/spread/0xc2000000\n");
         return 2;
     }
-    if (mib == 0 || repetitions < 3 || repetitions > MAX_REPETITIONS ||
-        pairs == 0 || pairs > MAX_PAIRS) {
-        fprintf(stderr, "argument out of range\n");
+    if (!safe_ion_path(ion_path)) {
+        fprintf(stderr,
+                "ion node must be /dev/ion or /tmp/a90-native/<safe-name>\n");
         return 2;
     }
-    bytes = mib << 20;
-    /* a90_region_probe_r.c required a power of two so that `a ^ d` stayed in
-     * range and so that offset XOR equalled physical XOR.  Neither is assumed
-     * here: the range check in the pair loop covers the first, and every pair
-     * is verified against the declared base for the second.  The base must
-     * still be page aligned for page-aligned offsets to mean anything. */
-    if ((base & (PAGE_BYTES - 1)) != 0) {
-        fprintf(stderr, "declared base must be page aligned\n");
+    if (difference_count <= 0 || difference_count > (int)MAX_DIFFERENCES) {
+        fprintf(stderr, "022 probe requires 1..%u differences\n", MAX_DIFFERENCES);
         return 2;
+    }
+    bytes = EXPECTED_BYTES;
+    /* Validate the complete difference list before pinning a CPU or opening
+     * the ION node.  This keeps arbitrary direct invocations out of the
+     * production 022 command surface while allowing repeated controls. */
+    for (int arg = difference_start; arg < argc; ++arg) {
+        if (parse_u64(argv[arg], &value) != 0 ||
+            !allowed_difference(value) || value >= bytes) {
+            fprintf(stderr, "difference is outside the fixed 022 allowlist: %s\n",
+                    argv[arg]);
+            return 2;
+        }
     }
 
     if (pin_cpu(cpu) != 0) {
         fprintf(stderr, "pin_cpu: %s\n", strerror(errno));
+        return 1;
+    }
+    cntfrq = read_cntfrq();
+    if (cntfrq != EXPECTED_CNTFRQ) {
+        fprintf(stderr, "unexpected cntfrq: %llu\n",
+                (unsigned long long)cntfrq);
         return 1;
     }
     printf("{\"schema\":\"%s\",\"type\":\"context\",\"cpu\":%u,"
@@ -279,14 +396,14 @@ int main(int argc, char **argv)
            "\"order\":\"alternating\",\"barrier\":\"dsb_ld\","
            "\"divisor\":\"kept_times_two\",\"offset_mode\":\"%s\","
            "\"declared_base\":\"0x%llx\"}\n",
-           PROBE_SCHEMA, cpu, (unsigned long long)read_cntfrq(), heap_name,
+           PROBE_SCHEMA, cpu, (unsigned long long)cntfrq, heap_name,
            (unsigned long long)mib, (unsigned long long)repetitions,
            (unsigned long long)pairs, PAIR_WARMUPS, offset_mode,
            (unsigned long long)base);
 
     /* V2321 has no /dev/ion; the caller creates a temporary node and names it
      * here, so the probe never depends on a path that does not exist. */
-    ion_fd = open(ion_path, O_RDONLY | O_CLOEXEC);
+    ion_fd = open(ion_path, O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
     if (ion_fd < 0) { perror("open ion node"); return 1; }
     memset(&query, 0, sizeof(query));
     if (ioctl(ion_fd, ION_IOC_HEAP_QUERY, &query) != 0) { perror("heap query"); return 1; }
@@ -295,17 +412,19 @@ int main(int argc, char **argv)
     if (heaps == NULL) { perror("calloc heaps"); return 1; }
     query.heaps = (uint64_t)(uintptr_t)heaps;
     if (ioctl(ion_fd, ION_IOC_HEAP_QUERY, &query) != 0) { perror("heap data"); return 1; }
+    unsigned int selected_count = 0;
     for (uint32_t index = 0; index < query.cnt; ++index) {
         heaps[index].name[ION_HEAP_NAME_BYTES - 1] = '\0';
-        if (strcmp(heaps[index].name, heap_name) == 0)
+        if (strcmp(heaps[index].name, heap_name) == 0) {
             selected = &heaps[index];
+            ++selected_count;
+        }
     }
-    if (selected == NULL) { fprintf(stderr, "heap %s not found\n", heap_name); return 1; }
-    /* Only a physically contiguous heap makes an offset difference equal a
-     * physical one.  Type 0 is the page-based system heap and is refused. */
-    if (selected->type == 0U) {
-        fprintf(stderr, "heap %s is the page-based system heap; "
-                        "offset differences would not be physical\n", heap_name);
+    if (selected == NULL || selected_count != 1 ||
+        selected->type != EXPECTED_HEAP_TYPE ||
+        selected->heap_id != EXPECTED_HEAP_ID || selected->heap_id >= 32U) {
+        fprintf(stderr,
+                "camera_preview heap is absent, duplicated, or differs from type 10/id 30\n");
         return 1;
     }
     printf("{\"schema\":\"%s\",\"type\":\"ion_heap\",\"name\":\"%s\","
@@ -314,7 +433,7 @@ int main(int argc, char **argv)
 
     memset(&allocation, 0, sizeof(allocation));
     allocation.len = bytes;
-    allocation.heap_id_mask = UINT32_C(1) << selected->heap_id;
+    allocation.heap_id_mask = UINT32_C(1) << EXPECTED_HEAP_ID;
     allocation.flags = 0;   /* no ION_FLAG_CACHED -> pgprot_writecombine */
     if (ioctl(ion_fd, ION_IOC_ALLOC, &allocation) != 0) { perror("ion alloc"); return 1; }
     map = mmap(NULL, bytes, PROT_READ | PROT_WRITE, MAP_SHARED, (int)allocation.fd, 0);
@@ -336,7 +455,7 @@ int main(int argc, char **argv)
     if (relation == NULL || baseline == NULL) { perror("calloc samples"); return 1; }
 
     for (int arg = difference_start; arg < argc && arg - difference_start < (int)MAX_DIFFERENCES; ++arg) {
-        uint64_t difference = strtoull(argv[arg], NULL, 0);
+        uint64_t difference;
         int64_t deltas[MAX_PAIRS];
         size_t used = 0, rejected_range = 0, rejected_carry = 0;
 
@@ -346,6 +465,10 @@ int main(int argc, char **argv)
          * a bit below PA12 is therefore measured as precisely as one above.
          * Riding such a bit on a large kernel witness keeps the two addresses
          * in different rows, so the conflict question stays well posed. */
+        if (parse_u64(argv[arg], &difference) != 0) {
+            fprintf(stderr, "invalid difference: %s\n", argv[arg]);
+            return 41;
+        }
         if (difference == 0 || difference >= bytes) {
             printf("{\"schema\":\"%s\",\"type\":\"difference\",\"value\":\"0x%llx\","
                    "\"status\":\"OUT_OF_RANGE\"}\n",
@@ -378,13 +501,11 @@ int main(int argc, char **argv)
                 a = (state % (bytes / PAGE_BYTES)) * PAGE_BYTES;
             }
             b = a ^ difference;
-            const uint8_t *pa = map + a;
-            const uint8_t *pb = map + b;
             size_t trim, kept, rep;
             uint64_t relation_sum = 0, baseline_sum = 0;
             int64_t delta;
 
-            if (a + PAGE_BYTES > bytes || b + PAGE_BYTES > bytes) {
+            if (a > bytes - PAGE_BYTES || b > bytes - PAGE_BYTES) {
                 ++rejected_range;
                 continue;
             }
@@ -393,10 +514,19 @@ int main(int argc, char **argv)
              * XOR *is* this difference.  Adding the base can carry, turning a
              * single-bit difference into a multi-bit one that would be scored
              * against the wrong bit.  Verify rather than assume. */
-            if (((base + a) ^ (base + b)) != difference) {
+            if (base > UINT64_MAX - a || base > UINT64_MAX - b) {
                 ++rejected_carry;
                 continue;
             }
+            const uint64_t pa_a = base + a;
+            const uint64_t pa_b = base + b;
+            if ((pa_a ^ pa_b) != difference) {
+                ++rejected_carry;
+                continue;
+            }
+            /* Form pointers only after all range and carry checks. */
+            const uint8_t *pa = map + a;
+            const uint8_t *pb = map + b;
             sweep_eviction(eviction, (uint8_t)(index + 1));
             full_barrier();
 
@@ -448,9 +578,9 @@ int main(int argc, char **argv)
                    "\"offset\":\"0x%llx\",\"pa_a\":\"0x%llx\",\"pa_b\":\"0x%llx\","
                    "\"pa_xor\":\"0x%llx\",\"delta\":%lld}\n",
                    PROBE_SCHEMA, (unsigned long long)difference,
-                   (unsigned long long)a, (unsigned long long)(base + a),
-                   (unsigned long long)(base + b),
-                   (unsigned long long)((base + a) ^ (base + b)),
+                   (unsigned long long)a, (unsigned long long)pa_a,
+                   (unsigned long long)pa_b,
+                   (unsigned long long)(pa_a ^ pa_b),
                    (long long)delta);
         }
         if (used == 0) {

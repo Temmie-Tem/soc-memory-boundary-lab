@@ -64,13 +64,17 @@ cleanup/absence proof and final health are independently revalidated.  Pagemap
 is `BLIND`; physical mapping, contiguity and complete-coordinate alias remain
 `UNKNOWN`.
 
-**V019: `SUPPORTED_EXTERNAL_MANIFEST_ONLY`.**  The public analyzer, tests,
-README and 657-byte manifest from external commit `96f8d4c` are now integrated
-additively and independently host-validated.  The external private suspend
-receipt is not present in this worktree, so the reported 25.09-second deep
-suspend and zero moved tags are not promoted to a fresh machine-proved live
-receipt and do not close reopen condition 3.  See
-`docs/VERIFICATION019_INTEGRATION_REVIEW_2026-08-27.md`.
+**V019: `PROVED`/`REFUTED` within a bounded scope.**  The public analyzer,
+tests and manifest from external commit `96f8d4c` are integrated additively,
+and follow-up `1bc494e` retains the original receipt plus an independent
+second deep-suspend receipt.  Both corroborated runs report zero moved tags in
+the declared offset domain; a cable-attached control is explicitly
+`SUSPEND_NOT_REACHED`.  This refutes a map change only for that tested
+deep-suspend transition and domain.  Physical contiguity, complete
+coordinates, other state transitions and global mutability remain `UNKNOWN`;
+it does not close every form of reopen condition 3.  See
+`docs/VERIFICATION019_INTEGRATION_REVIEW_2026-08-27.md` and
+`docs/VERIFICATION019_RAW_RETENTION_2026-08-27.md`.
 
 ## Q4 — contradiction with rank three
 
@@ -95,7 +99,7 @@ that the external commit is an ancestor:
 | `c91f473` | initial V017 bank-granularity audit | superseded by the hardened V017 files and manifest `...-05` |
 | `db22fb1` | BadRAM/DisARMed/PMPlease/Battering RAM reuse review | integrated additively as `eb2f44d`; no unlicensed code vendored |
 | `0d2c1bf`, `ace5e9b` | external V018 implementation/acquisition | superseded by retained `49c3381` V018 implementation |
-| `96f8d4c` | deep-suspend cross-state test | integrated additively as `8c3d1c5`; public result is `SUPPORTED_EXTERNAL_MANIFEST_ONLY` pending raw-receipt retention |
+| `96f8d4c` | deep-suspend cross-state test | integrated additively as `8c3d1c5`; raw-receipt gap closed by local `1bc494e`, with two bounded `MAP_INVARIANT` runs |
 | `5323d17` | wording corrections and retained transcript | wording/access-control corrections are integrated; bus transcript is tracked as a separate supplementary amendment |
 | `865593b` | remaining-route/XPU/signature analysis | integrated additively as `0e6bfd5`; exact claims retain their labels |
 

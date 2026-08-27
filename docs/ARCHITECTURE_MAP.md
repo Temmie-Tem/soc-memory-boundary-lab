@@ -449,15 +449,29 @@ anchor clobbering or trial disagreement.  This is `PROVED` only as
 cross-state permutation and any protected-boundary implication remain
 `UNKNOWN`; it does not promote numbered Experiments 015 or 016.
 
-Verification 019 adds an external-manifest-only cross-state marker result.  Its
-host analyzer's synthetic control detects injected address-line permutations
-and its gate refuses a null without a pre-suspend baseline and corroborated
-suspend.  The imported public manifest reports 4,194,304 tags unchanged across
-a reported 25.09-second deep suspend, but the private raw receipt is absent in
-this worktree.  Therefore the live result is
-`SUPPORTED_EXTERNAL_MANIFEST_ONLY`, not a fresh machine-proved transition;
-physical contiguity, complete DRAM coordinates and other state changes remain
-`UNKNOWN`.  This does not close reopen condition 3 or alter Class C.
+Verification 019 adds a retained cross-state marker result.  Its host
+analyzer's synthetic control detects injected address-line permutations and its
+gate refuses a null without a pre-suspend baseline and corroborated suspend.
+The original and an independent second retained receipt report 4,194,304 tags
+unchanged across 25.090-second and 25.151-second deep suspends.  The bounded
+result is `PROVED` for those exact receipts and `REFUTED` for a map change in
+that tested transition and offset domain.  Physical contiguity, complete DRAM
+coordinates, other state changes and global transform mutability remain
+`UNKNOWN`; this does not close every form of reopen condition 3 or alter
+`CLASS C`.
+
+Verification 020 separately measures the non-secure contiguous-allocation
+boundary relevant to PA28.  The attempted `camera_preview`, `qsecom` and
+`user_contig` heaps are monotone at 320, 32 and 16 MiB respectively; no
+attempted heap reaches the 512-MiB reopen threshold.  The old 256-MiB ceiling
+and 512-MiB PA28 span wording are `REFUTED`.  Secure and remote-processor heaps
+were enumerated but not allocated from, so their capacity is `UNKNOWN`.  A
+later 020M live read-only receipt proves that heap 30 points to
+`camera_mem_region` (`phandle=0x67a`) with advertised
+`reg=<0,c2000000,0,14000000>` and explicit `ENOENT` for `no-map`/`reusable`;
+actual allocation placement remains `UNKNOWN`.  This changes the cheapest
+next normal-RAM test from a span-feasibility question to a PA28 alias question;
+it does not change Class C or authorize protected-memory access.
 
 The 1b known-aperture checkpoint then reconciles the retained access-control
 evidence without changing device state.  Both selector branches enumerate the
@@ -617,6 +631,49 @@ independent hostile review is `PASS` after the local-pin repair; no device
 action occurred.  The next discriminator is 020L, a one-word census of the
 unique conditional branch landing VAs, still host-only/read-only and without
 path continuation.
+
+Verification 020L then inspected exactly one word at each of the seven unique
+conditional landing VAs emitted by 020K.  The strict family split is ADRP x2,
+LDR_UNSIGNED x1, logical-immediate x2, MOV_REGISTER x1 and scalar LDP x1;
+the landing-word reader rejects unaligned VAs before reading and requires the
+same executable file-backed segment.  Raw words are hash-only and no target
+block is followed.  This is finite instruction metadata only: execution,
+function boundaries, runtime values, pointer/PA meaning, MMIO/DRAM identity,
+mutability, protected reach and bypass remain `UNKNOWN`; Class C and
+`NOT_ELIGIBLE` are unchanged.  The manifest is 5,109 bytes, SHA-256
+`cdb0db05596ad06ae179861a4083e08b116ce283f683dd5fae44efde020f85dc`;
+focused tests are 7/7 PASS and the hostile review is `PASS`.
+
+Verification 020M supplies the live precondition for a PA28 normal-RAM test.
+The exact runtime receipt binds heap 30 (`reg=0x1e`) to `memory-region=0x67a`
+and to `camera_mem_region` with matching phandle and advertised
+`reg=<0,c2000000,0,14000000>`.  `no-map` and `reusable` return expected
+`ENOENT`, while `ion,recyclable` is present.  This proves the advertised DT
+chain only; actual allocation placement, complete DRAM coordinates, `f(PA28)`
+and mutability remain `UNKNOWN`.  The public manifest is 8,246 bytes,
+SHA-256 `69b087bd5a6aa279fff9c943405b46491381f3461c5ea1ac57f4d2f287d8ad9a`,
+and no controller or protected-memory action occurred.
+
+Verification 021 adds a retained receipt-level extent observation: a 320 MiB
+`camera_preview` hold made all five residual probes, including 4 KiB, fail, and
+the same controls recovered after release.  Same-run target/bridge/argv/health
+are `UNKNOWN_UNRETAINED`; the conditional span is only
+`SUPPORTED_CONDITIONAL_ON_020M_CHAIN`.  Verification 020N is a host-only fixed
+normal-RAM PA28 timing design bound to the 020M/021 manifests.  Both leave
+physical page identity, complete DRAM coordinates, transform mutability,
+protection ordering and bypass `UNKNOWN`; Class C is unchanged.
+
+Verification 022 reduces the retained PA28 existence/identification receipts
+with strict phase and arithmetic gates.  All 3,029 pair rows recheck, both
+same-phase controls fire, and exactly one rank-3 candidate conflicts, yielding
+`f(PA28) = 010 = f(PA14)` as a `SUPPORTED_WITHIN_RETAINED_RECEIPT` model
+extension.  The historical same-run target/bridge/argv/timestamp/final-health
+and binary provenance are `UNKNOWN_UNRETAINED`; the repaired fixed-gate source
+was not rerun.  This is not a physical alias or controller-writability result:
+complete coordinates, transform mutability, protection ordering and bypass
+remain `UNKNOWN`, and Class C/`NOT_ELIGIBLE` are unchanged.  The public
+manifest is 6,698 bytes, SHA-256
+`f583bd4f4fe30ad4822832e708edd87e2e049333f2a6c0cf014467b5a33bc2d2`.
 
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside

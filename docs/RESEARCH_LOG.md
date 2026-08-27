@@ -2219,12 +2219,28 @@ different.  The complete 14-commit disposition is in
 `docs/EXTERNAL_LINE_INTEGRATION_2026-08-27.md`.
 
 The imported V019 public manifest reports zero moved tags across a reported
-25.09-second deep suspend and its 23-test synthetic detector suite passes.
-Because the external private raw receipt is absent here, this is
-`SUPPORTED_EXTERNAL_MANIFEST_ONLY`, not a fresh live proof and not closure of
-reopen condition 3.  The known-aperture 1b checkpoint remains `PROVED` only
-for the tested TZ-owned/no-HLOS-grant candidates and the fixed EL1 failure;
-global reachability is `UNKNOWN`.
+25.09-second deep suspend and its initial 23-test synthetic detector suite
+passes.  At this first integration point the private raw receipt was absent,
+so the result was recorded as `SUPPORTED_EXTERNAL_MANIFEST_ONLY`, not a fresh
+live proof.  A later retention/repetition pass supersedes that status within a
+bounded scope; see the dated update below.  The known-aperture 1b checkpoint
+remains `PROVED` only for the tested TZ-owned/no-HLOS-grant candidates and the
+fixed EL1 failure; global reachability is `UNKNOWN`.
+
+# 2026-08-27 — Verification 019 raw retention and independent repetition
+
+Follow-up commit `1bc494e` replaced the dangling private-receipt link with a
+real `0600` regular file, retained the original receipt, and acquired an
+independent second deep suspend on the same uninterrupted A90 boot.  The two
+receipts regenerate public manifests byte-for-byte and report 0 of 4,194,304
+tags moved over 25.090 s and 25.151 s, respectively.  The cable-attached
+negative control is retained as `SUSPEND_NOT_REACHED`, not as a third
+invariance result.  The analyzer is now 24/24 and the private-tree guard is
+5/5; `O_NOFOLLOW`/stable-descriptor checks prevent a symlinked raw path from
+being consumed.  This is `PROVED`/`REFUTED` only for the tested deep-suspend
+transition and offset domain; contiguity, complete coordinates, other state
+transitions, global mutability and protected reach remain `UNKNOWN`.  Class C
+and `NOT_ELIGIBLE` are unchanged.
 
 # 2026-08-27 — Verification 015 bus-vote amendment
 
@@ -2281,3 +2297,118 @@ local-loader repair the independent review returned `PASS`.  No device action
 occurred.  The next discriminator is 020L, a one-word census of the unique
 conditional branch landing VAs, still host-only/read-only and without path
 continuation.
+
+# 2026-08-27 — Verification 020L branch-target landing-word inventory
+
+Verification 020L re-derived the exact 020K target set and inspected one word
+at each of seven unique conditional landing VAs.  The family split is ADRP x2,
+LDR_UNSIGNED x1, logical-immediate x2, MOV_REGISTER x1 and scalar LDP x1.  A
+pre-read `va % 4 == 0` gate and executable file-backed segment check are now
+explicit; the first hostile review's unaligned-VA finding was repaired by the
+Luna Max implementation pass and covered by two negatives.  Raw words remain
+hash-only and no target block is followed.  `PROVED` is limited to this finite
+static census; execution, runtime values, PA/DRAM identity, mutability,
+protected reach and bypass remain `UNKNOWN`.  Class C and `NOT_ELIGIBLE` are
+unchanged.  The public manifest is 5,109 bytes, SHA-256
+`cdb0db05596ad06ae179861a4083e08b116ce283f683dd5fae44efde020f85dc`;
+focused tests are 7/7 PASS and hostile review is `PASS`.  No device action
+occurred.
+
+# 2026-08-27 — Verification 020 heap-capacity measurement
+
+The retained coarse/fine ION ladders correct two previously unbacked numbers.
+Attempted non-secure heaps are monotone at 320 MiB (`camera_preview`, 320/352),
+32 MiB (`qsecom`, 32/64) and 16 MiB (`user_contig`, 16/32).  No attempted heap
+reaches the 512-MiB reopen threshold, so condition 2 is `NOT_MET` as measured.
+The old 256-MiB ceiling and old 512-MiB PA28 span requirement are `REFUTED`;
+320 MiB makes PA28 arithmetically testable, but dma-buf pagemap leaves the
+physical base `UNKNOWN`.  `system` is page-based; secure/remote heaps were
+enumerated but withheld, so their capacities remain `UNKNOWN`.  The separate
+heap integration review records the 21-test reduction, exact raw receipt pins
+and explicit non-retained executed-binary attestations.  Class C and
+`NOT_ELIGIBLE` are unchanged; no boundary-bypass indicator appeared.
+
+# 2026-08-27 — Verification 020M PA28 DT precondition snapshot
+
+The live read-only snapshot validated the exact A90/SM8150 identity before
+touching any allocation.  Heap 30 reports `reg=0x1e` and `memory-region=0x67a`;
+`camera_mem_region` reports the same phandle and `reg=<0,c2000000,0,14000000>`.
+The `no-map` and `reusable` properties return expected `ENOENT`, while
+`ion,recyclable` is present.  The 15,271-byte private receipt hashes to
+`ef641e38ba9e05cee1d4875851fcded7ee481c7401c40d432570a426b9b7db99`; the
+8,248-byte public manifest hashes to
+`ac6e11b6cedc2a49482e091a594897b3ffea82632600b412380aad2ac1a16c64`.
+This proves the advertised DT chain and makes the next full-320-MiB PA28
+normal-RAM timing test feasible, but does not prove allocation placement,
+`f(PA28)`, complete coordinates, mutability or bypass.  Class C and
+`NOT_ELIGIBLE` remain unchanged; no ION allocation or controller action
+occurred.
+
+# 2026-08-27 — Verification 020M strict canonical rerun
+
+The DT precondition was reacquired after restarting the bridge with explicit
+`--expect-realpath` and `--device-glob` binding.  The canonical public manifest
+is 8,246 bytes with SHA-256
+`69b087bd5a6aa279fff9c943405b46491381f3461c5ea1ac57f4d2f287d8ad9a`; its
+private receipt is 15,435 bytes with SHA-256
+`40a3207d3f822775c4506415a579e993c07a6a7f9ff998e41a6f76cb6216a2ec`.
+The heap-30/phandle/reg result is unchanged and remains a DT advertisement,
+not an allocation-placement or physical-identity proof.  The strict run was
+read-only and leaves Class C unchanged.
+
+# 2026-08-27 — Verification 021 carveout-exhaustion receipt
+
+The retained receipt reports a 320 MiB `camera_preview` hold, five successful
+control allocations before and after release, and zero residual allocations
+from 16 MiB down to 4 KiB while the hold is live.  The v2 reducer preserves
+this as `SUPPORTED_WITHIN_RETAINED_RECEIPT`; same-run target, bridge, argv,
+timestamp and final health are `UNKNOWN_UNRETAINED`.  The conditional span is
+`SUPPORTED_CONDITIONAL_ON_020M_CHAIN`, not a direct physical-page claim.  The
+receipt is 2,368 bytes, SHA-256
+`cb16a3c1ba64f6050a52edd2e2fefe9a405d96fde86928cfe344b74764d28694`; the
+public manifest is 4,586 bytes, SHA-256
+`82471b458f87e1ed86596ab08c97bab743ee868edf98d7d272c1d131046c168b`.
+No controller, protected-memory or partition action occurred.
+
+# 2026-08-27 — Verification 020N host-only PA28 timing design
+
+Luna Max completed the fixed no-argument normal-RAM probe and host reducer.
+The probe allocates 320 MiB from heap 30, measures the `0x10000000` candidate,
+same-offset control, two bank-bit negatives and a cache-maintenance control;
+it does not use pagemap or touch MMIO/SMC/protected memory.  The reducer pins
+the strict 020M and 021 manifests and emits `PA28_TIMING_CANDIDATE` only as a
+bounded timing label.  No live 020N receipt exists yet, so the design remains
+`HOST_ONLY_DESIGN`, `CLASS C` and `NOT_ELIGIBLE`; the next live step must retain
+same-run target/bridge/cleanup evidence.
+
+# 2026-08-27 — Verification 022 retained PA28 reduction and next repeat
+
+The retained Verification 022 existence and identification receipts were
+reduced through the repaired strict host path.  The reducer pins the canonical
+raw files, the strict 020M DT manifest, the repaired 021 extent manifest and
+the repaired bounded probe source.  It validates one context/heap/pagemap
+record per phase, exact difference and repeat cardinalities, same-phase
+controls, summary accounting, and recomputes every `pa_a`, `pa_b` and physical
+XOR from the declared base and offset rather than trusting the emitted field.
+
+The two phases contain 3,029 pair rows and zero arithmetic mismatches.  Both
+controls fire in both phases, and exactly one of the seven rank-3 candidates
+conflicts.  The retained-receipt model result is
+`f(PA28) = 010 = f(PA14)`, classified as
+`SUPPORTED_WITHIN_RETAINED_RECEIPT` / `SUPPORTED_MODEL_EXTENSION`.  The public
+manifest is 6,698 bytes, SHA-256
+`f583bd4f4fe30ad4822832e708edd87e2e049333f2a6c0cf014467b5a33bc2d2`.
+
+This does not promote the historical acquisition to an exact-device claim:
+same-run target, bridge, command-line, timestamp, final health and the
+historical binary/build receipt are not retained.  The repaired source is
+fixed to the reviewed camera-preview/type-10/id-30, 320 MiB, CPU-7, spread
+surface and safe ION-path allowlist, but was not run in this hardening pass.
+No protected-memory, controller, MMIO, SMC, partition or firmware write was
+performed.  Physical coordinates, transform mutability, protection ordering,
+alias and bypass remain `UNKNOWN`; Class C and `NOT_ELIGIBLE` are unchanged.
+
+The highest-value next step is a fresh provenance-complete repeat of the same
+normal-RAM probe, retaining exact target/bridge/argv/binary/cleanup/final-health
+records.  It must not be interpreted as permission to enter the protected
+boundary or mutate controller/security state.

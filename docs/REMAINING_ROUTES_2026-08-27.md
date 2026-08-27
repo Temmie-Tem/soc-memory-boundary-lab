@@ -25,13 +25,15 @@ Only one is closed by the contract alone.
 
 ## 1. PA28 and above
 
-> **REOPENED 2026-08-27.** This route is not closed. The `camera_preview` heap
-> is backed by the fixed carveout `camera_mem_region` at published physical base
-> **`0xC2000000`**, size 320 MiB, and every offset in a 64 MiB window of a
-> full-size allocation yields a clean single-bit-28 XOR pair. `f(PA28)` is
-> measurable with no `pagemap` and no new privilege. See
-> `docs/PA28_UNBLOCKED_2026-08-27.md`. The corrections below stand but no longer
-> add up to a closure.
+> **REOPENED 2026-08-27.** This route is not closed.  The strict 020M snapshot
+> proves the live DT advertisement for heap 30 and `camera_mem_region` at
+> **`0xC2000000`**, size 320 MiB.  The retained 021 receipt supports a
+> full-hold/no-residual-probe result, but lacks same-run target attestation, so
+> the physical span is only `SUPPORTED_CONDITIONAL_ON_020M_CHAIN`.  A fixed
+> 020N normal-RAM timing candidate is implemented but has not yet been run;
+> `f(PA28)` and any alias remain `UNKNOWN`.  See
+> `docs/PA28_UNBLOCKED_2026-08-27.md` and the 020N contract.  The corrections
+> below stand but no longer add up to a closure.
 
 
 Measuring `f(PA28)` needs two addresses differing in **only** bit 28.
@@ -39,7 +41,9 @@ Measuring `f(PA28)` needs two addresses differing in **only** bit 28.
 > **Corrected 2026-08-27.** This section previously asserted that the pair
 > needs a 512 MiB allocation and that the largest non-secure heap yields 256
 > MiB. Both numbers were wrong, and neither was backed by a retained survey.
-> The measurement is now `evidence/manifests/verification-020-heap-capacity-20260827-01.manifest.json`.
+> The measurement is now `evidence/manifests/verification-020-heap-capacity-20260827-01.manifest.json`;
+> the exact raw/probe provenance is reviewed in
+> `docs/VERIFICATION020_HEAP_CAPACITY_INTEGRATION_REVIEW_2026-08-27.md`.
 
 Two corrections, of opposite sign:
 
@@ -58,10 +62,13 @@ comes near 512 MiB, so **reopen condition 2 is `NOT_MET` as measured** — but b
 a smaller margin than the old text claimed, and against the wrong threshold.
 
 320 MiB exceeds `2^28`, so PA28 is no longer excluded by span arithmetic. What
-still blocks it is the base: a usable pair exists only if the allocation's
-physical base modulo `2^29` falls in the right half, and `pagemap` is `BLIND`
-for dma-buf, so the base is unknown and cannot be chosen or even read. The
-conclusion is unchanged; the *reason* for it is not what this document said.
+still blocks a direct conclusion is allocation identity and placement: a
+usable pair exists only if the allocation's physical base modulo `2^29` falls
+in the right half, and `pagemap` is `BLIND` for dma-buf.  The 021 result makes
+the span conditional on the 020M heap/phandle chain, but does not itself attest
+the exact target or physical pages.  The next 020N timing run must therefore
+measure the candidate under strict same-run provenance rather than treat the
+DT advertisement as a physical-page receipt.
 Whether the base can be inferred rather than read — for instance from how the
 observed conflict pattern shifts across the 64 MiB of slack — is `UNKNOWN` and
 untested.

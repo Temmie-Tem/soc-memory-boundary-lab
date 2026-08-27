@@ -30,7 +30,7 @@ an ancestor.
 | `db22fb1` | BadRAM/DisARMed/PMPlease reuse review | `INTEGRATED_EXACT` as additive commit `eb2f44d`, [external reuse review](EXTERNAL_REUSE_REVIEW_2026-08-27.md) |
 | `0d2c1bf` | first V018 alias-marker oracle | `INTEGRATED_EQUIVALENT` via repaired `49c3381`; current analyzer already contains synthetic positive and fail-closed gates |
 | `ace5e9b` | V018 no-alias acquisition/manifest | `INTEGRATED_EQUIVALENT` only within the retained repaired V018 scope; external implementation/manifest is not used to replace it |
-| `96f8d4c` | deep-suspend permutation experiment | `INTEGRATED_EXACT` as additive commit `8c3d1c5`; public manifest is retained, but the private raw receipt is absent here, so live result is `SUPPORTED_EXTERNAL_MANIFEST_ONLY` |
+| `96f8d4c` | deep-suspend permutation experiment | `INTEGRATED_EXACT` as additive commit `8c3d1c5`; its raw-receipt gap is closed by local follow-up `1bc494e`, with two retained runs and `MAP_INVARIANT` |
 | `5323d17` | V015 bus-vote transcript and V017/V018 wording corrections | `INTEGRATED_PARTIAL`: 128 KiB arbitrary-base wording and access-control distinction are current; the bus transcript remains a supplementary evidence task, and no overstrong “unrestored vote” claim is imported |
 | `865593b` | four-route/XPU/signature analysis | `INTEGRATED_EXACT` as additive commit `0e6bfd5`; claims retain `PROVED`/`SUPPORTED`/`UNKNOWN` labels |
 | `b33339b` | route-2 response and V017/V018 corrections | `INTEGRATED_PARTIAL`: handoff wording and scope repairs are current; current repaired files are preserved rather than add/add overwritten |
@@ -40,6 +40,14 @@ The additive commits are now in the current branch as `eb2f44d`, `8c3d1c5`
 and `0e6bfd5`; the remaining dispositions are represented by this audit and
 the current exact artifacts.  No external branch reset, force update, or
 device action occurred.
+
+The subsequent local V019 retention/repetition commit is `1bc494e`.  It is not
+part of the external 14-commit ref; it replaces the dangling private-receipt
+links with real regular files, retains the original and second-run receipts,
+and adds the private-tree symlink guard.  Both analyzer regenerations are
+byte-identical to the public manifests.  The device-side transition was
+reversible and restored; no controller, security-boundary or partition write
+was performed.
 
 ## 1b reachability checkpoint
 
@@ -56,19 +64,19 @@ external commits.
 
 ## Current conclusion
 
-The imported literature, V019 public result and route analysis do not change
+The imported literature, V019 result and route analysis do not change
 `CLASS C (TRANSFORM ONLY)` or numbered Experiments 015/016 `NOT_ELIGIBLE`.
-The highest residuals are the missing V019 raw receipt and the global/unknown
-parts of 1b, not a reason to overwrite repaired evidence.  The bounded 1b
-checkpoint is now recorded separately; 020K is therefore the next candidate,
-still constrained to host-only/read-only analysis.
+The V019 raw-receipt gap is closed for the tested deep-suspend transition, but
+global/other-state mutability and the unknown parts of 1b remain.  The bounded
+1b checkpoint is recorded separately; 020K/020L remain host-only/read-only
+static work.
 
 ## Integration validation
 
-The additive V015 bus-vote amendment focused suite is 9/9 PASS, the imported
-V019 synthetic detector/gate suite is 23/23 PASS, and the 1b checkpoint suite
-is 9/9 PASS.  After those files and the documentation updates were present,
-the repository discovery suite was run once serially: **1,275/1,275 PASS**,
-`skipped=1`, elapsed 156.785 s, maximum RSS 357,788 KiB, swap 0, exit status
-0.  `git diff --check` also passed.  No device, USB, reboot, MMIO, SCM,
-protected-memory or partition action occurred during this integration.
+The additive V015 bus-vote amendment focused suite is 9/9 PASS, the V019
+synthetic detector/gate suite is 24/24 PASS, the private-receipt guard is 5/5
+PASS, and the 1b checkpoint suite is 9/9 PASS.  The post-V019 repository suite
+and post-020L suite are recorded in their respective integration reviews;
+`git diff --check` passes for this audit.  This document itself performed no
+device action; the retained V019 transition record states its reversible
+device actions and restoration.

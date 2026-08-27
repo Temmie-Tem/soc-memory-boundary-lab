@@ -38,8 +38,11 @@ than searched for.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import os
 import pathlib
+import stat
 from collections.abc import Sequence
 
 SCHEMA = "a90-suspend-permutation-analysis-v1"
@@ -58,6 +61,39 @@ MIN_SUSPENDED_SECONDS = 1.0
 
 class PermutationError(RuntimeError):
     pass
+
+
+def _read_raw(path: pathlib.Path) -> str:
+    """Read a transcript only from a stable regular file, never a symlink."""
+    try:
+        fd = os.open(path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+                     | getattr(os, "O_CLOEXEC", 0))
+    except OSError as exc:
+        raise PermutationError(f"cannot open raw transcript safely: {exc}") from exc
+    try:
+        before = os.fstat(fd)
+        if not stat.S_ISREG(before.st_mode):
+            raise PermutationError("raw transcript is not a regular file")
+        chunks: list[bytes] = []
+        while True:
+            chunk = os.read(fd, 1 << 20)
+            if not chunk:
+                break
+            chunks.append(chunk)
+        after = os.fstat(fd)
+        if (before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns) != (
+                after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns):
+            raise PermutationError("raw transcript changed during read")
+        payload = b"".join(chunks)
+    finally:
+        os.close(fd)
+    if len(payload) != before.st_size:
+        raise PermutationError("raw transcript size changed during read")
+    hashlib.sha256(payload).hexdigest()  # integrity check is deliberately not published
+    try:
+        return payload.decode()
+    except UnicodeDecodeError as exc:
+        raise PermutationError("raw transcript is not UTF-8") from exc
 
 
 def mix(value: int) -> int:
@@ -267,7 +303,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         raise PermutationError("the synthetic control failed; no device "
                                "transcript may be interpreted by this build")
     if args.raw:
-        result["run"] = analyse(parse(pathlib.Path(args.raw).read_text()))
+        result["run"] = analyse(parse(_read_raw(pathlib.Path(args.raw))))
 
     pathlib.Path(args.output).write_text(json.dumps(result, indent=1) + "\n")
 

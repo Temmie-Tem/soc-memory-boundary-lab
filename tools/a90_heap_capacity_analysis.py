@@ -16,23 +16,94 @@ reported as such rather than reduced to a number.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
+import stat
 from pathlib import Path
 
 SCHEMA = "a90_heap_capacity_v1"
 MIB = 1 << 20
 REOPEN_CONDITION_2_MIB = 512
 ION_HEAP_TYPE_SYSTEM = 0  # page-based; never physically contiguous
+MAX_INPUT_BYTES = 8 << 20
+REPO_ROOT = Path(__file__).resolve().parents[1]
+PROBE_SOURCE_NAME = "a90_heap_capacity_probe.c"
+PROBE_SOURCE_SIZE = 4_176
+PROBE_SOURCE_SHA256 = "26b320115e0a23884e633709a13afa40276c66c0d95c54882bd2399fd31c8876"
+PROBE_SOURCE_PATH = REPO_ROOT / "tools" / PROBE_SOURCE_NAME
+
+# The executed static binary was not retained by the producer.  Keep that
+# limitation explicit while still pinning the exact bytes reported in the
+# retained README and receipt.  The checked-in source is independently read
+# and hashed below; a source drift therefore fails closed.
+EXECUTED_PROBE = {
+    "basename": "heap_cap.c",
+    "size": 706_184,
+    "sha256": "cf0b3caf834213fd0d8db22f09b85e1a58084c94dc69193b49fe141111390457",
+    "retained": False,
+}
+REPRODUCIBLE_PROBE_BUILD = {
+    "basename": "a90_heap_capacity_probe.c",
+    "size": 706_192,
+    "sha256": "d913d633ed5edea38025318658f61b2175318ec1c18ad3859b616f746723fedf",
+    "retained": False,
+    "source_basename_difference_only": True,
+}
 
 
-def load_records(path: Path) -> list[dict]:
-    """Read the ladder through a stable, symlink-refusing descriptor."""
-    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+def _read_stable(path: Path) -> tuple[bytes, dict[str, object]]:
+    """Read and pin one bounded regular file without following a symlink."""
+    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_CLOEXEC", 0)
+    fd = os.open(path, flags)
     try:
-        data = os.read(fd, 1 << 22)
+        before = os.fstat(fd)
+        if not stat.S_ISREG(before.st_mode):
+            raise ValueError(f"{path.name} is not a regular file")
+        if before.st_size < 0 or before.st_size > MAX_INPUT_BYTES:
+            raise ValueError(f"{path.name} exceeds the bounded input size")
+        chunks: list[bytes] = []
+        remaining = before.st_size
+        while remaining:
+            chunk = os.read(fd, min(1 << 20, remaining))
+            if not chunk:
+                raise ValueError(f"{path.name} truncated while being read")
+            chunks.append(chunk)
+            remaining -= len(chunk)
+        after = os.fstat(fd)
     finally:
         os.close(fd)
+    before_key = (before.st_dev, before.st_ino, before.st_size,
+                  before.st_mtime_ns, before.st_ctime_ns)
+    after_key = (after.st_dev, after.st_ino, after.st_size,
+                 after.st_mtime_ns, after.st_ctime_ns)
+    if before_key != after_key:
+        raise ValueError(f"{path.name} changed while being read")
+    data = b"".join(chunks)
+    if len(data) != before.st_size:
+        raise ValueError(f"{path.name} size changed while being read")
+    return data, {
+        "filename": path.name,
+        "size": len(data),
+        "sha256": hashlib.sha256(data).hexdigest(),
+    }
+
+
+def probe_provenance() -> dict[str, object]:
+    """Return mechanically checked source and explicitly attested binaries."""
+    _, source = _read_stable(PROBE_SOURCE_PATH)
+    if source["size"] != PROBE_SOURCE_SIZE or source["sha256"] != PROBE_SOURCE_SHA256:
+        raise ValueError("probe source size/SHA-256 mismatch")
+    return {
+        "source": source,
+        "executed_binary": dict(EXECUTED_PROBE),
+        "reproducible_build": dict(REPRODUCIBLE_PROBE_BUILD),
+    }
+
+
+def load_records_with_pin(path: Path) -> tuple[list[dict], dict[str, object]]:
+    """Read a ladder and return its exact public filename/size/SHA pin."""
+    data, pin = _read_stable(path)
     records = []
     for line in data.decode("utf-8").splitlines():
         line = line.strip()
@@ -44,6 +115,12 @@ def load_records(path: Path) -> list[dict]:
         records.append(record)
     if not records:
         raise ValueError(f"{path.name} holds no records")
+    return records, pin
+
+
+def load_records(path: Path) -> list[dict]:
+    """Read the ladder through a stable, symlink-refusing descriptor."""
+    records, _ = load_records_with_pin(path)
     return records
 
 
@@ -179,7 +256,9 @@ def main() -> int:
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
 
-    reductions = [analyse(load_records(path)) for path in args.raw]
+    loaded = [load_records_with_pin(path) for path in args.raw]
+    reductions = [analyse(records) for records, _ in loaded]
+    provenance = probe_provenance()
     first = reductions[0]
     for path, other in zip(args.raw[1:], reductions[1:]):
         for name, result in other["heaps"].items():
@@ -197,7 +276,10 @@ def main() -> int:
     best = max(reductions, key=lambda r: len(next(iter(r["heaps"].values()))["sizes_tested_mib"])
                if r["heaps"] else 0)
     best["ladders_reduced"] = len(reductions)
-    best["inputs"] = [p.name for p in args.raw]
+    best["inputs"] = {
+        "raw_ladders": [pin for _, pin in loaded],
+        "probe": provenance,
+    }
 
     for name, result in best["heaps"].items():
         if not result["attempted"]:

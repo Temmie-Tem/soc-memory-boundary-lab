@@ -2,13 +2,12 @@
 
 ## What this closes
 
-The current branch records V019 as `SUPPORTED_EXTERNAL_MANIFEST_ONLY` because
-the private raw suspend receipt was absent, and
-`docs/EXTERNAL_LINE_INTEGRATION_2026-08-27.md` scopes that label as *pending
-raw-receipt retention*.  That condition is now met twice over: the original
-receipt is retained, and an independent second suspend was acquired on the
-device.  This document states only what a verifier can re-check; it does not
-itself change a status field.
+The branch now records V019 as `PROVED`/`REFUTED` only within the retained
+deep-suspend transition and offset domain.  The former
+`SUPPORTED_EXTERNAL_MANIFEST_ONLY` label was a retention gap; that gap is now
+closed because the original receipt is retained and an independent second
+suspend was acquired on the device.  This document states the evidence and
+its bounded scope; the integration review and root rows carry the status.
 
 ## Root cause of the absence
 
@@ -114,5 +113,7 @@ no boundary-bypass indicator appeared in either run.
 2. The retained run-1 receipt regenerates manifest `…-01` byte for byte.
 3. Manifest `…-02` regenerates from the run-2 receipt, and its synthetic
    positive control still reports `MAP_CHANGED` with all moves decoded.
-4. Whether `SUPPORTED_EXTERNAL_MANIFEST_ONLY` should now be replaced, and with
-   what — that judgement is the integrator's, not this document's.
+4. Confirm that root rows retain the bounded status: `PROVED` for the two
+   retained zero-move receipts and `REFUTED` for a map change during this
+   tested deep-suspend transition, while other transitions and global
+   mutability remain `UNKNOWN`.

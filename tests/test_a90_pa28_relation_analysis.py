@@ -43,10 +43,13 @@ def _synthetic(winner: int | None, *, controls_fire: bool = True,
 
     def emit(difference: int, delta: int, isolate: bool = True) -> None:
         for index in range(8):
+            offset = 0x1000 * (index + 1)
+            pa_a = pa.EXPECTED_BASE + offset
+            pa_b = pa.EXPECTED_BASE + (offset ^ difference)
             records.append({
                 "schema": pa.SCHEMA, "type": "pair", "value": hex(difference),
-                "offset": hex(0x1000 * (index + 1)),
-                "pa_a": "0xc2001000", "pa_b": "0xd2001000",
+                "offset": hex(offset),
+                "pa_a": hex(pa_a), "pa_b": hex(pa_b),
                 "pa_xor": hex(difference) if isolate else hex(difference ^ 0x40),
                 "delta": delta})
         records.append({"schema": pa.SCHEMA, "type": "difference",
@@ -120,6 +123,152 @@ class Gates(unittest.TestCase):
             link.symlink_to(real)
             with self.assertRaises(OSError):
                 pa.load(link)
+
+    def test_non_regular_receipt_is_refused(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(ValueError):
+                pa.load(Path(tmp))
+
+    def test_same_size_pa_xor_mutations_fail_closed(self) -> None:
+        rows = _synthetic(pa.PA28 ^ 0x4000)
+        pair = next(row for row in rows if row["type"] == "pair")
+        pair["pa_a"] = hex(int(pair["pa_a"], 16) ^ 0x1000)
+        self.assertFalse(pa.verify_pairs(rows)["all_pairs_isolate_their_difference"])
+
+
+class ProbeSafety(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.source = (REPO_ROOT / "tools" / "a90_pa28_probe.c").read_text()
+
+    def test_pointer_formation_follows_range_and_carry_gates(self) -> None:
+        range_check = self.source.index("if (a > bytes - PAGE_BYTES")
+        carry_check = self.source.index("if (base > UINT64_MAX - a")
+        pointer_formation = self.source.index("const uint8_t *pa = map + a;")
+        self.assertLess(range_check, pointer_formation)
+        self.assertLess(carry_check, pointer_formation)
+        self.assertEqual(self.source.count("const uint8_t *pa = map + a;"), 1)
+
+    def test_probe_surface_is_fixed_and_ion_path_is_bounded(self) -> None:
+        for snippet in (
+            '#define EXPECTED_HEAP_NAME "camera_preview"',
+            "#define EXPECTED_MIB UINT64_C(320)",
+            "#define EXPECTED_REPETITIONS 201U",
+            "#define EXPECTED_PAIRS 256U",
+            "#define EXPECTED_CPU 7U",
+            '#define EXPECTED_BASE UINT64_C(0xc2000000)',
+            'strcmp(offset_mode, "spread") != 0',
+            "static int safe_ion_path(const char *path)",
+            'strcmp(path + sizeof(prefix) - 1U, "..") == 0',
+            "O_NOFOLLOW",
+            'selected->type != EXPECTED_HEAP_TYPE',
+            'selected->heap_id != EXPECTED_HEAP_ID',
+            'allocation.heap_id_mask = UINT32_C(1) << EXPECTED_HEAP_ID',
+            "static int allowed_difference(uint64_t difference)",
+        ):
+            self.assertIn(snippet, self.source)
+
+    def test_difference_list_is_bounded_before_device_open(self) -> None:
+        allowlist = self.source.index("static int allowed_difference")
+        validation = self.source.index("difference is outside the fixed 022 allowlist")
+        device_open = self.source.index("ion_fd = open(ion_path")
+        self.assertLess(allowlist, validation)
+        self.assertLess(validation, device_open)
+
+
+class CanonicalHardening(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        if not (EXISTENCE.exists() and IDENTIFICATION.exists()):
+            raise unittest.SkipTest("retained PA28 receipts are absent on this host")
+        cls.existence, cls.existence_pin = pa.load(
+            EXISTENCE, phase="existence", canonical=True
+        )
+        cls.identification, cls.identification_pin = pa.load(
+            IDENTIFICATION, phase="identification", canonical=True
+        )
+
+    def test_canonical_phase_cardinality_and_target_controls_pass(self) -> None:
+        pa.validate_phase_records(self.existence, "existence")
+        pa.validate_phase_records(self.identification, "identification")
+        self.assertEqual(self.existence_pin["size_bytes"], 194481)
+        self.assertEqual(self.identification_pin["size_bytes"], 283197)
+
+    def test_missing_candidate_or_control_phase_fails_closed(self) -> None:
+        missing_candidate = [
+            row for row in self.identification
+            if not (row["type"] == "difference" and row["value"] == "0x10004000")
+        ]
+        with self.assertRaisesRegex(ValueError, "cardinality"):
+            pa.validate_phase_records(missing_candidate, "identification")
+        missing_control = [
+            row for row in self.existence
+            if not (row["type"] == "difference" and row["value"] == "0x2000")
+        ]
+        with self.assertRaisesRegex(ValueError, "cardinality"):
+            pa.validate_phase_records(missing_control, "existence")
+
+    def test_base_plus_offset_and_second_pointer_are_recomputed(self) -> None:
+        rows = [dict(row) for row in self.existence]
+        pair = next(row for row in rows if row["type"] == "pair")
+        pair["pa_b"] = hex(int(pair["pa_b"], 16) ^ 0x1000)
+        with self.assertRaisesRegex(ValueError, "pa_b"):
+            pa.validate_phase_records(rows, "existence")
+        rows = [dict(row) for row in self.existence]
+        pair = next(row for row in rows if row["type"] == "pair")
+        pair["offset"] = hex(int(pair["offset"], 16) ^ 0x1000)
+        with self.assertRaisesRegex(ValueError, "pa_a"):
+            pa.validate_phase_records(rows, "existence")
+        rows = [dict(row) for row in self.existence]
+        pair = next(row for row in rows if row["type"] == "pair")
+        pair["offset"] = hex(pa.EXPECTED_ALLOCATION_BYTES)
+        with self.assertRaisesRegex(ValueError, "outside allocation"):
+            pa.validate_phase_records(rows, "existence")
+
+    def test_canonical_raw_pin_and_dependency_drift_fail_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            raw = root / EXISTENCE.name
+            raw.write_bytes(EXISTENCE.read_bytes() + b" ")
+            with self.assertRaises(ValueError):
+                pa.load(raw, phase="existence", canonical=True)
+            dep = root / pa.DEPENDENCY_020M_PATH.name
+            dep.write_bytes(pa.DEPENDENCY_020M_PATH.read_bytes()[:-2] + b"  \n")
+            with self.assertRaises(ValueError):
+                pa.load_dependency(dep, pa.DEPENDENCY_020M_PIN, "020M")
+            dep021 = root / pa.DEPENDENCY_021_PATH.name
+            original021 = pa.DEPENDENCY_021_PATH.read_bytes()
+            dep021.write_bytes(original021[:-1] + (b" " if original021[-1:] != b" " else b"\n"))
+            with self.assertRaises(ValueError):
+                pa.load_dependency(dep021, pa.DEPENDENCY_021_PIN, "021")
+
+    def test_redacted_regeneration_keeps_provenance_unknown_and_model_supported(self) -> None:
+        result = pa.build_public_manifest([EXISTENCE, IDENTIFICATION])
+        self.assertEqual(result["result_disposition"], "SUPPORTED_MODEL_EXTENSION")
+        self.assertEqual(result["claim_disposition"]["model_extension"], "SUPPORTED")
+        self.assertEqual(result["claim_disposition"]["alias"], "UNKNOWN_NOT_TESTED")
+        self.assertEqual(result["provenance"]["target"]["status"], "UNKNOWN_UNRETAINED")
+        rendered = json.dumps(result, sort_keys=True)
+        self.assertNotIn(str(REPO_ROOT / "evidence/private"), rendered)
+        self.assertNotIn("payload_base64", rendered)
+
+    def test_manifest_dependencies_include_exact_probe_provenance_pins(self) -> None:
+        result = pa.build_public_manifest([EXISTENCE, IDENTIFICATION])
+        self.assertEqual(
+            result["inputs"]["probe_source"]["sha256"],
+            pa.PROBE_SOURCE_PIN["sha256"],
+        )
+        self.assertEqual(
+            result["inputs"]["probe_binary"]["status"], "NOT_RETAINED"
+        )
+        self.assertEqual(
+            result["inputs"]["dependency_021"]["sha256"],
+            pa.DEPENDENCY_021_PIN["sha256"],
+        )
+        self.assertEqual(
+            result["inputs"]["dependency_020m"]["sha256"],
+            pa.DEPENDENCY_020M_PIN["sha256"],
+        )
 
 
 class RetainedResult(unittest.TestCase):

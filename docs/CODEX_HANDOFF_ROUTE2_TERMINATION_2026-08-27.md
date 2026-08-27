@@ -170,10 +170,12 @@ not a global Qualcomm or AMD non-vulnerability claim.
 The external `research/xbl-config-cdt@99eb1dc` line has been audited against
 the current repaired branch.  Its additive literature review, remaining-route
 analysis and V019 public analyzer are integrated without replacing the repaired
-015/016/017/018 implementations.  V019 is currently
-`SUPPORTED_EXTERNAL_MANIFEST_ONLY`: its public manifest reports a corroborated
-deep-suspend null, but the private raw receipt is not present in this worktree.
-The complete commit-by-commit disposition is in
+015/016/017/018 implementations.  V019 now has retained original and
+independent second-run receipts: both corroborated deep-suspend runs report a
+bounded null in the declared offset domain.  The status is therefore
+`PROVED`/`REFUTED` only for that transition and domain; other transitions,
+complete coordinates and global mutability remain `UNKNOWN`.  The complete
+commit-by-commit disposition is in
 `docs/EXTERNAL_LINE_INTEGRATION_2026-08-27.md`.
 
 The 1b checkpoint is explicit: for the eight known remapper/BIMC candidates,

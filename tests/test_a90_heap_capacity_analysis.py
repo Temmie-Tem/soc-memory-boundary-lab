@@ -9,6 +9,7 @@ negative control.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import sys
@@ -114,6 +115,25 @@ class RecordValidation(unittest.TestCase):
             with self.assertRaises(OSError):
                 cap.load_records(link)
 
+    def test_load_records_with_pin_reports_exact_receipt_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "receipt.jsonl"
+            p.write_text(json.dumps(_ladder("h", [(256, True)])[0]) + "\n")
+            records, pin = cap.load_records_with_pin(p)
+            self.assertEqual(len(records), 1)
+            self.assertEqual(pin["filename"], p.name)
+            self.assertEqual(pin["size"], p.stat().st_size)
+            self.assertEqual(pin["sha256"], hashlib.sha256(p.read_bytes()).hexdigest())
+
+    def test_probe_source_pin_fails_closed_on_expected_hash_drift(self) -> None:
+        original = cap.PROBE_SOURCE_SHA256
+        cap.PROBE_SOURCE_SHA256 = "0" * 64
+        try:
+            with self.assertRaises(ValueError):
+                cap.probe_provenance()
+        finally:
+            cap.PROBE_SOURCE_SHA256 = original
+
 
 class RetainedResult(unittest.TestCase):
     def setUp(self) -> None:
@@ -157,6 +177,19 @@ class RetainedResult(unittest.TestCase):
         for key in ("reopen_condition_2", "largest_non_secure_ceiling_mib",
                     "max_xor_bit_upper_bound", "instrument_ok"):
             self.assertEqual(published[key], recomputed[key], key)
+
+    def test_manifest_pins_receipts_and_probe_provenance(self) -> None:
+        if not MANIFEST.exists():
+            self.skipTest("manifest absent")
+        published = json.loads(MANIFEST.read_text())
+        inputs = published["inputs"]
+        self.assertEqual(
+            {item["filename"] for item in inputs["raw_ladders"]},
+            {"heap-capacity-coarse.jsonl", "heap-capacity-fine.jsonl"},
+        )
+        self.assertEqual(inputs["probe"]["source"]["sha256"], cap.PROBE_SOURCE_SHA256)
+        self.assertFalse(inputs["probe"]["executed_binary"]["retained"])
+        self.assertEqual(inputs["probe"]["executed_binary"]["sha256"], cap.EXECUTED_PROBE["sha256"])
 
 
 if __name__ == "__main__":
