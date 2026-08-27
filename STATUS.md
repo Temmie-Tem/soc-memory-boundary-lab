@@ -1246,6 +1246,22 @@ Focused tests are 11/11 and the full serial suite is 1,216/1,216 PASS
 (`skipped=1`) in 140.860 seconds, maximum RSS 349,728 KiB, zero swap.  The
 next scored candidate is a bounded caller-context/entry-role trace (020I).
 
+Verification 020I is now complete.  The exact 020H role manifest exposes 20
+unique block-entry direct-BL source/target edges.  A strict backward window of
+at most 16 instructions yields 12 `CALLER_CONTEXT_UNSUPPORTED`, 6
+`ARGUMENT_OR_UNKNOWN`, and 2 `ARGUMENT_COPY_OR_CONSTANT` rows.  Static-slot
+origin was not reached in these windows; this is not a global absence claim.
+True function boundaries, runtime execution/currentness/values, indirect
+callers/callee effects, object semantics, MMIO/physical/DRAM identity,
+mutability, protected reach and alias/bypass remain `UNKNOWN`.  Class C and
+`NOT_ELIGIBLE` remain unchanged; no device action occurred.  The manifest is
+12,472 bytes, mode `0644`, SHA-256
+`03c463f667142a21641264ec2e4080d9d5f963c67776037ca9d6194a8a621608`.
+Focused tests are 11/11 and the full serial suite is 1,227/1,227 PASS
+(`skipped=1`) in 151.571 seconds, maximum RSS 356,228 KiB, zero swap.  The
+next scored candidate is a bounded caller-context barrier/opcode inventory
+(020J).
+
 ## N. 가장 위험한 아직 금지된 실험
 
 Treating a section-16 offset token as a byte offset and writing the resulting

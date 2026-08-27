@@ -546,6 +546,20 @@ tests are 11/11 and the full serial suite is 1,216/1,216 PASS (`skipped=1`) in
 140.860 seconds, maximum RSS 349,728 KiB, zero swap.  The next discriminator
 is a bounded caller-context/entry-role trace (020I).
 
+Verification 020I then checked 20 exact direct-BL source/target edges from the
+020H block-entry census and traced at most 16 preceding instructions per source.
+Twelve windows stop on unsupported forms, six remain `ARGUMENT_OR_UNKNOWN`,
+and two are `ARGUMENT_COPY_OR_CONSTANT`; static-slot-origin evidence is not
+reached in the bounded caller windows.  This is not a true-function or global
+writer/consumer proof.  Runtime execution/currentness/values, indirect
+effects, MMIO/physical/DRAM identity, mutability, protected reach and
+alias/bypass remain `UNKNOWN`.  Class C and `NOT_ELIGIBLE` remain unchanged,
+and no device action occurred.  The manifest is 12,472 bytes, mode `0644`,
+SHA-256 `03c463f667142a21641264ec2e4080d9d5f963c67776037ca9d6194a8a621608`;
+focused tests are 11/11 and the full serial suite is 1,227/1,227 PASS
+(`skipped=1`) in 151.571 seconds, maximum RSS 356,228 KiB, zero swap.  The
+next discriminator is a bounded caller-context barrier/opcode inventory (020J).
+
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside
 `DC_NOC_NON_BROADCAST_MPU`, `MEMNOC_MS_MPU`, and `CNOC_SNOC_MS_MPU` regions.

@@ -633,6 +633,27 @@ Focused tests are 11/11 and the full serial suite is 1,216/1,216 PASS
 (`skipped=1`) in 140.860 seconds, maximum RSS 349,728 KiB, zero swap.  The
 next candidate is a bounded caller-context/entry-role trace (020I).
 
+Verification 020I completed a bounded caller-context census over the exact 20
+direct-BL sources reported by 020H.  Each source/target edge was checked in
+the exact XBL and traced backward for at most 16 instructions, stopping at
+strict RET X30, direct B/BL, segment boundaries, window limits, or unsupported
+forms.  Twelve rows stopped unsupported, six remained `ARGUMENT_OR_UNKNOWN`,
+and two were `ARGUMENT_COPY_OR_CONSTANT`; no static-slot-origin caller was
+reached in these windows.  This is a bounded negative/unknown result, not a
+global absence proof.  True function boundaries, runtime values,
+MMIO/physical/DRAM identity, mutability, protected reach and alias/bypass
+remain `UNKNOWN`; Class C and `NOT_ELIGIBLE` remain unchanged, with no device
+action.  The experiment, contract, review and manifest are
+[documented](experiments/verification-020I-static-slot-caller-context-entry-role/README.md),
+[contracted](docs/VERIFICATION020I_CONTRACT_2026-08-27.md),
+[reviewed](docs/VERIFICATION020I_INTEGRATION_REVIEW_2026-08-27.md), and
+[published](evidence/manifests/020I-static-slot-caller-context-entry-role-20260827-01.manifest.json).
+The manifest is 12,472 bytes, mode `0644`, SHA-256
+`03c463f667142a21641264ec2e4080d9d5f963c67776037ca9d6194a8a621608`.
+Focused tests are 11/11 and the full serial suite is 1,227/1,227 PASS
+(`skipped=1`) in 151.571 seconds, maximum RSS 356,228 KiB, zero swap.  The
+next candidate is a bounded caller-context barrier/opcode inventory (020J).
+
 Claim vocabulary is deliberately closed:
 
 - `PROVED`: directly demonstrated by named source, artifact, or repeated result.

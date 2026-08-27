@@ -32,8 +32,9 @@
 | 020F-LU | Do the twelve 020E slot loads feed pointer/address formation, stores, predicates, or returns? | `PROVED` within the finite model: 16 recognized downstream use events and 11 barriers across 16-instruction same-block windows; no tainted direct store reached. | Exact XBL plus mechanically hash-pinned 020E manifest; strict LDR/STR, register-offset, ADD/SUB, MADD, MOV, predicate, control and call-preservation model; X30 caller-saved, MOVK fail-closed, CBNZ/TBNZ covered; no device/SMC/MMIO/write. | `SUPPORTED` local address/arithmetic uses only; global writer/consumer absence, ABI/runtime values/currentness, slot semantics, physical/DRAM mapping, mutability, protected reach and alias/bypass `UNKNOWN`; `CLASS C`, `NOT_ELIGIBLE`. |
 | 020G-PO | Do the exact 020F address-use events resolve to bounded pointer/object shapes? | `PROVED` within the finite model: 12 witnesses, consisting of 10 immediate object-field-shaped accesses (7 `LDR`, 3 `STR`) and 2 `UXTX` register-offset array-element-shaped loads; 11 unique access VAs and 1 duplicate witness. | Exact XBL plus mechanically hash-pinned 020F manifest; strict unsigned scalar and `UXTX` register-offset decoders at the exact event VAs; no runtime pointer/physical/MMIO/DRAM promotion or device/SMC/write. | `SUPPORTED` local pointer/object/array shape only; runtime base/currentness, object semantics, global writer/consumer absence, mutability, protected reach and alias/bypass remain `UNKNOWN`; `CLASS C`, `NOT_ELIGIBLE`. |
 | 020H-FR | Do the exact 020G witnesses belong to bounded local function/role blocks with statically recoverable base origins? | `PROVED` within the finite model: 12 witnesses group into 11 unique access VAs and 7 return/direct-branch-delimited blocks; 9 blocks contain unsupported forms and 2 are local-read-shaped. Ten unique bases are `STATIC_SLOT_SEED`; indexed `0x9fc26ea0` is `ARITHMETIC_DERIVED` from `MADD`. | Exact XBL plus mechanically hash-pinned 020G manifest and 220-byte role region; strict RET X30/direct-B/direct-BL and bounded base decoders; no true-function/PA/DRAM/MMIO promotion or device/SMC/write. | `SUPPORTED` local helper/object role consistency only; true function boundaries, runtime/global/physical semantics, mutability, protected reach and alias/bypass remain `UNKNOWN`; `CLASS C`, `NOT_ELIGIBLE`. |
+| 020I-CE | Do the exact 020H block-entry direct-BL sources reveal a bounded caller-context or argument-origin role? | `PROVED` within the finite model: 20 unique source/target BL edges traced for at most 16 preceding instructions; 12 windows stop on unsupported forms, 6 remain `ARGUMENT_OR_UNKNOWN`, and 2 are `ARGUMENT_COPY_OR_CONSTANT`. No static-slot-origin caller was reached. | Exact XBL plus mechanically hash-pinned 020H manifest; strict RET X30/direct-B/BL, scalar/register-offset memory, ADRP, ADD/SUB, MADD and MOV decoders; no true-function/PA/DRAM/MMIO promotion or device/SMC/write. | `SUPPORTED` caller-context shape only; runtime/true-function/global/physical semantics, mutability, protected reach and alias/bypass remain `UNKNOWN`; `CLASS C`, `NOT_ELIGIBLE`. |
 
-## Integrated host-only rows 019–022, 024–027, 029, 031–033, 020E, 020F, 020G and 020H
+## Integrated host-only rows 019–022, 024–027, 029, 031–033, 020E, 020F, 020G, 020H and 020I
 
 | ID | Question | Bounded result | Classification and boundary |
 |---:|---|---|---|
@@ -131,8 +132,10 @@ consumer census (020E), now complete; 020F then traced the twelve resulting
 loads through bounded same-block use chains; 020G then resolved its address-use
 events to 12 bounded pointer/object witnesses (10 immediate and 2 `UXTX`
 register-offset, with 11 unique VAs and 1 duplicate witness); 020H then
-grouped them into 7 bounded local blocks and classified their base origins.
-The next candidate is a bounded caller-context/entry-role trace (020I).
+grouped them into 7 bounded local blocks and classified their base origins;
+020I then checked 20 direct-BL caller contexts with 12 unsupported stops, 6
+unknown and 2 argument-shaped rows.  The next candidate is a bounded
+caller-context barrier/opcode inventory (020J).
 Experiment 035 remains deferred.
 
 The Stage 2E row's writeback result is an exact audit of all recognized
@@ -1259,6 +1262,31 @@ Validation is 11 focused and 1,216 full serial unittest PASS (`skipped=1`) in
 140.860 seconds, maximum RSS 349,728 KiB, zero swap, with deterministic
 regeneration, redaction, no-clobber, and independent hostile-review `PASS`.
 The next scored candidate is a bounded caller-context/entry-role trace (020I).
+
+## Experiment 020I caller-context/entry-role metadata
+
+Verification 020I re-decodes the exact 020H role rows and verifies 20 unique
+block-entry direct-BL source/target edges.  Each source receives a backward
+window of at most 16 instructions with strict RET X30, direct-B/BL, scalar or
+UXTX memory, ADRP, ADD/SUB, MADD and MOV decoders; unsupported forms stop
+fail-closed.  `PROVED`: 20/20 source/target edges and the bounded 12/6/2
+classification split (`CALLER_CONTEXT_UNSUPPORTED`, `ARGUMENT_OR_UNKNOWN`,
+`ARGUMENT_COPY_OR_CONSTANT`).  Static-slot-origin caller evidence is not
+reached in these windows.  `SUPPORTED`: local caller-context shape only.
+`HYPOTHESIS`: some callsites may be initialization/helper paths.
+`UNKNOWN`: true function boundaries, runtime execution/currentness/values,
+indirect effects, object semantics, global writer/consumer absence, ABI
+effects, MMIO/physical/DRAM identity, mutability/locking, protected reach,
+aliasing and bypass.  Class C remains unchanged and 015/016 remain
+`NOT_ELIGIBLE`.
+
+The public manifest is 12,472 bytes, mode `0644`, SHA-256
+`03c463f667142a21641264ec2e4080d9d5f963c67776037ca9d6194a8a621608`.
+Validation is 11 focused and 1,227 full serial unittest PASS (`skipped=1`) in
+151.571 seconds, maximum RSS 356,228 KiB, zero swap, with deterministic
+regeneration, redaction, no-clobber, and independent hostile-review `PASS`.
+The next scored candidate is a bounded caller-context barrier/opcode inventory
+(020J).
 
 ## Integration validation and current reconciliation
 
