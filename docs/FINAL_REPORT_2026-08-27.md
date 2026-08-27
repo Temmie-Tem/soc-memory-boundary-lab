@@ -226,11 +226,13 @@ level.
 - **Rank and channel.** The relation separates selection bits from row bits and
   stops there.
 - **Global reachability.** Eight known apertures were covered in both selector
-  branches, and Verification 025 decoded the complete MPU region set (164 of 164
-  MPU regions, both branches). The 1,465 regions belonging to the 26 non-MPU
-  instance classes remain undecoded — their record layout is not established.
-  Undiscovered apertures are not excluded; static policy coverage must not be
-  restated as global writer absence.
+  branches, and Verifications 025–026 decoded **every one of the 1,726 declared
+  policy records**: 299 address-range records and 1,427 resource-slot records
+  that carry no address at all. Of the 109 real address regions, 21 grant HLOS
+  access — all in IMEM, AOSS and the PMIC arbiter, none overlapping the
+  remapper, BIMC, SHRM, MCCC, the `0x09000000..0x09800000` band or DRAM.
+  Undiscovered apertures are still not excluded; static policy coverage must not
+  be restated as global writer absence.
 - **Other configurations.** One load, one address, two debug levels. Other dump
   sinks, force-upload states and apertures are untested.
 - **Untriggered state changes.** Modem SSR and AOP-driven retraining are closed

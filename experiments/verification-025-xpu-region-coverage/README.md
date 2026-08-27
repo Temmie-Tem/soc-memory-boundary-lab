@@ -3,6 +3,16 @@
 **Result: `0x17c00000` is protected. The prior `UNKNOWN` was an artifact of this
 project's own extraction scope, not a property of the target.**
 
+> **Superseded in part by Verification 026 (2026-08-27).** The query answers
+> below all stand and were reconfirmed. Two things in this record are wrong:
+> the `*_MPU` name heuristic wrongly excluded `CFG_SSC`, `BOOT_ROM` and
+> `PMIC_ARB`, which do use address records; and the unused-slot test keyed on
+> the magic value `0xffffffff` rather than on zero width, so **60 zero-width
+> filler entries were counted as regions**. The corrected figures are 109 real
+> address regions (not 164) and 190 unused slots, and the 1,465 records left
+> `UNKNOWN` below are now decoded — they carry no address at all. See
+> `experiments/verification-026-xpu-record-layouts/README.md`.
+
 Host-only. No device, USB, MMIO, SMC, SCM, controller or protected-memory
 access; no firmware bytes emitted. `CLASS C (TRANSFORM ONLY)` / `NOT_ELIGIBLE`
 unchanged.

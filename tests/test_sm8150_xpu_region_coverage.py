@@ -10,6 +10,7 @@ close exactly.
 from __future__ import annotations
 
 import json
+import struct
 import unittest
 from pathlib import Path
 
@@ -113,12 +114,20 @@ class LayoutGuard(unittest.TestCase):
         self.assertEqual(0, len(unused))
 
     def test_unused_slots_are_counted_not_decoded(self) -> None:
-        regions = [{"ordinal": 0, "flags": 9, "read_vmid": 0, "write_vmid": 0,
-                    "start": cov.UNUSED_SLOT_MARKER,
-                    "end_exclusive": cov.UNUSED_SLOT_MARKER}]
-        decoded, unused, _ = self._walk_with(regions)
-        self.assertEqual([], decoded)
-        self.assertEqual(1, len(unused))
+        """Zero width, not a magic value.  The filler differs per instance:
+        0xffffffff in CFG_SSC, 0x3ffff in BOOT_ROM, 0xfffffff in PMIC_ARB."""
+        for filler in (cov.UNUSED_SLOT_MARKER, 0x3FFFF, 0xFFFFFFF, 0x0):
+            regions = [{"ordinal": 0, "flags": 9, "read_vmid": 0, "write_vmid": 0,
+                        "start": filler, "end_exclusive": filler}]
+            decoded, unused, _ = self._walk_with(regions)
+            self.assertEqual([], decoded, f"filler 0x{filler:x} decoded as a region")
+            self.assertEqual(1, len(unused))
+
+    def test_a_zero_width_entry_can_never_answer_a_query(self) -> None:
+        """V025 counted 60 of these as regions; a zero-width span protects
+        nothing and must not be able to cover an address."""
+        zero = _region(0x17C00000, 0x17C00000)
+        self.assertFalse(cov.answer_query([zero], 0x17C00000, 0x17C01000)["covered"])
 
     def _walk_with(self, records):
         original = cov.parse_mpu_regions
@@ -127,19 +136,31 @@ class LayoutGuard(unittest.TestCase):
             descriptors = [{"name": "CNOC_AOSS_MPU", "base": 0x1526000,
                             "resource_id": 0x39, "region_count": len(records),
                             "region_vaddr": 0x1000}]
-            return cov.walk_branch(b"", [], descriptors)
+            return cov.walk_branch(
+                b"", [], descriptors, {"CNOC_AOSS_MPU": cov.ADDRESS_RECORD_SIZE}
+            )
         finally:
             cov.parse_mpu_regions = original
 
-    def test_non_mpu_instances_are_reported_not_dropped(self) -> None:
-        descriptors = [{"name": "TLMM_XPU_SOUTH", "base": 0x3C00000,
-                        "resource_id": 0x36, "region_count": 206,
-                        "region_vaddr": 0x1000}]
-        decoded, unused, skipped = cov.walk_branch(b"", [], descriptors)
+    def test_slot_table_yields_slot_records_with_no_address(self) -> None:
+        raw = struct.pack("<IIII", 0x0C, 0x09, 0x40000000, 0x40000000) * 3
+        original = cov.read_vaddr
+        cov.read_vaddr = lambda *a, **k: raw
+        try:
+            descriptors = [{"name": "TLMM_XPU_SOUTH", "base": 0x3C00000,
+                            "resource_id": 0x36, "region_count": 3,
+                            "region_vaddr": 0x1000}]
+            decoded, unused, slots = cov.walk_branch(
+                b"", [], descriptors, {"TLMM_XPU_SOUTH": cov.SLOT_RECORD_SIZE}
+            )
+        finally:
+            cov.read_vaddr = original
         self.assertEqual([], decoded)
-        self.assertEqual(1, len(skipped))
-        self.assertEqual(206, skipped[0]["region_count"])
-        self.assertIn("UNKNOWN", skipped[0]["reason"])
+        self.assertEqual(3, len(slots))
+        for record in slots:
+            self.assertNotIn("start", record)
+            self.assertNotIn("end_exclusive", record)
+            self.assertEqual(0x0C, record["slot_index"])
 
 
 class PinnedInputs(unittest.TestCase):
@@ -171,12 +192,28 @@ class LiveWalk(unittest.TestCase):
         cls.result = cov.build(TZ)
 
     def test_accounting_closes_in_both_branches(self) -> None:
+        """Every declared record lands in exactly one bucket."""
         for name, branch in self.result["branches"].items():
             self.assertEqual(
-                branch["mpu_regions_declared"],
-                branch["regions_decoded"] + branch["unused_slots"],
+                branch["records_declared"],
+                branch["regions_decoded"]
+                + branch["address_table"]["unused_slots"]
+                + branch["slot_table"]["records"],
                 f"{name} accounting does not close",
             )
+
+    def test_nothing_is_left_undecoded(self) -> None:
+        for branch in self.result["branches"].values():
+            self.assertNotIn("not_decoded", branch)
+            self.assertFalse(branch["slot_table"]["carries_addresses"])
+
+    def test_size_classification_beats_the_name_heuristic(self) -> None:
+        """CFG_SSC, BOOT_ROM and PMIC_ARB use address records despite the name."""
+        for branch in self.result["branches"].values():
+            names = set(branch["address_table"]["instance_names"])
+            for extra in ("CFG_SSC", "BOOT_ROM", "PMIC_ARB"):
+                self.assertIn(extra, names)
+                self.assertFalse(cov.is_mpu_class(extra))
 
     def test_no_implausible_record_survives(self) -> None:
         for branch in self.result["branches"].values():
@@ -208,17 +245,15 @@ class LiveWalk(unittest.TestCase):
         for name, answers in self.result["branch_agreement"].items():
             self.assertEqual(1, len(answers), f"{name} differs between branches")
 
-    def test_undecoded_classes_are_disclosed(self) -> None:
+    def test_slot_records_exist_and_carry_no_address(self) -> None:
         for branch in self.result["branches"].values():
-            undecoded = branch["not_decoded"]
-            self.assertGreater(undecoded["instances"], 0)
-            self.assertGreater(undecoded["regions_declared"], 0)
-            self.assertIn("UNKNOWN", undecoded["reason"])
+            self.assertGreater(branch["slot_table"]["records"], 1000)
+            self.assertGreater(branch["slot_table"]["instances"], 15)
 
     def test_prior_scope_is_recorded(self) -> None:
-        self.assertEqual(
-            5, self.result["prior_extraction_scope"]["regions_decoded_by_verification_009"]
-        )
+        scope = self.result["prior_extraction_scope"]
+        self.assertEqual(5, scope["regions_decoded_by_verification_009"])
+        self.assertEqual(261, scope["address_records_decoded_by_verification_025"])
 
     def test_no_device_or_firmware_emission(self) -> None:
         self.assertFalse(self.result["device_access"])

@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import struct
 import json
 import os
 import sys
@@ -34,8 +35,9 @@ from tools.sm8150_xpu_policy_inventory import (
     region_contains,
 )
 from tools.xbl_dcb_inventory import parse_elf64_load_segments
+from tools.xbl_memory_pipeline_inventory import read_vaddr
 
-SCHEMA = "sm8150-xpu-region-coverage-v1"
+SCHEMA = "sm8150-xpu-region-coverage-v2"
 
 # The exact Verification 009 TrustZone input.  Pinned so a coverage claim can
 # never silently drift to another build.
@@ -56,11 +58,20 @@ POLICY_MANIFEST_SHA256 = (
 MAX_REGIONS_PER_INSTANCE = 4096
 MPU_REGION_RECORD_SIZE = 32
 
-# The 32-byte `<IIIIQQ` record that Verification 009 validated is the *MPU*
-# region layout.  Applying it to the XPU/RPU/APU/BAM instances produces
-# 717 records with ends above 2^40 and 710 table pointers outside the image --
-# that is a wrong layout, not a policy finding.  Those classes are reported as
-# undecoded rather than decoded into noise.
+# Two record layouts share this table, and the instance *name* does not
+# determine which.  Verification 025 classified by the `_MPU` suffix, which is
+# right for 18 instances but silently excluded CFG_SSC, BOOT_ROM and PMIC_ARB --
+# 38 address-range records, five of them real regions.  The record size is
+# recoverable exactly, from the spacing between adjacent region tables.
+ADDRESS_RECORD_SIZE = 32   # <IIIIQQ  index, flags, read_vmid, write_vmid, start, end
+SLOT_RECORD_SIZE = 16      # <IIII    index, flags, read_vmid, write_vmid  -- no address
+
+# Slot records carry a small resource index, never an address.  Across all 1,427
+# of them the largest index is 0xcd and the flags take three values, so a table
+# whose rows all satisfy this shape is a slot table.
+SLOT_MAX_INDEX = 0xFFFF
+SLOT_FLAG_VALUES = frozenset({0x09, 0x11, 0x21})
+
 MPU_CLASS_SUFFIX = "_MPU"
 MPU_CLASS_EXTRA = frozenset({"QM_MPU_CFG"})
 
@@ -69,13 +80,80 @@ MPU_CLASS_EXTRA = frozenset({"QM_MPU_CFG"})
 # fail rather than publish.
 IMPLAUSIBLE_END = 1 << 40
 
-# Unused region slots are written as 0xffffffff start and end.  They are counted
-# but never answer a containment query.
+# Unused region slots are written with start == end.  The filler value is *not*
+# constant -- 0xffffffff in CFG_SSC, 0x3ffff in BOOT_ROM, 0xfffffff in PMIC_ARB --
+# so the robust test is the zero width, not any particular magic number.  A
+# zero-width region protects nothing, so it never answers a containment query.
 UNUSED_SLOT_MARKER = 0xFFFFFFFF
 
 
+def is_unused_slot(start: int, end: int) -> bool:
+    return start == end
+
+
 def is_mpu_class(name: str) -> bool:
+    """The Verification 025 name heuristic, retained only for its tests.
+
+    It is conservative -- it under-includes -- but it is not the classifier;
+    `classify_record_sizes` is.
+    """
     return name.endswith(MPU_CLASS_SUFFIX) or name in MPU_CLASS_EXTRA
+
+
+def _looks_like_slot_table(data: bytes, segments: Sequence, vaddr: int, count: int) -> bool:
+    """A slot row is (index, flags, read_vmid, write_vmid) with no address."""
+    try:
+        raw = read_vaddr(data, segments, vaddr, count * SLOT_RECORD_SIZE)
+    except Exception:
+        return False
+    for ordinal in range(count):
+        index, flags, _read, _write = struct.unpack(
+            "<IIII", raw[ordinal * SLOT_RECORD_SIZE : (ordinal + 1) * SLOT_RECORD_SIZE]
+        )
+        if index > SLOT_MAX_INDEX or flags not in SLOT_FLAG_VALUES:
+            return False
+    return True
+
+
+def classify_record_sizes(
+    data: bytes, segments: Sequence, descriptors: Sequence[Mapping]
+) -> dict[str, int]:
+    """Recover each instance's record size from the spacing of adjacent tables.
+
+    The region tables are laid out consecutively, so the distance from one
+    table's pointer to the next divides exactly by the first table's record
+    count.  That gives the record size as a measurement rather than a guess.
+    Tables at the end of a contiguous cluster have no successor; those fall back
+    to the slot-row shape test, and anything still unresolved is reported.
+    """
+    ordered = sorted({(d["region_vaddr"], d["name"], d["region_count"]) for d in descriptors})
+    sizes: dict[str, int] = {}
+    unresolved: list[tuple[int, str, int]] = []
+    for position, (vaddr, name, count) in enumerate(ordered):
+        recovered = None
+        if position + 1 < len(ordered) and count:
+            delta = ordered[position + 1][0] - vaddr
+            if delta > 0 and delta % count == 0:
+                candidate = delta // count
+                if candidate in (SLOT_RECORD_SIZE, ADDRESS_RECORD_SIZE):
+                    recovered = candidate
+        if recovered is None:
+            unresolved.append((vaddr, name, count))
+            continue
+        sizes[name] = recovered
+
+    for vaddr, name, count in unresolved:
+        if count and _looks_like_slot_table(data, segments, vaddr, count):
+            sizes[name] = SLOT_RECORD_SIZE
+        elif is_mpu_class(name):
+            # Named MPU and no successor to measure against.  Verification 025
+            # already decoded this table cleanly at 32 bytes.
+            sizes[name] = ADDRESS_RECORD_SIZE
+        else:
+            raise CoverageError(
+                f"{name} record size is not recoverable from spacing or row shape"
+            )
+    return sizes
 
 # Queried apertures.  `apcs_glb` is the open question Verification 009 could not
 # answer; the others are retained anchors whose expected answer is known, so a
@@ -143,25 +221,49 @@ def instance_descriptors(manifest: Mapping[str, object]) -> dict[str, list[dict]
 
 
 def walk_branch(
-    data: bytes, segments: Sequence, descriptors: Sequence[Mapping]
+    data: bytes,
+    segments: Sequence,
+    descriptors: Sequence[Mapping],
+    sizes: Mapping[str, int] | None = None,
 ) -> tuple[list[dict], list[dict], list[dict]]:
-    """Decode every MPU-class region.  Returns (regions, unused, not_decoded)."""
+    """Decode every region.  Returns (address_regions, unused, slot_records).
+
+    Address-range tables answer containment queries.  Slot tables carry
+    `(index, flags, read_vmid, write_vmid)` and no address at all, so they are
+    decoded and returned but can never place a byte inside a query range.
+    """
+    if sizes is None:
+        sizes = classify_record_sizes(data, segments, descriptors)
     regions: list[dict] = []
     unused: list[dict] = []
-    not_decoded: list[dict] = []
+    slots: list[dict] = []
     for descriptor in descriptors:
         name = descriptor["name"]
-        if not is_mpu_class(name):
-            not_decoded.append(
-                {
-                    "instance": name,
-                    "resource_id": f"0x{descriptor['resource_id']:x}",
-                    "region_count": descriptor["region_count"],
-                    "reason": "non-MPU instance; region record layout is UNKNOWN",
-                }
-            )
-            continue
         if descriptor["region_count"] == 0:
+            continue
+        if sizes[name] == SLOT_RECORD_SIZE:
+            raw = read_vaddr(
+                data,
+                segments,
+                descriptor["region_vaddr"],
+                descriptor["region_count"] * SLOT_RECORD_SIZE,
+            )
+            for ordinal in range(descriptor["region_count"]):
+                index, flags, read_vmid, write_vmid = struct.unpack(
+                    "<IIII",
+                    raw[ordinal * SLOT_RECORD_SIZE : (ordinal + 1) * SLOT_RECORD_SIZE],
+                )
+                slots.append(
+                    {
+                        "instance": name,
+                        "resource_id": f"0x{descriptor['resource_id']:x}",
+                        "ordinal": ordinal,
+                        "slot_index": index,
+                        "flags": f"0x{flags:x}",
+                        "read_vmid": f"0x{read_vmid:08x}",
+                        "write_vmid": f"0x{write_vmid:08x}",
+                    }
+                )
             continue
         records = parse_mpu_regions(
             data, segments, descriptor["region_vaddr"], descriptor["region_count"]
@@ -175,7 +277,7 @@ def walk_branch(
                 "resource_id": f"0x{descriptor['resource_id']:x}",
                 "ordinal": record["ordinal"],
             }
-            if start == UNUSED_SLOT_MARKER and end == UNUSED_SLOT_MARKER:
+            if is_unused_slot(start, end):
                 unused.append(common)
                 continue
             if end < start or end >= IMPLAUSIBLE_END:
@@ -195,7 +297,7 @@ def walk_branch(
                     "write_vmid": f"0x{int(record['write_vmid']):08x}",
                 }
             )
-    return regions, unused, not_decoded
+    return regions, unused, slots
 
 
 def answer_query(regions: Sequence[Mapping], lo: int, hi: int) -> dict:
@@ -255,16 +357,22 @@ def build(tz_path: Path) -> dict:
 
     branches = {}
     for branch, descriptors in instance_descriptors(manifest).items():
-        mpu = [d for d in descriptors if is_mpu_class(d["name"])]
-        declared_mpu = sum(d["region_count"] for d in mpu)
-        regions, unused, not_decoded = walk_branch(tz_data, segments, descriptors)
+        sizes = classify_record_sizes(tz_data, segments, descriptors)
+        declared = sum(d["region_count"] for d in descriptors)
+        regions, unused, slots = walk_branch(tz_data, segments, descriptors, sizes)
 
-        # Every declared MPU slot must be accounted for exactly once.
-        if len(regions) + len(unused) != declared_mpu:
+        # Every declared record must be accounted for exactly once, in one of
+        # the three buckets.  Nothing is left as "not decoded" any more.
+        if len(regions) + len(unused) + len(slots) != declared:
             raise CoverageError(
-                f"{branch}: {len(regions)} decoded + {len(unused)} unused slots "
-                f"!= {declared_mpu} declared MPU regions"
+                f"{branch}: {len(regions)} address + {len(unused)} unused + "
+                f"{len(slots)} slot != {declared} declared records"
             )
+
+        # A slot record has no address, so it cannot answer a containment
+        # query.  Assert the property rather than relying on the walk's shape.
+        if any("start" in record for record in slots):
+            raise CoverageError(f"{branch}: a slot record carries an address field")
 
         queries = {
             name: answer_query(regions, lo, hi) for name, (lo, hi) in QUERIES.items()
@@ -275,15 +383,28 @@ def build(tz_path: Path) -> dict:
                 "the walk does not reproduce the retained Verification 009 result"
             )
 
+        address_instances = sorted(
+            {n for n, s in sizes.items() if s == ADDRESS_RECORD_SIZE}
+        )
+        slot_instances = sorted({n for n, s in sizes.items() if s == SLOT_RECORD_SIZE})
         branches[branch] = {
-            "mpu_instances": len(mpu),
-            "mpu_regions_declared": declared_mpu,
-            "unused_slots": len(unused),
-            "not_decoded": {
-                "instances": len(not_decoded),
-                "regions_declared": sum(n["region_count"] for n in not_decoded),
-                "reason": "non-MPU region record layout is UNKNOWN",
-                "instance_names": sorted(n["instance"] for n in not_decoded),
+            "records_declared": declared,
+            "address_table": {
+                "instances": len(address_instances),
+                "instance_names": address_instances,
+                "records": len(regions) + len(unused),
+                "unused_slots": len(unused),
+            },
+            "slot_table": {
+                "instances": len(slot_instances),
+                "instance_names": slot_instances,
+                "records": len(slots),
+                "carries_addresses": False,
+                "note": (
+                    "(index, flags, read_vmid, write_vmid) per protected resource "
+                    "slot; these records express no address and therefore cannot "
+                    "place any byte inside a containment query"
+                ),
             },
             **reduce_branch(regions),
             "queries": queries,
@@ -315,10 +436,14 @@ def build(tz_path: Path) -> dict:
         },
         "prior_extraction_scope": {
             "regions_decoded_by_verification_009": 5,
+            "address_records_decoded_by_verification_025": 261,
             "note": (
                 "Verification 009 decoded the critical region and its qhs_llcc "
-                "neighbours only.  Absence-of-address claims made against that "
-                "manifest were bounded by extraction scope, not by policy."
+                "neighbours only.  Verification 025 decoded the 18 name-matched "
+                "*_MPU instances and left the rest UNKNOWN.  This pass classifies "
+                "by measured record size instead of by name, which adds CFG_SSC, "
+                "BOOT_ROM and PMIC_ARB to the address tables and resolves every "
+                "remaining record as a slot-permission row carrying no address."
             ),
         },
         "branches": branches,
