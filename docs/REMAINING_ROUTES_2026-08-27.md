@@ -1,10 +1,10 @@
 # The four remaining routes, and what closes each
 
-> Integration note (2026-08-27): this document is imported from the external
-> line.  The V019 public analyzer/manifest is now present, but its private raw
-> suspend receipt is not in this worktree; accordingly the V019 live result is
-> `SUPPORTED_EXTERNAL_MANIFEST_ONLY` in the current branch and does not by
-> itself close reopen condition 3.  See
+> Integration note (2026-08-27): the external V019 analyzer/manifest is now
+> backed by retained regular-file receipts for the original and an independent
+> second deep suspend (`1bc494e`).  Both runs are `MAP_INVARIANT`; the bounded
+> deep-suspend candidate is therefore directly negative, while other state
+> transitions and global mutability remain `UNKNOWN`.  See
 > `docs/VERIFICATION019_INTEGRATION_REVIEW_2026-08-27.md` and
 > `docs/EXTERNAL_LINE_INTEGRATION_2026-08-27.md`.
 
@@ -25,15 +25,45 @@ Only one is closed by the contract alone.
 
 ## 1. PA28 and above
 
-Measuring `f(PA28)` needs two addresses differing in **only** bit 28, so an XOR
-pair must lie inside one contiguous, aligned allocation of 512 MiB. Verification
-016 surveyed the device tree's reserved-memory nodes and tested each ION heap by
-allocation; the largest non-secure result was `camera_preview` at **256 MiB**,
-which varies PA0..PA27 and stops exactly one bit short. `secure_display_region`
-is 160 MiB and secure — allocating from it drives `hyp_assign` and a VMID
-transition, a mandatory pause gate.
+Measuring `f(PA28)` needs two addresses differing in **only** bit 28.
 
-The obvious workaround does not work. Two allocations cannot be stitched
+> **Corrected 2026-08-27.** This section previously asserted that the pair
+> needs a 512 MiB allocation and that the largest non-secure heap yields 256
+> MiB. Both numbers were wrong, and neither was backed by a retained survey.
+> The measurement is now `evidence/manifests/verification-020-heap-capacity-20260827-01.manifest.json`.
+
+Two corrections, of opposite sign:
+
+**The span requirement is 256 MiB, not 512 MiB.** A pair differing in only bit
+28 is `x` and `x + 2^28`, so the span must *exceed* `2^28` = 256 MiB — it does
+not have to reach `2^29`. The 512 MiB figure was the *base-independent* bound,
+the same aligned-versus-arbitrary distinction that Verification 017 turned on:
+512 MiB aligned guarantees such a pair exists, while a shorter span only
+sometimes contains one.
+
+**The heap ceiling is 320 MiB, not 256 MiB.** 256 MiB is merely what
+Verifications 016, 018 and 019 requested. A descending ladder over every
+enumerated heap measures `camera_preview` at **320 MiB**, bracketed 320 ✓ /
+352 ✗, with `qsecom` at 32 MiB and `user_contig` at 16 MiB. No non-secure heap
+comes near 512 MiB, so **reopen condition 2 is `NOT_MET` as measured** — but by
+a smaller margin than the old text claimed, and against the wrong threshold.
+
+320 MiB exceeds `2^28`, so PA28 is no longer excluded by span arithmetic. What
+still blocks it is the base: a usable pair exists only if the allocation's
+physical base modulo `2^29` falls in the right half, and `pagemap` is `BLIND`
+for dma-buf, so the base is unknown and cannot be chosen or even read. The
+conclusion is unchanged; the *reason* for it is not what this document said.
+Whether the base can be inferred rather than read — for instance from how the
+observed conflict pattern shifts across the 64 MiB of slack — is `UNKNOWN` and
+untested.
+
+The seven remaining heaps were enumerated but never allocated from. `system` is
+page-based and cannot supply a contiguous span by construction; the other six
+are secure or remote-processor heaps, and allocating from one drives
+`hyp_assign` and a VMID transition, a mandatory pause gate. Their capacity is
+therefore `UNKNOWN`, not zero.
+
+The obvious workaround still does not work. Two allocations cannot be stitched
 together, because `pagemap` is `BLIND` for dma-buf and the recovered relation
 cannot serve as a ruler for the gap: at rank 3 it pins only three bits of any
 difference, never the high part.
@@ -132,10 +162,12 @@ routes 1 and 2 close it anyway.
 
 ## 4. Other state changes
 
-Verification 019 tested the deepest one available and found the map unchanged:
-0 of 4,194,304 tags moved across 25.09 s of deep suspend, corroborated by
-`CLOCK_BOOTTIME` minus `CLOCK_MONOTONIC`, by `suspend_stats/success`, and by
-RPMh `master_stats` recording APSS `Sleep Count: 0x1` for 24.96 s.
+Verification 019 tested the deepest one available and found the map unchanged
+twice: 0 of 4,194,304 tags moved across corroborated 25.090 s and 25.151 s
+deep suspends.  Both runs passed the baseline and suspend gates, and the
+original run is corroborated by `CLOCK_BOOTTIME` minus `CLOCK_MONOTONIC`,
+`suspend_stats/success`, and RPMh `master_stats` recording APSS `Sleep Count:
+0x1` for 24.96 s.
 
 The rest of the row follows from that, and the reasoning should be stated
 rather than assumed:
@@ -151,7 +183,8 @@ rather than assumed:
 Deep suspend is a strictly stronger perturbation than any of the last three —
 DDR self-refresh *plus* an APSS power collapse. A map that survives losing power
 does not plausibly move on a frequency change. The row is therefore closed by
-subsumption, not by having tested each entry.
+subsumption, not by having tested each entry; the two retained runs directly
+close the deep-suspend candidate while leaving other mechanisms `UNKNOWN`.
 
 ### Post Package Repair — a mechanism this project had not considered
 

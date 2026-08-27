@@ -1,0 +1,161 @@
+{
+ "attempted_count": 3,
+ "enumerated_count": 10,
+ "heaps": {
+  "adsp": {
+   "attempted": false,
+   "ceiling_mib": null,
+   "contiguity_possible": true,
+   "heap_id": 22,
+   "heap_type": 4,
+   "reason_not_attempted": "host withheld: secure or remote-processor heap"
+  },
+  "camera_preview": {
+   "attempted": true,
+   "ceiling_bracket_mib": [
+    320,
+    352
+   ],
+   "ceiling_mib": 320,
+   "heap_id": 30,
+   "heap_type": 10,
+   "largest_success_mib": 320,
+   "max_xor_bit_upper_bound": 28,
+   "meets_reopen_condition_2": false,
+   "monotone": true,
+   "sizes_tested_mib": [
+    16,
+    32,
+    64,
+    256,
+    264,
+    272,
+    288,
+    320,
+    352,
+    384,
+    448,
+    512
+   ],
+   "smallest_failure_mib": 352
+  },
+  "qsecom": {
+   "attempted": true,
+   "ceiling_bracket_mib": [
+    32,
+    64
+   ],
+   "ceiling_mib": 32,
+   "heap_id": 27,
+   "heap_type": 4,
+   "largest_success_mib": 32,
+   "max_xor_bit_upper_bound": 24,
+   "meets_reopen_condition_2": false,
+   "monotone": true,
+   "sizes_tested_mib": [
+    16,
+    32,
+    64,
+    256,
+    264,
+    272,
+    288,
+    320,
+    352,
+    384,
+    448,
+    512
+   ],
+   "smallest_failure_mib": 64
+  },
+  "qsecom_ta": {
+   "attempted": false,
+   "ceiling_mib": null,
+   "contiguity_possible": true,
+   "heap_id": 19,
+   "heap_type": 2,
+   "reason_not_attempted": "host withheld: secure or remote-processor heap"
+  },
+  "secure_carveout": {
+   "attempted": false,
+   "ceiling_mib": null,
+   "contiguity_possible": true,
+   "heap_id": 14,
+   "heap_type": 9,
+   "reason_not_attempted": "host withheld: secure or remote-processor heap"
+  },
+  "secure_display": {
+   "attempted": false,
+   "ceiling_mib": null,
+   "contiguity_possible": true,
+   "heap_id": 10,
+   "heap_type": 8,
+   "reason_not_attempted": "host withheld: secure or remote-processor heap"
+  },
+  "secure_heap": {
+   "attempted": false,
+   "ceiling_mib": null,
+   "contiguity_possible": true,
+   "heap_id": 9,
+   "heap_type": 7,
+   "reason_not_attempted": "host withheld: secure or remote-processor heap"
+  },
+  "spss": {
+   "attempted": false,
+   "ceiling_mib": null,
+   "contiguity_possible": true,
+   "heap_id": 13,
+   "heap_type": 8,
+   "reason_not_attempted": "host withheld: secure or remote-processor heap"
+  },
+  "system": {
+   "attempted": false,
+   "ceiling_mib": null,
+   "contiguity_possible": false,
+   "heap_id": 25,
+   "heap_type": 0,
+   "reason_not_attempted": "page-based heap: cannot supply a contiguous span by construction"
+  },
+  "user_contig": {
+   "attempted": true,
+   "ceiling_bracket_mib": [
+    16,
+    32
+   ],
+   "ceiling_mib": 16,
+   "heap_id": 26,
+   "heap_type": 4,
+   "largest_success_mib": 16,
+   "max_xor_bit_upper_bound": 23,
+   "meets_reopen_condition_2": false,
+   "monotone": true,
+   "sizes_tested_mib": [
+    16,
+    32,
+    64,
+    256,
+    264,
+    272,
+    288,
+    320,
+    352,
+    384,
+    448,
+    512
+   ],
+   "smallest_failure_mib": 32
+  }
+ },
+ "inputs": [
+  "heap-capacity-coarse.jsonl",
+  "heap-capacity-fine.jsonl"
+ ],
+ "instrument_ok": true,
+ "ladders_reduced": 2,
+ "largest_non_secure_ceiling_mib": 320,
+ "max_xor_bit_upper_bound": 28,
+ "reopen_condition_2": "NOT_MET",
+ "reopen_condition_2_threshold_mib": 512,
+ "schema": "a90_heap_capacity_analysis_v1",
+ "scope": "Ceilings are what this device returned at this uptime under this firmware, for the heaps the host chose to attempt.  Secure and remote-processor heaps were enumerated but never allocated from, so their capacity is UNKNOWN, not zero.  max_xor_bit_upper_bound is an arithmetic bound on span alone: it assumes physical contiguity and says nothing about the physical base, which pagemap does not expose for dma-buf, so a usable XOR pair is not implied."
+}
