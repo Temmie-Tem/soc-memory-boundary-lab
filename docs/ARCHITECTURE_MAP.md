@@ -506,6 +506,16 @@ physical-to-DRAM identity, mutability, protected reach and alias/bypass remain
 `UNKNOWN`; Class C is unchanged.  The next discriminator is a bounded load-use
 trace over the twelve recognized loads.
 
+Verification 020F then followed each of the twelve 020E load destinations for
+16 instructions in the same executable segment.  It found 16 recognized use
+events (10 address-base, 2 arithmetic, 2 register-offset, 1 register-copy,
+and 1 return) and 11 barriers (4 caller-saved `BL`, 5 recognized control, 2
+unknown), with no tainted direct store reached in the bounded windows.  This
+is static value-flow evidence only; global consumers/writers, runtime values
+and currentness, ABI compliance, slot semantics, physical-to-DRAM identity,
+mutability, protected reach and alias/bypass remain `UNKNOWN`.  The next
+discriminator is bounded pointer/object resolution for the address-use events.
+
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside
 `DC_NOC_NON_BROADCAST_MPU`, `MEMNOC_MS_MPU`, and `CNOC_SNOC_MS_MPU` regions.

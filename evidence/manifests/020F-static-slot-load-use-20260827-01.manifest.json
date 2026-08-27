@@ -1,0 +1,580 @@
+{
+ "boundary_bypass": {
+  "device": "none",
+  "mmio": "none",
+  "protected_memory": "none",
+  "reason": "Host-only static load-use trace; no activation or live state was accessed.",
+  "smc": "none",
+  "status": "NOT_AUTHORIZED"
+ },
+ "claims": {
+  "HYPOTHESIS": [
+   "Some slot-derived values may be configuration fields used for local object access or arithmetic rather than final controller programming."
+  ],
+  "PROVED": [
+   "The exact retained A90 XBL and the 020E-derived twelve-load seed set are bound before tracing.",
+   "Each reported event is a recognized use or fail-closed boundary within the stated 16-instruction same-block model."
+  ],
+  "REFUTED": [],
+  "SUPPORTED": [
+   "The twelve slot loads have bounded direct downstream uses recorded in the trace; these static uses do not identify runtime MMIO or DRAM state."
+  ],
+  "UNKNOWN": [
+   "Global writer/consumer absence, ABI compliance and callee effects, runtime execution/currentness and values, slot semantics, MMIO/physical/DRAM identity, mutability/locking, protected reach, aliasing and bypass."
+  ]
+ },
+ "classification": "CLASS C (TRANSFORM ONLY)",
+ "definition_of_done": {
+  "build": {
+   "reason": "Interpreted host Python; no device/kernel build.",
+   "status": "NOT_APPLICABLE"
+  },
+  "commands": {
+   "command": "python3 tools/sm8150_xbl_static_slot_load_use_020f.py --output <public-manifest-path>",
+   "reason": "Private input paths are redacted; exact hashes are pinned.",
+   "status": "REDACTED_REPRODUCTION_TEMPLATE"
+  },
+  "device_binding": {
+   "reason": "Host-only static trace; no device contact.",
+   "status": "NOT_APPLICABLE"
+  },
+  "recovery": {
+   "reason": "Host-only static trace; no device state.",
+   "status": "NOT_APPLICABLE"
+  },
+  "repetitions": {
+   "reason": "Host-only static trace; no runtime repetitions.",
+   "status": "NOT_APPLICABLE"
+  },
+  "rollback": {
+   "reason": "Host-only static trace; no device state.",
+   "status": "NOT_APPLICABLE"
+  },
+  "target": {
+   "binding": "PROVED_EXACT_XBL_INPUT_HASH",
+   "marketing_name": "A90 5G",
+   "model": "SM-A908N",
+   "soc": "SM8150",
+   "soc_name": "Snapdragon 855"
+  },
+  "timestamp": {
+   "reason": "Deterministic publication does not embed a wall-clock timestamp.",
+   "status": "NOT_APPLICABLE"
+  },
+  "tool_and_build": {
+   "build": "NOT_APPLICABLE",
+   "tool": "sm8150_xbl_static_slot_load_use_020f.py schema sm8150-xbl-static-slot-load-use-v1"
+  }
+ },
+ "device_access": "none",
+ "eligibility": "NOT_ELIGIBLE",
+ "experiment_id": "020F-static-slot-load-use",
+ "inputs": {
+  "dependency_020e": {
+   "access_count": 18,
+   "filename": "020E-static-slot-census-20260827-01.manifest.json",
+   "load_count": 12,
+   "manifest_sha256": "4c28b0cc0a113e099fe3b0ce2bd16a77ce0c9d9bfc799ca9494c52eed9c349ad",
+   "sha256": "4c28b0cc0a113e099fe3b0ce2bd16a77ce0c9d9bfc799ca9494c52eed9c349ad",
+   "size": 29826,
+   "slot_offsets": [
+    "0x00000138",
+    "0x00000140",
+    "0x00000148",
+    "0x00000150",
+    "0x00000158",
+    "0x00000160"
+   ],
+   "slot_page": "0x9fc3e000"
+  },
+  "firmware": {
+   "filename": "xbl--sdb1.bin",
+   "sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+   "size": 4194304
+  }
+ },
+ "mode": "HOST_ONLY_READ_ONLY",
+ "schema": "sm8150-xbl-static-slot-load-use-v1",
+ "scope": {
+  "indirect_paths": "UNKNOWN",
+  "model": "EACH_020E_LOAD_FORWARD_SAME_EXECUTABLE_BLOCK_16_INSTRUCTIONS",
+  "never_scan_arbitrary_ranges": true,
+  "physical_to_dram": "UNKNOWN",
+  "recognized_forms": [
+   "LDR_STR_UNSIGNED",
+   "LDR_STR_REGISTER_OFFSET_UXTX",
+   "ADD_SUB_IMMEDIATE",
+   "ADD_SUB_REGISTER_LSL0",
+   "MADD",
+   "MOV_REGISTER",
+   "MOVZ_MOVK_MOVN_KILL",
+   "CMP",
+   "CBZ_CBNZ",
+   "TBZ_TBNZ",
+   "B_COND",
+   "DIRECT_BL_IF_CALLEE_SAVED_PAGE_OR_TAINT_REGISTER"
+  ],
+  "runtime_values": "UNKNOWN"
+ },
+ "summary": {
+  "event_counts": {
+   "ADDRESS_BASE_USE": 10,
+   "ARITHMETIC_USE": 2,
+   "CALLER_SAVED_BL_BARRIER": 4,
+   "CONTROL_BARRIER": 5,
+   "REGISTER_COPY": 1,
+   "REGISTER_OFFSET_ADDRESS_USE": 2,
+   "RETURN_USE": 1,
+   "UNKNOWN_BARRIER": 2
+  },
+  "global_consumer_absence": "UNKNOWN",
+  "global_writer_absence": "UNKNOWN",
+  "runtime_values": "UNKNOWN",
+  "seed_load_count": 12,
+  "status": "SUPPORTED_BOUNDED_FORWARD_USE_TRACE"
+ },
+ "traces": [
+  {
+   "events": [
+    {
+     "kind": "RETURN_USE",
+     "register": "X0",
+     "va": "0x9fc26e80"
+    }
+   ],
+   "remaining_tainted_registers": [
+    "X0"
+   ],
+   "seed": {
+    "adrp_va": "0x9fc26e78",
+    "kind": "LDR",
+    "page_register": "X8",
+    "register": "X0",
+    "slot_offset": "0x00000148",
+    "slot_va": "0x9fc3e148",
+    "va": "0x9fc26e7c",
+    "width_bits": 64
+   },
+   "status": "SUPPORTED_BOUNDED_FORWARD_USE_TRACE",
+   "window_instructions": 16
+  },
+  {
+   "events": [
+    {
+     "destination": "X10",
+     "kind": "ARITHMETIC_USE",
+     "operation": "MADD",
+     "sources": [
+      "X8"
+     ],
+     "va": "0x9fc26e9c",
+     "width_bits": 64
+    },
+    {
+     "destination_or_source": "W0",
+     "kind": "REGISTER_OFFSET_ADDRESS_USE",
+     "operation": "LDR",
+     "registers": [
+      "X10"
+     ],
+     "va": "0x9fc26ea0",
+     "width_bits": 32
+    },
+    {
+     "control": "RET",
+     "kind": "CONTROL_BARRIER",
+     "va": "0x9fc26ea4"
+    }
+   ],
+   "remaining_tainted_registers": [
+    "X8",
+    "X10"
+   ],
+   "seed": {
+    "adrp_va": "0x9fc26e84",
+    "kind": "LDR",
+    "page_register": "X8",
+    "register": "X8",
+    "slot_offset": "0x00000158",
+    "slot_va": "0x9fc3e158",
+    "va": "0x9fc26e90",
+    "width_bits": 64
+   },
+   "status": "SUPPORTED_BOUNDED_FORWARD_USE_TRACE",
+   "window_instructions": 16
+  },
+  {
+   "events": [
+    {
+     "destination": "X10",
+     "kind": "ARITHMETIC_USE",
+     "operation": "MADD",
+     "sources": [
+      "X9"
+     ],
+     "va": "0x9fc26e9c",
+     "width_bits": 64
+    },
+    {
+     "destination_or_source": "W0",
+     "kind": "REGISTER_OFFSET_ADDRESS_USE",
+     "operation": "LDR",
+     "registers": [
+      "X10"
+     ],
+     "va": "0x9fc26ea0",
+     "width_bits": 32
+    },
+    {
+     "control": "RET",
+     "kind": "CONTROL_BARRIER",
+     "va": "0x9fc26ea4"
+    }
+   ],
+   "remaining_tainted_registers": [
+    "X9",
+    "X10"
+   ],
+   "seed": {
+    "adrp_va": "0x9fc26e88",
+    "kind": "LDR",
+    "page_register": "X9",
+    "register": "X9",
+    "slot_offset": "0x00000160",
+    "slot_va": "0x9fc3e160",
+    "va": "0x9fc26e98",
+    "width_bits": 64
+   },
+   "status": "SUPPORTED_BOUNDED_FORWARD_USE_TRACE",
+   "window_instructions": 16
+  },
+  {
+   "events": [
+    {
+     "base": "X9",
+     "destination": "W8",
+     "kind": "ADDRESS_BASE_USE",
+     "offset": "0x00000208",
+     "operation": "LDR",
+     "va": "0x9fc26eb0",
+     "width_bits": 32
+    },
+    {
+     "base": "X9",
+     "destination": "W0",
+     "kind": "ADDRESS_BASE_USE",
+     "offset": "0x00000204",
+     "operation": "LDR",
+     "va": "0x9fc26eb4",
+     "width_bits": 32
+    },
+    {
+     "kind": "UNKNOWN_BARRIER",
+     "va": "0x9fc26eb8",
+     "word": "0xb3607d00"
+    }
+   ],
+   "remaining_tainted_registers": [
+    "X9"
+   ],
+   "seed": {
+    "adrp_va": "0x9fc26ea8",
+    "kind": "LDR",
+    "page_register": "X8",
+    "register": "X9",
+    "slot_offset": "0x00000150",
+    "slot_va": "0x9fc3e150",
+    "va": "0x9fc26eac",
+    "width_bits": 64
+   },
+   "status": "SUPPORTED_BOUNDED_FORWARD_USE_TRACE",
+   "window_instructions": 16
+  },
+  {
+   "events": [
+    {
+     "base": "X9",
+     "destination": "W8",
+     "kind": "ADDRESS_BASE_USE",
+     "offset": "0x00000004",
+     "operation": "LDR",
+     "va": "0x9fc26ec8",
+     "width_bits": 32
+    },
+    {
+     "base": "X9",
+     "destination": "W0",
+     "kind": "ADDRESS_BASE_USE",
+     "offset": "0x00000000",
+     "operation": "LDR",
+     "va": "0x9fc26ecc",
+     "width_bits": 32
+    },
+    {
+     "base": "X9",
+     "destination": "W10",
+     "kind": "ADDRESS_BASE_USE",
+     "offset": "0x00000004",
+     "operation": "LDR",
+     "va": "0x9fc26ed0",
+     "width_bits": 32
+    },
+    {
+     "control": "B_COND",
+     "kind": "CONTROL_BARRIER",
+     "target": "0x9fc26ec8",
+     "va": "0x9fc26ed8"
+    }
+   ],
+   "remaining_tainted_registers": [
+    "X9"
+   ],
+   "seed": {
+    "adrp_va": "0x9fc26ec0",
+    "kind": "LDR",
+    "page_register": "X8",
+    "register": "X9",
+    "slot_offset": "0x00000138",
+    "slot_va": "0x9fc3e138",
+    "va": "0x9fc26ec4",
+    "width_bits": 64
+   },
+   "status": "SUPPORTED_BOUNDED_FORWARD_USE_TRACE",
+   "window_instructions": 16
+  },
+  {
+   "events": [
+    {
+     "base": "X9",
+     "destination": "W0",
+     "kind": "ADDRESS_BASE_USE",
+     "offset": "0x00000000",
+     "operation": "LDR",
+     "va": "0x9fc26eec",
+     "width_bits": 32
+    },
+    {
+     "control": "RET",
+     "kind": "CONTROL_BARRIER",
+     "va": "0x9fc26ef0"
+    }
+   ],
+   "remaining_tainted_registers": [
+    "X9"
+   ],
+   "seed": {
+    "adrp_va": "0x9fc26ee4",
+    "kind": "LDR",
+    "page_register": "X8",
+    "register": "X9",
+    "slot_offset": "0x00000138",
+    "slot_va": "0x9fc3e138",
+    "va": "0x9fc26ee8",
+    "width_bits": 64
+   },
+   "status": "SUPPORTED_BOUNDED_FORWARD_USE_TRACE",
+   "window_instructions": 16
+  },
+  {
+   "events": [
+    {
+     "base": "X8",
+     "kind": "ADDRESS_BASE_USE",
+     "offset": "0x00000024",
+     "operation": "STR",
+     "source": "W9",
+     "va": "0x9fc26f10",
+     "width_bits": 32
+    },
+    {
+     "kind": "CALLER_SAVED_BL_BARRIER",
+     "registers": [
+      "X8"
+     ],
+     "target": "0x9fc273f0",
+     "va": "0x9fc26f14"
+    }
+   ],
+   "remaining_tainted_registers": [
+    "X8"
+   ],
+   "seed": {
+    "adrp_va": "0x9fc26f00",
+    "kind": "LDR",
+    "page_register": "X20",
+    "register": "X8",
+    "slot_offset": "0x00000138",
+    "slot_va": "0x9fc3e138",
+    "va": "0x9fc26f0c",
+    "width_bits": 64
+   },
+   "status": "SUPPORTED_BOUNDED_FORWARD_USE_TRACE",
+   "window_instructions": 16
+  },
+  {
+   "events": [
+    {
+     "base": "X9",
+     "kind": "ADDRESS_BASE_USE",
+     "offset": "0x00000020",
+     "operation": "STR",
+     "source": "W19",
+     "va": "0x9fc26f1c",
+     "width_bits": 32
+    },
+    {
+     "kind": "CALLER_SAVED_BL_BARRIER",
+     "registers": [
+      "X9"
+     ],
+     "target": "0x9fc273f0",
+     "va": "0x9fc26f20"
+    }
+   ],
+   "remaining_tainted_registers": [
+    "X9"
+   ],
+   "seed": {
+    "adrp_va": "0x9fc26f00",
+    "kind": "LDR",
+    "page_register": "X20",
+    "register": "X9",
+    "slot_offset": "0x00000138",
+    "slot_va": "0x9fc3e138",
+    "va": "0x9fc26f18",
+    "width_bits": 64
+   },
+   "status": "SUPPORTED_BOUNDED_FORWARD_USE_TRACE",
+   "window_instructions": 16
+  },
+  {
+   "events": [
+    {
+     "base": "X9",
+     "kind": "ADDRESS_BASE_USE",
+     "offset": "0x0000002c",
+     "operation": "STR",
+     "source": "W0",
+     "va": "0x9fc26f40",
+     "width_bits": 32
+    },
+    {
+     "kind": "CALLER_SAVED_BL_BARRIER",
+     "registers": [
+      "X9"
+     ],
+     "target": "0x9fc273e0",
+     "va": "0x9fc26f44"
+    }
+   ],
+   "remaining_tainted_registers": [
+    "X9"
+   ],
+   "seed": {
+    "adrp_va": "0x9fc26f38",
+    "kind": "LDR",
+    "page_register": "X8",
+    "register": "X9",
+    "slot_offset": "0x00000138",
+    "slot_va": "0x9fc3e138",
+    "va": "0x9fc26f3c",
+    "width_bits": 64
+   },
+   "status": "SUPPORTED_BOUNDED_FORWARD_USE_TRACE",
+   "window_instructions": 16
+  },
+  {
+   "events": [
+    {
+     "base": "X9",
+     "destination": "W0",
+     "kind": "ADDRESS_BASE_USE",
+     "offset": "0x0000002c",
+     "operation": "LDR",
+     "va": "0x9fc26f58",
+     "width_bits": 32
+    },
+    {
+     "control": "RET",
+     "kind": "CONTROL_BARRIER",
+     "va": "0x9fc26f5c"
+    }
+   ],
+   "remaining_tainted_registers": [
+    "X9"
+   ],
+   "seed": {
+    "adrp_va": "0x9fc26f50",
+    "kind": "LDR",
+    "page_register": "X8",
+    "register": "X9",
+    "slot_offset": "0x00000138",
+    "slot_va": "0x9fc3e138",
+    "va": "0x9fc26f54",
+    "width_bits": 64
+   },
+   "status": "SUPPORTED_BOUNDED_FORWARD_USE_TRACE",
+   "window_instructions": 16
+  },
+  {
+   "events": [
+    {
+     "kind": "UNKNOWN_BARRIER",
+     "va": "0x9fc26fbc",
+     "word": "0xa8c17bfd"
+    }
+   ],
+   "remaining_tainted_registers": [
+    "X0"
+   ],
+   "seed": {
+    "adrp_va": "0x9fc26fb4",
+    "kind": "LDR",
+    "page_register": "X8",
+    "register": "W0",
+    "slot_offset": "0x00000140",
+    "slot_va": "0x9fc3e140",
+    "va": "0x9fc26fb8",
+    "width_bits": 32
+   },
+   "status": "SUPPORTED_BOUNDED_FORWARD_USE_TRACE",
+   "window_instructions": 16
+  },
+  {
+   "events": [
+    {
+     "destination": "W0",
+     "kind": "REGISTER_COPY",
+     "source": "W8",
+     "va": "0x9fc26fe4",
+     "width_bits": 32
+    },
+    {
+     "kind": "CALLER_SAVED_BL_BARRIER",
+     "registers": [
+      "X0",
+      "X8"
+     ],
+     "target": "0x9fc06538",
+     "va": "0x9fc26fe8"
+    }
+   ],
+   "remaining_tainted_registers": [
+    "X0",
+    "X8"
+   ],
+   "seed": {
+    "adrp_va": "0x9fc26fd4",
+    "kind": "LDR",
+    "page_register": "X21",
+    "register": "W8",
+    "slot_offset": "0x00000140",
+    "slot_va": "0x9fc3e140",
+    "va": "0x9fc26fe0",
+    "width_bits": 32
+   },
+   "status": "SUPPORTED_BOUNDED_FORWARD_USE_TRACE",
+   "window_instructions": 16
+  }
+ ]
+}

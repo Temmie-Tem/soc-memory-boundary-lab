@@ -1202,6 +1202,20 @@ zero swap; no device action occurred.  The manifest and hostile review are
 recorded in `docs/VERIFICATION020E_INTEGRATION_REVIEW_2026-08-27.md`.  The
 next scored candidate is a bounded load-use trace (020F).
 
+Verification 020F is now complete.  The twelve 020E load seeds were traced for
+16 instructions within their same executable segments.  The exact model
+records 16 downstream use events (10 address-base, 2 arithmetic, 2
+register-offset, 1 register-copy, and 1 return) plus 11 barriers (4
+caller-saved `BL`, 5 recognized control, 2 unknown); no tainted direct store
+was reached.  X30 is caller-saved, MOVK stops fail-closed without a bit-level
+lattice, and CBNZ/TBNZ are explicitly decoded.  The 020E manifest dependency
+is mechanically opened with `O_NOFOLLOW` and SHA-256 checked.  Focused tests
+are 9/9 and the full serial suite is 1,195/1,195 PASS (`skipped=1`) in
+123.910 seconds, maximum RSS 342,272 KiB, zero swap; no device action
+occurred.  The manifest and hostile review are recorded in
+`docs/VERIFICATION020F_INTEGRATION_REVIEW_2026-08-27.md`.  The next scored
+candidate is a bounded pointer/object resolution trace (020G).
+
 ## N. 가장 위험한 아직 금지된 실험
 
 Treating a section-16 offset token as a byte offset and writing the resulting

@@ -575,6 +575,23 @@ The focused suite is 7/7 and the full serial suite is 1,186/1,186 PASS
 (`skipped=1`, no swaps); no device action occurred.  The next candidate is a
 bounded load-use trace (020F).
 
+Verification 020F completed the bounded load-use trace.  Each of the twelve
+020E loads was followed for 16 instructions in its same executable segment.
+The model records 16 downstream use events (10 address-base, 2 arithmetic, 2
+register-offset, 1 register-copy, and 1 return) and 11 barriers (4
+caller-saved `BL`, 5 recognized control, 2 unknown), with no tainted direct
+store reached.  X30 is caller-saved, MOVK stops fail-closed, and CBNZ/TBNZ are
+decoded explicitly; the 020E manifest is mechanically hash-pinned.  Runtime
+execution/currentness, values, slot semantics, physical-to-DRAM identity,
+mutability, protected reach and alias/bypass remain `UNKNOWN`; Class C and
+`NOT_ELIGIBLE` remain unchanged.  The experiment, review and manifest are
+[documented](experiments/verification-020F-static-slot-load-use/README.md),
+[reviewed](docs/VERIFICATION020F_INTEGRATION_REVIEW_2026-08-27.md), and
+[published](evidence/manifests/020F-static-slot-load-use-20260827-01.manifest.json).
+The focused suite is 9/9 and the full serial suite is 1,195/1,195 PASS
+(`skipped=1`, no swaps); no device action occurred.  The next candidate is a
+bounded pointer/object resolution trace (020G).
+
 Claim vocabulary is deliberately closed:
 
 - `PROVED`: directly demonstrated by named source, artifact, or repeated result.

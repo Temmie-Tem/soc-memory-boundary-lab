@@ -2082,3 +2082,35 @@ Validation is 7/7 focused and 1,186/1,186 full serial tests (`skipped=1`) in
 regeneration, public JSON/redaction, mode/no-clobber checks and independent
 hostile review `PASS`.  The next scored candidate is a bounded load-use trace
 over the twelve recognized loads (020F).
+
+# 2026-08-27 — Verification 020F bounded static-slot load-use trace
+
+This host-only, read-only iteration follows the twelve direct scalar loads
+identified by 020E.  Each seed is traced for at most 16 instructions in the
+same executable segment.  Caller-saved X0–X18/X30 calls and unsupported forms
+stop fail-closed; continuation across X19–X29 is explicitly conditional on
+AAPCS64.  MOVK on tainted registers stops without silently dropping residual
+bits, and both CBNZ/TBNZ forms are decoded.
+
+`PROVED`: exact XBL and mechanically hash-pinned 020E manifest dependency,
+seed set, and bounded event set.  The model reports 16 use events (10
+address-base, 2 arithmetic, 2 register-offset, 1 register-copy, 1 return)
+and 11 barriers (4 caller-saved `BL`, 5 recognized control, 2 unknown), with
+no tainted direct store in the supported windows.  `SUPPORTED`: several slot
+values feed local address formation/arithmetic.  `HYPOTHESIS`: some may be
+object pointers or local configuration fields rather than controller state.
+`UNKNOWN`: global writer/consumer absence, ABI compliance/callee effects,
+runtime execution/currentness/values, slot semantics, MMIO/physical/DRAM
+identity, mutability/locking, protected reach, aliasing and bypass.  `CLASS C
+(TRANSFORM ONLY)` and `NOT_ELIGIBLE` remain unchanged; no device action
+occurred.
+
+The sanitized manifest is
+`evidence/manifests/020F-static-slot-load-use-20260827-01.manifest.json`,
+13,069 bytes, mode `0644`, SHA-256
+`d19687581d046c7b05841aef6340e9a1e3664c69e19903689d1c583aee5b9764`.
+Validation is 9/9 focused and 1,195/1,195 full serial tests (`skipped=1`) in
+123.910 seconds, maximum RSS 342,272 KiB, zero swap; deterministic
+regeneration, public JSON/redaction, mode/no-clobber checks and independent
+hostile review `PASS`.  The next scored candidate is bounded pointer/object
+resolution for the address-use events (020G).
