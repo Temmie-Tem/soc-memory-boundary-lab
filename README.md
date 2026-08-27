@@ -445,6 +445,15 @@ pagemap is `BLIND`, and action/final-state receipts are incomplete. Validation
 is 44 focused and 1,039 full serial tests with hostile-review `PASS`; see the
 [Verification 015 integration review](docs/VERIFICATION015_INTEGRATION_REVIEW_2026-08-27.md).
 
+A separate host-only bus-vote amendment now pins the retained `msm-bus-dbg`
+excerpts: `disp_rsc_ebi` is present among the declared 66 clients, with one
+initial 12.8 GB/s vote, a transient 400 MB/s IB vote, and restoration.  It does
+not establish a DDR clock transition.  The sanitized amendment is
+[published](evidence/manifests/verification-015-bus-vote-amendment-20260827-01.manifest.json)
+and [reviewed](docs/VERIFICATION015_BUS_VOTE_AMENDMENT_2026-08-27.md); its
+manifest is 5,686 bytes, SHA-256
+`066d8fc708c5652cb53abfc78e4286b06ea9ec100cffeef5a10240420fb8582b`.
+
 Verification 016 is now independently repaired from three exact retained raw
 files. `PROVED` in allocation-offset/model coordinates: independent model-bit
 25/26/27 splits, equal-contribution matches `[14,21]`, `[19]`, `[13,20]`, two
@@ -494,6 +503,34 @@ The handoff and independent response remain in
 [docs/CODEX_HANDOFF_ROUTE2_TERMINATION_2026-08-27.md](docs/CODEX_HANDOFF_ROUTE2_TERMINATION_2026-08-27.md)
 and
 [docs/ROUTE2_TERMINATION_RESPONSE_2026-08-27.md](docs/ROUTE2_TERMINATION_RESPONSE_2026-08-27.md).
+
+Verification 019 is now integrated additively from the external suspend/
+permutation line.  Its synthetic detector and gate tests pass, and its public
+657-byte manifest reports 4,194,304 tags unchanged across a reported 25.09 s
+deep suspend.  The private raw suspend receipt is not present in this
+worktree, so the live result is `SUPPORTED_EXTERNAL_MANIFEST_ONLY`, not a new
+machine-proved receipt; physical contiguity, complete coordinates and other
+state transitions remain `UNKNOWN`.  See the
+[V019 integration review](docs/VERIFICATION019_INTEGRATION_REVIEW_2026-08-27.md)
+and [public manifest](evidence/manifests/verification-019-suspend-permutation-20260827-01.manifest.json).
+
+The 1b known-aperture reachability checkpoint is now complete as a bounded
+host-only reconciliation.  Both exact selector branches enumerate the same
+eight known qhs_llcc-remapper/BIMC candidates; every candidate is covered by
+the retained `MEMNOC_MS_MPU` and `CNOC_SNOC_MS_MPU` policies as TZ-owned with
+no HLOS read/write grant.  The tested `0x09248080` narrow region is likewise
+branch-invariant, while the retained fixed EL1 load produced no value and was
+followed by a `Non Secure Watchdog Bark`; the separate control-node route had
+one failed read and zero writes.  This proves only the tested static-policy
+coverage.  Global reachability, alternate apertures, final runtime state,
+watchdog causality, ordering, mutability, aliases and bypass remain `UNKNOWN`.
+The result is `CLASS C (TRANSFORM ONLY)` / `NOT_ELIGIBLE`; 020K remains the
+next host-only candidate.  The 13,885-byte public manifest is
+[verification-1b-known-aperture-reachability-20260827-01.manifest.json](evidence/manifests/verification-1b-known-aperture-reachability-20260827-01.manifest.json),
+SHA-256
+`b4135f22bff47df22cda674eeabfff909ef4d3bc2a1843b358be7556b6d5ff02`; focused
+validation is 9/9 PASS and no device action occurred.  See the
+[1b review](docs/VERIFICATION1B_REACHABILITY_REVIEW_2026-08-27.md).
 
 Verification 020A then traced the exact candidate setter's argument origin in
 the retained XBL.  The five static stores contain one `XZR` zero and four

@@ -2207,3 +2207,53 @@ Deterministic regeneration, redaction, no-clobber, dependency/cardinality/
 family mutation negatives and independent hostile review all pass.  The next
 scored candidate is a bounded barrier operand/target metadata inventory
 (020K).
+
+# 2026-08-27 — External line integration and 1b checkpoint
+
+The external `research/xbl-config-cdt@99eb1dc` ref was audited without
+fast-forwarding or resetting the current branch.  Additive commits
+`db22fb1`, `96f8d4c` and `865593b` are integrated as commits `eb2f44d`,
+`8c3d1c5` and `0e6bfd5`; the repaired 015/016/017/018 implementations remain
+authoritative where the external add/add versions are weaker or semantically
+different.  The complete 14-commit disposition is in
+`docs/EXTERNAL_LINE_INTEGRATION_2026-08-27.md`.
+
+The imported V019 public manifest reports zero moved tags across a reported
+25.09-second deep suspend and its 23-test synthetic detector suite passes.
+Because the external private raw receipt is absent here, this is
+`SUPPORTED_EXTERNAL_MANIFEST_ONLY`, not a fresh live proof and not closure of
+reopen condition 3.  The known-aperture 1b checkpoint remains `PROVED` only
+for the tested TZ-owned/no-HLOS-grant candidates and the fixed EL1 failure;
+global reachability is `UNKNOWN`.
+
+# 2026-08-27 — Verification 015 bus-vote amendment
+
+Two retained `msm-bus-dbg` excerpts were parsed in a separate host-only
+amendment.  The client excerpt declares 66 clients and includes `disp_rsc_ebi`;
+the EBI excerpt contains one initial 12.8 GB/s AB/IB row, two transient
+zero-AB/400 MB/s IB rows and three restored 12.8 GB/s rows.  The strict
+parser, exact input hashes, redaction/no-follow checks and deterministic
+manifest pass.  This supports excluding the V015 bandwidth axis from DDR
+frequency/transform-transition inference but does not establish a DDR clock
+change.  Manifest SHA-256 is
+`066d8fc708c5652cb53abfc78e4286b06ea9ec100cffeef5a10240420fb8582b`.
+
+# 2026-08-27 — 1b known-aperture reachability checkpoint
+
+The host-only 1b checkpoint reconciled exact public hashes for `MEMORY_MAP.md`
+and the 009/010/007/005 manifests.  Both selector branches enumerate the same
+eight qhs_llcc-remapper/BIMC candidates, and every candidate is covered by
+TZ-owned `MEMNOC_MS_MPU` and `CNOC_SNOC_MS_MPU` hits with no HLOS read/write
+grant.  The 009 narrow region for `0x09248080` is branch-invariant.  The fixed
+EL1 load and the separate failed control-node read remain bounded observations;
+watchdog causality is not promoted.
+
+`PROVED` is limited to the eight static-policy candidates; `SUPPORTED` covers
+the constraint on their tested route.  Global reachability, alternate
+apertures, final runtime policy/register state, ordering, mutability, physical
+mapping and bypass remain `UNKNOWN`.  Classification is still `CLASS C
+(TRANSFORM ONLY)` and eligibility `NOT_ELIGIBLE`.  The public manifest is
+13,885 bytes, mode `0644`, SHA-256
+`b4135f22bff47df22cda674eeabfff909ef4d3bc2a1843b358be7556b6d5ff02`; focused
+tests are 9/9 PASS.  No device action occurred.  The next scored candidate is
+020K, still host-only and read-only.

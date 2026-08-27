@@ -164,3 +164,35 @@ If questions 3 or 4 are falsified, the endpoint is cancelled and the next
 experiment is selected from the new discriminator.  If all four survive, the
 result is still a conditional Class-C endpoint with the reopen conditions above,
 not a global Qualcomm or AMD non-vulnerability claim.
+
+## Integration update — 2026-08-27
+
+The external `research/xbl-config-cdt@99eb1dc` line has been audited against
+the current repaired branch.  Its additive literature review, remaining-route
+analysis and V019 public analyzer are integrated without replacing the repaired
+015/016/017/018 implementations.  V019 is currently
+`SUPPORTED_EXTERNAL_MANIFEST_ONLY`: its public manifest reports a corroborated
+deep-suspend null, but the private raw receipt is not present in this worktree.
+The complete commit-by-commit disposition is in
+`docs/EXTERNAL_LINE_INTEGRATION_2026-08-27.md`.
+
+The 1b checkpoint is explicit: for the eight known remapper/BIMC candidates,
+the retained TZ policy covers the apertures with no HLOS grant and the fixed
+EL1 load at `0x09248080` watchdogs.  This is `PROVED` for those tested
+apertures, not global absence.  Static identification without a demonstrably
+reachable hole remains research value only and does not reopen the security
+route.  Q4 remains `UNKNOWN` because the complete 029–034 relation-row set is
+not retained.
+
+That checkpoint is now implemented as a separate host-only artifact.  Both
+selector branches were parsed from exact hashes and yielded the same eight
+candidate addresses with TZ-owned broad coverage and no HLOS read/write grant;
+the fixed-load and control-node observations were revalidated as bounded
+evidence.  Global reachability, alternate apertures, final runtime policy,
+watchdog causality, ordering, mutability and bypass remain `UNKNOWN`.  The
+13,885-byte manifest is
+`evidence/manifests/verification-1b-known-aperture-reachability-20260827-01.manifest.json`
+with SHA-256
+`b4135f22bff47df22cda674eeabfff909ef4d3bc2a1843b358be7556b6d5ff02`; its
+focused suite is 9/9 PASS.  The result remains Class C and does not authorize
+020K to leave its host-only/read-only scope.

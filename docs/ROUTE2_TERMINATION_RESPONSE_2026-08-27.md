@@ -64,11 +64,13 @@ cleanup/absence proof and final health are independently revalidated.  Pagemap
 is `BLIND`; physical mapping, contiguity and complete-coordinate alias remain
 `UNKNOWN`.
 
-**V019: not integrated here.**  The external branch reports commit `96f8d4c`
-and a deep-suspend result, but its raw receipt and implementation are not part
-of this repository's retained evidence.  That report is a lead for a separate
-reconciliation, not proof in this line and not an automatic closure of reopen
-condition 3.
+**V019: `SUPPORTED_EXTERNAL_MANIFEST_ONLY`.**  The public analyzer, tests,
+README and 657-byte manifest from external commit `96f8d4c` are now integrated
+additively and independently host-validated.  The external private suspend
+receipt is not present in this worktree, so the reported 25.09-second deep
+suspend and zero moved tags are not promoted to a fresh machine-proved live
+receipt and do not close reopen condition 3.  See
+`docs/VERIFICATION019_INTEGRATION_REVIEW_2026-08-27.md`.
 
 ## Q4 — contradiction with rank three
 
@@ -83,18 +85,55 @@ open to a retained algebraic counterexample.
 
 ## External integration delta
 
-The following external-branch commits were reported for review.  Only the V017
-logic was imported after source inspection; the remaining items stay labelled
-as external until their artifacts are independently retained:
+The following external-branch commits were reported for review.  The current
+branch now carries additive artifacts where appropriate and keeps repaired
+equivalents authoritative; each status below is bounded rather than a claim
+that the external commit is an ancestor:
 
 | Commit | Reported content | Status in this repository |
 |---|---|---|
 | `c91f473` | initial V017 bank-granularity audit | superseded by the hardened V017 files and manifest `...-05` |
-| `db22fb1` | BadRAM/DisARMed/PMPlease/Battering RAM reuse review | external reference; no unlicensed code vendored |
+| `db22fb1` | BadRAM/DisARMed/PMPlease/Battering RAM reuse review | integrated additively as `eb2f44d`; no unlicensed code vendored |
 | `0d2c1bf`, `ace5e9b` | external V018 implementation/acquisition | superseded by retained `49c3381` V018 implementation |
-| `96f8d4c` | deep-suspend cross-state test | external reference; not yet integrated or counted |
-| `5323d17` | wording corrections and retained transcript | external reference; relevant cautions are recorded here |
-| `865593b` | remaining-route/XPU/signature analysis | external reference; source/evidence reconciliation pending |
+| `96f8d4c` | deep-suspend cross-state test | integrated additively as `8c3d1c5`; public result is `SUPPORTED_EXTERNAL_MANIFEST_ONLY` pending raw-receipt retention |
+| `5323d17` | wording corrections and retained transcript | wording/access-control corrections are integrated; bus transcript is tracked as a separate supplementary amendment |
+| `865593b` | remaining-route/XPU/signature analysis | integrated additively as `0e6bfd5`; exact claims retain their labels |
+
+The complete 14-commit disposition, including the repaired-equivalent
+replacements for `05a4c5c`, `a297fde`, `b2b5068`, `6b3abc7`, `c91f473`,
+`0d2c1bf`, `ace5e9b`, `5323d17`, `b33339b` and `99eb1dc`, is recorded in
+`docs/EXTERNAL_LINE_INTEGRATION_2026-08-27.md`.  Current repaired analyzers
+are intentionally not overwritten by weaker add/add implementations.
+
+The 99eb1dc audit was independently re-run against the current retained 033
+and 034 manifests: both `sites` arrays are canonical-JSON identical (71/71),
+the site-35 baseline still carries `status`, `current_destination` and
+`writer_absence` as `UNKNOWN`, and two fresh 034 generations are byte-identical
+to the retained manifest.  These checks strengthen the bounded audit, but do
+not create the missing complete relation-row set; Q4 therefore remains
+`UNKNOWN`, consistent with the more conservative current disposition.
+
+## 1b — known-aperture reachability checkpoint
+
+The bounded 1b checkpoint is now independently implemented and host-validated
+from exact public hashes.  Both selector branches enumerate the same eight
+known qhs_llcc-remapper/BIMC candidates; every candidate is covered by
+TZ-owned `MEMNOC_MS_MPU` and `CNOC_SNOC_MS_MPU` hits with no HLOS read/write
+grant.  The tested `0x09248080` narrow region is branch-invariant.  The fixed
+EL1 load produced no value before the retained `Non Secure Watchdog Bark`, and
+the separate control-node route recorded one failed read and zero writes.
+
+This is `PROVED` only for those eight static-policy candidates and
+`SUPPORTED` as a constraint on their tested Normal-World route.  It is not a
+global reachability or writer-absence proof: alternate apertures, final
+runtime state, exact watchdog causality, enforcement ordering, transform
+mutability, physical mapping, aliases and bypass remain `UNKNOWN`.  The
+public 13,885-byte manifest is
+`evidence/manifests/verification-1b-known-aperture-reachability-20260827-01.manifest.json`
+with SHA-256
+`b4135f22bff47df22cda674eeabfff909ef4d3bc2a1843b358be7556b6d5ff02`;
+focused tests are 9/9 PASS.  This does not promote a controller write or
+protected-memory test, and Class C / `NOT_ELIGIBLE` remain unchanged.
 
 ## Conditional endpoint
 

@@ -20,6 +20,8 @@
 | 016 | A normal-RAM alias reaches a protected boundary. | Only after 015, a minimal non-secret marker/boundary test differs between normal and alias path. | No dump, exact ordering proof, secondary enforcement control. | `NOT ELIGIBLE`. |
 | V017 | Can a bank-only post-decode enforcement check separate the listed protected carveouts from ordinary System RAM? | Apply the exact rank-3 allocation-offset/model relation to the pinned live memory-map ranges; a bank-only check would need a class-set difference. | Host-only source-pinned algebra and range histograms; subtract reserved carveouts nested inside broad System RAM; retain complete-coordinate, protection-ordering and physical-mapping unknowns. No device/SMC/MMIO/write. | `REFUTED` only for the narrow bank-only shape in the model projection: minimum class-change span 8 KiB; a 64-KiB-aligned span covers all eight classes and 128 KiB guarantees coverage at an arbitrary base; every listed protected/unprotected comparison range meets that bound. Finite GF(2) countermodels show complete-coordinate injectivity remains underdetermined. Complete post-decode check, actual ordering, transform mutability and bypass remain `UNKNOWN`; Class C unchanged. |
 | V018 | Does one exact A90 non-secure ION allocation expose a single-state storage-identity collision at any tested one-bit offset pair? | A marker written at an anchor is observed through a candidate offset that received only a sentinel; the exact 190-record transcript recomputes every verdict. | Exact source/binary/build pins before bridge contact; type-10/id-30 `camera_preview` allocation; same-storage two-VA positive control; distinct-offset negative; two trials; strict target/bridge/cleanup/final-health receipt; no MMIO/SMC/secure/protected/partition access. | `PROVED` bounded live baseline: both controls passed, 176/176 candidates `DISTINCT`, zero disturbance/clobber/disagreement, `NO_ALIAS` only over the retained one-state allocation-offset pairs. Pagemap `BLIND`; physical PA/contiguity/final DRAM coordinates `UNKNOWN`; cross-state Skitter permutation, transform mutation and protected reach are not tested. Numbered 015/016 remain `NOT ELIGIBLE`. |
+| V019 | Does the address-to-DRAM map survive a Normal-World-triggerable deep-suspend transition while the allocation remains in place? | External public manifest reports a 25.09-second corroborated suspend and 0/4,194,304 moved tags; this branch validates the synthetic detector and records the live result as external-manifest-only because the private receipt is absent. | Exact imported analyzer/probe/test hashes; baseline-before-suspend gate, suspend_stats/RPMh/time corroboration fields, splitmix permutation positive control, no protected/controller/partition write. | `SUPPORTED_EXTERNAL_MANIFEST_ONLY`: no moved tags in the declared offset domain is not independently machine-proved here; effective physical contiguity, complete coordinates, other transitions and mutability remain `UNKNOWN`; Class C unchanged. |
+| 1b | Are the eight currently identified remapper/BIMC apertures demonstrably reachable from Normal World? | Both exact selector branches enumerate the same eight candidates; every candidate is covered by TZ-owned `MEMNOC_MS_MPU` and `CNOC_SNOC_MS_MPU` policy hits with no HLOS read/write grant. The tested `0x09248080` narrow region is branch-invariant; the fixed EL1 load produced no value before a recorded watchdog, and the control-node route failed before a read. | Host-only exact-hash reconciliation of `MEMORY_MAP.md` plus 009/010/007/005 manifests; known candidates only; no device, controller, SMC, SCM, ownership or protected-memory mutation. | `PROVED` bounded static-policy coverage and fixed observations; `SUPPORTED` constrained tested route; global reachability, alternate apertures, final runtime policy, watchdog causality, ordering, mutability and bypass remain `UNKNOWN`; `CLASS C`, `NOT_ELIGIBLE`. |
 | R2 | Do the exact 029–034 bounded static manifests leave a promoted writer path or a contradiction with the repaired rank-3 relation? | Pinned JSON semantics preserve zero DCB-consumer/MC-symbolic paths, stable 71-site identities, transition-count invariants, and 030's inherited rank-3 dependency; a complete relation-row contradiction would be separately visible. | Host-only exact-byte/hash and duplicate-key checks; 027/029/030/031/032/033/034 plus 023R/V016 pins; no device/SMC/MMIO/write. | `SUPPORTED_BOUNDED_CLOSURE_UNKNOWN_GLOBAL` for Q1; Q4 `UNKNOWN_NO_COMPLETE_029_034_RELATION_ROW_SET`. No global writer absence, runtime execution, physical mapping or bypass claim; Class C unchanged. |
 | 020A-ST | Does the exact candidate setter's incoming argument block resolve to a runtime base source? | `PROVED`: setter `[0x9fc06410,0x9fc0643c)` has one `XZR` zero and four argument-sourced stores; its sole direct caller `0x9fc023f0` supplies `W3=[X0+0x10]`, `X0=[X0+0x18]`, `X1=[X0+0x20]`, and `X2=[X0+0x28]` in a bounded linear model. | Exact XBL/range hashes and singleton direct-caller check; 20-byte trace plus 92-byte context; synthetic decoder/data-flow negatives; no device/SMC/MMIO/write. | `SUPPORTED` symbolic setter/base edge; runtime object values/type/currentness, physical mapping, mutability and protected reach `UNKNOWN`; `CLASS C`, `NOT_ELIGIBLE`. |
 | 020B-CO | Does the sole direct caller of the 020A consumer resolve the incoming object to a bounded construction/origin? | `PROVED` within the finite model: `BL 0x9fc160b8` returns an opaque token, the caller builds an object at `SP+0x20`, and the four setter arguments are copied from return offsets `0x0c`, `0x18`, `0x20`, and `0x28` (widths 32/64/64/64). | Exact XBL/caller/consumer-entry/call-word hashes; strict scalar/Q0/pair/stack decoders; direct-caller singleton and stack-coverage negatives; no device/SMC/MMIO/write. | `SUPPORTED` symbolic caller-object edge; helper return value/type/currentness, static-object meaning, physical/DRAM mapping, mutability, protected reach and alias/bypass `UNKNOWN`; `CLASS C`, `NOT_ELIGIBLE`. |
@@ -35,7 +37,7 @@
 | 020I-CE | Do the exact 020H block-entry direct-BL sources reveal a bounded caller-context or argument-origin role? | `PROVED` within the finite model: 20 unique source/target BL edges traced for at most 16 preceding instructions; 12 windows stop on unsupported forms, 6 remain `ARGUMENT_OR_UNKNOWN`, and 2 are `ARGUMENT_COPY_OR_CONSTANT`. No static-slot-origin caller was reached. | Exact XBL plus mechanically hash-pinned 020H manifest; strict RET X30/direct-B/BL, scalar/register-offset memory, ADRP, ADD/SUB, MADD and MOV decoders; no true-function/PA/DRAM/MMIO promotion or device/SMC/write. | `SUPPORTED` caller-context shape only; runtime/true-function/global/physical semantics, mutability, protected reach and alias/bypass remain `UNKNOWN`; `CLASS C`, `NOT_ELIGIBLE`. |
 | 020J-BO | Do the exact 020I unsupported caller-context barriers resolve to ordinary ARM64 opcode families without extending the trace? | `PROVED` within the finite model: 12 unique stop VAs classify as `B_COND` 5, `CBZ_CBNZ` 2, `LDP_STP_PAIR` 2, logical-immediate 2 and `BITFIELD` 1 (`BFXIL`); `UNKNOWN_OPCODE` count 0. | Exact XBL plus mechanically hash-pinned 020I manifest; inspect only the first unsupported stop word; strict family masks, exact 12/12 and family-count gates, raw-word hash only, no path continuation or device/SMC/MMIO/write. | `SUPPORTED` ordinary finite opcode shape only; full semantics, true functions, runtime/physical/DRAM identity, mutability, protected reach and alias/bypass remain `UNKNOWN`; `CLASS C`, `NOT_ELIGIBLE`. |
 
-## Integrated host-only rows 019–022, 024–027, 029, 031–033, 020E, 020F, 020G, 020H, 020I and 020J
+## Integrated host-only rows 019–022, 024–027, 029, 031–033, 020E, 020F, 020G, 020H, 020I, 020J, V019 and 1b
 
 | ID | Question | Bounded result | Classification and boundary |
 |---:|---|---|---|
@@ -1291,6 +1293,38 @@ Validation is 11 focused and 1,227 full serial unittest PASS (`skipped=1`) in
 regeneration, redaction, no-clobber, and independent hostile-review `PASS`.
 The next scored candidate is a bounded caller-context barrier/opcode inventory
 (020J).
+
+## Verification 019 suspend/permutation metadata
+
+The imported V019 analyzer demonstrates a two-state tag oracle: an injective
+synthetic map remains `MAP_INVARIANT`, while injected address-line permutations
+are detected and decoded.  Its public manifest reports 4,194,304 tags, a
+25.09-second corroborated deep suspend and zero moved tags.  Because the
+external private raw receipt is not present in this worktree, the live result
+is `SUPPORTED_EXTERNAL_MANIFEST_ONLY`, not a fresh machine-proved receipt;
+physical-page provenance and complete DRAM coordinates remain `UNKNOWN`.
+The public manifest is 657 bytes, mode `0644`, SHA-256
+`bf7c66c78993b24d02a46735abb77e7e40298d6230bc5438c3eb21028c51238b`.
+Focused validation is 23/23, with C probe syntax checks and synthetic positive
+and negative gates; no new device action occurred.  See
+`docs/VERIFICATION019_INTEGRATION_REVIEW_2026-08-27.md`.
+
+## 1b known-aperture reachability metadata
+
+The 1b checkpoint parses the exact public `MEMORY_MAP.md`, 009 XPU policy,
+010 initializer, 007 fixed-load watchdog and 005 control-node manifests.  Both
+selector branches enumerate the same eight known qhs_llcc-remapper/BIMC
+addresses; every address has TZ-owned `MEMNOC_MS_MPU` and `CNOC_SNOC_MS_MPU`
+hits with no HLOS read/write grant.  The tested `0x09248080` narrow region is
+branch-invariant.  The fixed EL1 load and failed control-node route are retained
+as separate observations, not a proof of precise watchdog causality.  Global
+reachability, alternate apertures, final runtime policy, ordering, mutability,
+and bypass remain `UNKNOWN`; Class C and `NOT_ELIGIBLE` are unchanged.
+
+The public manifest is 13,885 bytes, mode `0644`, SHA-256
+`b4135f22bff47df22cda674eeabfff909ef4d3bc2a1843b358be7556b6d5ff02`.
+Focused validation is 9/9 and the checkpoint is host-only with no device
+action.  See `docs/VERIFICATION1B_REACHABILITY_REVIEW_2026-08-27.md`.
 
 ## Experiment 020J caller-context barrier/opcode metadata
 

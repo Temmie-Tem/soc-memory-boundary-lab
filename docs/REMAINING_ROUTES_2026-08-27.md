@@ -1,5 +1,13 @@
 # The four remaining routes, and what closes each
 
+> Integration note (2026-08-27): this document is imported from the external
+> line.  The V019 public analyzer/manifest is now present, but its private raw
+> suspend receipt is not in this worktree; accordingly the V019 live result is
+> `SUPPORTED_EXTERNAL_MANIFEST_ONLY` in the current branch and does not by
+> itself close reopen condition 3.  See
+> `docs/VERIFICATION019_INTEGRATION_REVIEW_2026-08-27.md` and
+> `docs/EXTERNAL_LINE_INTEGRATION_2026-08-27.md`.
+
 After Verification 019, four routes remain between this project and its
 objective. This records what closes each one, what *kind* of thing does the
 closing, and what a literature survey adds. The distinction in the middle

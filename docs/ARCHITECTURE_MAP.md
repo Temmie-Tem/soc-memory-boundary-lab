@@ -449,6 +449,32 @@ anchor clobbering or trial disagreement.  This is `PROVED` only as
 cross-state permutation and any protected-boundary implication remain
 `UNKNOWN`; it does not promote numbered Experiments 015 or 016.
 
+Verification 019 adds an external-manifest-only cross-state marker result.  Its
+host analyzer's synthetic control detects injected address-line permutations
+and its gate refuses a null without a pre-suspend baseline and corroborated
+suspend.  The imported public manifest reports 4,194,304 tags unchanged across
+a reported 25.09-second deep suspend, but the private raw receipt is absent in
+this worktree.  Therefore the live result is
+`SUPPORTED_EXTERNAL_MANIFEST_ONLY`, not a fresh machine-proved transition;
+physical contiguity, complete DRAM coordinates and other state changes remain
+`UNKNOWN`.  This does not close reopen condition 3 or alter Class C.
+
+The 1b known-aperture checkpoint then reconciles the retained access-control
+evidence without changing device state.  Both selector branches enumerate the
+same eight known qhs_llcc-remapper/BIMC addresses, and the exact 010 policy
+hits for every candidate are TZ-owned with no HLOS read/write grant under both
+`MEMNOC_MS_MPU` and `CNOC_SNOC_MS_MPU`.  The exact 009 narrow region covering
+`0x09248080` is also branch-invariant.  The retained fixed EL1 load produced
+no value and a `Non Secure Watchdog Bark`, while the control-node route failed
+before a read; these observations do not prove the watchdog's precise cause.
+This is `PROVED` only for the eight known static-policy candidates and
+`SUPPORTED` as a constraint on their tested Normal-World route.  Global
+reachability, alternate apertures, final runtime policy, ordering, mutability,
+and bypass remain `UNKNOWN`; Class C and `NOT_ELIGIBLE` are unchanged.  See
+`docs/VERIFICATION1B_REACHABILITY_REVIEW_2026-08-27.md` and the public
+manifest with SHA-256
+`b4135f22bff47df22cda674eeabfff909ef4d3bc2a1843b358be7556b6d5ff02`.
+
 The Route-2 audit then revalidated the exact 027/029/030/031/032/033/034 public
 manifests.  `SUPPORTED` bounded closure: no promoted DCB-consumer or MC/SHRM
 symbolic target appears in the declared models, the 71-site identities and

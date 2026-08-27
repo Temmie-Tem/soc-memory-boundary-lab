@@ -355,6 +355,13 @@ action/final-state receipts are absent. Validation is 44 focused / 1,039 full
 serial PASS with independent hostile-review `PASS`; see the
 [Verification 015 integration review](docs/VERIFICATION015_INTEGRATION_REVIEW_2026-08-27.md).
 
+The additive V015 bus-vote amendment pins the retained `msm-bus-dbg` excerpts:
+66 declared clients include `disp_rsc_ebi`; six EBI rows show one initial
+12.8 GB/s vote, two transient 400 MB/s IB rows and three restored 12.8 GB/s
+rows.  This is not DDR clock evidence.  Its 9-test parser, redaction and
+no-follow checks pass; the sanitized 5,686-byte manifest has SHA-256
+`066d8fc708c5652cb53abfc78e4286b06ea9ec100cffeef5a10240420fb8582b`.
+
 Verification 016 is repaired from three exact retained raw files. `PROVED` in
 allocation-offset/model coordinates: separate bit-25/26/27 thresholds and
 matches `[14,21]`, `[19]`, `[13,20]`; two three-column passes with identical
@@ -435,6 +442,30 @@ SHA-256
 swaps); no device action occurred.  The follow-on host-only 020A setter/base
 trace is now complete and remains bounded by the same no-writer/no-live-
 authority rule.
+
+Verification 019 is integrated additively from the external suspend/permutation
+line.  Its 23-test synthetic detector suite and C probe syntax checks pass; the
+public 657-byte manifest reports 4,194,304 tags unchanged across a reported
+25.09 s deep suspend.  The private raw receipt is absent from this worktree,
+so the live result is `SUPPORTED_EXTERNAL_MANIFEST_ONLY` and does not
+independently close reopen condition 3.  Physical contiguity, complete
+coordinates and other state transitions remain `UNKNOWN`.
+
+The 1b known-aperture reachability checkpoint is now complete as a bounded
+host-only reconciliation.  Both selector branches enumerate the same eight
+known remapper/BIMC candidates, and all eight are covered by the retained
+`MEMNOC_MS_MPU` and `CNOC_SNOC_MS_MPU` policies as TZ-owned with no HLOS
+read/write grant.  The narrow `0x09248080` policy is branch-invariant; the
+fixed EL1 load produced no value before `Non Secure Watchdog Bark`, while the
+separate control-node route recorded one failed read and zero writes.  These
+facts are `PROVED` only for the bounded candidates.  Global reachability,
+alternate apertures, runtime register state, watchdog causality, ordering,
+mutability and bypass remain `UNKNOWN`.  The result remains `CLASS C
+(TRANSFORM ONLY)` / `NOT_ELIGIBLE`; 020K is now the next host-only candidate.
+The 13,885-byte manifest has SHA-256
+`b4135f22bff47df22cda674eeabfff909ef4d3bc2a1843b358be7556b6d5ff02`; focused
+tests are 9/9 PASS and no device action occurred.  See
+`docs/VERIFICATION1B_REACHABILITY_REVIEW_2026-08-27.md`.
 
 Verification 020A is now complete as a separate host-only static trace.  The
 exact setter `[0x9fc06410,0x9fc0643c)` has five static stores: one `XZR` zero

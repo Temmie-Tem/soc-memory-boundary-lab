@@ -1,0 +1,489 @@
+{
+ "boundary_bypass": {
+  "device": "none",
+  "mmio": "none",
+  "protected_memory": "none",
+  "reason": "Host-only public-evidence reconciliation; no activation, read, or write was performed.",
+  "smc": "none",
+  "status": "NOT_AUTHORIZED"
+ },
+ "claims": {
+  "HYPOTHESIS": [],
+  "PROVED": [
+   "The five public source artifacts are bound by regular-file, O_NOFOLLOW, size, content-stability, and SHA-256 checks.",
+   "Both exact 010 selector branches enumerate the same eight known qhs_llcc-remapper/BIMC candidate addresses.",
+   "Every known candidate has MEMNOC_MS_MPU and CNOC_SNOC_MS_MPU hits that are TZ-owned with no HLOS read or write grant.",
+   "The exact 009 policy evidence covers the tested 0x09248080 DC_NOC_BROADCAST_MPU region with no HLOS grant in both selector branches.",
+   "The retained 007 fixed EL1 read produced no value and is followed by a recorded Non Secure Watchdog Bark, while the 005 control-node route failed before a read and recorded no write."
+  ],
+  "REFUTED": [],
+  "SUPPORTED": [
+   "The tested known-aperture route is strongly constrained from Normal World by the retained static policy and read-failure/watchdog evidence."
+  ],
+  "UNKNOWN": [
+   "Global Normal-World reachability, alternate apertures, final runtime policy/register values, watchdog causality, enforcement ordering relative to the final DRAM transform, and any alias or bypass."
+  ]
+ },
+ "classification": "CLASS C (TRANSFORM ONLY)",
+ "definition_of_done": {
+  "build": {
+   "reason": "Interpreted host Python; no device/kernel build.",
+   "status": "NOT_APPLICABLE"
+  },
+  "commands": {
+   "command": "python3 tools/sm8150_1b_reachability_checkpoint.py --output <public-manifest-path>",
+   "reason": "Private paths are not published; exact public source hashes are retained.",
+   "status": "REDACTED_REPRODUCTION_TEMPLATE"
+  },
+  "device_binding": {
+   "reason": "No device contact.",
+   "status": "NOT_APPLICABLE"
+  },
+  "recovery": {
+   "reason": "No device state.",
+   "status": "NOT_APPLICABLE"
+  },
+  "repetitions": {
+   "reason": "Host-only static reconciliation; no runtime repetitions.",
+   "status": "NOT_APPLICABLE"
+  },
+  "rollback": {
+   "reason": "No device state.",
+   "status": "NOT_APPLICABLE"
+  },
+  "target": {
+   "binding": "PROVED_EXACT_PUBLIC_SOURCE_PINS",
+   "marketing_name": "A90 5G",
+   "model": "SM-A908N",
+   "soc": "SM8150",
+   "soc_name": "Snapdragon 855"
+  },
+  "timestamp": {
+   "reason": "Deterministic publication does not embed a wall-clock timestamp.",
+   "status": "NOT_APPLICABLE"
+  },
+  "tool_and_build": {
+   "build": "NOT_APPLICABLE",
+   "tool": "sm8150_1b_reachability_checkpoint.py schema sm8150-1b-known-aperture-reachability-checkpoint-v1"
+  }
+ },
+ "device_access": "none",
+ "eligibility": "NOT_ELIGIBLE",
+ "experiment_id": "1b-known-aperture-reachability-checkpoint",
+ "inputs": {
+  "devmem_005": {
+   "filename": "005-icb-remapper-control-node-20260825-01.manifest.json",
+   "sha256": "35e96ea34bb2d2fea643edcd408710e44c6a936d7ef395859db119d0fa5d31e3",
+   "size": 1819
+  },
+  "initializer_010": {
+   "filename": "010-xpu-initializer-inventory-20260825-01.manifest.json",
+   "sha256": "baeef82f8f0fad7c7e897e3c373dacd129b7f2ed22d78c075a94141ee36c1ce2",
+   "size": 41566
+  },
+  "memory_map": {
+   "filename": "MEMORY_MAP.md",
+   "sha256": "34496c0d92736f7df5b9da69f8bcadfe40fb3ee35558c1b10fab7d06dec86950",
+   "size": 9428
+  },
+  "policy_009": {
+   "filename": "009-xpu-policy-inventory-20260825-01.manifest.json",
+   "sha256": "f5c661af73cd6b4a0d423ef44a59b11cba0e208ad178670ff2dabf097bf2e4e6",
+   "size": 60193
+  },
+  "watchdog_007": {
+   "filename": "007-inline-remapper-read-watchdog-20260825-01.manifest.json",
+   "sha256": "50d0e324f4356c4ba12c848d86e9563d1f82cfc789981516e05c901dd8d4bb82",
+   "size": 2900
+  }
+ },
+ "known_apertures": {
+  "all_branches_cover_all_candidates": true,
+  "all_hits_no_hlos_read": true,
+  "all_hits_no_hlos_write": true,
+  "all_hits_tz_owned": true,
+  "broad_protectors": [
+   "MEMNOC_MS_MPU",
+   "CNOC_SNOC_MS_MPU"
+  ],
+  "candidate_count": 8,
+  "candidates": [
+   {
+    "address": "0x09248080",
+    "instance": 0,
+    "kind": "remapper"
+   },
+   {
+    "address": "0x0924e000",
+    "instance": 0,
+    "kind": "bimc_mpu"
+   },
+   {
+    "address": "0x092c8080",
+    "instance": 1,
+    "kind": "remapper"
+   },
+   {
+    "address": "0x092ce000",
+    "instance": 1,
+    "kind": "bimc_mpu"
+   },
+   {
+    "address": "0x09348080",
+    "instance": 2,
+    "kind": "remapper"
+   },
+   {
+    "address": "0x0934e000",
+    "instance": 2,
+    "kind": "bimc_mpu"
+   },
+   {
+    "address": "0x093c8080",
+    "instance": 3,
+    "kind": "remapper"
+   },
+   {
+    "address": "0x093ce000",
+    "instance": 3,
+    "kind": "bimc_mpu"
+   }
+  ],
+  "instances": [
+   {
+    "bimc_mpu": "0x0924e000",
+    "bimc_resource_id": "0x2e",
+    "instance": 0,
+    "remapper": "0x09248080"
+   },
+   {
+    "bimc_mpu": "0x092ce000",
+    "bimc_resource_id": "0x2f",
+    "instance": 1,
+    "remapper": "0x092c8080"
+   },
+   {
+    "bimc_mpu": "0x0934e000",
+    "bimc_resource_id": "0x3f",
+    "instance": 2,
+    "remapper": "0x09348080"
+   },
+   {
+    "bimc_mpu": "0x093ce000",
+    "bimc_resource_id": "0x40",
+    "instance": 3,
+    "remapper": "0x093c8080"
+   }
+  ],
+  "memory_map_anchors": {
+   "landmark_heading": "Boot-time SHRM and remapper landmarks",
+   "required_row_count": 11,
+   "rows": [
+    {
+     "address": "0x00000000\u20130x0fffffff",
+     "name": "MEMNOC_MS_MPU",
+     "status": "`PROVED` in both TZ branches: enabled/TZ-owned, covers all eight known remapper/BIMC configuration addresses, no HLOS VMID grant."
+    },
+    {
+     "address": "0x09000000\u20130x097fffff",
+     "name": "CNOC_SNOC_MS_MPU",
+     "status": "`PROVED` in both TZ branches: enabled/TZ-owned, independently covers all eight known addresses, no HLOS VMID grant."
+    },
+    {
+     "address": "0x09248000\u20130x09248fff",
+     "name": "DC_NOC_BROADCAST_MPU",
+     "status": "`PROVED` in both TZ selector branches: enabled, TZ-owned, MSA-class read-only, no HLOS grant."
+    },
+    {
+     "address": "0x09248080\u20130x092480d8",
+     "name": "qhs_llcc remapper instance 0",
+     "status": "`PROVED` exact XBL ICB writer and inside TZ policy region 11; one fixed EL1 load returned no value and ended in watchdog."
+    },
+    {
+     "address": "0x0924e000",
+     "name": "BIMC_MPU0",
+     "status": "`PROVED` exact registry/error route and TZ dynamic topology target; also inside broad branch-invariant no-HLOS policies. Final runtime value `UNKNOWN`."
+    },
+    {
+     "address": "0x092c8080\u20130x092c80d8",
+     "name": "qhs_llcc remapper instance 1",
+     "status": "`PROVED` exact XBL writer and broad branch-invariant TZ-owned/no-HLOS coverage."
+    },
+    {
+     "address": "0x092ce000",
+     "name": "BIMC_MPU1",
+     "status": "`PROVED` exact registry/error route and TZ dynamic topology target; broad no-HLOS coverage. Final runtime value `UNKNOWN`."
+    },
+    {
+     "address": "0x09348080\u20130x093480d8",
+     "name": "qhs_llcc remapper instance 2",
+     "status": "`PROVED` exact XBL writer and broad branch-invariant TZ-owned/no-HLOS coverage."
+    },
+    {
+     "address": "0x0934e000",
+     "name": "BIMC_MPU2",
+     "status": "`PROVED` exact registry/error route and TZ dynamic topology target; broad no-HLOS coverage. Final runtime value `UNKNOWN`."
+    },
+    {
+     "address": "0x093c8080\u20130x093c80d8",
+     "name": "qhs_llcc remapper instance 3",
+     "status": "`PROVED` exact XBL writer and broad branch-invariant TZ-owned/no-HLOS coverage."
+    },
+    {
+     "address": "0x093ce000",
+     "name": "BIMC_MPU3",
+     "status": "`PROVED` exact registry/error route and TZ dynamic topology target; broad no-HLOS coverage. Final runtime value `UNKNOWN`."
+    }
+   ],
+   "source_scope": "PUBLIC_MEMORY_MAP_SEMANTIC_ANCHORS_ONLY"
+  },
+  "policy_009_tested_dc_noc": {
+   "branches": {
+    "selector_result_ge_2": {
+     "critical_region": {
+      "end_exclusive": "0x09249000",
+      "index": 11,
+      "start": "0x09248000"
+     },
+     "hlos_read": false,
+     "hlos_write": false,
+     "owner": "TZ",
+     "static_policy_interpretation": "TZ-owned; TZ owner read/write; MSA-class read-only; no standard VMID permission and no HLOS VMID bit"
+    },
+    "selector_result_lt_2": {
+     "critical_region": {
+      "end_exclusive": "0x09249000",
+      "index": 11,
+      "start": "0x09248000"
+     },
+     "hlos_read": false,
+     "hlos_write": false,
+     "owner": "TZ",
+     "static_policy_interpretation": "TZ-owned; TZ owner read/write; MSA-class read-only; no standard VMID permission and no HLOS VMID bit"
+    }
+   },
+   "schema": "sdm855-xpu-policy-inventory-public-v1",
+   "selector_branch_invariant": true,
+   "static_hlos_grant": false,
+   "tested_address": "0x09248080",
+   "tested_address_covered": true
+  },
+  "selector_branches": {
+   "selector_result_ge_2": {
+    "address_count": 8,
+    "addresses": [
+     {
+      "address": "0x09248080",
+      "broad_protectors": [
+       "MEMNOC_MS_MPU",
+       "CNOC_SNOC_MS_MPU"
+      ],
+      "hlos_read": false,
+      "hlos_write": false,
+      "tz_owned": true
+     },
+     {
+      "address": "0x0924e000",
+      "broad_protectors": [
+       "MEMNOC_MS_MPU",
+       "CNOC_SNOC_MS_MPU"
+      ],
+      "hlos_read": false,
+      "hlos_write": false,
+      "tz_owned": true
+     },
+     {
+      "address": "0x092c8080",
+      "broad_protectors": [
+       "MEMNOC_MS_MPU",
+       "CNOC_SNOC_MS_MPU"
+      ],
+      "hlos_read": false,
+      "hlos_write": false,
+      "tz_owned": true
+     },
+     {
+      "address": "0x092ce000",
+      "broad_protectors": [
+       "MEMNOC_MS_MPU",
+       "CNOC_SNOC_MS_MPU"
+      ],
+      "hlos_read": false,
+      "hlos_write": false,
+      "tz_owned": true
+     },
+     {
+      "address": "0x09348080",
+      "broad_protectors": [
+       "MEMNOC_MS_MPU",
+       "CNOC_SNOC_MS_MPU"
+      ],
+      "hlos_read": false,
+      "hlos_write": false,
+      "tz_owned": true
+     },
+     {
+      "address": "0x0934e000",
+      "broad_protectors": [
+       "MEMNOC_MS_MPU",
+       "CNOC_SNOC_MS_MPU"
+      ],
+      "hlos_read": false,
+      "hlos_write": false,
+      "tz_owned": true
+     },
+     {
+      "address": "0x093c8080",
+      "broad_protectors": [
+       "MEMNOC_MS_MPU",
+       "CNOC_SNOC_MS_MPU"
+      ],
+      "hlos_read": false,
+      "hlos_write": false,
+      "tz_owned": true
+     },
+     {
+      "address": "0x093ce000",
+      "broad_protectors": [
+       "MEMNOC_MS_MPU",
+       "CNOC_SNOC_MS_MPU"
+      ],
+      "hlos_read": false,
+      "hlos_write": false,
+      "tz_owned": true
+     }
+    ],
+    "selector_predicate": "selector_result_byte >= 2"
+   },
+   "selector_result_lt_2": {
+    "address_count": 8,
+    "addresses": [
+     {
+      "address": "0x09248080",
+      "broad_protectors": [
+       "MEMNOC_MS_MPU",
+       "CNOC_SNOC_MS_MPU"
+      ],
+      "hlos_read": false,
+      "hlos_write": false,
+      "tz_owned": true
+     },
+     {
+      "address": "0x0924e000",
+      "broad_protectors": [
+       "MEMNOC_MS_MPU",
+       "CNOC_SNOC_MS_MPU"
+      ],
+      "hlos_read": false,
+      "hlos_write": false,
+      "tz_owned": true
+     },
+     {
+      "address": "0x092c8080",
+      "broad_protectors": [
+       "MEMNOC_MS_MPU",
+       "CNOC_SNOC_MS_MPU"
+      ],
+      "hlos_read": false,
+      "hlos_write": false,
+      "tz_owned": true
+     },
+     {
+      "address": "0x092ce000",
+      "broad_protectors": [
+       "MEMNOC_MS_MPU",
+       "CNOC_SNOC_MS_MPU"
+      ],
+      "hlos_read": false,
+      "hlos_write": false,
+      "tz_owned": true
+     },
+     {
+      "address": "0x09348080",
+      "broad_protectors": [
+       "MEMNOC_MS_MPU",
+       "CNOC_SNOC_MS_MPU"
+      ],
+      "hlos_read": false,
+      "hlos_write": false,
+      "tz_owned": true
+     },
+     {
+      "address": "0x0934e000",
+      "broad_protectors": [
+       "MEMNOC_MS_MPU",
+       "CNOC_SNOC_MS_MPU"
+      ],
+      "hlos_read": false,
+      "hlos_write": false,
+      "tz_owned": true
+     },
+     {
+      "address": "0x093c8080",
+      "broad_protectors": [
+       "MEMNOC_MS_MPU",
+       "CNOC_SNOC_MS_MPU"
+      ],
+      "hlos_read": false,
+      "hlos_write": false,
+      "tz_owned": true
+     },
+     {
+      "address": "0x093ce000",
+      "broad_protectors": [
+       "MEMNOC_MS_MPU",
+       "CNOC_SNOC_MS_MPU"
+      ],
+      "hlos_read": false,
+      "hlos_write": false,
+      "tz_owned": true
+     }
+    ],
+    "selector_predicate": "selector_result_byte < 2"
+   }
+  }
+ },
+ "mode": "HOST_ONLY_READ_ONLY",
+ "reachability": {
+  "alternate_apertures": "UNKNOWN",
+  "devmem_route": {
+   "failure_status": "error",
+   "fixed_address": "0x09248080",
+   "memory_or_mmio_writes": false,
+   "offset": "0x00",
+   "rc": 1,
+   "read_attempt_count": 1,
+   "read_success_count": 0,
+   "temporary_node_lifecycle": "PREclean_CREATE_ABSENT_CHECK_CLEANUP_ALL_OK",
+   "width_bits": 32
+  },
+  "final_runtime_register_state": "UNKNOWN",
+  "fixed_el1_watchdog": {
+   "fixed_address": "0x09248080",
+   "memory_or_mmio_writes": false,
+   "operation_count": 1,
+   "probe_outcome": "PROBE_FAILED",
+   "reset_type": "warm reset",
+   "value_observed": null,
+   "watchdog_cause": "Non Secure Watchdog Bark"
+  },
+  "global_normal_world_reachability": "UNKNOWN",
+  "known_aperture_normal_world_reachability": "SUPPORTED_BLOCKED_FOR_TESTED_STATIC_POLICY",
+  "known_aperture_policy": "PROVED_BROAD_TZ_OWNED_NO_HLOS_STATIC_COVERAGE",
+  "status": "BOUNDED_1B_CHECKPOINT_NOT_GLOBAL_REACHABILITY_PROOF"
+ },
+ "schema": "sm8150-1b-known-aperture-reachability-checkpoint-v1",
+ "scope": {
+  "alternate_apertures": "UNKNOWN",
+  "broad_policy_coverage": true,
+  "fixed_el1_watchdog_is_causal": "UNKNOWN",
+  "global_reachability": "UNKNOWN",
+  "hlos_grant": false,
+  "model": "EIGHT_KNOWN_QHS_LLCC_REMAP_AND_BIMC_APERTURES_ONLY",
+  "no_device_contact": true,
+  "no_write": true,
+  "policy_branches": 2,
+  "runtime_register_readback": "UNKNOWN",
+  "tz_ownership": true
+ }
+}

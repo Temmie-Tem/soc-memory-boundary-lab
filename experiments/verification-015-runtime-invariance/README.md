@@ -216,3 +216,15 @@ The output manifest was published once at the canonical path through the
 atomic no-clobber writer; its fresh mode was observed as `0644`. A second
 fresh temporary generation matched the first byte-for-byte. No private input
 was modified.
+
+## Supplementary bus-vote amendment — 2026-08-27
+
+The previously unretained `msm-bus-dbg` caveat is now parsed separately from
+two exact private excerpts.  The client list declares 66 clients and includes
+`disp_rsc_ebi`; its six retained entries show one initial 12.8 GB/s AB/IB vote,
+two transient zero-AB/400 MB/s IB rows, and three restored 12.8 GB/s rows.  The
+transient vote is not promoted to a DDR clock transition, and the V015
+bandwidth axis remains excluded from transform conclusions.  The sanitized
+amendment manifest, strict parser and mutation/no-follow tests are recorded in
+[the bus-vote amendment review](../../docs/VERIFICATION015_BUS_VOTE_AMENDMENT_2026-08-27.md)
+and [manifest](../../evidence/manifests/verification-015-bus-vote-amendment-20260827-01.manifest.json).
