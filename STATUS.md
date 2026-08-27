@@ -432,9 +432,26 @@ public manifest is
 SHA-256
 `ec3ec693768bf1294366c5650ab9c5e76b27f9bdce049c7a6f2b205a00a72fb8`, mode
 `0644`.  Validation is 19 focused and 1,151 full serial PASS (`skipped=1`, no
-swaps); no device action occurred.  The next candidate is
-the host-only 020A setter/base trace, subject to the same bounded
-no-writer/no-live-authority boundary.
+swaps); no device action occurred.  The follow-on host-only 020A setter/base
+trace is now complete and remains bounded by the same no-writer/no-live-
+authority rule.
+
+Verification 020A is now complete as a separate host-only static trace.  The
+exact setter `[0x9fc06410,0x9fc0643c)` has five static stores: one `XZR` zero
+and four argument-sourced values.  Its sole direct caller at `0x9fc023f0`
+supplies `W3=[X0+0x10]`, `X0=[X0+0x18]`, `X1=[X0+0x20]`, and
+`X2=[X0+0x28]` from an opaque incoming object in the bounded linear model.
+Runtime values/currentness, field type, physical-to-DRAM mapping, mutability,
+protected reach and aliases remain `UNKNOWN`; Class C and numbered 015/016
+eligibility are unchanged.  The sanitized manifest is
+`evidence/manifests/020A-setter-base-trace-20260827-01.manifest.json`, 9,171
+bytes, SHA-256
+`edf62eb6c1d97a8113f5ba0894548e9d5fafc83eeefbc7976c808b0f7886c051`, mode
+`0644`.  Validation is 9 focused and 1,160 full serial tests PASS (`skipped=1`,
+no swaps); the final hostile review is `PASS` as recorded in the integration
+review (`docs/VERIFICATION020A_INTEGRATION_REVIEW_2026-08-27.md`).  The next
+scored candidate is
+the host-only caller-object origin trace (020B), not a device write.
 
 ## A. 현재까지 PROVED
 
@@ -1127,18 +1144,19 @@ ordering remain `UNKNOWN`, so this is not yet a structural impossibility proof.
 
 Verification 016 is complete, Verification 017 has excluded the narrow
 bank-only enforcement shape, Verification 018 has supplied the fresh
-allocation-local baseline, and the Route-2 audit has closed its bounded Q1
-question while retaining Q4 as `UNKNOWN`. The highest-information next
-iteration is the host-only 020A setter/base trace; the Route-2 handoff and
-audit remain the constraints for interpreting it.
+allocation-local baseline, the Route-2 audit has closed its bounded Q1
+question while retaining Q4 as `UNKNOWN`, and Verification 020A has traced the
+setter's incoming object fields. The highest-information next iteration is a
+host-only 020B caller-object origin trace; the Route-2 handoff and 020A
+symbolic boundary remain the constraints for interpreting it.
 
 The ordered next step is:
 
-1. run the 020A setter/base trace as a bounded host-only static analysis,
-   requiring an exact reachable writer/register path before reopening the
-   mutation route;
+1. run 020B as a bounded host-only static analysis of the caller's incoming
+   object origin, requiring an exact direct call/data-flow path before
+   reopening the mutation route;
 2. retain the V017 result as a bank-only shape exclusion, the Route-2 Q4 result
-   as `UNKNOWN`, and the V018 one-state
+   as `UNKNOWN`, the 020A field origins as symbolic only, and the V018 one-state
    result only as a storage-identity baseline; do
    not infer physical PA alias, transform immutability or protected reach;
 3. if a reopen condition appears, select a new bounded discriminator and stop
@@ -1146,7 +1164,7 @@ The ordered next step is:
 
 The completed V018 action wrote only inside its own non-secure allocation and
 did not touch MMIO, SMC, secure heap, protected memory or a partition.
-The 020A setter trace remains the host-only fallback. Numbered
+The 020A setter trace is complete; 020B remains the host-only fallback. Numbered
 Experiments 015/016 remain `NOT_ELIGIBLE`.
 
 ## N. 가장 위험한 아직 금지된 실험

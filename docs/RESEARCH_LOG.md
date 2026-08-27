@@ -1943,3 +1943,28 @@ mode `0644`, SHA-256
 focused suite is 19/19 PASS; the full serial repository suite is 1,151/1,151
 PASS (`skipped=1`) in 113.671 seconds, maximum RSS 290,844 KiB, with zero swap.
 The hostile-review result is recorded in the integration review.
+
+# 2026-08-27 — Verification 020A setter/base argument trace
+
+This host-only iteration pins the exact XBL and the candidate setter range
+`[0x9fc06410,0x9fc0643c)`.  It independently decodes the five static stores and
+the singleton direct caller at `0x9fc023f0`, then traces only the 20-byte linear
+pre-call block.  The setter contains one `XZR` zero and four argument-sourced
+stores; the caller sources them from an opaque incoming object as
+`W3=[X0+0x10]`, `X0=[X0+0x18]`, `X1=[X0+0x20]`, and `X2=[X0+0x28]`.
+
+`PROVED`: exact input/range hashes, store shape, direct-caller singleton and
+symbolic field origins.  `SUPPORTED`: the setter/caller edge is reproducible in
+the bounded model and compatible with the prior candidate DDR-segment
+inference.  `HYPOTHESIS`: the object may carry controller-base-like fields.
+`UNKNOWN`: runtime object origin/value/type, boot execution/currentness, alternate
+or indirect callers, mutability/locks, physical-to-DRAM mapping, protected reach
+and alias/bypass.  `CLASS C (TRANSFORM ONLY)` and numbered 015/016 eligibility
+are unchanged; no device action occurred.
+
+The sanitized manifest is
+`evidence/manifests/020A-setter-base-trace-20260827-01.manifest.json`, 9,171
+bytes, mode `0644`, SHA-256
+`edf62eb6c1d97a8113f5ba0894548e9d5fafc83eeefbc7976c808b0f7886c051`.  Focused
+validation is 9/9; full serial validation and the final hostile review are in
+`docs/VERIFICATION020A_INTEGRATION_REVIEW_2026-08-27.md`.

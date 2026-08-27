@@ -457,6 +457,15 @@ relation.  Q4 remains `UNKNOWN` because those manifests do not contain a
 complete relation-row set; this audit does not establish global writer absence,
 runtime execution, physical mapping or a security-boundary result.
 
+Verification 020A then pinned the candidate setter
+`[0x9fc06410,0x9fc0643c)` and its sole direct caller `0x9fc023f0`.  The setter
+stores one zero and four incoming argument registers; the caller's bounded
+linear block resolves those registers to fields of an opaque incoming `X0`
+object at offsets `0x10`, `0x18`, `0x20` and `0x28`.  This is symbolic static
+data flow only: object type/value/currentness, physical-to-DRAM mapping,
+post-boot mutability and protected reach remain `UNKNOWN`.  It does not identify
+the final controller writer or authorize a live mutation.
+
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside
 `DC_NOC_NON_BROADCAST_MPU`, `MEMNOC_MS_MPU`, and `CNOC_SNOC_MS_MPU` regions.

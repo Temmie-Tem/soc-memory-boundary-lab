@@ -495,6 +495,20 @@ The handoff and independent response remain in
 and
 [docs/ROUTE2_TERMINATION_RESPONSE_2026-08-27.md](docs/ROUTE2_TERMINATION_RESPONSE_2026-08-27.md).
 
+Verification 020A then traced the exact candidate setter's argument origin in
+the retained XBL.  The five static stores contain one `XZR` zero and four
+incoming-object fields; the sole direct caller at `0x9fc023f0` supplies
+`W3=[X0+0x10]`, `X0=[X0+0x18]`, `X1=[X0+0x20]`, and `X2=[X0+0x28]` in the
+bounded linear model.  This is symbolic setter/base evidence only: runtime
+object values, currentness, physical/DRAM mapping, mutability and protected
+reach remain `UNKNOWN`.  The result remains `CLASS C (TRANSFORM ONLY)` and
+`NOT_ELIGIBLE`; see
+[the 020A integration review](docs/VERIFICATION020A_INTEGRATION_REVIEW_2026-08-27.md)
+and the sanitized
+[020A manifest](evidence/manifests/020A-setter-base-trace-20260827-01.manifest.json).
+The 020A focused suite is 9/9 and the full serial suite is 1,160/1,160 PASS
+(`skipped=1`, no swaps); hostile review is `PASS`.
+
 Claim vocabulary is deliberately closed:
 
 - `PROVED`: directly demonstrated by named source, artifact, or repeated result.
@@ -545,6 +559,10 @@ The Route-2 writer/rank audit is in
 [experiments/verification-route2-rank-audit/README.md](experiments/verification-route2-rank-audit/README.md),
 with its sanitized result in
 [evidence/manifests/route2-rank-audit-20260827-01.manifest.json](evidence/manifests/route2-rank-audit-20260827-01.manifest.json).
+Verification 020A's setter/base trace is in
+[experiments/verification-020A-setter-base-trace/README.md](experiments/verification-020A-setter-base-trace/README.md),
+with its sanitized result in
+[evidence/manifests/020A-setter-base-trace-20260827-01.manifest.json](evidence/manifests/020A-setter-base-trace-20260827-01.manifest.json).
 Experiment 018's Stage 1A/Stage 2A/Stage 2B/Stage 2C/Stage 2D/Stage 2E XBL writer cross-reference is in
 [experiments/018-xbl-mc-writer-xref/README.md](experiments/018-xbl-mc-writer-xref/README.md).
 Experiment 019's strict DCB pair-array inventory is in
