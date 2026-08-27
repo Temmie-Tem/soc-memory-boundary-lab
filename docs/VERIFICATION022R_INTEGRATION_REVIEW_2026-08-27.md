@@ -155,9 +155,11 @@ Independent review of the executed receipt found 317 transcript sections and
 1,802 probe records: 1,787 pair rows, 11 ordered difference summaries, one
 terminal cleanup record, and three metadata records. Every transcript
 size/hash/frame/sequence and every recomputed pair address/XOR matched; there
-were zero percentile mismatches. The payload-extracted JSONL is byte-identical
-to the retained raw JSONL. Remote binary hashes before and after execution both
-equal `ed826cc75dee1eafad3b1b1ea4b0b779147364a330201e284b9e24c92adf1b92`.
+were zero percentile mismatches. The retained raw JSONL is exactly the payload
+of the framed probe output after removing the 32-byte runner banner and 8-byte
+`[exit 0]` marker; `32 + 294,218 + 8 = 294,258` accounts for the framed file in
+full. Remote binary hashes before and after execution both equal
+`ed826cc75dee1eafad3b1b1ea4b0b779147364a330201e284b9e24c92adf1b92`.
 
 The private evidence descriptors are:
 
