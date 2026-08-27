@@ -25,6 +25,15 @@ Only one is closed by the contract alone.
 
 ## 1. PA28 and above
 
+> **REOPENED 2026-08-27.** This route is not closed. The `camera_preview` heap
+> is backed by the fixed carveout `camera_mem_region` at published physical base
+> **`0xC2000000`**, size 320 MiB, and every offset in a 64 MiB window of a
+> full-size allocation yields a clean single-bit-28 XOR pair. `f(PA28)` is
+> measurable with no `pagemap` and no new privilege. See
+> `docs/PA28_UNBLOCKED_2026-08-27.md`. The corrections below stand but no longer
+> add up to a closure.
+
+
 Measuring `f(PA28)` needs two addresses differing in **only** bit 28.
 
 > **Corrected 2026-08-27.** This section previously asserted that the pair

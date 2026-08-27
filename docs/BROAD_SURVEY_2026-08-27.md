@@ -107,6 +107,12 @@ and none of the new literature narrows it.
 
 ## 4. A concrete experiment this survey produces
 
+> **Superseded 2026-08-27, on this heap.** The base does not need inferring:
+> the device tree publishes it (`camera_mem_region` @ `0xC2000000`). See
+> `docs/PA28_UNBLOCKED_2026-08-27.md`. The lever below stays valid for any heap
+> whose base is *not* published, and the derivation is retained for that case.
+
+
 The heap-capacity measurement showed `camera_preview` reaches **320 MiB**, and
 that measuring `f(PA28)` needs a span exceeding `2^28` = 256 MiB rather than the
 512 MiB previously asserted. What still blocks PA28 is the unknown physical
