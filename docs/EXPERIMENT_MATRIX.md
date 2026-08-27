@@ -31,8 +31,9 @@
 | 020E-SS | Do the six 020D static slots have additional bounded direct consumers or writers? | `PROVED` within the finite model: 18 unique direct unsigned scalar accesses (6 `STR`, 12 `LDR`) to the six slots; 95 bounded barriers are retained (8 caller-saved `BL`, 87 unknown-instruction). | Exact XBL/helper/caller/object hashes; ADRP-to-slot-page window of 8 instructions; strict scalar decoders, page-register kill rules, caller-saved `BL` barriers and explicit AAPCS64 X19–X29 continuation assumption; synthetic call-flow negatives; no device/SMC/MMIO/write. | `SUPPORTED` bounded cross-reference only; global writer/consumer absence, ABI compliance, runtime values/currentness, slot semantics, physical/DRAM mapping, mutability, protected reach and alias/bypass `UNKNOWN`; `CLASS C`, `NOT_ELIGIBLE`. |
 | 020F-LU | Do the twelve 020E slot loads feed pointer/address formation, stores, predicates, or returns? | `PROVED` within the finite model: 16 recognized downstream use events and 11 barriers across 16-instruction same-block windows; no tainted direct store reached. | Exact XBL plus mechanically hash-pinned 020E manifest; strict LDR/STR, register-offset, ADD/SUB, MADD, MOV, predicate, control and call-preservation model; X30 caller-saved, MOVK fail-closed, CBNZ/TBNZ covered; no device/SMC/MMIO/write. | `SUPPORTED` local address/arithmetic uses only; global writer/consumer absence, ABI/runtime values/currentness, slot semantics, physical/DRAM mapping, mutability, protected reach and alias/bypass `UNKNOWN`; `CLASS C`, `NOT_ELIGIBLE`. |
 | 020G-PO | Do the exact 020F address-use events resolve to bounded pointer/object shapes? | `PROVED` within the finite model: 12 witnesses, consisting of 10 immediate object-field-shaped accesses (7 `LDR`, 3 `STR`) and 2 `UXTX` register-offset array-element-shaped loads; 11 unique access VAs and 1 duplicate witness. | Exact XBL plus mechanically hash-pinned 020F manifest; strict unsigned scalar and `UXTX` register-offset decoders at the exact event VAs; no runtime pointer/physical/MMIO/DRAM promotion or device/SMC/write. | `SUPPORTED` local pointer/object/array shape only; runtime base/currentness, object semantics, global writer/consumer absence, mutability, protected reach and alias/bypass remain `UNKNOWN`; `CLASS C`, `NOT_ELIGIBLE`. |
+| 020H-FR | Do the exact 020G witnesses belong to bounded local function/role blocks with statically recoverable base origins? | `PROVED` within the finite model: 12 witnesses group into 11 unique access VAs and 7 return/direct-branch-delimited blocks; 9 blocks contain unsupported forms and 2 are local-read-shaped. Ten unique bases are `STATIC_SLOT_SEED`; indexed `0x9fc26ea0` is `ARITHMETIC_DERIVED` from `MADD`. | Exact XBL plus mechanically hash-pinned 020G manifest and 220-byte role region; strict RET X30/direct-B/direct-BL and bounded base decoders; no true-function/PA/DRAM/MMIO promotion or device/SMC/write. | `SUPPORTED` local helper/object role consistency only; true function boundaries, runtime/global/physical semantics, mutability, protected reach and alias/bypass remain `UNKNOWN`; `CLASS C`, `NOT_ELIGIBLE`. |
 
-## Integrated host-only rows 019–022, 024–027, 029, 031–033, 020E, 020F and 020G
+## Integrated host-only rows 019–022, 024–027, 029, 031–033, 020E, 020F, 020G and 020H
 
 | ID | Question | Bounded result | Classification and boundary |
 |---:|---|---|---|
@@ -129,8 +130,9 @@ second helper caller at `0x9fc26e2c`.  The next candidate is a static-slot
 consumer census (020E), now complete; 020F then traced the twelve resulting
 loads through bounded same-block use chains; 020G then resolved its address-use
 events to 12 bounded pointer/object witnesses (10 immediate and 2 `UXTX`
-register-offset, with 11 unique VAs and 1 duplicate witness).  The next
-candidate is a bounded static-slot function-role/base-origin trace (020H).
+register-offset, with 11 unique VAs and 1 duplicate witness); 020H then
+grouped them into 7 bounded local blocks and classified their base origins.
+The next candidate is a bounded caller-context/entry-role trace (020I).
 Experiment 035 remains deferred.
 
 The Stage 2E row's writeback result is an exact audit of all recognized
@@ -1230,6 +1232,33 @@ The public manifest is 7,218 bytes, mode `0644`, SHA-256
 `f534efeee1e12f18d3af40c107dbc6fbe938eae16d9013aa088d22d7c880af3e`.
 Validation is 10 focused and 1,205 full serial unittest PASS (`skipped=1`) in
 134.596 seconds, maximum RSS 347,740 KiB, zero swap.
+
+## Experiment 020H static-slot function-role/base-origin metadata
+
+Verification 020H re-decodes the exact 020G access set and analyzes only the
+pinned role region `[0x9fc26e84,0x9fc26f60)` (220 bytes).  Strict RET X30 and
+direct-B boundaries yield 7 bounded blocks; true function boundaries remain
+`UNKNOWN`.  Direct BL sources to each bounded block entry and a backward
+16-instruction base trace are retained without promoting a static VA to a
+runtime pointer or controller address.
+
+`PROVED`: 12 witness rows, 11 unique access VAs, 7 bounded blocks, nine
+unsupported-role blocks and two local-read-shaped blocks;
+ten unique `STATIC_SLOT_SEED` base definitions and one indexed
+`ARITHMETIC_DERIVED` `MADD` base.  `SUPPORTED`: local helper/object role
+consistency.  `HYPOTHESIS`: the family may be local configuration/helper
+state.  `UNKNOWN`: true function boundaries, runtime execution/currentness and
+values, indirect effects, object semantics, global writer/consumer absence,
+ABI effects, MMIO/physical/DRAM identity, mutability/locking, protected reach,
+aliasing and bypass.  Class C remains unchanged and 015/016 remain
+`NOT_ELIGIBLE`.
+
+The public manifest is 19,314 bytes, mode `0644`, SHA-256
+`b306ca67675430314289fd79faa2e53b2d67994807d0b08bd91ced9b625faba2`.
+Validation is 11 focused and 1,216 full serial unittest PASS (`skipped=1`) in
+140.860 seconds, maximum RSS 349,728 KiB, zero swap, with deterministic
+regeneration, redaction, no-clobber, and independent hostile-review `PASS`.
+The next scored candidate is a bounded caller-context/entry-role trace (020I).
 
 ## Integration validation and current reconciliation
 

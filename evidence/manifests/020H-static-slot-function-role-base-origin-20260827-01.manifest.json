@@ -1,0 +1,770 @@
+{
+ "boundary_bypass": {
+  "device": "none",
+  "mmio": "none",
+  "protected_memory": "none",
+  "reason": "Host-only static role/base-origin census; no activation or live state was accessed.",
+  "smc": "none",
+  "status": "NOT_AUTHORIZED"
+ },
+ "census": {
+  "access_witness_count": 12,
+  "block_count": 7,
+  "blocks": [
+   {
+    "block": {
+     "end_exclusive": "0x9fc26ea8",
+     "size": 36,
+     "start": "0x9fc26e84",
+     "terminator": "RET"
+    },
+    "direct_call_count": 0,
+    "instruction_count": 9,
+    "register_offset_count": 1,
+    "role": "UNKNOWN_ROLE_UNSUPPORTED_FORM",
+    "scalar_load_count": 2,
+    "scalar_store_count": 0,
+    "unsupported_vas": [
+     "0x9fc26e8c",
+     "0x9fc26e94"
+    ]
+   },
+   {
+    "block": {
+     "end_exclusive": "0x9fc26ec0",
+     "size": 24,
+     "start": "0x9fc26ea8",
+     "terminator": "RET"
+    },
+    "direct_call_count": 0,
+    "instruction_count": 6,
+    "register_offset_count": 0,
+    "role": "UNKNOWN_ROLE_UNSUPPORTED_FORM",
+    "scalar_load_count": 3,
+    "scalar_store_count": 0,
+    "unsupported_vas": [
+     "0x9fc26eb8"
+    ]
+   },
+   {
+    "block": {
+     "end_exclusive": "0x9fc26ee4",
+     "size": 36,
+     "start": "0x9fc26ec0",
+     "terminator": "RET"
+    },
+    "direct_call_count": 0,
+    "instruction_count": 9,
+    "register_offset_count": 0,
+    "role": "UNKNOWN_ROLE_UNSUPPORTED_FORM",
+    "scalar_load_count": 4,
+    "scalar_store_count": 0,
+    "unsupported_vas": [
+     "0x9fc26ed4",
+     "0x9fc26ed8",
+     "0x9fc26edc"
+    ]
+   },
+   {
+    "block": {
+     "end_exclusive": "0x9fc26ef4",
+     "size": 16,
+     "start": "0x9fc26ee4",
+     "terminator": "RET"
+    },
+    "direct_call_count": 0,
+    "instruction_count": 4,
+    "register_offset_count": 0,
+    "role": "LOCAL_READ_SHAPED_BLOCK",
+    "scalar_load_count": 2,
+    "scalar_store_count": 0,
+    "unsupported_vas": []
+   },
+   {
+    "block": {
+     "end_exclusive": "0x9fc26f30",
+     "size": 60,
+     "start": "0x9fc26ef4",
+     "terminator": "DIRECT_BRANCH"
+    },
+    "direct_call_count": 2,
+    "instruction_count": 15,
+    "register_offset_count": 0,
+    "role": "UNKNOWN_ROLE_UNSUPPORTED_FORM",
+    "scalar_load_count": 2,
+    "scalar_store_count": 2,
+    "unsupported_vas": [
+     "0x9fc26ef4",
+     "0x9fc26ef8",
+     "0x9fc26f08",
+     "0x9fc26f24",
+     "0x9fc26f28"
+    ]
+   },
+   {
+    "block": {
+     "end_exclusive": "0x9fc26f50",
+     "size": 32,
+     "start": "0x9fc26f30",
+     "terminator": "DIRECT_BRANCH"
+    },
+    "direct_call_count": 1,
+    "instruction_count": 8,
+    "register_offset_count": 0,
+    "role": "UNKNOWN_ROLE_UNSUPPORTED_FORM",
+    "scalar_load_count": 1,
+    "scalar_store_count": 1,
+    "unsupported_vas": [
+     "0x9fc26f30",
+     "0x9fc26f48"
+    ]
+   },
+   {
+    "block": {
+     "end_exclusive": "0x9fc26f60",
+     "size": 16,
+     "start": "0x9fc26f50",
+     "terminator": "RET"
+    },
+    "direct_call_count": 0,
+    "instruction_count": 4,
+    "register_offset_count": 0,
+    "role": "LOCAL_READ_SHAPED_BLOCK",
+    "scalar_load_count": 2,
+    "scalar_store_count": 0,
+    "unsupported_vas": []
+   }
+  ],
+  "role_counts": {
+   "LOCAL_READ_SHAPED_BLOCK": 2,
+   "UNKNOWN_ROLE_UNSUPPORTED_FORM": 9
+  },
+  "role_row_count": 11,
+  "roles": [
+   {
+    "access_va": "0x9fc26ea0",
+    "base_origin": {
+     "backward_window_instructions": 16,
+     "base_register": "X10",
+     "classification": "ARITHMETIC_DERIVED",
+     "definitions": [
+      {
+       "kind": "ARITHMETIC_DERIVED",
+       "register": "X10",
+       "seed_slot_va": "0x9fc3e158",
+       "sources": [
+        "X9",
+        "X0",
+        "X8"
+       ],
+       "va": "0x9fc26e9c"
+      }
+     ],
+     "seed_slot_va": "0x9fc3e158",
+     "seed_va": "0x9fc26e90"
+    },
+    "block_entry_direct_bl_sources": [
+     "0x9fc263f8",
+     "0x9fc265fc"
+    ],
+    "block_role": {
+     "block": {
+      "end_exclusive": "0x9fc26ea8",
+      "size": 36,
+      "start": "0x9fc26e84",
+      "terminator": "RET"
+     },
+     "direct_call_count": 0,
+     "instruction_count": 9,
+     "register_offset_count": 1,
+     "role": "UNKNOWN_ROLE_UNSUPPORTED_FORM",
+     "scalar_load_count": 2,
+     "scalar_store_count": 0,
+     "unsupported_vas": [
+      "0x9fc26e8c",
+      "0x9fc26e94"
+     ]
+    },
+    "kind": "LDR",
+    "shape": "REGISTER_OFFSET_ARRAY_ELEMENT",
+    "witness_count": 2
+   },
+   {
+    "access_va": "0x9fc26eb0",
+    "base_origin": {
+     "backward_window_instructions": 16,
+     "base_register": "X9",
+     "classification": "STATIC_SLOT_SEED",
+     "definitions": [
+      {
+       "address_base": "X8",
+       "kind": "STATIC_SLOT_SEED",
+       "offset": "0x00000150",
+       "register": "X9",
+       "seed_slot_va": "0x9fc3e150",
+       "va": "0x9fc26eac"
+      }
+     ],
+     "seed_slot_va": "0x9fc3e150",
+     "seed_va": "0x9fc26eac"
+    },
+    "block_entry_direct_bl_sources": [
+     "0x9fc26400",
+     "0x9fc26604"
+    ],
+    "block_role": {
+     "block": {
+      "end_exclusive": "0x9fc26ec0",
+      "size": 24,
+      "start": "0x9fc26ea8",
+      "terminator": "RET"
+     },
+     "direct_call_count": 0,
+     "instruction_count": 6,
+     "register_offset_count": 0,
+     "role": "UNKNOWN_ROLE_UNSUPPORTED_FORM",
+     "scalar_load_count": 3,
+     "scalar_store_count": 0,
+     "unsupported_vas": [
+      "0x9fc26eb8"
+     ]
+    },
+    "kind": "LDR",
+    "shape": "IMMEDIATE_OBJECT_FIELD",
+    "witness_count": 1
+   },
+   {
+    "access_va": "0x9fc26eb4",
+    "base_origin": {
+     "backward_window_instructions": 16,
+     "base_register": "X9",
+     "classification": "STATIC_SLOT_SEED",
+     "definitions": [
+      {
+       "address_base": "X8",
+       "kind": "STATIC_SLOT_SEED",
+       "offset": "0x00000150",
+       "register": "X9",
+       "seed_slot_va": "0x9fc3e150",
+       "va": "0x9fc26eac"
+      }
+     ],
+     "seed_slot_va": "0x9fc3e150",
+     "seed_va": "0x9fc26eac"
+    },
+    "block_entry_direct_bl_sources": [
+     "0x9fc26400",
+     "0x9fc26604"
+    ],
+    "block_role": {
+     "block": {
+      "end_exclusive": "0x9fc26ec0",
+      "size": 24,
+      "start": "0x9fc26ea8",
+      "terminator": "RET"
+     },
+     "direct_call_count": 0,
+     "instruction_count": 6,
+     "register_offset_count": 0,
+     "role": "UNKNOWN_ROLE_UNSUPPORTED_FORM",
+     "scalar_load_count": 3,
+     "scalar_store_count": 0,
+     "unsupported_vas": [
+      "0x9fc26eb8"
+     ]
+    },
+    "kind": "LDR",
+    "shape": "IMMEDIATE_OBJECT_FIELD",
+    "witness_count": 1
+   },
+   {
+    "access_va": "0x9fc26ec8",
+    "base_origin": {
+     "backward_window_instructions": 16,
+     "base_register": "X9",
+     "classification": "STATIC_SLOT_SEED",
+     "definitions": [
+      {
+       "address_base": "X8",
+       "kind": "STATIC_SLOT_SEED",
+       "offset": "0x00000138",
+       "register": "X9",
+       "seed_slot_va": "0x9fc3e138",
+       "va": "0x9fc26ec4"
+      }
+     ],
+     "seed_slot_va": "0x9fc3e138",
+     "seed_va": "0x9fc26ec4"
+    },
+    "block_entry_direct_bl_sources": [
+     "0x9fc26a1c",
+     "0x9fc26b3c",
+     "0x9fc26c78",
+     "0x9fc26cd4",
+     "0x9fc27fd4",
+     "0x9fc281a0",
+     "0x9fc28218",
+     "0x9fc2c340",
+     "0x9fc2c4fc"
+    ],
+    "block_role": {
+     "block": {
+      "end_exclusive": "0x9fc26ee4",
+      "size": 36,
+      "start": "0x9fc26ec0",
+      "terminator": "RET"
+     },
+     "direct_call_count": 0,
+     "instruction_count": 9,
+     "register_offset_count": 0,
+     "role": "UNKNOWN_ROLE_UNSUPPORTED_FORM",
+     "scalar_load_count": 4,
+     "scalar_store_count": 0,
+     "unsupported_vas": [
+      "0x9fc26ed4",
+      "0x9fc26ed8",
+      "0x9fc26edc"
+     ]
+    },
+    "kind": "LDR",
+    "shape": "IMMEDIATE_OBJECT_FIELD",
+    "witness_count": 1
+   },
+   {
+    "access_va": "0x9fc26ecc",
+    "base_origin": {
+     "backward_window_instructions": 16,
+     "base_register": "X9",
+     "classification": "STATIC_SLOT_SEED",
+     "definitions": [
+      {
+       "address_base": "X8",
+       "kind": "STATIC_SLOT_SEED",
+       "offset": "0x00000138",
+       "register": "X9",
+       "seed_slot_va": "0x9fc3e138",
+       "va": "0x9fc26ec4"
+      }
+     ],
+     "seed_slot_va": "0x9fc3e138",
+     "seed_va": "0x9fc26ec4"
+    },
+    "block_entry_direct_bl_sources": [
+     "0x9fc26a1c",
+     "0x9fc26b3c",
+     "0x9fc26c78",
+     "0x9fc26cd4",
+     "0x9fc27fd4",
+     "0x9fc281a0",
+     "0x9fc28218",
+     "0x9fc2c340",
+     "0x9fc2c4fc"
+    ],
+    "block_role": {
+     "block": {
+      "end_exclusive": "0x9fc26ee4",
+      "size": 36,
+      "start": "0x9fc26ec0",
+      "terminator": "RET"
+     },
+     "direct_call_count": 0,
+     "instruction_count": 9,
+     "register_offset_count": 0,
+     "role": "UNKNOWN_ROLE_UNSUPPORTED_FORM",
+     "scalar_load_count": 4,
+     "scalar_store_count": 0,
+     "unsupported_vas": [
+      "0x9fc26ed4",
+      "0x9fc26ed8",
+      "0x9fc26edc"
+     ]
+    },
+    "kind": "LDR",
+    "shape": "IMMEDIATE_OBJECT_FIELD",
+    "witness_count": 1
+   },
+   {
+    "access_va": "0x9fc26ed0",
+    "base_origin": {
+     "backward_window_instructions": 16,
+     "base_register": "X9",
+     "classification": "STATIC_SLOT_SEED",
+     "definitions": [
+      {
+       "address_base": "X8",
+       "kind": "STATIC_SLOT_SEED",
+       "offset": "0x00000138",
+       "register": "X9",
+       "seed_slot_va": "0x9fc3e138",
+       "va": "0x9fc26ec4"
+      }
+     ],
+     "seed_slot_va": "0x9fc3e138",
+     "seed_va": "0x9fc26ec4"
+    },
+    "block_entry_direct_bl_sources": [
+     "0x9fc26a1c",
+     "0x9fc26b3c",
+     "0x9fc26c78",
+     "0x9fc26cd4",
+     "0x9fc27fd4",
+     "0x9fc281a0",
+     "0x9fc28218",
+     "0x9fc2c340",
+     "0x9fc2c4fc"
+    ],
+    "block_role": {
+     "block": {
+      "end_exclusive": "0x9fc26ee4",
+      "size": 36,
+      "start": "0x9fc26ec0",
+      "terminator": "RET"
+     },
+     "direct_call_count": 0,
+     "instruction_count": 9,
+     "register_offset_count": 0,
+     "role": "UNKNOWN_ROLE_UNSUPPORTED_FORM",
+     "scalar_load_count": 4,
+     "scalar_store_count": 0,
+     "unsupported_vas": [
+      "0x9fc26ed4",
+      "0x9fc26ed8",
+      "0x9fc26edc"
+     ]
+    },
+    "kind": "LDR",
+    "shape": "IMMEDIATE_OBJECT_FIELD",
+    "witness_count": 1
+   },
+   {
+    "access_va": "0x9fc26eec",
+    "base_origin": {
+     "backward_window_instructions": 16,
+     "base_register": "X9",
+     "classification": "STATIC_SLOT_SEED",
+     "definitions": [
+      {
+       "address_base": "X8",
+       "kind": "STATIC_SLOT_SEED",
+       "offset": "0x00000138",
+       "register": "X9",
+       "seed_slot_va": "0x9fc3e138",
+       "va": "0x9fc26ee8"
+      }
+     ],
+     "seed_slot_va": "0x9fc3e138",
+     "seed_va": "0x9fc26ee8"
+    },
+    "block_entry_direct_bl_sources": [
+     "0x9fc263ec",
+     "0x9fc26524",
+     "0x9fc26754"
+    ],
+    "block_role": {
+     "block": {
+      "end_exclusive": "0x9fc26ef4",
+      "size": 16,
+      "start": "0x9fc26ee4",
+      "terminator": "RET"
+     },
+     "direct_call_count": 0,
+     "instruction_count": 4,
+     "register_offset_count": 0,
+     "role": "LOCAL_READ_SHAPED_BLOCK",
+     "scalar_load_count": 2,
+     "scalar_store_count": 0,
+     "unsupported_vas": []
+    },
+    "kind": "LDR",
+    "shape": "IMMEDIATE_OBJECT_FIELD",
+    "witness_count": 1
+   },
+   {
+    "access_va": "0x9fc26f10",
+    "base_origin": {
+     "backward_window_instructions": 16,
+     "base_register": "X8",
+     "classification": "STATIC_SLOT_SEED",
+     "definitions": [
+      {
+       "address_base": "X20",
+       "kind": "STATIC_SLOT_SEED",
+       "offset": "0x00000138",
+       "register": "X8",
+       "seed_slot_va": "0x9fc3e138",
+       "va": "0x9fc26f0c"
+      }
+     ],
+     "seed_slot_va": "0x9fc3e138",
+     "seed_va": "0x9fc26f0c"
+    },
+    "block_entry_direct_bl_sources": [
+     "0x9fc27004"
+    ],
+    "block_role": {
+     "block": {
+      "end_exclusive": "0x9fc26f30",
+      "size": 60,
+      "start": "0x9fc26ef4",
+      "terminator": "DIRECT_BRANCH"
+     },
+     "direct_call_count": 2,
+     "instruction_count": 15,
+     "register_offset_count": 0,
+     "role": "UNKNOWN_ROLE_UNSUPPORTED_FORM",
+     "scalar_load_count": 2,
+     "scalar_store_count": 2,
+     "unsupported_vas": [
+      "0x9fc26ef4",
+      "0x9fc26ef8",
+      "0x9fc26f08",
+      "0x9fc26f24",
+      "0x9fc26f28"
+     ]
+    },
+    "kind": "STR",
+    "shape": "IMMEDIATE_OBJECT_FIELD",
+    "witness_count": 1
+   },
+   {
+    "access_va": "0x9fc26f1c",
+    "base_origin": {
+     "backward_window_instructions": 16,
+     "base_register": "X9",
+     "classification": "STATIC_SLOT_SEED",
+     "definitions": [
+      {
+       "address_base": "X20",
+       "kind": "STATIC_SLOT_SEED",
+       "offset": "0x00000138",
+       "register": "X9",
+       "seed_slot_va": "0x9fc3e138",
+       "va": "0x9fc26f18"
+      }
+     ],
+     "seed_slot_va": "0x9fc3e138",
+     "seed_va": "0x9fc26f18"
+    },
+    "block_entry_direct_bl_sources": [
+     "0x9fc27004"
+    ],
+    "block_role": {
+     "block": {
+      "end_exclusive": "0x9fc26f30",
+      "size": 60,
+      "start": "0x9fc26ef4",
+      "terminator": "DIRECT_BRANCH"
+     },
+     "direct_call_count": 2,
+     "instruction_count": 15,
+     "register_offset_count": 0,
+     "role": "UNKNOWN_ROLE_UNSUPPORTED_FORM",
+     "scalar_load_count": 2,
+     "scalar_store_count": 2,
+     "unsupported_vas": [
+      "0x9fc26ef4",
+      "0x9fc26ef8",
+      "0x9fc26f08",
+      "0x9fc26f24",
+      "0x9fc26f28"
+     ]
+    },
+    "kind": "STR",
+    "shape": "IMMEDIATE_OBJECT_FIELD",
+    "witness_count": 1
+   },
+   {
+    "access_va": "0x9fc26f40",
+    "base_origin": {
+     "backward_window_instructions": 16,
+     "base_register": "X9",
+     "classification": "STATIC_SLOT_SEED",
+     "definitions": [
+      {
+       "address_base": "X8",
+       "kind": "STATIC_SLOT_SEED",
+       "offset": "0x00000138",
+       "register": "X9",
+       "seed_slot_va": "0x9fc3e138",
+       "va": "0x9fc26f3c"
+      }
+     ],
+     "seed_slot_va": "0x9fc3e138",
+     "seed_va": "0x9fc26f3c"
+    },
+    "block_entry_direct_bl_sources": [
+     "0x9fc26fb0",
+     "0x9fc26ff0"
+    ],
+    "block_role": {
+     "block": {
+      "end_exclusive": "0x9fc26f50",
+      "size": 32,
+      "start": "0x9fc26f30",
+      "terminator": "DIRECT_BRANCH"
+     },
+     "direct_call_count": 1,
+     "instruction_count": 8,
+     "register_offset_count": 0,
+     "role": "UNKNOWN_ROLE_UNSUPPORTED_FORM",
+     "scalar_load_count": 1,
+     "scalar_store_count": 1,
+     "unsupported_vas": [
+      "0x9fc26f30",
+      "0x9fc26f48"
+     ]
+    },
+    "kind": "STR",
+    "shape": "IMMEDIATE_OBJECT_FIELD",
+    "witness_count": 1
+   },
+   {
+    "access_va": "0x9fc26f58",
+    "base_origin": {
+     "backward_window_instructions": 16,
+     "base_register": "X9",
+     "classification": "STATIC_SLOT_SEED",
+     "definitions": [
+      {
+       "address_base": "X8",
+       "kind": "STATIC_SLOT_SEED",
+       "offset": "0x00000138",
+       "register": "X9",
+       "seed_slot_va": "0x9fc3e138",
+       "va": "0x9fc26f54"
+      }
+     ],
+     "seed_slot_va": "0x9fc3e138",
+     "seed_va": "0x9fc26f54"
+    },
+    "block_entry_direct_bl_sources": [
+     "0x9fc26f78"
+    ],
+    "block_role": {
+     "block": {
+      "end_exclusive": "0x9fc26f60",
+      "size": 16,
+      "start": "0x9fc26f50",
+      "terminator": "RET"
+     },
+     "direct_call_count": 0,
+     "instruction_count": 4,
+     "register_offset_count": 0,
+     "role": "LOCAL_READ_SHAPED_BLOCK",
+     "scalar_load_count": 2,
+     "scalar_store_count": 0,
+     "unsupported_vas": []
+    },
+    "kind": "LDR",
+    "shape": "IMMEDIATE_OBJECT_FIELD",
+    "witness_count": 1
+   }
+  ],
+  "status": "SUPPORTED_BOUNDED_FUNCTION_ROLE_BASE_ORIGIN_CENSUS",
+  "unique_access_va_count": 11
+ },
+ "claims": {
+  "HYPOTHESIS": [
+   "The access family may be a local configuration/helper cluster rather than final DRAM-controller programming."
+  ],
+  "PROVED": [
+   "The exact retained A90 XBL, pinned 020G dependency, and 220-byte role region are bound by size/SHA-256 before analysis.",
+   "Each of the 11 unique 020G access VAs is assigned only to a bounded return/direct-branch-delimited local block, with strict direct-call and backward base-origin records."
+  ],
+  "REFUTED": [],
+  "SUPPORTED": [
+   "The bounded access family is consistent with local helper/object roles and static-slot-derived or arithmetic-derived bases; this does not establish a runtime function identity or controller register."
+  ],
+  "UNKNOWN": [
+   "True function boundaries for leaf blocks, runtime execution/currentness/values, indirect callers/callee effects, object semantics, global writer/consumer absence, ABI effects, MMIO/physical/DRAM identity, mutability/locking, protected reach, aliasing and bypass."
+  ]
+ },
+ "classification": "CLASS C (TRANSFORM ONLY)",
+ "definition_of_done": {
+  "build": {
+   "reason": "Interpreted host Python; no device/kernel build.",
+   "status": "NOT_APPLICABLE"
+  },
+  "commands": {
+   "command": "python3 tools/sm8150_xbl_static_slot_function_role_base_origin_020h.py --output <public-manifest-path>",
+   "reason": "Private input paths are redacted; exact hashes are pinned.",
+   "status": "REDACTED_REPRODUCTION_TEMPLATE"
+  },
+  "device_binding": {
+   "reason": "Host-only static trace; no device contact.",
+   "status": "NOT_APPLICABLE"
+  },
+  "recovery": {
+   "reason": "Host-only static trace; no device state.",
+   "status": "NOT_APPLICABLE"
+  },
+  "repetitions": {
+   "reason": "Host-only static trace; no runtime repetitions.",
+   "status": "NOT_APPLICABLE"
+  },
+  "rollback": {
+   "reason": "Host-only static trace; no device state.",
+   "status": "NOT_APPLICABLE"
+  },
+  "target": {
+   "binding": "PROVED_EXACT_XBL_INPUT_HASH",
+   "marketing_name": "A90 5G",
+   "model": "SM-A908N",
+   "soc": "SM8150",
+   "soc_name": "Snapdragon 855"
+  },
+  "timestamp": {
+   "reason": "Deterministic publication does not embed a wall-clock timestamp.",
+   "status": "NOT_APPLICABLE"
+  },
+  "tool_and_build": {
+   "build": "NOT_APPLICABLE",
+   "tool": "sm8150_xbl_static_slot_function_role_base_origin_020h.py schema sm8150-xbl-static-slot-function-role-base-origin-v1"
+  }
+ },
+ "device_access": "none",
+ "eligibility": "NOT_ELIGIBLE",
+ "experiment_id": "020H-static-slot-function-role-base-origin",
+ "inputs": {
+  "dependency_020g": {
+   "experiment_id": "020G-static-slot-pointer-object-census",
+   "filename": "020G-static-slot-pointer-object-census-20260827-01.manifest.json",
+   "sha256": "f534efeee1e12f18d3af40c107dbc6fbe938eae16d9013aa088d22d7c880af3e",
+   "size": 7218
+  },
+  "firmware": {
+   "filename": "xbl--sdb1.bin",
+   "sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+   "size": 4194304
+  },
+  "role_region": {
+   "end_exclusive": "0x9fc26f60",
+   "sha256": "f73b378e946379833124c814ad280086c7666123bd9d70985963ca6e1071eaba",
+   "size": 220,
+   "start": "0x9fc26e84"
+  }
+ },
+ "mode": "HOST_ONLY_READ_ONLY",
+ "schema": "sm8150-xbl-static-slot-function-role-base-origin-v1",
+ "scope": {
+  "backward_window_instructions": 16,
+  "function_boundary_proof": "UNKNOWN_FOR_LEAF_BLOCKS",
+  "global_writer_consumer_absence": "UNKNOWN",
+  "mmio_identity": "UNKNOWN",
+  "model": "EXACT_020G_UNIQUE_ACCESS_VA_RET_OR_DIRECT_BRANCH_DELIMITED_LOCAL_BLOCK",
+  "never_scan_arbitrary_ranges": true,
+  "physical_to_dram": "UNKNOWN",
+  "recognized_forms": [
+   "RET",
+   "DIRECT_B",
+   "DIRECT_BL",
+   "LDR_STR_UNSIGNED",
+   "LDR_STR_REGISTER_OFFSET_UXTX",
+   "ADRP",
+   "ADD_SUB",
+   "MADD",
+   "MOV_REGISTER"
+  ],
+  "runtime_base": "UNKNOWN"
+ }
+}

@@ -2135,3 +2135,32 @@ Focused tests are 10/10 and the full serial suite is 1,205/1,205 PASS
 (`skipped=1`) in 134.596 seconds, maximum RSS 347,740 KiB, zero swap.  The
 next scored candidate is a bounded static-slot function-role/base-origin
 trace (020H).
+
+# 2026-08-27 — Verification 020H static-slot function-role/base-origin trace
+
+This host-only, read-only iteration re-decodes the exact 020G witnesses and
+analyzes only the pinned 220-byte XBL region `[0x9fc26e84,0x9fc26f60)`.  Strict
+RET X30/direct-B partitioning yields 7 bounded local blocks; BL is not treated
+as a branch terminator.  True function boundaries are not inferred.  Direct
+BL sources to each block entry and a backward trace of at most 16 instructions
+classify each unique access base; a preceding STR never defines a base.
+
+`PROVED`: 12 witness rows group into 11 unique access VAs and 7 bounded
+blocks.  Nine blocks contain unsupported forms and two are
+`LOCAL_READ_SHAPED_BLOCK`.  Ten unique bases are `STATIC_SLOT_SEED`; indexed
+access `0x9fc26ea0` is `ARITHMETIC_DERIVED` from a bounded `MADD`.
+`SUPPORTED`: local helper/object role consistency.  `HYPOTHESIS`: the family
+may be local configuration/helper state.  `UNKNOWN`: true function
+boundaries, runtime execution/currentness/values, indirect callers/callee
+effects, object semantics, global writer/consumer absence, ABI effects,
+MMIO/physical/DRAM identity, mutability/locking, protected reach, aliasing
+and bypass.  `CLASS C (TRANSFORM ONLY)` and `NOT_ELIGIBLE` remain unchanged;
+no device action occurred.
+
+The sanitized manifest is
+`evidence/manifests/020H-static-slot-function-role-base-origin-20260827-01.manifest.json`,
+19,314 bytes, mode `0644`, SHA-256
+`b306ca67675430314289fd79faa2e53b2d67994807d0b08bd91ced9b625faba2`.
+Focused tests are 11/11 and the full serial suite is 1,216/1,216 PASS
+(`skipped=1`) in 140.860 seconds, maximum RSS 349,728 KiB, zero swap.  The
+next scored candidate is a bounded caller-context/entry-role trace (020I).

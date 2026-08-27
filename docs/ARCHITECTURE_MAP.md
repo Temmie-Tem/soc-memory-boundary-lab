@@ -530,6 +530,22 @@ The sanitized manifest is 7,218 bytes, mode `0644`, SHA-256
 tests are 10/10 and the full serial suite is 1,205/1,205 PASS (`skipped=1`) in
 134.596 seconds, maximum RSS 347,740 KiB, zero swap.
 
+Verification 020H then grouped the exact 020G address-use witnesses into 11
+unique access VAs and 7 bounded return/direct-branch-delimited local blocks.
+Nine blocks contain unsupported forms and remain
+`UNKNOWN_ROLE_UNSUPPORTED_FORM`; two are `LOCAL_READ_SHAPED_BLOCK`.  Ten unique
+bases trace to `STATIC_SLOT_SEED` definitions;
+the indexed access at `0x9fc26ea0` is `ARITHMETIC_DERIVED` from a bounded
+`MADD`.  These are static role/provenance labels only; true function
+boundaries, runtime values/currentness/execution, indirect effects,
+MMIO/physical/DRAM identity, mutability, protected reach and alias/bypass
+remain `UNKNOWN`.  Class C and `NOT_ELIGIBLE` remain unchanged, and no device
+action occurred.  The manifest is 19,314 bytes, mode `0644`, SHA-256
+`b306ca67675430314289fd79faa2e53b2d67994807d0b08bd91ced9b625faba2`; focused
+tests are 11/11 and the full serial suite is 1,216/1,216 PASS (`skipped=1`) in
+140.860 seconds, maximum RSS 349,728 KiB, zero swap.  The next discriminator
+is a bounded caller-context/entry-role trace (020I).
+
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside
 `DC_NOC_NON_BROADCAST_MPU`, `MEMNOC_MS_MPU`, and `CNOC_SNOC_MS_MPU` regions.

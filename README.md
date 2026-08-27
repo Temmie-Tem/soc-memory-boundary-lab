@@ -612,6 +612,27 @@ Focused tests are 10/10 and the full serial suite is 1,205/1,205 PASS
 next candidate is a bounded static-slot function-role/base-origin trace
 (020H).
 
+Verification 020H completed the bounded function-role/base-origin census over
+the exact 020G witnesses.  Twelve witness rows group into 11 unique access
+VAs and 7 return/direct-branch-delimited local blocks.  Nine blocks contain
+unsupported forms and remain `UNKNOWN_ROLE_UNSUPPORTED_FORM`; two are
+`LOCAL_READ_SHAPED_BLOCK`.  Ten unique accesses
+have `STATIC_SLOT_SEED` base definitions, while indexed access
+`0x9fc26ea0` is `ARITHMETIC_DERIVED` from a bounded `MADD`.  These are static
+role/provenance labels only: true function boundaries, runtime values,
+MMIO/physical/DRAM identity, mutability, protected reach and alias/bypass
+remain `UNKNOWN`; Class C and `NOT_ELIGIBLE` remain unchanged, with no device
+action.  The experiment, contract, review and manifest are
+[documented](experiments/verification-020H-static-slot-function-role-base-origin/README.md),
+[contracted](docs/VERIFICATION020H_CONTRACT_2026-08-27.md),
+[reviewed](docs/VERIFICATION020H_INTEGRATION_REVIEW_2026-08-27.md), and
+[published](evidence/manifests/020H-static-slot-function-role-base-origin-20260827-01.manifest.json).
+The manifest is 19,314 bytes, mode `0644`, SHA-256
+`b306ca67675430314289fd79faa2e53b2d67994807d0b08bd91ced9b625faba2`.
+Focused tests are 11/11 and the full serial suite is 1,216/1,216 PASS
+(`skipped=1`) in 140.860 seconds, maximum RSS 349,728 KiB, zero swap.  The
+next candidate is a bounded caller-context/entry-role trace (020I).
+
 Claim vocabulary is deliberately closed:
 
 - `PROVED`: directly demonstrated by named source, artifact, or repeated result.

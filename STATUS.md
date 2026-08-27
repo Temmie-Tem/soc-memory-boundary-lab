@@ -1230,6 +1230,22 @@ focused tests are 10/10 with the full serial suite 1,205/1,205 PASS
 next scored candidate is a bounded static-slot function-role/base-origin
 trace (020H).
 
+Verification 020H is now complete.  The exact 020G witness set groups into 11
+unique access VAs and 7 bounded return/direct-branch-delimited local blocks.
+Nine blocks contain unsupported forms and remain
+`UNKNOWN_ROLE_UNSUPPORTED_FORM`; two are `LOCAL_READ_SHAPED_BLOCK`.  Ten unique
+accesses have `STATIC_SLOT_SEED` base definitions;
+indexed access `0x9fc26ea0` is `ARITHMETIC_DERIVED` from a bounded `MADD`.
+True function boundaries, runtime values/currentness/execution, indirect
+callers/callee effects, object semantics, MMIO/physical/DRAM identity,
+mutability, protected reach and alias/bypass remain `UNKNOWN`.  Class C and
+`NOT_ELIGIBLE` remain unchanged; no device action occurred.  The manifest is
+19,314 bytes, mode `0644`, SHA-256
+`b306ca67675430314289fd79faa2e53b2d67994807d0b08bd91ced9b625faba2`.
+Focused tests are 11/11 and the full serial suite is 1,216/1,216 PASS
+(`skipped=1`) in 140.860 seconds, maximum RSS 349,728 KiB, zero swap.  The
+next scored candidate is a bounded caller-context/entry-role trace (020I).
+
 ## N. 가장 위험한 아직 금지된 실험
 
 Treating a section-16 offset token as a byte offset and writing the resulting
