@@ -1,7 +1,8 @@
 # Verification 019 — does the DRAM map survive a suspend/resume?
 
 `MAP_INVARIANT`. 0 of 4,194,304 tags moved across a corroborated 25.09-second
-deep suspend.
+deep suspend — reproduced independently on 2026-08-27 across a second
+corroborated 25.15-second suspend, again with 0 of 4,194,304 tags moved.
 
 ## Why this state change and not another
 
@@ -97,12 +98,83 @@ bit, and every decoded move must point back to that bit — it does, for bits 6,
 7, 11 and 12. A permutation, had one occurred, would have been read off
 directly rather than merely detected.
 
+## Repetition
+
+The experiment was run a second time on 2026-08-27 at 14:20 KST on the same
+uninterrupted boot (uptime 49,833 s, no reboot between runs), with the same
+probe binary rebuilt from the checked-in source and hash-verified on the
+device.
+
+| | Run 1 | Run 2 |
+|---|---|---|
+| Baseline mismatches | 0 | 0 |
+| Suspended | 25.090 s | 25.151 s |
+| `suspend_stats/success` | 0 → 1 | 1 → 2 |
+| `suspend_stats/fail` | 13, unchanged | 25, unchanged |
+| Tags moved | 0 of 4,194,304 | 0 of 4,194,304 |
+| Verdict | `MAP_INVARIANT` | `MAP_INVARIANT` |
+
+Run 2 reached suspend on its **first** attempt, with `fail` not advancing at
+all — the blocker diagnosis is therefore not a one-off: `icnss` disabled plus
+the cable out is sufficient and nothing else had to be cleared.
+
+A third observation is retained as a negative control rather than a result. A
+run launched with the cable still attached produced twelve consecutive `EBUSY`
+attempts and `SUSPEND_NOT_REACHED`, advancing `fail` 13 → 25 while leaving
+`success` at 1. Its baseline pass was clean, so the instrument was working and
+the run failed for exactly the stated reason. This is the independent
+reproduction of the `usb_notify` blocker claimed above.
+
+## Retained evidence
+
+| Receipt | Bytes | SHA-256 |
+|---|---:|---|
+| `…-01/suspend-permutation.jsonl` | 930 | `6f34e725f2a5faed2340c1a5294500ee37b946a6f2e1feed877f7b0e8b5946c6` |
+| `…-02/suspend-permutation.jsonl` | 931 | `84ce2e88acdc3a956794feb57f968490aa3c2a05ff196dc3fc82a62dcf5bf395` |
+| `…-02/suspend-permutation-usb-attached-blocked.jsonl` | 3,265 | `fff1126a5b00690abc28a29b8fe145369a651c7bb7c8d45a89499213cd134298` |
+
+All three live under `evidence/private/`, which is gitignored; the public
+manifests are `…-01` (`bf7c66c78993b24d02a46735abb77e7e40298d6230bc5438c3eb21028c51238b`)
+and `…-02` (`b9d5717f33349727da7523ea6ab003ce33ec6694fce3487370a802a1d2f4b4eb`).
+Re-running the analyzer over the retained run-1 receipt regenerates manifest
+`…-01` **byte for byte**, which is what pins the manifest to its source.
+
+### A retention defect, and what caused it
+
+Manifest `…-01` was originally published without its raw receipt retained. The
+cause was not an oversight in the run: `evidence/private/verification-019-…-01`
+had been created as a **symbolic link into a scratch worktree**, and when that
+worktree was pruned the link dangled and the raw was lost from the repository's
+view. The same had happened to the superseded V018 attempt directory. Both
+dangling links were removed and replaced with real directories. This is
+precisely the condition the repository's own tooling refuses at read time with
+`O_NOFOLLOW`; the acquisition side had no equivalent guard.
+
+The receipt itself survived on the device — the target had not rebooted since
+the original run — so run 1 is backed by its *original* bytes rather than by a
+reconstruction.
+
+## Device actions in the repetition
+
+Identical in kind to run 1 and no broader: one ION allocation in the process's
+own `camera_preview` heap, one temporary ION node, one `power/wakeup` attribute
+set to `disabled` and **restored to `enabled`** afterwards, and one string
+written to `/sys/power/state`. The uploaded probe, the temporary node and every
+intermediate file were removed afterwards; `/tmp/a90-native` was left holding
+only the pre-existing `native-init.log` and the original run-1 receipt. After
+restoration the enabled wakeup-source set is identical to the pre-run set, and
+the target reports the same build on the same uninterrupted boot. No register,
+MMIO, SMC, EL2/EL3, protected-memory or partition access occurred in either
+run.
+
 ## Claims and ranking
 
 `PROVED`: that the system entered deep suspend for 25.09 s, by three
 independent witnesses including the SoC's own sleep counter; that all 4,194,304
 tags were in their original locations afterwards; and that the analysis detects
-and correctly decodes a permutation when one is present.
+and correctly decodes a permutation when one is present. Both suspends are
+backed by their retained raw receipts, and manifest `…-01` regenerates from its
+receipt byte for byte.
 
 `PROVED`: the diagnosis of why suspend was unreachable — `icnss` holding a
 wakeup source indefinitely under V2321, `usb_notify` while attached — each
@@ -110,7 +182,7 @@ named by the kernel at the moment of abort.
 
 `REFUTED`, for this transition: that the address-to-DRAM map changes across a
 suspend/resume cycle. Over offset bits 6..27 in this allocation, at 64-byte
-granularity, nothing moved.
+granularity, nothing moved — in two independent suspends, not one.
 
 `UNKNOWN`, unchanged: whether any transform is mutable by a state change this
 project has not reached; where the check sits in the data path; and P2 on every

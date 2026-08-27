@@ -1,0 +1,31 @@
+{
+ "schema": "a90-suspend-permutation-analysis-v1",
+ "self_test": {
+  "positive": {
+   "verdict": "MAP_CHANGED",
+   "moved": 4096,
+   "every_move_decoded_to_the_permuted_bit": true
+  },
+  "negative": {
+   "verdict": "MAP_INVARIANT",
+   "moved": 0
+  },
+  "passed": true
+ },
+ "run": {
+  "schema": "a90-suspend-permutation-analysis-v1",
+  "instrument_ok": true,
+  "gate_reasons": [],
+  "tags": 4194304,
+  "tag_stride": 64,
+  "mib": 256,
+  "attempts": 1,
+  "suspend_occurred": true,
+  "suspend_corroborated_by_stats": true,
+  "suspended_seconds": 25.151,
+  "moved": 0,
+  "decoded_moves": [],
+  "verdict": "MAP_INVARIANT",
+  "invariance_is_admissible": true
+ }
+}
