@@ -1,0 +1,893 @@
+{
+  "allocation_performed": false,
+  "device_access": false,
+  "firmware_bytes_emitted": false,
+  "min_difference": "0x2000",
+  "min_separation": 100,
+  "mmio_access": false,
+  "mode": "HOST_ONLY_REANALYSIS",
+  "per_dataset": {
+    "datasets": {
+      "023-second-region-20260826-01/phase1-user_contig.jsonl": {
+        "conflicts": 4,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 1,
+        "kernel_basis": [
+          "0x95c000",
+          "0x24a000",
+          "0x3a000",
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 4,
+        "linearity_consistent": true,
+        "negatives": 5,
+        "observed_dimension": 6,
+        "rank_witness": [
+          "0x38000"
+        ],
+        "restricted_rank_upper_bound": 2,
+        "separation": 375
+      },
+      "023-second-region-20260826-01/phase2-qsecom-replay.jsonl": {
+        "conflicts": 5,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 1,
+        "kernel_basis": [
+          "0xc84000",
+          "0x5d8000",
+          "0x24a000",
+          "0x3a000",
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 5,
+        "linearity_consistent": true,
+        "negatives": 4,
+        "observed_dimension": 6,
+        "rank_witness": [
+          "0x38000"
+        ],
+        "restricted_rank_upper_bound": 1,
+        "separation": 478
+      },
+      "023-second-region-20260826-01/phase3-pa24-discriminate.jsonl": {
+        "conflicts": 1,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 1,
+        "kernel_basis": [
+          "0x1020000"
+        ],
+        "kernel_dimension_lower_bound": 1,
+        "linearity_consistent": true,
+        "negatives": 7,
+        "observed_dimension": 8,
+        "rank_witness": [
+          "0x1000000"
+        ],
+        "restricted_rank_upper_bound": 7,
+        "separation": 397
+      },
+      "023-second-region-20260826-01/phase4-heldout.jsonl": {
+        "conflicts": 4,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 1,
+        "kernel_basis": [
+          "0x1830000",
+          "0xe30000",
+          "0x636000",
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 4,
+        "linearity_consistent": true,
+        "negatives": 3,
+        "observed_dimension": 7,
+        "rank_witness": [
+          "0x1236000"
+        ],
+        "restricted_rank_upper_bound": 3,
+        "separation": 409
+      },
+      "023R-repaired-region-20260826-01/phaseA.jsonl": {
+        "conflicts": 12,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 1,
+        "kernel_basis": [
+          "0x204000",
+          "0x188000",
+          "0xe8000",
+          "0x74000",
+          "0x2c000",
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 6,
+        "linearity_consistent": true,
+        "negatives": 13,
+        "observed_dimension": 11,
+        "rank_witness": [
+          "0x2000"
+        ],
+        "restricted_rank_upper_bound": 5,
+        "separation": 358
+      },
+      "023R-repaired-region-20260826-01/phaseC.jsonl": {
+        "conflicts": 1,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 1,
+        "kernel_basis": [
+          "0x1020000"
+        ],
+        "kernel_dimension_lower_bound": 1,
+        "linearity_consistent": true,
+        "negatives": 7,
+        "observed_dimension": 8,
+        "rank_witness": [
+          "0x1000000"
+        ],
+        "restricted_rank_upper_bound": 7,
+        "separation": 374
+      },
+      "023R-repaired-region-20260826-01/phaseD.jsonl": {
+        "conflicts": 10,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 1,
+        "kernel_basis": [
+          "0x1140000",
+          "0x188000",
+          "0x8a000",
+          "0x62000",
+          "0x3a000",
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 6,
+        "linearity_consistent": true,
+        "negatives": 8,
+        "observed_dimension": 9,
+        "rank_witness": [
+          "0x1006000"
+        ],
+        "restricted_rank_upper_bound": 3,
+        "separation": 355
+      },
+      "023R-repaired-region-20260826-01/phaseEF.jsonl": {
+        "conflicts": 7,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 2,
+        "kernel_basis": [
+          "0x810000",
+          "0x408000",
+          "0x310000",
+          "0x1d0000",
+          "0xe8000",
+          "0x3a000",
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 7,
+        "linearity_consistent": true,
+        "negatives": 4,
+        "observed_dimension": 10,
+        "rank_witness": [
+          "0x200000",
+          "0x400000"
+        ],
+        "restricted_rank_upper_bound": 3,
+        "separation": 381
+      },
+      "030-low-bit-selector-20260826-01/phaseA.jsonl": {
+        "conflicts": 1,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 1,
+        "kernel_basis": [
+          "0x16200"
+        ],
+        "kernel_dimension_lower_bound": 1,
+        "linearity_consistent": true,
+        "negatives": 14,
+        "observed_dimension": 14,
+        "rank_witness": [
+          "0x16000"
+        ],
+        "restricted_rank_upper_bound": 13,
+        "separation": 187
+      },
+      "030-low-bit-selector-20260826-01/phaseB.jsonl": {
+        "conflicts": 14,
+        "contradictions": [
+          "0x2000"
+        ],
+        "excluded_sub_page": 3,
+        "global_rank_lower_bound": 1,
+        "kernel_basis": [
+          "0x102600",
+          "0x2c000",
+          "0x16000",
+          "0x2000",
+          "0x400",
+          "0x200"
+        ],
+        "kernel_dimension_lower_bound": 6,
+        "linearity_consistent": false,
+        "negatives": 1,
+        "observed_dimension": 6,
+        "rank_witness": [
+          "0x2000"
+        ],
+        "restricted_rank_upper_bound": 0,
+        "separation": 299
+      },
+      "030-low-bit-selector-20260826-01/phaseC.jsonl": {
+        "conflicts": 2,
+        "contradictions": [],
+        "excluded_sub_page": 13,
+        "global_rank_lower_bound": 1,
+        "kernel_basis": [
+          "0x16200",
+          "0x2200"
+        ],
+        "kernel_dimension_lower_bound": 2,
+        "linearity_consistent": true,
+        "negatives": 26,
+        "observed_dimension": 15,
+        "rank_witness": [
+          "0x2000"
+        ],
+        "restricted_rank_upper_bound": 13,
+        "separation": 158
+      },
+      "030-low-bit-selector-20260826-01/phaseD.jsonl": {
+        "conflicts": 3,
+        "contradictions": [
+          "0x2000"
+        ],
+        "excluded_sub_page": 4,
+        "global_rank_lower_bound": 1,
+        "kernel_basis": [
+          "0x16200",
+          "0x2000",
+          "0x200"
+        ],
+        "kernel_dimension_lower_bound": 3,
+        "linearity_consistent": false,
+        "negatives": 1,
+        "observed_dimension": 3,
+        "rank_witness": [
+          "0x2000"
+        ],
+        "restricted_rank_upper_bound": 0,
+        "separation": 335
+      },
+      "verification-015-runtime-invariance-20260826-01/twrp-post-postboot8-L7980.jsonl": {
+        "conflicts": 25,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 2,
+        "kernel_basis": [
+          "0x1140000",
+          "0x204000",
+          "0x188000",
+          "0x8a000",
+          "0x62000",
+          "0x3a000",
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 7,
+        "linearity_consistent": true,
+        "negatives": 26,
+        "observed_dimension": 12,
+        "rank_witness": [
+          "0x2000",
+          "0x1000000"
+        ],
+        "restricted_rank_upper_bound": 5,
+        "separation": 329
+      },
+      "verification-015-runtime-invariance-20260826-01/twrp-post-postboot9-L7980.jsonl": {
+        "conflicts": 25,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 2,
+        "kernel_basis": [
+          "0x1140000",
+          "0x204000",
+          "0x188000",
+          "0x8a000",
+          "0x62000",
+          "0x3a000",
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 7,
+        "linearity_consistent": true,
+        "negatives": 26,
+        "observed_dimension": 12,
+        "rank_witness": [
+          "0x2000",
+          "0x1000000"
+        ],
+        "restricted_rank_upper_bound": 5,
+        "separation": 339
+      },
+      "verification-015-runtime-invariance-20260826-01/twrp-pre-sweep0-L7980.jsonl": {
+        "conflicts": 14,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 1,
+        "kernel_basis": [
+          "0x228000",
+          "0x188000",
+          "0xc4000",
+          "0x4e000",
+          "0x3a000",
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 6,
+        "linearity_consistent": true,
+        "negatives": 11,
+        "observed_dimension": 11,
+        "rank_witness": [
+          "0x2000"
+        ],
+        "restricted_rank_upper_bound": 5,
+        "separation": 307
+      },
+      "verification-015-runtime-invariance-20260826-01/twrp-pre-sweep1-L6881.jsonl": {
+        "conflicts": 14,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 1,
+        "kernel_basis": [
+          "0x228000",
+          "0x188000",
+          "0xc4000",
+          "0x4e000",
+          "0x3a000",
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 6,
+        "linearity_consistent": true,
+        "negatives": 11,
+        "observed_dimension": 11,
+        "rank_witness": [
+          "0x2000"
+        ],
+        "restricted_rank_upper_bound": 5,
+        "separation": 394
+      },
+      "verification-015-runtime-invariance-20260826-01/twrp-pre-sweep2-L7980.jsonl": {
+        "conflicts": 14,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 1,
+        "kernel_basis": [
+          "0x228000",
+          "0x188000",
+          "0xc4000",
+          "0x4e000",
+          "0x3a000",
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 6,
+        "linearity_consistent": true,
+        "negatives": 11,
+        "observed_dimension": 11,
+        "rank_witness": [
+          "0x2000"
+        ],
+        "restricted_rank_upper_bound": 5,
+        "separation": 342
+      },
+      "verification-015-runtime-invariance-20260826-01/twrp-pre-sweep3-L6881.jsonl": {
+        "conflicts": 14,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 1,
+        "kernel_basis": [
+          "0x228000",
+          "0x188000",
+          "0xc4000",
+          "0x4e000",
+          "0x3a000",
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 6,
+        "linearity_consistent": true,
+        "negatives": 11,
+        "observed_dimension": 11,
+        "rank_witness": [
+          "0x2000"
+        ],
+        "restricted_rank_upper_bound": 5,
+        "separation": 392
+      },
+      "verification-015-runtime-invariance-20260826-01/twrp-pre-sweep4-L7980.jsonl": {
+        "conflicts": 11,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 1,
+        "kernel_basis": [
+          "0x1140000",
+          "0x188000",
+          "0x8a000",
+          "0x62000",
+          "0x3a000",
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 6,
+        "linearity_consistent": true,
+        "negatives": 15,
+        "observed_dimension": 9,
+        "rank_witness": [
+          "0x1000000"
+        ],
+        "restricted_rank_upper_bound": 3,
+        "separation": 348
+      },
+      "verification-015-runtime-invariance-20260826-01/twrp-pre-sweep5-L6881.jsonl": {
+        "conflicts": 11,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 1,
+        "kernel_basis": [
+          "0x1140000",
+          "0x188000",
+          "0x8a000",
+          "0x62000",
+          "0x3a000",
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 6,
+        "linearity_consistent": true,
+        "negatives": 15,
+        "observed_dimension": 9,
+        "rank_witness": [
+          "0x1000000"
+        ],
+        "restricted_rank_upper_bound": 3,
+        "separation": 404
+      },
+      "verification-015-runtime-invariance-20260826-01/twrp-pre-sweep6-L7980.jsonl": {
+        "conflicts": 11,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 1,
+        "kernel_basis": [
+          "0x1140000",
+          "0x188000",
+          "0x8a000",
+          "0x62000",
+          "0x3a000",
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 6,
+        "linearity_consistent": true,
+        "negatives": 15,
+        "observed_dimension": 9,
+        "rank_witness": [
+          "0x1000000"
+        ],
+        "restricted_rank_upper_bound": 3,
+        "separation": 354
+      },
+      "verification-015-runtime-invariance-20260826-01/twrp-pre-sweep7-L6881.jsonl": {
+        "conflicts": 11,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 1,
+        "kernel_basis": [
+          "0x1140000",
+          "0x188000",
+          "0x8a000",
+          "0x62000",
+          "0x3a000",
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 6,
+        "linearity_consistent": true,
+        "negatives": 15,
+        "observed_dimension": 9,
+        "rank_witness": [
+          "0x1000000"
+        ],
+        "restricted_rank_upper_bound": 3,
+        "separation": 391
+      },
+      "verification-015-runtime-invariance-20260826-01/v2321-L762-pass0.jsonl": {
+        "conflicts": 27,
+        "contradictions": [
+          "0x2000",
+          "0x8000",
+          "0x80000",
+          "0x100000",
+          "0x1004000",
+          "0x1006000",
+          "0x1010000",
+          "0x1018000",
+          "0x1040000"
+        ],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 2,
+        "kernel_basis": [
+          "0x1140000",
+          "0x204000",
+          "0x188000",
+          "0x8a000",
+          "0x62000",
+          "0x3a000",
+          "0x16000",
+          "0x8000",
+          "0x2000"
+        ],
+        "kernel_dimension_lower_bound": 9,
+        "linearity_consistent": false,
+        "negatives": 24,
+        "observed_dimension": 12,
+        "rank_witness": [
+          "0x2000",
+          "0x1000000"
+        ],
+        "restricted_rank_upper_bound": 3,
+        "separation": 165
+      },
+      "verification-015-runtime-invariance-20260826-01/v2321-L7980-pass0.jsonl": {
+        "conflicts": 25,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 2,
+        "kernel_basis": [
+          "0x1140000",
+          "0x204000",
+          "0x188000",
+          "0x8a000",
+          "0x62000",
+          "0x3a000",
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 7,
+        "linearity_consistent": true,
+        "negatives": 26,
+        "observed_dimension": 12,
+        "rank_witness": [
+          "0x2000",
+          "0x1000000"
+        ],
+        "restricted_rank_upper_bound": 5,
+        "separation": 311
+      },
+      "verification-015-runtime-invariance-20260826-01/v2321-L7980-pass1.jsonl": {
+        "conflicts": 25,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 2,
+        "kernel_basis": [
+          "0x1140000",
+          "0x204000",
+          "0x188000",
+          "0x8a000",
+          "0x62000",
+          "0x3a000",
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 7,
+        "linearity_consistent": true,
+        "negatives": 26,
+        "observed_dimension": 12,
+        "rank_witness": [
+          "0x2000",
+          "0x1000000"
+        ],
+        "restricted_rank_upper_bound": 5,
+        "separation": 336
+      },
+      "verification-015-runtime-invariance-20260826-01/v2321-coldboot-L7980-pass0.jsonl": {
+        "conflicts": 25,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 2,
+        "kernel_basis": [
+          "0x1140000",
+          "0x204000",
+          "0x188000",
+          "0x8a000",
+          "0x62000",
+          "0x3a000",
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 7,
+        "linearity_consistent": true,
+        "negatives": 26,
+        "observed_dimension": 12,
+        "rank_witness": [
+          "0x2000",
+          "0x1000000"
+        ],
+        "restricted_rank_upper_bound": 5,
+        "separation": 314
+      },
+      "verification-015-runtime-invariance-20260826-01/v2321-coldboot-L7980-pass1.jsonl": {
+        "conflicts": 25,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 2,
+        "kernel_basis": [
+          "0x1140000",
+          "0x204000",
+          "0x188000",
+          "0x8a000",
+          "0x62000",
+          "0x3a000",
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 7,
+        "linearity_consistent": true,
+        "negatives": 26,
+        "observed_dimension": 12,
+        "rank_witness": [
+          "0x2000",
+          "0x1000000"
+        ],
+        "restricted_rank_upper_bound": 5,
+        "separation": 314
+      },
+      "verification-015-runtime-invariance-20260826-01/v2321-level-repeat.jsonl": {
+        "conflicts": 2,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 1,
+        "kernel_basis": [
+          "0x102000",
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 2,
+        "linearity_consistent": true,
+        "negatives": 4,
+        "observed_dimension": 6,
+        "rank_witness": [
+          "0x1006000"
+        ],
+        "restricted_rank_upper_bound": 4,
+        "separation": 320
+      },
+      "verification-015-runtime-invariance-20260826-01/v2321-level-sweep.jsonl": {
+        "conflicts": 1,
+        "contradictions": [],
+        "excluded_sub_page": 1,
+        "global_rank_lower_bound": 1,
+        "kernel_basis": [
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 1,
+        "linearity_consistent": true,
+        "negatives": 1,
+        "observed_dimension": 2,
+        "rank_witness": [
+          "0x2000"
+        ],
+        "restricted_rank_upper_bound": 1,
+        "separation": 354
+      },
+      "verification-016-high-bit-relation-20260827-01/pa25-27-discriminate.jsonl": {
+        "conflicts": 6,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 1,
+        "kernel_basis": [
+          "0x8100000",
+          "0x4080000",
+          "0x2200000",
+          "0x204000",
+          "0x102000",
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 6,
+        "linearity_consistent": true,
+        "negatives": 32,
+        "observed_dimension": 15,
+        "rank_witness": [
+          "0x2000"
+        ],
+        "restricted_rank_upper_bound": 9,
+        "separation": 258
+      },
+      "verification-016-high-bit-relation-20260827-01/pa25-27-heldout.jsonl": {
+        "conflicts": 5,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 1,
+        "kernel_basis": [
+          "0xc180000",
+          "0x6382000",
+          "0x306000",
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 4,
+        "linearity_consistent": true,
+        "negatives": 4,
+        "observed_dimension": 8,
+        "rank_witness": [
+          "0x2000"
+        ],
+        "restricted_rank_upper_bound": 4,
+        "separation": 276
+      },
+      "verification-016-high-bit-relation-20260827-01/pa25-27-three-column.jsonl": {
+        "conflicts": 2,
+        "contradictions": [],
+        "excluded_sub_page": 1,
+        "global_rank_lower_bound": 2,
+        "kernel_basis": [
+          "0x8002000",
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 2,
+        "linearity_consistent": true,
+        "negatives": 11,
+        "observed_dimension": 7,
+        "rank_witness": [
+          "0x2000",
+          "0x2000000"
+        ],
+        "restricted_rank_upper_bound": 5,
+        "separation": 267
+      },
+      "verification-022-pa28-relation-20260827-01/pa28-existence.jsonl": {
+        "conflicts": 1,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 1,
+        "kernel_basis": [
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 1,
+        "linearity_consistent": true,
+        "negatives": 2,
+        "observed_dimension": 3,
+        "rank_witness": [
+          "0x2000"
+        ],
+        "restricted_rank_upper_bound": 2,
+        "separation": 323
+      },
+      "verification-022-pa28-relation-20260827-01/pa28-identification.jsonl": {
+        "conflicts": 2,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 2,
+        "kernel_basis": [
+          "0x10004000",
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 2,
+        "linearity_consistent": true,
+        "negatives": 7,
+        "observed_dimension": 5,
+        "rank_witness": [
+          "0x2000",
+          "0x10008000"
+        ],
+        "restricted_rank_upper_bound": 3,
+        "separation": 323
+      },
+      "verification-022r-pa28-live-20260827-01/pa28-identification.jsonl": {
+        "conflicts": 2,
+        "contradictions": [],
+        "excluded_sub_page": 0,
+        "global_rank_lower_bound": 2,
+        "kernel_basis": [
+          "0x10004000",
+          "0x16000"
+        ],
+        "kernel_dimension_lower_bound": 2,
+        "linearity_consistent": true,
+        "negatives": 7,
+        "observed_dimension": 5,
+        "rank_witness": [
+          "0x2000",
+          "0x10008000"
+        ],
+        "restricted_rank_upper_bound": 3,
+        "separation": 336
+      }
+    },
+    "datasets_linearity_consistent": 32,
+    "datasets_reduced": 35,
+    "datasets_with_contradictions": [
+      "030-low-bit-selector-20260826-01/phaseB.jsonl",
+      "030-low-bit-selector-20260826-01/phaseD.jsonl",
+      "verification-015-runtime-invariance-20260826-01/v2321-L762-pass0.jsonl"
+    ],
+    "skipped": {
+      "023R-repaired-region-20260826-01/phaseB.jsonl": "4 difference summaries is below the 6 floor",
+      "verification-018-a90-20260827-02/alias-marker.jsonl": "0 difference summaries is below the 6 floor",
+      "verification-019-suspend-permutation-20260827-01/suspend-permutation.jsonl": "0 difference summaries is below the 6 floor",
+      "verification-019-suspend-permutation-20260827-02/suspend-permutation-usb-attached-blocked.jsonl": "0 difference summaries is below the 6 floor",
+      "verification-019-suspend-permutation-20260827-02/suspend-permutation.jsonl": "0 difference summaries is below the 6 floor",
+      "verification-020-heap-capacity-20260827-01/heap-capacity-coarse.jsonl": "0 difference summaries is below the 6 floor",
+      "verification-020-heap-capacity-20260827-01/heap-capacity-fine.jsonl": "0 difference summaries is below the 6 floor",
+      "verification-021-carveout-exhaustion-20260827-01/carveout-exhaustion.jsonl": "0 difference summaries is below the 6 floor"
+    }
+  },
+  "pooled_negative_control": {
+    "contradictions": [
+      "0x2000",
+      "0x2400",
+      "0x8000",
+      "0x16000",
+      "0x16400",
+      "0x16600",
+      "0x38000",
+      "0x80000",
+      "0x100000",
+      "0x248000",
+      "0x400000",
+      "0x95e000",
+      "0xc84000",
+      "0xc86000",
+      "0x1004000",
+      "0x1006000",
+      "0x100e000",
+      "0x1010000",
+      "0x1012000",
+      "0x1018000",
+      "0x1040000",
+      "0x1200000",
+      "0x1700000",
+      "0x2010000",
+      "0x2020000",
+      "0x2040000",
+      "0x2800000",
+      "0x3000000",
+      "0x4000000",
+      "0x4002000",
+      "0x4008000",
+      "0x4016000",
+      "0x4100000",
+      "0x4400000",
+      "0x8000000",
+      "0x8008000",
+      "0x8016000",
+      "0x8080000",
+      "0x8400000",
+      "0xa004000",
+      "0xc000000",
+      "0x10006000",
+      "0x1000c000",
+      "0x1000e000"
+    ],
+    "global_rank_lower_bound": 2,
+    "kernel_basis": [
+      "0x10004000",
+      "0xc180000",
+      "0x6382000",
+      "0x2004000",
+      "0x1830000",
+      "0xc34000",
+      "0x446000",
+      "0x306000",
+      "0x102000",
+      "0x8a000",
+      "0x62000",
+      "0x3a000",
+      "0x16000",
+      "0x8000",
+      "0x2000",
+      "0x600",
+      "0x200"
+    ],
+    "kernel_dimension_lower_bound": 17,
+    "linearity_consistent": false,
+    "observed_dimension": 29,
+    "pa13_control_wrongly_in_kernel": true,
+    "rank_witness": [
+      "0x2000",
+      "0xc84000"
+    ],
+    "restricted_rank_upper_bound": 12
+  },
+  "schema": "dram-bank-kernel-recovery-v1"
+}

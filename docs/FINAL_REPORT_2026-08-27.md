@@ -281,7 +281,8 @@ grade or model resolution.
 |---|---|---|
 | Exact remapper read at DMID | Repeats §4 at `0x09248080` instead of the SHRM word, closing the address substitution | in progress |
 | `0x17c00000` `apcs_glb` aperture | ~~No address inside the range appears in any retained XPU inventory.~~ Closed by Verification 025: it is covered by `CNOC_AOSS_MPU` `0x17c00000..0x18200000`, TZ-owned, no HLOS grant. The absence was extraction scope — 5 of 1,726 regions decoded. | **done** |
-| Knock-Knock / Sudoku method port | Would separate bank from rank from channel | not started |
+| Knock-Knock kernel recovery port | Polynomial-time kernel from retained timing; independently reaches `rank >= 2` and adds a linearity falsification test | done, Verification 027 |
+| Sudoku component split | Would separate bank from rank from channel | not started |
 | Scorecard `LATER` rows | E — capture feasibility; B — base currentness | deferred |
 
 ---
