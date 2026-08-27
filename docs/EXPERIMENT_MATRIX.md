@@ -30,8 +30,9 @@
 
 | 020E-SS | Do the six 020D static slots have additional bounded direct consumers or writers? | `PROVED` within the finite model: 18 unique direct unsigned scalar accesses (6 `STR`, 12 `LDR`) to the six slots; 95 bounded barriers are retained (8 caller-saved `BL`, 87 unknown-instruction). | Exact XBL/helper/caller/object hashes; ADRP-to-slot-page window of 8 instructions; strict scalar decoders, page-register kill rules, caller-saved `BL` barriers and explicit AAPCS64 X19–X29 continuation assumption; synthetic call-flow negatives; no device/SMC/MMIO/write. | `SUPPORTED` bounded cross-reference only; global writer/consumer absence, ABI compliance, runtime values/currentness, slot semantics, physical/DRAM mapping, mutability, protected reach and alias/bypass `UNKNOWN`; `CLASS C`, `NOT_ELIGIBLE`. |
 | 020F-LU | Do the twelve 020E slot loads feed pointer/address formation, stores, predicates, or returns? | `PROVED` within the finite model: 16 recognized downstream use events and 11 barriers across 16-instruction same-block windows; no tainted direct store reached. | Exact XBL plus mechanically hash-pinned 020E manifest; strict LDR/STR, register-offset, ADD/SUB, MADD, MOV, predicate, control and call-preservation model; X30 caller-saved, MOVK fail-closed, CBNZ/TBNZ covered; no device/SMC/MMIO/write. | `SUPPORTED` local address/arithmetic uses only; global writer/consumer absence, ABI/runtime values/currentness, slot semantics, physical/DRAM mapping, mutability, protected reach and alias/bypass `UNKNOWN`; `CLASS C`, `NOT_ELIGIBLE`. |
+| 020G-PO | Do the exact 020F address-use events resolve to bounded pointer/object shapes? | `PROVED` within the finite model: 12 witnesses, consisting of 10 immediate object-field-shaped accesses (7 `LDR`, 3 `STR`) and 2 `UXTX` register-offset array-element-shaped loads; 11 unique access VAs and 1 duplicate witness. | Exact XBL plus mechanically hash-pinned 020F manifest; strict unsigned scalar and `UXTX` register-offset decoders at the exact event VAs; no runtime pointer/physical/MMIO/DRAM promotion or device/SMC/write. | `SUPPORTED` local pointer/object/array shape only; runtime base/currentness, object semantics, global writer/consumer absence, mutability, protected reach and alias/bypass remain `UNKNOWN`; `CLASS C`, `NOT_ELIGIBLE`. |
 
-## Integrated host-only rows 019–022, 024–027, 029, 031–033, 020E and 020F
+## Integrated host-only rows 019–022, 024–027, 029, 031–033, 020E, 020F and 020G
 
 | ID | Question | Bounded result | Classification and boundary |
 |---:|---|---|---|
@@ -126,8 +127,10 @@ the next selected work was host-only 020B caller-object origin tracing, now
 complete; 020C then traced its `0x9fc160b8` return helper, and 020D traced the
 second helper caller at `0x9fc26e2c`.  The next candidate is a static-slot
 consumer census (020E), now complete; 020F then traced the twelve resulting
-loads through bounded same-block use chains.  The next candidate is bounded
-pointer/object resolution for the address-use events (020G).
+loads through bounded same-block use chains; 020G then resolved its address-use
+events to 12 bounded pointer/object witnesses (10 immediate and 2 `UXTX`
+register-offset, with 11 unique VAs and 1 duplicate witness).  The next
+candidate is a bounded static-slot function-role/base-origin trace (020H).
 Experiment 035 remains deferred.
 
 The Stage 2E row's writeback result is an exact audit of all recognized
@@ -1210,6 +1213,23 @@ The public manifest is 13,069 bytes, mode `0644`, SHA-256
 Validation is 9 focused and 1,195 full serial unittest PASS (`skipped=1`) in
 123.910 seconds, maximum RSS 342,272 KiB, zero swap, with deterministic
 regeneration, redaction and independent hostile-review `PASS`.
+
+## Experiment 020G static-slot pointer/object metadata
+
+Verification 020G re-decodes exactly the 020F address-use events under a
+bounded instruction-shape model.  It yields 12 witnesses: 10 immediate
+object-field-shaped accesses (7 `LDR`, 3 `STR`) and 2 `UXTX` register-offset
+array-element-shaped loads.  There are 11 unique access VAs and one duplicate
+witness.  `PROVED` is limited to the exact bounded census; `SUPPORTED` is
+local pointer/object/array shape only.  Runtime base values/currentness,
+object semantics, global writer/consumer absence, MMIO/physical/DRAM identity,
+mutability, protected reach and alias/bypass remain `UNKNOWN`.  Class C and
+`NOT_ELIGIBLE` remain unchanged; no device action occurred.
+
+The public manifest is 7,218 bytes, mode `0644`, SHA-256
+`f534efeee1e12f18d3af40c107dbc6fbe938eae16d9013aa088d22d7c880af3e`.
+Validation is 10 focused and 1,205 full serial unittest PASS (`skipped=1`) in
+134.596 seconds, maximum RSS 347,740 KiB, zero swap.
 
 ## Integration validation and current reconciliation
 

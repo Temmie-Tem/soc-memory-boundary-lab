@@ -516,6 +516,20 @@ and currentness, ABI compliance, slot semantics, physical-to-DRAM identity,
 mutability, protected reach and alias/bypass remain `UNKNOWN`.  The next
 discriminator is bounded pointer/object resolution for the address-use events.
 
+Verification 020G then re-decoded exactly those 020F address-use events.  The
+bounded result has 12 witnesses: 10 immediate object-field-shaped accesses
+(7 `LDR`, 3 `STR`) and 2 `UXTX` register-offset array-element-shaped loads,
+occupying 11 unique access VAs with one duplicate witness.  This is
+instruction-shape evidence only; runtime base values/currentness, object
+semantics, global writer/consumer absence, MMIO/physical/DRAM identity,
+mutability, protected reach and alias/bypass remain `UNKNOWN`.  Class C and
+`NOT_ELIGIBLE` remain unchanged, and no device action occurred.  The next
+discriminator is a bounded static-slot function-role/base-origin trace (020H).
+The sanitized manifest is 7,218 bytes, mode `0644`, SHA-256
+`f534efeee1e12f18d3af40c107dbc6fbe938eae16d9013aa088d22d7c880af3e`; focused
+tests are 10/10 and the full serial suite is 1,205/1,205 PASS (`skipped=1`) in
+134.596 seconds, maximum RSS 347,740 KiB, zero swap.
+
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside
 `DC_NOC_NON_BROADCAST_MPU`, `MEMNOC_MS_MPU`, and `CNOC_SNOC_MS_MPU` regions.

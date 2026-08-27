@@ -1,0 +1,248 @@
+{
+ "boundary_bypass": {
+  "device": "none",
+  "mmio": "none",
+  "protected_memory": "none",
+  "reason": "Host-only static pointer/object census; no activation or live state was accessed.",
+  "smc": "none",
+  "status": "NOT_AUTHORIZED"
+ },
+ "census": {
+  "accesses": [
+   {
+    "access_va": "0x9fc26ea0",
+    "base_register": "X10",
+    "index_register": "X11",
+    "kind": "LDR",
+    "register": "W0",
+    "seed_slot_va": "0x9fc3e158",
+    "seed_va": "0x9fc26e90",
+    "shape": "REGISTER_OFFSET_ARRAY_ELEMENT",
+    "width_bits": 32
+   },
+   {
+    "access_va": "0x9fc26ea0",
+    "base_register": "X10",
+    "index_register": "X11",
+    "kind": "LDR",
+    "register": "W0",
+    "seed_slot_va": "0x9fc3e160",
+    "seed_va": "0x9fc26e98",
+    "shape": "REGISTER_OFFSET_ARRAY_ELEMENT",
+    "width_bits": 32
+   },
+   {
+    "access_va": "0x9fc26eb0",
+    "base_register": "X9",
+    "field_offset": "0x00000208",
+    "kind": "LDR",
+    "register": "W8",
+    "seed_slot_va": "0x9fc3e150",
+    "seed_va": "0x9fc26eac",
+    "shape": "IMMEDIATE_OBJECT_FIELD",
+    "width_bits": 32
+   },
+   {
+    "access_va": "0x9fc26eb4",
+    "base_register": "X9",
+    "field_offset": "0x00000204",
+    "kind": "LDR",
+    "register": "W0",
+    "seed_slot_va": "0x9fc3e150",
+    "seed_va": "0x9fc26eac",
+    "shape": "IMMEDIATE_OBJECT_FIELD",
+    "width_bits": 32
+   },
+   {
+    "access_va": "0x9fc26ec8",
+    "base_register": "X9",
+    "field_offset": "0x00000004",
+    "kind": "LDR",
+    "register": "W8",
+    "seed_slot_va": "0x9fc3e138",
+    "seed_va": "0x9fc26ec4",
+    "shape": "IMMEDIATE_OBJECT_FIELD",
+    "width_bits": 32
+   },
+   {
+    "access_va": "0x9fc26ecc",
+    "base_register": "X9",
+    "field_offset": "0x00000000",
+    "kind": "LDR",
+    "register": "W0",
+    "seed_slot_va": "0x9fc3e138",
+    "seed_va": "0x9fc26ec4",
+    "shape": "IMMEDIATE_OBJECT_FIELD",
+    "width_bits": 32
+   },
+   {
+    "access_va": "0x9fc26ed0",
+    "base_register": "X9",
+    "field_offset": "0x00000004",
+    "kind": "LDR",
+    "register": "W10",
+    "seed_slot_va": "0x9fc3e138",
+    "seed_va": "0x9fc26ec4",
+    "shape": "IMMEDIATE_OBJECT_FIELD",
+    "width_bits": 32
+   },
+   {
+    "access_va": "0x9fc26eec",
+    "base_register": "X9",
+    "field_offset": "0x00000000",
+    "kind": "LDR",
+    "register": "W0",
+    "seed_slot_va": "0x9fc3e138",
+    "seed_va": "0x9fc26ee8",
+    "shape": "IMMEDIATE_OBJECT_FIELD",
+    "width_bits": 32
+   },
+   {
+    "access_va": "0x9fc26f10",
+    "base_register": "X8",
+    "field_offset": "0x00000024",
+    "kind": "STR",
+    "register": "W9",
+    "seed_slot_va": "0x9fc3e138",
+    "seed_va": "0x9fc26f0c",
+    "shape": "IMMEDIATE_OBJECT_FIELD",
+    "width_bits": 32
+   },
+   {
+    "access_va": "0x9fc26f1c",
+    "base_register": "X9",
+    "field_offset": "0x00000020",
+    "kind": "STR",
+    "register": "W19",
+    "seed_slot_va": "0x9fc3e138",
+    "seed_va": "0x9fc26f18",
+    "shape": "IMMEDIATE_OBJECT_FIELD",
+    "width_bits": 32
+   },
+   {
+    "access_va": "0x9fc26f40",
+    "base_register": "X9",
+    "field_offset": "0x0000002c",
+    "kind": "STR",
+    "register": "W0",
+    "seed_slot_va": "0x9fc3e138",
+    "seed_va": "0x9fc26f3c",
+    "shape": "IMMEDIATE_OBJECT_FIELD",
+    "width_bits": 32
+   },
+   {
+    "access_va": "0x9fc26f58",
+    "base_register": "X9",
+    "field_offset": "0x0000002c",
+    "kind": "LDR",
+    "register": "W0",
+    "seed_slot_va": "0x9fc3e138",
+    "seed_va": "0x9fc26f54",
+    "shape": "IMMEDIATE_OBJECT_FIELD",
+    "width_bits": 32
+   }
+  ],
+  "dependency": {
+   "experiment_id": "020F-static-slot-load-use",
+   "filename": "020F-static-slot-load-use-20260827-01.manifest.json",
+   "sha256": "d19687581d046c7b05841aef6340e9a1e3664c69e19903689d1c583aee5b9764",
+   "size": 13069
+  },
+  "duplicate_witness_count": 1,
+  "event_count": 12,
+  "immediate_object_field_count": 10,
+  "register_offset_array_element_count": 2,
+  "status": "SUPPORTED_BOUNDED_POINTER_OBJECT_CENSUS",
+  "unique_access_va_count": 11
+ },
+ "claims": {
+  "HYPOTHESIS": [
+   "The six static slots may hold pointers to local configuration objects or arrays rather than final DRAM-controller state."
+  ],
+  "PROVED": [
+   "The exact retained A90 XBL and public 020F manifest are bound by size/SHA-256 before analysis.",
+   "The 020F address-use events re-decode to ten immediate scalar object-field-shaped accesses and two register-offset array-element-shaped witnesses, with one duplicate access VA witness."
+  ],
+  "REFUTED": [],
+  "SUPPORTED": [
+   "The bounded uses are more consistent with local pointer/object state than with a directly identified controller register, but the runtime base and semantics are unresolved."
+  ],
+  "UNKNOWN": [
+   "Runtime pointer values/currentness/execution, object types and semantics, global writer/consumer absence, MMIO/physical/DRAM identity, mutability/locking, protected reach, aliasing and bypass."
+  ]
+ },
+ "classification": "CLASS C (TRANSFORM ONLY)",
+ "definition_of_done": {
+  "build": {
+   "reason": "Interpreted host Python; no device/kernel build.",
+   "status": "NOT_APPLICABLE"
+  },
+  "commands": {
+   "command": "python3 tools/sm8150_xbl_static_slot_pointer_object_census_020g.py --output <public-manifest-path>",
+   "reason": "Private input paths are redacted; exact hashes are pinned.",
+   "status": "REDACTED_REPRODUCTION_TEMPLATE"
+  },
+  "device_binding": {
+   "reason": "Host-only static trace; no device contact.",
+   "status": "NOT_APPLICABLE"
+  },
+  "recovery": {
+   "reason": "Host-only static trace; no device state.",
+   "status": "NOT_APPLICABLE"
+  },
+  "repetitions": {
+   "reason": "Host-only static trace; no runtime repetitions.",
+   "status": "NOT_APPLICABLE"
+  },
+  "rollback": {
+   "reason": "Host-only static trace; no device state.",
+   "status": "NOT_APPLICABLE"
+  },
+  "target": {
+   "binding": "PROVED_EXACT_XBL_INPUT_HASH",
+   "marketing_name": "A90 5G",
+   "model": "SM-A908N",
+   "soc": "SM8150",
+   "soc_name": "Snapdragon 855"
+  },
+  "timestamp": {
+   "reason": "Deterministic publication does not embed a wall-clock timestamp.",
+   "status": "NOT_APPLICABLE"
+  },
+  "tool_and_build": {
+   "build": "NOT_APPLICABLE",
+   "tool": "sm8150_xbl_static_slot_pointer_object_census_020g.py schema sm8150-xbl-static-slot-pointer-object-census-v1"
+  }
+ },
+ "device_access": "none",
+ "eligibility": "NOT_ELIGIBLE",
+ "experiment_id": "020G-static-slot-pointer-object-census",
+ "inputs": {
+  "dependency_020f": {
+   "experiment_id": "020F-static-slot-load-use",
+   "filename": "020F-static-slot-load-use-20260827-01.manifest.json",
+   "sha256": "d19687581d046c7b05841aef6340e9a1e3664c69e19903689d1c583aee5b9764",
+   "size": 13069
+  },
+  "firmware": {
+   "filename": "xbl--sdb1.bin",
+   "sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+   "size": 4194304
+  }
+ },
+ "mode": "HOST_ONLY_READ_ONLY",
+ "schema": "sm8150-xbl-static-slot-pointer-object-census-v1",
+ "scope": {
+  "global_writer_consumer_absence": "UNKNOWN",
+  "mmio_identity": "UNKNOWN",
+  "model": "EXACT_020F_ADDRESS_USE_REDECODE",
+  "never_scan_arbitrary_ranges": true,
+  "physical_to_dram": "UNKNOWN",
+  "recognized_forms": [
+   "LDR_STR_UNSIGNED",
+   "LDR_STR_REGISTER_OFFSET_UXTX"
+  ],
+  "runtime_base": "UNKNOWN",
+  "window_instructions": 16
+ }
+}

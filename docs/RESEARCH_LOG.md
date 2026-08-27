@@ -2114,3 +2114,24 @@ Validation is 9/9 focused and 1,195/1,195 full serial tests (`skipped=1`) in
 regeneration, public JSON/redaction, mode/no-clobber checks and independent
 hostile review `PASS`.  The next scored candidate is bounded pointer/object
 resolution for the address-use events (020G).
+
+# 2026-08-27 — Verification 020G bounded static-slot pointer/object census
+
+This host-only, read-only iteration re-decodes exactly the 020F address-use
+events.  The bounded census contains 12 witnesses: 10 immediate
+object-field-shaped accesses (7 `LDR`, 3 `STR`) and 2 `UXTX` register-offset
+array-element-shaped loads.  The witnesses occupy 11 unique access VAs, with
+one duplicate witness.  These are instruction-shape results only; runtime
+base values/currentness, object semantics, global writer/consumer absence,
+MMIO/physical/DRAM identity, mutability, protected reach and alias/bypass
+remain `UNKNOWN`.  `CLASS C (TRANSFORM ONLY)` and `NOT_ELIGIBLE` remain
+unchanged, and no device action occurred.
+
+The sanitized manifest is
+`evidence/manifests/020G-static-slot-pointer-object-census-20260827-01.manifest.json`,
+7,218 bytes, mode `0644`, SHA-256
+`f534efeee1e12f18d3af40c107dbc6fbe938eae16d9013aa088d22d7c880af3e`.
+Focused tests are 10/10 and the full serial suite is 1,205/1,205 PASS
+(`skipped=1`) in 134.596 seconds, maximum RSS 347,740 KiB, zero swap.  The
+next scored candidate is a bounded static-slot function-role/base-origin
+trace (020H).

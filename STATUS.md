@@ -1216,6 +1216,20 @@ occurred.  The manifest and hostile review are recorded in
 `docs/VERIFICATION020F_INTEGRATION_REVIEW_2026-08-27.md`.  The next scored
 candidate is a bounded pointer/object resolution trace (020G).
 
+Verification 020G is now complete.  It re-decoded the exact 020F address-use
+events into 12 witnesses: 10 immediate object-field-shaped accesses (7
+`LDR`, 3 `STR`) and 2 `UXTX` register-offset array-element-shaped loads.  The
+set contains 11 unique access VAs and one duplicate witness.  Runtime base
+values/currentness, object semantics, global writer/consumer absence,
+MMIO/physical/DRAM identity, mutability, protected reach and alias/bypass
+remain `UNKNOWN`; Class C and `NOT_ELIGIBLE` remain unchanged.  No device
+action occurred.  The manifest is 7,218 bytes, mode `0644`, SHA-256
+`f534efeee1e12f18d3af40c107dbc6fbe938eae16d9013aa088d22d7c880af3e`, and
+focused tests are 10/10 with the full serial suite 1,205/1,205 PASS
+(`skipped=1`) in 134.596 seconds, maximum RSS 347,740 KiB, zero swap.  The
+next scored candidate is a bounded static-slot function-role/base-origin
+trace (020H).
+
 ## N. 가장 위험한 아직 금지된 실험
 
 Treating a section-16 offset token as a byte offset and writing the resulting

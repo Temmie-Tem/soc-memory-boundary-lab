@@ -592,6 +592,26 @@ The focused suite is 9/9 and the full serial suite is 1,195/1,195 PASS
 (`skipped=1`, no swaps); no device action occurred.  The next candidate is a
 bounded pointer/object resolution trace (020G).
 
+Verification 020G completed the bounded pointer/object census over the exact
+020F address-use events.  It retains 12 witnesses: 10 immediate object-field
+shaped accesses (7 `LDR`, 3 `STR`) and 2 `UXTX` register-offset
+array-element-shaped loads.  Those witnesses occupy 11 unique access VAs,
+with one duplicate witness at the shared register-offset VA.  This is
+instruction-shape evidence only: runtime base values/currentness, object
+semantics, global writer/consumer absence, MMIO/physical/DRAM identity,
+mutability, protected reach and alias/bypass remain `UNKNOWN`; Class C and
+`NOT_ELIGIBLE` remain unchanged, with no device action.  The experiment,
+review and manifest are
+[documented](experiments/verification-020G-static-slot-pointer-object-census/README.md),
+[reviewed](docs/VERIFICATION020G_INTEGRATION_REVIEW_2026-08-27.md), and
+[published](evidence/manifests/020G-static-slot-pointer-object-census-20260827-01.manifest.json).
+The manifest is 7,218 bytes, mode `0644`, SHA-256
+`f534efeee1e12f18d3af40c107dbc6fbe938eae16d9013aa088d22d7c880af3e`.
+Focused tests are 10/10 and the full serial suite is 1,205/1,205 PASS
+(`skipped=1`) in 134.596 seconds, maximum RSS 347,740 KiB, zero swap.  The
+next candidate is a bounded static-slot function-role/base-origin trace
+(020H).
+
 Claim vocabulary is deliberately closed:
 
 - `PROVED`: directly demonstrated by named source, artifact, or repeated result.
