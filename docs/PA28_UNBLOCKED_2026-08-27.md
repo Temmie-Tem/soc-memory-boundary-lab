@@ -1,15 +1,27 @@
 # PA28 is measurable, and the base was published all along
 
-The physical base of the `camera_preview` ION heap is **`0xC2000000`**, declared
-in the device tree. Combined with the measured 320 MiB ceiling, that makes
+The physical base advertised for the `camera_preview` ION heap is
+**`0xC2000000`**, declared in the device tree.  A retained 020M read-only
+receipt independently captured the heap-30/phandle/reg chain on the exact
+A90/SM8150 runtime.  Combined with the measured 320 MiB ceiling, that makes
 `f(PA28)` directly measurable on this device — with no `pagemap`, no CVE, no
-privilege escalation, and no inference.
+privilege escalation, and no controller write.
 
 This reopens route 1, which `docs/REMAINING_ROUTES_2026-08-27.md` closed.
 
 ## The chain
 
-Read from the live target, read-only:
+Read from the live target, read-only; the public manifest is
+`evidence/manifests/verification-020m-pa28-dt-20260827-03.manifest.json`
+(8,246 bytes, SHA-256
+`69b087bd5a6aa279fff9c943405b46491381f3461c5ea1ac57f4d2f287d8ad9a`).  The
+private raw receipt is 15,435 bytes, mode `0600`, SHA-256
+`40a3207d3f822775c4506415a579e993c07a6a7f9ff998e41a6f76cb6216a2ec`.
+Runs `…-01` and `…-02` are retained as preliminary repetitions; `…-03` is the
+canonical receipt because its bridge process advertises strict realpath and
+device-glob pins.
+
+The retained live chain is:
 
 ```
 /soc/qcom,ion/qcom,ion-heap@30
@@ -114,12 +126,17 @@ admissible.
 
 ## Ranking
 
-`PROVED`: the device-tree facts — heap 30's `memory-region`, the region's base,
-size and absent `no-map`/`reusable` — read directly from the live target; the
-three-way size agreement; and the pair arithmetic above.
+`PROVED`: the exact 020M receipt's target identity, heap 30's `reg` and
+`memory-region`, matching camera-region phandle, region base/size, and explicit
+`ENOENT` absence of `no-map`/`reusable`; the three-way size agreement; and the
+pair arithmetic above.
 
-`SUPPORTED`: that a full-size allocation from this heap starts at `0xC2000000`,
-from the pigeonhole argument plus the observed success of a 320 MiB allocation.
+`SUPPORTED`: that a full-size allocation from this heap starts at `0xC2000000`.
+The pigeonhole argument alone was not enough, and the 020M review was right that
+its snapshot neither allocates nor maps. Verification 021 measured the extent
+instead: with 320 MiB held, not one 4 KiB page remains allocatable, between two
+5/5 controls. The pool is therefore exactly 320 MiB, matching the declared
+region size, and the allocation spans `[0xC2000000, 0xD6000000)`.
 
 `UNKNOWN`, unchanged: the value of `f(PA28)`; whether the relation changes
 character above the rank boundary; complete DRAM coordinates; transform

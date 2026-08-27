@@ -1,0 +1,46 @@
+{
+ "control_after_ok": 5,
+ "control_before_ok": 5,
+ "controls_fired": true,
+ "device_tree_region": {
+  "base": "0xc2000000",
+  "heap_id": 30,
+  "heap_name": "camera_preview",
+  "memory_region_phandle": "0x67a",
+  "node": "camera_mem_region",
+  "size": "0x14000000"
+ },
+ "heap": {
+  "heap_id": 30,
+  "heap_type": 10,
+  "name": "camera_preview"
+ },
+ "hold_bytes": 335544320,
+ "hold_equals_declared_region_size": true,
+ "implied_physical_span": [
+  "0xc2000000",
+  "0xd6000000"
+ ],
+ "implied_pool_bytes": 335544320,
+ "input": {
+  "basename": "carveout-exhaustion.jsonl",
+  "bytes": 2368,
+  "sha256": "cb16a3c1ba64f6050a52edd2e2fefe9a405d96fde86928cfe344b74764d28694"
+ },
+ "instrument_ok": true,
+ "not_claimed": "No physical page identity, no complete DRAM coordinate, no value of f(PA28), no transform mutability and no access-control implication. This decides allocation extent only.",
+ "pool_exhausted": true,
+ "probe_count": 5,
+ "probe_sizes_bytes": [
+  16777216,
+  4194304,
+  1048576,
+  65536,
+  4096
+ ],
+ "residual_assumption": "The pool is proved exactly equal in size to the declared region: the full size allocates and nothing further fits, so the pool is neither larger nor smaller. That the pool IS that region -- rather than an equally sized region elsewhere -- rests on heap 30 naming camera_mem_region through its memory-region phandle, which the 020M review PROVED on the live target but which this receipt does not independently re-derive.",
+ "schema": "a90_carveout_exhaustion_v1",
+ "smallest_probe_bytes": 4096,
+ "under_hold_ok": 0,
+ "verdict": "HOLD_CONSUMES_POOL"
+}
