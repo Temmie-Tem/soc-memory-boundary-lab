@@ -1,0 +1,124 @@
+{
+ "candidates_measured": {
+  "0x10000000": {
+   "median": 218.5,
+   "vector": "000"
+  },
+  "0x10002000": {
+   "median": 167,
+   "vector": "001"
+  },
+  "0x10004000": {
+   "median": 540,
+   "vector": "010"
+  },
+  "0x10006000": {
+   "median": 136,
+   "vector": "011"
+  },
+  "0x10008000": {
+   "median": 214,
+   "vector": "100"
+  },
+  "0x1000a000": {
+   "median": 186,
+   "vector": "101"
+  },
+  "0x1000c000": {
+   "median": 198,
+   "vector": "110"
+  },
+  "0x1000e000": {
+   "median": 189,
+   "vector": "111"
+  }
+ },
+ "conflicting_candidates": [
+  "0x10004000"
+ ],
+ "context": {
+  "barrier": "dsb_ld",
+  "cpu": 7,
+  "declared_base": "0xc2000000",
+  "divisor": "kept_times_two",
+  "heap": "camera_preview",
+  "mib": 320,
+  "offset_mode": "spread",
+  "order": "alternating",
+  "pairs": 256,
+  "repetitions": 201,
+  "warmups": 17
+ },
+ "controls": {
+  "conflict_difference": "0x16000",
+  "controls_fired": true,
+  "controls_present": true,
+  "negative_difference": "0x2000"
+ },
+ "f_pa28": "010",
+ "f_pa28_equals": "f(PA14)",
+ "inputs": [
+  {
+   "basename": "pa28-existence.jsonl",
+   "bytes": 194481,
+   "sha256": "d0136222fe6b9d211c6f073fec6844b3817c92e25b6e5a00d15cb9b3787ec49b"
+  },
+  {
+   "basename": "pa28-identification.jsonl",
+   "bytes": 283197,
+   "sha256": "12cd383679524978b4beff7801816e5a4dc8fa9852972701c1395b50f205fa79"
+  }
+ ],
+ "medians": {
+  "0x10000000": 218.5,
+  "0x10002000": 167,
+  "0x10004000": 540,
+  "0x10006000": 136,
+  "0x10008000": 214,
+  "0x1000a000": 186,
+  "0x1000c000": 198,
+  "0x1000e000": 189,
+  "0x16000": 543.0,
+  "0x2000": 145.0
+ },
+ "not_claimed": "NEGATIVE means the pair did not present as a same-bank different-row conflict. That separates bank, rank and channel selection from row bits, but does not distinguish among them. No complete DRAM coordinate, no transform mutability and no access-control implication follows.",
+ "pagemap_status": "BLIND",
+ "pair_verification": {
+  "all_pairs_isolate_their_difference": true,
+  "mismatched": [],
+  "pairs_checked": 3029
+ },
+ "phase_split": {
+  "conflict": {
+   "0x10004000": 540,
+   "0x16000": 543.0
+  },
+  "gap": 321.5,
+  "negative": {
+   "0x10000000": 218.5,
+   "0x10002000": 167,
+   "0x10006000": 136,
+   "0x10008000": 214,
+   "0x1000a000": 186,
+   "0x1000c000": 198,
+   "0x1000e000": 189,
+   "0x2000": 145.0
+  },
+  "runner_up_gap": 22.0,
+  "threshold": 379.25
+ },
+ "repeats_per_difference": {
+  "0x10000000": 2,
+  "0x10002000": 1,
+  "0x10004000": 1,
+  "0x10006000": 1,
+  "0x10008000": 1,
+  "0x1000a000": 1,
+  "0x1000c000": 1,
+  "0x1000e000": 1,
+  "0x16000": 4,
+  "0x2000": 4
+ },
+ "schema": "a90_pa28_relation_v1",
+ "verdict": "RESOLVED"
+}
