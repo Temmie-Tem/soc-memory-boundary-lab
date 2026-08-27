@@ -466,6 +466,17 @@ data flow only: object type/value/currentness, physical-to-DRAM mapping,
 post-boot mutability and protected reach remain `UNKNOWN`.  It does not identify
 the final controller writer or authorize a live mutation.
 
+Verification 020B extends that edge by tracing the sole direct caller of the
+consumer at `0x9fc023c8`.  The caller obtains an opaque token from
+`BL 0x9fc160b8`, copies its fields into a stack object at `SP+0x20` (including
+an exact `Q0` two-lane transfer), and passes that object to the consumer.  The
+020A setter arguments are therefore symbolically `[return+0x0c]` (W3),
+`[return+0x18]` (X0), `[return+0x20]` (X1), and `[return+0x28]` (X2).  The
+return helper's runtime value/type/currentness, static-object semantics,
+physical-to-DRAM destination, mutability/locking and protected reach remain
+`UNKNOWN`; this is not a controller-writer or alias proof.  The result remains
+`CLASS C (TRANSFORM ONLY)` and `NOT_ELIGIBLE`.
+
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside
 `DC_NOC_NON_BROADCAST_MPU`, `MEMNOC_MS_MPU`, and `CNOC_SNOC_MS_MPU` regions.

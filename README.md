@@ -509,6 +509,25 @@ and the sanitized
 The 020A focused suite is 9/9 and the full serial suite is 1,160/1,160 PASS
 (`skipped=1`, no swaps); hostile review is `PASS`.
 
+Verification 020B then traced the sole direct caller of the 020A consumer at
+`0x9fc023c8`.  The exact caller obtains an opaque `X0` token from
+`BL 0x9fc160b8`, constructs a stack object at `SP+0x20`, and passes it to the
+consumer.  Within the bounded finite model the four setter arguments resolve
+to return-object fields `W3=[return+0x0c]`, `X0=[return+0x18]`,
+`X1=[return+0x20]`, and `X2=[return+0x28]`.  The manifest retains these as
+symbolic `MEMORY_FIELD` provenance with value `UNKNOWN`; it makes no runtime,
+type, currentness, physical/DRAM or MMIO claim.  Classification remains
+`CLASS C (TRANSFORM ONLY)` and eligibility remains `NOT_ELIGIBLE`.
+
+The 020B experiment, integration review and sanitized manifest are
+[documented here](experiments/verification-020B-caller-object-origin/README.md),
+[reviewed here](docs/VERIFICATION020B_INTEGRATION_REVIEW_2026-08-27.md), and
+[published here](evidence/manifests/020B-caller-object-origin-20260827-01.manifest.json).
+The focused suite is 7/7 and the full serial suite is 1,167/1,167 PASS
+(`skipped=1`, no swaps); no device action occurred.  The next non-overlapping
+candidate is a bounded static trace of the `0x9fc160b8` return helper, with
+runtime execution and all indirect paths still `UNKNOWN`.
+
 Claim vocabulary is deliberately closed:
 
 - `PROVED`: directly demonstrated by named source, artifact, or repeated result.

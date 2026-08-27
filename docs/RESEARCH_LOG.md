@@ -1968,3 +1968,32 @@ bytes, mode `0644`, SHA-256
 `edf62eb6c1d97a8113f5ba0894548e9d5fafc83eeefbc7976c808b0f7886c051`.  Focused
 validation is 9/9; full serial validation and the final hostile review are in
 `docs/VERIFICATION020A_INTEGRATION_REVIEW_2026-08-27.md`.
+
+# 2026-08-27 — Verification 020B caller-object origin trace
+
+This host-only iteration follows the exact sole direct caller of the 020A
+consumer at `0x9fc023c8`.  The caller obtains an opaque `X0` token from
+`BL 0x9fc160b8`, constructs a stack object at `SP+0x20` (including the exact
+`STR X8`/`LDR Q0`/`STR Q0`/`LDP X11,X10` sequence), and passes that object to the
+consumer.  The bounded stack model resolves the 020A setter arguments to
+return-object offsets `0x0c` (W3), `0x18` (X0), `0x20` (X1), and `0x28` (X2).
+
+`PROVED`: exact XBL/range/call-word/consumer-entry pins, singleton direct
+caller, instruction forms and stack overwrite ordering.  `SUPPORTED`: the
+caller/object edge is reproducible under the finite symbolic model.
+`HYPOTHESIS`: the helper return may be a runtime configuration carrier.
+`UNKNOWN`: runtime values, object type/currentness/static-object semantics,
+indirect callers and writers, physical-to-DRAM mapping, mutability/locking,
+protected reach, aliasing and bypass.  `CLASS C (TRANSFORM ONLY)` and
+`NOT_ELIGIBLE` remain unchanged; no device action occurred.
+
+The sanitized manifest is
+`evidence/manifests/020B-caller-object-origin-20260827-01.manifest.json`,
+18,518 bytes, mode `0644`, SHA-256
+`61e5961620d78e766d3fbc586847f76feb0f07991e41326c4b971110cb2a082a`.
+Validation is 7/7 focused and 1,167/1,167 full serial tests (`skipped=1`) in
+116.419 seconds, maximum RSS 296,676 KiB, zero swap; deterministic
+regeneration, public JSON/redaction, no-clobber and decoder-negative checks
+pass.  Independent hostile review is `PASS` in
+`docs/VERIFICATION020B_INTEGRATION_REVIEW_2026-08-27.md`.  The next scored
+candidate is a separate bounded trace of the `0x9fc160b8` return helper.

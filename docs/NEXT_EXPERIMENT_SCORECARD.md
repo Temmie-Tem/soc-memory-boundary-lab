@@ -8,13 +8,14 @@ Later moving-branch commits are evidence to repair, never moving-tip authority.
 
 | Rank | Experiment | Information target | Scope and gate | Status |
 |---:|---|---|---|---|
-| 1 | 020B caller-object origin trace | Trace the opaque incoming object at `0x9fc023f0` to its bounded direct callers and construction/origin fields. | Host-only exact-XBL control/data flow; preserve indirect `BLR`, runtime execution, currentness and type as `UNKNOWN`; no device/MMIO/controller write. | `PRIMARY NEXT; BOUNDED ONLY` |
-| 2 | 020A setter/base trace | Trace candidate setter `0x9fc06410` through caller `0x9fc023f0` to the runtime base-argument source. | Host-only exact-firmware control/data flow; bounded model only; no device/MMIO/controller write. See `docs/VERIFICATION020A_INTEGRATION_REVIEW_2026-08-27.md`. | `COMPLETED; SYMBOLIC FIELDS / CLASS C UNCHANGED` |
-| 3 | Route-2 manifest audit | Revalidate the exact 029–034 bounded writer-path summaries and rank-relation fields without converting unknown raw rows into concurrence. | Host-only exact-byte/hash and semantic audit; Q1 bounded closure, Q4 remains UNKNOWN; no device/MMIO/write. See `docs/ROUTE2_RANK_AUDIT_INTEGRATION_REVIEW_2026-08-27.md`. | `COMPLETED; Q1 SUPPORTED / Q4 UNKNOWN; CLASS C UNCHANGED` |
-| 4 | Verification 017 post-decode-granularity audit | Check the external bank-granularity argument now that V016's dependency gate is satisfied. | Host-only algebra/carveout audit; require exact distinction between bank-only refutation and full post-transform-coordinate enforcement. | `COMPLETED; BANK-ONLY SHAPE REFUTED; CLASS C UNCHANGED` |
-| 5 | Verification 018 allocation-local baseline | Establish the storage-identity baseline with exact raw provenance and positive/negative controls. | Completed one reversible `camera_preview` run; no MMIO, SMC, secure heap, protected memory or partition action. Result is one-state allocation-offset evidence only. | `COMPLETED; DEVICE_ACQUISITION_VALIDATED; CLASS C UNCHANGED` |
-| 6 | E — capture-feasibility | Assess whether a future bounded evidence capture has a safe path without promoting a controller action. | Feasibility review only; no SMC/MMIO/protected-memory action. | `LATER` |
-| 7 | B — base currentness | Resolve initialized-base currentness as a bounded static/runtime-boundary question. | Preserve the unresolved runtime base and indirect `BLR` boundaries; no live promotion. | `LATER` |
+| 1 | 020C return-helper origin trace | Trace the exact `BL 0x9fc160b8` helper that supplies the 020B object, including its static return-address construction and bounded direct callers. | Host-only exact-XBL control/data flow; preserve runtime data/type/currentness, indirect paths, and static-object semantics as `UNKNOWN`; no device/MMIO/controller write. | `PRIMARY NEXT; BOUNDED ONLY` |
+| 2 | 020B caller-object origin trace | Trace the opaque incoming object at `0x9fc023f0` to its bounded direct callers and construction/origin fields. | Host-only exact-XBL control/data flow; preserve indirect `BLR`, runtime execution, currentness and type as `UNKNOWN`; no device/MMIO/controller write. See `docs/VERIFICATION020B_INTEGRATION_REVIEW_2026-08-27.md`. | `COMPLETED; SYMBOLIC FIELDS / CLASS C UNCHANGED` |
+| 3 | 020A setter/base trace | Trace candidate setter `0x9fc06410` through caller `0x9fc023f0` to the runtime base-argument source. | Host-only exact-firmware control/data flow; bounded model only; no device/MMIO/controller write. See `docs/VERIFICATION020A_INTEGRATION_REVIEW_2026-08-27.md`. | `COMPLETED; SYMBOLIC FIELDS / CLASS C UNCHANGED` |
+| 4 | Route-2 manifest audit | Revalidate the exact 029–034 bounded writer-path summaries and rank-relation fields without converting unknown raw rows into concurrence. | Host-only exact-byte/hash and semantic audit; Q1 bounded closure, Q4 remains UNKNOWN; no device/MMIO/write. See `docs/ROUTE2_RANK_AUDIT_INTEGRATION_REVIEW_2026-08-27.md`. | `COMPLETED; Q1 SUPPORTED / Q4 UNKNOWN; CLASS C UNCHANGED` |
+| 5 | Verification 017 post-decode-granularity audit | Check the external bank-granularity argument now that V016's dependency gate is satisfied. | Host-only algebra/carveout audit; require exact distinction between bank-only refutation and full post-transform-coordinate enforcement. | `COMPLETED; BANK-ONLY SHAPE REFUTED; CLASS C UNCHANGED` |
+| 6 | Verification 018 allocation-local baseline | Establish the storage-identity baseline with exact raw provenance and positive/negative controls. | Completed one reversible `camera_preview` run; no MMIO, SMC, secure heap, protected memory or partition action. Result is one-state allocation-offset evidence only. | `COMPLETED; DEVICE_ACQUISITION_VALIDATED; CLASS C UNCHANGED` |
+| 7 | E — capture-feasibility | Assess whether a future bounded evidence capture has a safe path without promoting a controller action. | Feasibility review only; no SMC/MMIO/protected-memory action. | `LATER` |
+| 8 | B — base currentness | Resolve initialized-base currentness as a bounded static/runtime-boundary question. | Preserve the unresolved runtime base and indirect `BLR` boundaries; no live promotion. | `LATER` |
 | — | Verification 015 | Test relation stability across retained condition-labelled runtime/reboot/coldboot sets. | Rebuilt from 19 pinned inputs: four clean invariant comparisons; L762 remains `REPEAT_REQUIRED`/`all_invariant=false`; six independent repeat groups have zero flips; bus-vote axis excluded. | `COMPLETED`; 44 focused / 1,039 full PASS, hostile `PASS` |
 | — | Verification 016 | Determine what the retained camera-preview measurements establish above model bit 24. | Rebuilt from three pinned raw files: phase-specific splits, per-pass consistency, exact matches and 7/7 separate held-out agreement; physical mapping remains `UNKNOWN` under `BLIND` pagemap. | `COMPLETED`; 23 focused / 1,062 full PASS, hostile `PASS` |
 | — | 034 | Resolve the exact site-35 indirect jump table left by Experiment 033. | Completed bounded host-only reconstruction: five entries/four unique targets and 71/71 `NO_TARGET_WITHIN_MODEL`; no global absence claim. | `COMPLETED`; artifact commit `d5d8046` |
@@ -26,6 +27,22 @@ The scores are decision aids, not vulnerability probabilities, success
 probabilities, or evidence labels. They compare critical-`UNKNOWN` closure,
 discriminatory power, execution feasibility, cost/recoverability,
 dependency/non-overlap, and reuse value.
+
+## Verification 020B completed result
+
+020B is complete as a host-only, read-only exact-XBL trace.  The sole direct
+caller of consumer `0x9fc023c8` obtains an opaque token from `BL 0x9fc160b8`,
+constructs a stack object at `SP+0x20`, and supplies the 020A setter arguments
+from return-object offsets `0x0c`, `0x18`, `0x20`, and `0x28`.  The finite model,
+focused tests (7/7), full serial suite (1,167/1,167, `skipped=1`), and hostile
+review all pass.  Runtime values/type/currentness, indirect callers, static
+object semantics, physical-to-DRAM mapping, mutability, protected reach and
+alias/bypass remain `UNKNOWN`; Class C is unchanged.
+
+The next candidate, 020C, is deliberately non-overlapping: trace the exact
+`0x9fc160b8` helper itself and its direct callers, preserving any static return
+address as a code/data-flow fact rather than promoting it to a runtime
+physical/DRAM destination.
 
 Experiment 034's historical `94/100` selection score was explicit: information gain
 20/20 (the sole remaining 033 fail-closed site), discriminating power 20/20

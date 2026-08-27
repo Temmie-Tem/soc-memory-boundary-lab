@@ -1146,26 +1146,32 @@ Verification 016 is complete, Verification 017 has excluded the narrow
 bank-only enforcement shape, Verification 018 has supplied the fresh
 allocation-local baseline, the Route-2 audit has closed its bounded Q1
 question while retaining Q4 as `UNKNOWN`, and Verification 020A has traced the
-setter's incoming object fields. The highest-information next iteration is a
-host-only 020B caller-object origin trace; the Route-2 handoff and 020A
-symbolic boundary remain the constraints for interpreting it.
+setter's incoming object fields.  Verification 020B is now complete: its exact
+caller trace resolves the object construction to the opaque return of
+`BL 0x9fc160b8` while preserving runtime values/type/currentness as `UNKNOWN`.
+The Route-2 handoff, 020A symbolic boundary, and 020B opaque-return boundary
+remain the constraints for interpreting it.
 
-The ordered next step is:
-
-1. run 020B as a bounded host-only static analysis of the caller's incoming
-   object origin, requiring an exact direct call/data-flow path before
-   reopening the mutation route;
-2. retain the V017 result as a bank-only shape exclusion, the Route-2 Q4 result
-   as `UNKNOWN`, the 020A field origins as symbolic only, and the V018 one-state
-   result only as a storage-identity baseline; do
-   not infer physical PA alias, transform immutability or protected reach;
-3. if a reopen condition appears, select a new bounded discriminator and stop
-   any endpoint/termination wording.
+The ordered next step is a separate bounded host-only trace of the
+`0x9fc160b8` return helper, with no device/MMIO/controller write and no
+promotion of its static return address to a runtime physical destination.
 
 The completed V018 action wrote only inside its own non-secure allocation and
 did not touch MMIO, SMC, secure heap, protected memory or a partition.
-The 020A setter trace is complete; 020B remains the host-only fallback. Numbered
-Experiments 015/016 remain `NOT_ELIGIBLE`.
+Verification 020B is now complete.  It traced the exact sole direct caller of
+the 020A consumer at `0x9fc023c8`: `BL 0x9fc160b8` returns an opaque token,
+which is copied into a stack object at `SP+0x20`; the four setter arguments are
+symbolically `[return+0x0c]`, `[return+0x18]`, `[return+0x20]`, and
+`[return+0x28]` with widths 32/64/64/64.  The result remains `CLASS C
+(TRANSFORM ONLY)` and `NOT_ELIGIBLE`; runtime values, type/currentness,
+physical-to-DRAM mapping, mutability and protected reach remain `UNKNOWN`.
+The 020B focused suite is 7/7 and the full serial suite is 1,167/1,167 PASS
+(`skipped=1`, no swaps); no device action occurred.  The integration review,
+manifest and hostile-review result are recorded in
+`docs/VERIFICATION020B_INTEGRATION_REVIEW_2026-08-27.md`.
+
+The next scored candidate is a separate bounded host-only trace of the
+`0x9fc160b8` return helper. Numbered Experiments 015/016 remain `NOT_ELIGIBLE`.
 
 ## N. 가장 위험한 아직 금지된 실험
 
