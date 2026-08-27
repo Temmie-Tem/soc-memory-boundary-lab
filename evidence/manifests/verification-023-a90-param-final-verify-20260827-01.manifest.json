@@ -1,0 +1,76 @@
+{
+  "bootloader": "A908NKSU5EWA3",
+  "capture": {
+    "device_sha256_after": "1faafee97d08ff93b690dbcffe21d680f20232aa2d3dff5f462b747577bb4345",
+    "device_sha256_before": "1faafee97d08ff93b690dbcffe21d680f20232aa2d3dff5f462b747577bb4345",
+    "sha256": "1faafee97d08ff93b690dbcffe21d680f20232aa2d3dff5f462b747577bb4345",
+    "size": 10485760,
+    "triple_hash_match": true
+  },
+  "claims": {
+    "PROVED": [
+      "The exact live sda10/PARTNAME=param partition was captured byte-for-byte and matched independent device-before, host, and device-after SHA-256 values.",
+      "The four XBL gate fields were decoded at exact source-backed offsets in the retained rollback artifact."
+    ],
+    "UNKNOWN": [
+      "No persistent state was changed, so post-change XBL behavior remains untested by this capture."
+    ]
+  },
+  "classification": "PARAM_CAPTURED_DEBUG_ONLY_PRECONDITIONS_MET",
+  "cmdline_relevant": {
+    "androidboot.bootloader": "A908NKSU5EWA3",
+    "androidboot.debug_level": "0x4f4c",
+    "androidboot.em.model": "SM-A908N",
+    "androidboot.force_upload": "0x0",
+    "androidboot.upload_offset": "9438196",
+    "sec_debug.dump_sink": "0x0"
+  },
+  "completed_utc": "2026-08-27T09:35:31+00:00",
+  "decoded_gate_fields": {
+    "FMM_lock": {
+      "label": "NOT_LOCK_MAGIC",
+      "partition_offset": "0x9003fc",
+      "record_offset": "0x3fc",
+      "value": "0x00000000"
+    },
+    "debuglevel": {
+      "label": "LOW",
+      "partition_offset": "0x900000",
+      "record_offset": "0x000",
+      "value": "0x574f4c44"
+    },
+    "dump_sink": {
+      "label": "USB_DEFAULT",
+      "partition_offset": "0x900400",
+      "record_offset": "0x400",
+      "value": "0x00000000"
+    },
+    "force_upload_flag": {
+      "label": "NOT_ENABLED_VALUE_5",
+      "partition_offset": "0x9003f4",
+      "record_offset": "0x3f4",
+      "value": "0x00000000"
+    }
+  },
+  "download_mode": "1",
+  "experiment_id": "verification-023-a90-param-final-verify-20260827-01",
+  "kernel": "Linux 4.14.190-25818860-abA908NKSU5EWA3 aarch64",
+  "partition": {
+    "byte_size": 10485760,
+    "devname": "sda10",
+    "logical_block_size": 4096,
+    "major": 8,
+    "minor": 10,
+    "partname": "param",
+    "read_only": 0,
+    "sectors": 20480,
+    "start_sector": 125080
+  },
+  "partition_writes": false,
+  "raw_artifact_git_ignored": true,
+  "runtime": "v2321-usb-clean-identity-rodata",
+  "schema": "sdm855-a90-param-capture-public-v1",
+  "soc": "SM8150",
+  "started_utc": "2026-08-27T09:35:30+00:00",
+  "target_model": "SM-A908N"
+}

@@ -1,8 +1,10 @@
 # Verification 023 — the remapper read at DMID
 
-**Status at authoring: `PLANNED / NOT YET EXECUTED`.**  This file is written
-before the run so that the expectation below is pre-registered rather than
-recalled.  `CLASS C (TRANSFORM ONLY)` / `NOT_ELIGIBLE` at authoring time.
+**Status: `EXECUTED 2026-08-27` — `REFUSED_AT_MID`, the pre-registered
+expectation.**  The plan below was written and committed (`e7f3236`) before the
+run so that the expectation was pre-registered rather than recalled.  The result
+section at the end records what happened.  `CLASS C (TRANSFORM ONLY)` /
+`NOT_ELIGIBLE` unchanged.
 
 ## The question
 
@@ -74,3 +76,89 @@ before the run.
 
 No `xbl`, `xbl_config`, `tz`, `hyp`, `devcfg`, `aop`, `abl`, GPT, RPMB, QFPROM,
 XPU, SMMU, EL2, EL3 or protected-memory write is part of this sequence.
+
+---
+
+# Result — `REFUSED_AT_MID`
+
+## Two changes to the plan, both forced by the target
+
+**The probe address changed.**  No tool in this repository flashes the
+Experiment 007 inline *remapper* candidate; `tools/a90_twrp_shrm_boot_flash.py`
+flashes the Experiment 013 inline *SHRM* candidates.  The SHRM read at
+`0x0906566c` (MCCC source register `0x09250118`) tests the same hypothesis and
+is better instrumented: it has a pinned flash path, a paired no-load control
+that returned the `0xc071` sentinel, and an explicit TZ error code in its
+retained log rather than a bare bark.  It was used instead.
+
+**The step order had to be inverted.**  The first attempt applied MID, rebooted
+into MID, then entered TWRP to flash — and the candidate booted at **LOW**.  A
+full `param` capture showed the partition back at `1faafee9…`/`DLOW`.
+
+`PROVED`: a TWRP round trip resets `param.debuglevel` to `DLOW`.  This is a
+standing constraint on any future experiment that needs both a flashed boot
+image and a non-default debug level.  The repair is to flash first, then apply
+the transition, then reboot without re-entering recovery.
+
+## What the device recorded
+
+The retained receipt is
+`evidence/private/verification-023-last-kmsg-at-mid-20260827-01.last_kmsg.bin`,
+2,097,136 bytes, SHA-256
+`fdceab48dc267dd74ec6c70edbec6b51ee13dcd8532cf8b121c4fe93b425c66e`.
+
+```text
+DebugLevel : 1145654596
+Watchdog bark! Now = 69.080467
+Watchdog last pet at 58.080193
+UploadCause[Non Secure Watchdog Bark], Don't check hangcnt
+collect_rr_data : upload_cause = Non Secure Watchdog Bark
+collect_rr_data : TZ OEM_RESET_REASON :: TZBSP_ERR_FATAL_NON_SECURE_WDT
+```
+
+`1145654596` is little-endian `DMID`.  The bootloader's own crash record states
+the boot was at MID; the debug level is not asserted by this project's
+narration.  The probe manifest records `value: null` and the device enumerated
+as Samsung Upload `04e8:685d`, exactly as Verification 006 predicted for MID.
+
+| | Experiment 013, at `DLOW` | Verification 023, at `DMID` |
+|---|---|---|
+| returned value | none | none |
+| upload cause | `Non Secure Watchdog Bark` | same |
+| TZ reset reason | `TZBSP_ERR_FATAL_NON_SECURE_WDT` | same |
+| bark − last pet | 11.000279 s | 11.000274 s |
+
+## Disposition
+
+`PROVED` within this build and this one fixed load: the protected read is
+refused with memory dumps enabled exactly as it is with them disabled.  The
+watchdog path, the upload cause and the TZ reset reason are identical and the
+timeout delta agrees to five microseconds.
+
+`SUPPORTED`: CVE-2020-11252 does not apply to `A908NKSU5EWA3` — either patched
+or never applicable to SM8150.  This is now a measurement of the one untested
+condition rather than an inference from measurements taken only at `DLOW`.
+
+`UNKNOWN`: whether other debug levels, dump sinks, or force-upload states behave
+differently; whether any other aperture behaves differently at MID; the runtime
+XPU register state; transform mutability; aliasing; and any bypass.  One load at
+one address in one configuration is what was measured.
+
+No security-boundary-bypass indicator appeared, so the stop condition did not
+fire.  `CLASS C (TRANSFORM ONLY)` and `NOT_ELIGIBLE` are unchanged.
+
+## Restoration, verified
+
+| Asset | Final state |
+|---|---|
+| `param`, complete 10 MiB | `1faafee9…` — byte-identical to the pinned rollback |
+| gate fields | `LOW` / `force_upload=0` / `FMM_lock=0` / `dump_sink=USB_DEFAULT` |
+| `boot`, 60,882,944 B | `ca978551…` — V2321, readback verified |
+| native self-test | `pass=11 warn=1 fail=0 entries=12` |
+| device temporary files | `native-init.log` only |
+
+Two `param` writes and two `boot` writes occurred, each verified by a complete
+partition hash before and after.  No `xbl`, `xbl_config`, `tz`, `hyp`,
+`devcfg`, `aop`, `abl`, GPT, RPMB, QFPROM, XPU, SMMU, EL2, EL3 or
+protected-memory write occurred.  One recovery from Samsung Upload required a
+physical power-button press, which the operator performed.
