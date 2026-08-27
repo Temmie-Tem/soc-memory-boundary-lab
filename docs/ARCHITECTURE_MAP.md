@@ -477,6 +477,15 @@ physical-to-DRAM destination, mutability/locking and protected reach remain
 `UNKNOWN`; this is not a controller-writer or alias proof.  The result remains
 `CLASS C (TRANSFORM ONLY)` and `NOT_ELIGIBLE`.
 
+Verification 020C resolves the bounded source of that opaque token.  The exact
+helper at `0x9fc160b8` is `ADRP X0,0x9fc36000; ADD X0,#0x2c0; RET`, so its
+static ELF return address is `0x9fc362c0`; the executable census finds direct
+callers at `0x9fc22cc0` and `0x9fc26e2c`.  The object-field bytes needed by
+020B are retained by hash only.  This does not promote the static address to a
+runtime pointer/physical or DRAM destination, and object semantics, writer or
+mutability state, protected reach and alias/bypass remain `UNKNOWN`.  The
+second caller is the next bounded discriminator.
+
 `PROVED` by Experiment 013: both exact TZ policy branches place the complete
 snapshot workspace `0x09065100..0x09065fff` inside
 `DC_NOC_NON_BROADCAST_MPU`, `MEMNOC_MS_MPU`, and `CNOC_SNOC_MS_MPU` regions.

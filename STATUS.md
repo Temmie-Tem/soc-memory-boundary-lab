@@ -1170,8 +1170,15 @@ The 020B focused suite is 7/7 and the full serial suite is 1,167/1,167 PASS
 manifest and hostile-review result are recorded in
 `docs/VERIFICATION020B_INTEGRATION_REVIEW_2026-08-27.md`.
 
-The next scored candidate is a separate bounded host-only trace of the
-`0x9fc160b8` return helper. Numbered Experiments 015/016 remain `NOT_ELIGIBLE`.
+Verification 020C is now complete.  The helper `[0x9fc160b8,0x9fc160c4)` is
+`ADRP X0,0x9fc36000; ADD X0,#0x2c0; RET`, yielding static ELF VADDR
+`0x9fc362c0`, with exactly two direct callers.  Its 48-byte object-field source
+range is hash-pinned only; runtime contents/type/currentness, mutability,
+physical-to-DRAM mapping, protected reach and alias/bypass remain `UNKNOWN`.
+The 020C focused suite is 6/6 and the full serial suite is 1,173/1,173 PASS
+(`skipped=1`, no swaps); no device action occurred.  The next scored candidate
+is a bounded trace of the second helper caller at `0x9fc26e2c`. Numbered
+Experiments 015/016 remain `NOT_ELIGIBLE`.
 
 ## N. 가장 위험한 아직 금지된 실험
 

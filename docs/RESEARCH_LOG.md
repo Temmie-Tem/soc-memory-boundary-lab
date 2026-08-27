@@ -1997,3 +1997,31 @@ regeneration, public JSON/redaction, no-clobber and decoder-negative checks
 pass.  Independent hostile review is `PASS` in
 `docs/VERIFICATION020B_INTEGRATION_REVIEW_2026-08-27.md`.  The next scored
 candidate is a separate bounded trace of the `0x9fc160b8` return helper.
+
+# 2026-08-27 — Verification 020C return-helper origin trace
+
+This host-only iteration follows the opaque return used by 020B.  The exact
+helper `[0x9fc160b8,0x9fc160c4)` is `ADRP X0,0x9fc36000; ADD X0,#0x2c0; RET`,
+yielding static ELF VADDR `0x9fc362c0`.  An executable PT_LOAD scan finds two
+direct callers, `0x9fc22cc0` and `0x9fc26e2c`.  The 48-byte object-field source
+range `[0x9fc362c0,0x9fc362f0)` is pinned by hash only; raw bytes and values are
+not published.
+
+`PROVED`: exact input/helper/object hashes, static return construction and
+two-caller census.  `SUPPORTED`: this identifies the bounded source used by
+020B and a second XBL path.  `HYPOTHESIS`: the static object may be shared
+configuration data.  `UNKNOWN`: runtime contents/type/currentness, writer and
+mutability/locking, indirect paths, physical-to-DRAM mapping, protected reach,
+aliasing and bypass.  `CLASS C (TRANSFORM ONLY)` and `NOT_ELIGIBLE` remain
+unchanged; no device action occurred.
+
+The sanitized manifest is
+`evidence/manifests/020C-return-helper-origin-20260827-01.manifest.json`, 5,498
+bytes, mode `0644`, SHA-256
+`ef89ae91fd7277454422fe9717aad762259645991b41797f8011b8dc5b43fdb2`.
+Validation is 6/6 focused and 1,173/1,173 full serial tests (`skipped=1`) in
+117.851 seconds, maximum RSS 297,324 KiB, zero swap; deterministic
+regeneration, public JSON/redaction, no-clobber and decoder/cardinality
+negative checks pass.  Independent hostile review is `PASS` in
+`docs/VERIFICATION020C_INTEGRATION_REVIEW_2026-08-27.md`.  The next scored
+candidate is a bounded trace of the second helper caller at `0x9fc26e2c`.

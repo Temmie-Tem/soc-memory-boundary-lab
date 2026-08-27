@@ -528,6 +528,23 @@ The focused suite is 7/7 and the full serial suite is 1,167/1,167 PASS
 candidate is a bounded static trace of the `0x9fc160b8` return helper, with
 runtime execution and all indirect paths still `UNKNOWN`.
 
+Verification 020C traced that return helper itself.  Its exact 12-byte body is
+`ADRP X0,0x9fc36000; ADD X0,#0x2c0; RET`, producing static ELF VADDR
+`0x9fc362c0`; an executable census finds exactly two direct callers,
+`0x9fc22cc0` and `0x9fc26e2c`.  The 48-byte object-field source range is
+hash-pinned without publishing raw values.  This is static code/data-flow
+evidence only: runtime object contents/type/currentness, writer/mutability,
+physical-to-DRAM mapping, protected reach and alias/bypass remain `UNKNOWN`.
+Class C and `NOT_ELIGIBLE` remain unchanged.
+
+The 020C experiment, integration review and sanitized manifest are
+[documented here](experiments/verification-020C-return-helper-origin/README.md),
+[reviewed here](docs/VERIFICATION020C_INTEGRATION_REVIEW_2026-08-27.md), and
+[published here](evidence/manifests/020C-return-helper-origin-20260827-01.manifest.json).
+The focused suite is 6/6 and the full serial suite is 1,173/1,173 PASS
+(`skipped=1`, no swaps); no device action occurred.  The next candidate is a
+bounded trace of the second helper caller at `0x9fc26e2c`.
+
 Claim vocabulary is deliberately closed:
 
 - `PROVED`: directly demonstrated by named source, artifact, or repeated result.
