@@ -163,8 +163,11 @@ Under bit 30 the grant counts change from 21/109 read and 15/109 write to
 
 **A separate, unresolved case.** `CNOC_AOSS_MPU` region 5 covers
 `0x17c00000..0x18200000` with `read_vmid = write_vmid = 0x00000000` — deny under
-*either* reading. Yet the retained `last_kmsg` from the same boot that produced
-the route-2 negative shows, at ~9.5 s intervals from 9.95 s to 85.7 s:
+*either* reading. Yet the retained `last_kmsg` from the boot that produced the
+**DMID** route-2 negative — Verification 023, candidate `7ee6a41f…`, whose
+`snapshot_physical_address` is the SHRM word `0x0906566c` and **not** the
+remapper, an address substitution `FINAL_REPORT` §8 itself lists as open work —
+shows, at ~9.5 s intervals from 9.95 s to 85.7 s:
 `msm_watchdog 17c10000.qcom,wdt: [pet_watchdog] last_count : …, new_count : …` —
 HLOS reading and writing MMIO in that range continuously; the DT also declares
 `syscon@17c0000c` bound by `qcom,ipc`/`smp2p`; and `010-xpu-initializer-inventory`
@@ -627,7 +630,7 @@ build. That is why it ranks first below.
 | **1** | **Decode all 152 TZ SMC records; disassemble any handler touching `0x09xxxxxx` or DDR** | H7, H6 | yes — an exact second closure | none (host-only) | static |
 | **2** | **MMIO positive control** — one load at an HLOS-readable register, identical harness | H3 → gates H1 | yes — either way it repairs the record | one reboot; recovery proven | live, read |
 | **3** | **Read the retained EL2 fault record** (`hyp_mem` @ `0x858df200`) | H2 | yes — pins protection identity | read-only; V012 path proven | live, read |
-| **4** | **DCC read-only probe**: known-good / `0x09248080` / unmapped | H1, H3, H6 | yes — first measured statement about a second initiator | DCC config volatile; **read-only, no `config_write`** | live, read |
+| ~~4~~ | ~~**DCC read-only probe**~~ — **WITHDRAWN, see Corrections** | H1, H3, H6 | — | **not read-only**; configuring it resets a live production list | **not eligible** |
 | **5** | **SMEM item 603** | H4 | yes | trivial | live, read |
 | **6** | **Forced DDR OPP change + tag invariance** | H5 | yes — closes route 4 row by test | reversible | live, read |
 | **7** | Re-derive the VMID encoding from TZ's own `tzbsp_mpu_partition_config`, then re-grade every document citing "no HLOS VMID grant" | fixes §2.2 for good | yes | none | static |
@@ -679,15 +682,15 @@ Specifically:
 
 5. **The search space was never swept on the initiator or proxy axes.** Two
    interfaces that exist on this exact target were never examined: the TZ MMIO
-   proxy (now closed here, exactly, by an 81-entry allowlist containing no DDRSS
-   address) and **DCC**, a live second bus initiator with 1053 configured
-   entries, a hardware timeout, and TZ code that sanitizes HLOS's configuration
-   of it as a function of debug policy.
+   proxy (whose **on-disk** 81-entry allowlist contains no DDRSS address) and
+   **DCC**, a live second bus initiator with 1053 configured entries, a hardware
+   timeout, and TZ code that sanitizes HLOS's configuration of it as a function
+   of debug policy.
 
 6. **The binding constraint was never the authority — it was the instrument.**
-   Two probe attempts in seventy experiments, because each costs a reset. DCC
-   removes that constraint, is read-only in the proposed use, and is the single
-   highest-value thing this project could build.
+   Two probe attempts in seventy experiments, because each costs a reset. A
+   non-fatal probe is still the single highest-value capability this project
+   could build — but **DCC is not it**, for the reason in Corrections.
 
 The correct form of the conclusion is therefore **not** "the transform is
 reachable only from behind an access-control boundary that held every time it was
@@ -697,22 +700,105 @@ tested," but:
 > found. Whether the paths tried were *refused* — rather than merely
 > unproductive — is not yet established, because the instrument that tried them
 > has never succeeded anywhere. Two interfaces that could answer this were never
-> examined; one of them is now exactly closed, and the other is open, cheap, and
-> read-only.
+> examined; one is default-denied by its on-disk table, and the other is open but
+> is not the cheap read-only probe this audit first took it for.
 
 Classification unchanged. Stop condition not triggered. No write is authorised
 or recommended by this audit; every proposed next step is read-only.
 
 ---
 
-*Prepared 2026-08-28 as an independent adversarial audit. All new results
-(§2.2, §2.3, §2.5, §6.1, §6.2) were derived host-only from the pinned TZ image
-(SHA-256 `a5e6c574e18e2e576a25df6274b20bdb142386811dfda6383f86d7b1b3c102ab`,
-4,194,304 bytes) and the retained `last_kmsg`
-(SHA-256 `fdceab48dc267dd74ec6c70edbec6b51ee13dcd8532cf8b121c4fe93b425c66e`,
-2,097,136 bytes), and the retained boot image's flattened device tree. The XPU
-region walk reproduces `verification-025/026` exactly. Regenerating tool:
+## Corrections — 2026-08-29
+
+Four claims in this document were wrong or overstated. All four were caught by
+the second adversarial audit
+(`docs/INDEPENDENT_ADVERSARIAL_RESEARCH_AUDIT_2026-08-28.md`) and then verified
+independently here against the pinned artifacts. They are recorded rather than
+quietly amended.
+
+| # | Original claim | Correct form | How it was settled |
+|---|---|---|---|
+| C1 | "bit 30 **is** the non-secure/HLOS class bit" (§2.2) | bit 30 separates this six-address sample; bit 3 separates none of it. The **actor name is not established** | naming withdrawn; the bit-3 falsification was independently `CONFIRMED` |
+| C2 | DCC is a "read-only probe, no `config_write`", ranked 4 and called the highest-value capability (§6.2, §11) | **DCC is not read-only.** Building a read list writes `DCC_LL_CFG/BASE/LOCK/SW_TRIGGER`, and `dcc_enable()` runs `__dcc_config_reset()`, destroying the 1053 entries already configured in production | verified in `dcc_v2.c` of the exact target kernel; row withdrawn |
+| C3 | SCM_IO is "closed, exactly, by an 81-entry allowlist" (§6.1, §12) | `PROVED` for the **on-disk image**; `UNKNOWN` at runtime — the table at `0x1c111238` is in LOAD segment 11, flags **RW**, as is the 152-record dispatch table | verified from the TZ ELF program headers |
+| C4 | the watchdog pets come from "the same boot that produced the route-2 negative" (§2.2) | that boot is Verification 023, candidate `7ee6a41f…`, reading the **SHRM** word `0x0906566c` — not the remapper. `FINAL_REPORT` §8 lists closing this address substitution as open work | verified from the V023 manifest |
+
+C1, C2 and C3 share one signature, and it is the same defect §2.1 reports
+against `FINAL_REPORT`: **a bounded fact about a static artifact stated as a
+claim about the live system, one notch too strong.** This audit named that
+defect and then committed it three times.
+
+What the corrections do **not** touch: the bit-3 predicate falsification (§2.2),
+the `CNOC_AOSS_MPU` live counterexample (§2.2), the missing MMIO positive
+control (§2.1), the 152-record dispatch table (§2.5), the deep-suspend
+subsumption argument (§2.4), and the retained EL2 fault record (§2.3). Each of
+those was put to the second audit and returned `CONFIRMED`, except the *cause*
+of the route-2 non-return, which both audits now record as `UNDECIDABLE`.
+
+---
+
+## Provenance and method
+
+### What produced this audit
+
+| | |
+|---|---|
+| Model | **Claude Opus 5** — exact model ID `claude-opus-5` |
+| Reasoning effort | **`xhigh`** — `modelSettings["claude-opus-5"].effortLevel` in `~/.claude/settings.json`, corroborated by `CLAUDE_EFFORT=xhigh` in the environment |
+| Extended thinking | enabled (`alwaysThinkingEnabled: true`) |
+| Harness | Claude Code CLI, single interactive session, 2026-08-28 |
+| Subagents | **none** — see the independence caveat below |
+| Role | independent adversarial verification of the concurrent Codex line |
+
+### Exact inputs
+
+Every new result in this document is derived host-only from these pinned
+artifacts. No device, MMIO, SMC or firmware write occurred at any point.
+
+| Artifact | SHA-256 | Size | Used for |
+|---|---|---:|---|
+| Repository state audited | commit `3715135` (*research: close V024 DMID refusal*) | — | the tree every claim is graded against |
+| TrustZone image `tz--sdd5.bin` | `a5e6c574e18e2e576a25df6274b20bdb142386811dfda6383f86d7b1b3c102ab` | 4,194,304 | §2.2 XPU regions, §2.5 SMC table, §6.1 allowlist |
+| `last_kmsg` at DMID | `fdceab48dc267dd74ec6c70edbec6b51ee13dcd8532cf8b121c4fe93b425c66e` | 2,097,136 | §2.2 watchdog pets, §2.3 EL2 record, §6.2 DCC |
+| Boot image `boot_linux_inline_remapper_read_v1.img` | `6fe92825702f304a067fc716c3814a63b2f4e76198a054de4c666cad55a462ed` | — | flattened device tree: DDRSS nodes, `wdt@17c10000`, `dcc_v2@10a2000`, GIC reg |
+
+The boot-image hash equals `read.candidate_sha256` in
+`evidence/manifests/007-inline-remapper-read-watchdog-20260825-01.manifest.json`,
+so the device tree read here is the same image the route-2 probe ran from.
+
+The XPU region walk reproduces `verification-025/026` exactly (109 address
+regions, both selector branches). Regenerating tool:
 `tools/sm8150_tz_smc_and_io_allowlist.py`; manifest:
-`evidence/manifests/audit-tz-smc-io-allowlist-20260828-01.manifest.json`
-(verified byte-identical on regeneration). No device, MMIO, SMC or firmware
-write occurred.*
+`evidence/manifests/audit-tz-smc-io-allowlist-20260828-01.manifest.json`,
+verified byte-identical on regeneration.
+
+### Independence caveat — read this before weighing §7
+
+The eight perspectives in §7 were run **inside one model context, sequentially,
+by one model**. They are not independent observers. Each pass could see
+everything the previous passes had concluded, and all eight share the same
+priors, the same reading of the evidence, and the same blind spots. Convergence
+among them is therefore **weak** evidence — it mostly measures internal
+consistency, not agreement between separate judgements.
+
+The same limitation applies to the audit as a whole. It was produced by a single
+model in a single session, and its most consequential findings (§2.1, §2.2) turn
+on interpretation rather than on arithmetic. Where this document says a claim is
+`REFUTED`, that verdict deserves an independent check by a different model or
+person against the same pinned artifacts above.
+
+A genuinely independent replication should start from commit `3715135` — the
+state this audit was written against, and the last commit before it — so that
+the replicating agent cannot read these conclusions before forming its own.
+
+### Repair recorded
+
+This provenance section was added after the fact. The original commit pinned the
+input artifacts by hash but **did not pin the repository state it audited**,
+which is exactly the binding this project requires everywhere else and the same
+class of omission the audit criticises in §2.5. It is recorded as a repair
+rather than silently amended.
+
+---
+
+*Prepared 2026-08-28 as an independent adversarial audit of the `CLASS C (TRANSFORM ONLY)` conclusion. Inputs, model, effort level and method limitations are pinned in the section above.*
