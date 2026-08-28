@@ -1,0 +1,88 @@
+{
+  "claims": {
+    "NO_REPLAY": [
+      "The System boot effect has a durable dispatch count and is never retried."
+    ],
+    "PROVED": [
+      "The exact pinned Recovery target was selected before the one-shot transaction."
+    ]
+  },
+  "classification": "SYSTEM_BOOT_DISCONNECT_OBSERVED",
+  "completed_utc": "2026-08-28T13:21:01.529374+00:00",
+  "dispatch_count": 1,
+  "effect": {
+    "command": "twrp set tw_gui_done 1",
+    "dispatch_count": 1,
+    "effect_dispatched_count": 1,
+    "effect_replayed": false,
+    "write_count": 1
+  },
+  "effect_dispatched_count": 1,
+  "effect_replayed": false,
+  "expected_target": {
+    "device": "r3q",
+    "model": "SM-A908N",
+    "serial_sha256": "7f6dd1b66bdac00e950f3ddb207b7d8b2fca6859c7cdff99a3b96607d111fe46",
+    "state": "recovery",
+    "twrp_version": "3.7.0_12-0"
+  },
+  "experiment_id": "verification-024-system-boot-rollback",
+  "journal_sha256": "ef36c2ab962c7e0b3b6ced1abd5efc623fff4d6450febde266f913b48056ac9f",
+  "journal_size": 22774,
+  "observation": {
+    "disconnect_observed": true,
+    "method": "adb devices endpoint absence only",
+    "timeout_sec": 20.0
+  },
+  "other_adb_endpoints_untouched": true,
+  "partition_write": false,
+  "partition_writes": false,
+  "phase": "rollback",
+  "physical_effect_claim": {
+    "attempted": true,
+    "boot_id_sha256": "22c5fc3501907af2184ec101d4851beeadb36cbdc16286c996c8f1f7425615e7",
+    "claim_sha256": "c9ecb6daf378a700c30864e00b68b79051d2f2cc1f2d9cfa4c1af8832ba6f5bd",
+    "claim_size": 585,
+    "claimed": true,
+    "key_sha256": "898a4dc572d9af397124a81afe346e1a0d878c90c7d4a22e9182b4cc6ce9cebf"
+  },
+  "preflight": {
+    "target_verified": true,
+    "tw_gui_done": "0",
+    "twrp_help_sha256": "b76e602b08568830eb4a4a326fa0f7ad53d9caa2686c7f86ccaa3921b88c7830"
+  },
+  "preparation": {
+    "command": "twrp set tw_reboot_arg system",
+    "expected_value": "system",
+    "read_command": "twrp get tw_reboot_arg",
+    "read_count": 1,
+    "sync_command": "sync",
+    "sync_receipt_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sync_verified": true,
+    "sync_write_count": 1,
+    "verified": true,
+    "write_count": 1
+  },
+  "preparation_verified": true,
+  "raw_commands_omitted": true,
+  "raw_receipts_omitted": true,
+  "raw_serial_omitted": true,
+  "schema": "sdm855-a90-twrp-system-boot-once-public-v1",
+  "started_utc": "2026-08-28T13:20:56.127366+00:00",
+  "status": "SYSTEM_BOOT_DISCONNECT_OBSERVED",
+  "target": {
+    "boot_id_sha256": "22c5fc3501907af2184ec101d4851beeadb36cbdc16286c996c8f1f7425615e7",
+    "device": "r3q",
+    "model": "SM-A908N",
+    "serial_sha256": "7f6dd1b66bdac00e950f3ddb207b7d8b2fca6859c7cdff99a3b96607d111fe46",
+    "state": "recovery",
+    "status": "VERIFIED",
+    "twrp_version": "3.7.0_12-0"
+  },
+  "target_device": "r3q",
+  "target_evaluation": "VERIFIED",
+  "target_model": "SM-A908N",
+  "target_serial_sha256": "7f6dd1b66bdac00e950f3ddb207b7d8b2fca6859c7cdff99a3b96607d111fe46",
+  "target_verified": true,
+  "twrp_version": "3.7.0_12-0"
+}

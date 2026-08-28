@@ -1,0 +1,1064 @@
+{
+  "battery_capacity_percent": 100,
+  "boot_attestation": {
+    "binding_event_count": 9,
+    "captured_sha256": "ca978551aabe4b39563abaf529ccf2522054952d8b2ad852e632d26da88168cb",
+    "captured_size": 60882944,
+    "cleanup_ok": true,
+    "expected_sha256": "ca978551aabe4b39563abaf529ccf2522054952d8b2ad852e632d26da88168cb",
+    "hash_matches_candidate": true,
+    "size_matches_candidate": true
+  },
+  "boot_prefix_sha256": "ca978551aabe4b39563abaf529ccf2522054952d8b2ad852e632d26da88168cb",
+  "boot_prefix_size": 60882944,
+  "bootloader": "A908NKSU5EWA3",
+  "bridge_binding_verified": true,
+  "build": "v2321-usb-clean-identity-rodata",
+  "cmdline_debug_level": "0x4f4c",
+  "cmdline_dump_sink": "0x0",
+  "cmdline_force_upload": "0x0",
+  "completed_utc": "2026-08-28T13:23:24+00:00",
+  "controller_writes": false,
+  "device_writes": {
+    "controller_writes": false,
+    "mmio_writes": false,
+    "partition_writes": false,
+    "persistent_writes": false,
+    "security_state_writes": false,
+    "stophud": true,
+    "temporary_block_node_mutations": true,
+    "temporary_filesystem_mutations": true
+  },
+  "experiment_id": "runtime-health",
+  "health_scope": "FINAL_ROLLBACK_ONLY",
+  "journal_sha256": "2df5bbab29ea6cdb197be9f3b5a90e574d64c0565c1cfb25be6e5918d04a0fb5",
+  "journal_size": 124207,
+  "kernel": "Linux 4.14.190-25818860-abA908NKSU5EWA3 aarch64",
+  "limitations": [
+    "The bounded current-boot proof mutates only fixed temporary filesystem/block-node paths and removes them before publication; those mutations are retained in the private record.",
+    "Only idempotent stophud changes persistent device state; no partition, MMIO, controller, security-state, or persistent write is performed.",
+    "The private record contains full transport frames; this manifest contains no payload base64 or serial identity.",
+    "This receipt is a final-rollback health gate for the ca978... boot prefix; it does not attest the control candidate."
+  ],
+  "mmio_writes": false,
+  "panic_on_oops": 1,
+  "partition_writes": false,
+  "persistent_writes": false,
+  "private_record": {
+    "filename": "runtime-health.json",
+    "git_ignored": true,
+    "journal_filename": "runtime-health.journal.json"
+  },
+  "raw_snapshot_sha256": "55212dd770971da9c0f050d0835ae35e902b48c7fb0c2238e67245c1cf8c0074",
+  "raw_snapshot_size": 126346,
+  "records": [
+    {
+      "argv": [
+        "version"
+      ],
+      "end": {
+        "cmd": "version",
+        "duration_ms": "0",
+        "errno": "0",
+        "flags": "0x0",
+        "rc": "0",
+        "seq": "44",
+        "status": "ok"
+      },
+      "evidence_id": "version",
+      "payload_sha256": "816e84c0c429cffacc2fd6efbdd166bf53a59c5b5fcf39cc59bd9788eb3b329a",
+      "payload_size": 240,
+      "transcript_sha256": "cb7b9e26794c876a851d036b0374980551d688c834592574e210c0d916d8b52d",
+      "transcript_size": 421
+    },
+    {
+      "argv": [
+        "cat",
+        "/proc/cmdline"
+      ],
+      "end": {
+        "cmd": "cat",
+        "duration_ms": "1",
+        "errno": "0",
+        "flags": "0x0",
+        "rc": "0",
+        "seq": "45",
+        "status": "ok"
+      },
+      "evidence_id": "cmdline",
+      "payload_sha256": "e326100bfec8cb595a413c968dc565bbab47327324423ba5420b3a75b41fbf23",
+      "payload_size": 2513,
+      "transcript_sha256": "886268d45b10a4b977f812a2caf8ec996989fecb492986d3cfaa39b95d4b463a",
+      "transcript_size": 2692
+    },
+    {
+      "argv": [
+        "cat",
+        "/sys/devices/soc0/soc_id"
+      ],
+      "end": {
+        "cmd": "cat",
+        "duration_ms": "0",
+        "errno": "0",
+        "flags": "0x0",
+        "rc": "0",
+        "seq": "46",
+        "status": "ok"
+      },
+      "evidence_id": "soc_id",
+      "payload_sha256": "80a8dad7e09fb6db82c36af9459415aa65b441e60cff539456268a2a1f9b0beb",
+      "payload_size": 4,
+      "transcript_sha256": "5fb470cd285207f2d7c69511cad6c0b9424e206a6961d87842acae007e0414fc",
+      "transcript_size": 194
+    },
+    {
+      "argv": [
+        "cat",
+        "/proc/sys/kernel/panic_on_oops"
+      ],
+      "end": {
+        "cmd": "cat",
+        "duration_ms": "0",
+        "errno": "0",
+        "flags": "0x0",
+        "rc": "0",
+        "seq": "47",
+        "status": "ok"
+      },
+      "evidence_id": "panic_on_oops",
+      "payload_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "payload_size": 2,
+      "transcript_sha256": "daa0fd199c235e57cf967d18a75fec2c54192a01857e308a941173adaab9722c",
+      "transcript_size": 198
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "rm",
+        "-f",
+        "/tmp/a90-native/verification-024-sda24"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "101",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "48",
+        "status": "ok"
+      },
+      "evidence_id": "boot_attest_remove_node",
+      "payload_sha256": "faafd8bf65c6640f2bc1ea612cd226201c6b87e31410de4329817b3e2c003ea7",
+      "payload_size": 40,
+      "transcript_sha256": "ee91666fde4d04d3558fd39e321f48f8a8b9ff9caa2339dc9fb912ed73f3eae4",
+      "transcript_size": 266
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "rm",
+        "-f",
+        "/tmp/a90-native/verification-024-boot-prefix.bin"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "100",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "49",
+        "status": "ok"
+      },
+      "evidence_id": "boot_attest_remove_file",
+      "payload_sha256": "71df0eb4b480a66844742b0019b3bbdffd9a8bacddc17b9d5e8923e2e2173b46",
+      "payload_size": 40,
+      "transcript_sha256": "a020d0866f270e50d53253933481f7db25014dba4d8d37d0bb865ab2224cb76a",
+      "transcript_size": 276
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "test",
+        "!",
+        "-e",
+        "/tmp/a90-native/verification-024-sda24"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "101",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "50",
+        "status": "ok"
+      },
+      "evidence_id": "boot_attest_node_absent",
+      "payload_sha256": "90fe595296ed0a79c588b74ec318e788eedce864d16f4cad27253fd2dcc2aa13",
+      "payload_size": 40,
+      "transcript_sha256": "8218c155e64dcf102e7d1478f5dd8ccc2ee60b3120bda68f85a891d2f71c3281",
+      "transcript_size": 270
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "test",
+        "!",
+        "-L",
+        "/tmp/a90-native/verification-024-sda24"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "101",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "51",
+        "status": "ok"
+      },
+      "evidence_id": "boot_attest_node_absent_not_symlink",
+      "payload_sha256": "c3eb03164b47364dc10f3b2c34d113d025dfd381116965f5ce88caad2e1ff0ce",
+      "payload_size": 40,
+      "transcript_sha256": "7418dae217e97e61611c40d27c6935b2bf2c45ad5d4a047964818355cbb64c8a",
+      "transcript_size": 270
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "test",
+        "!",
+        "-e",
+        "/tmp/a90-native/verification-024-boot-prefix.bin"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "101",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "52",
+        "status": "ok"
+      },
+      "evidence_id": "boot_attest_file_absent",
+      "payload_sha256": "9e3bd4d62d65ce27c613d1d7f9f6375458d3752aa45ea075a83d8b983ce7276d",
+      "payload_size": 40,
+      "transcript_sha256": "08b133e46c3ebcbcd740cadca623bdd76a663dfec6d6858a1dd13ce27b862529",
+      "transcript_size": 280
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "test",
+        "!",
+        "-L",
+        "/tmp/a90-native/verification-024-boot-prefix.bin"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "101",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "53",
+        "status": "ok"
+      },
+      "evidence_id": "boot_attest_file_absent_not_symlink",
+      "payload_sha256": "3d29b930f6fd6fb3d490bc40b06500d674415a72c08c3d0116cb8cfe1c71d98d",
+      "payload_size": 40,
+      "transcript_sha256": "e809866bbb7018538169bd23bc37e25b430f9b86712e375283ba0d0ccd01e269",
+      "transcript_size": 280
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "test",
+        "!",
+        "-e",
+        "/tmp/a90-native/verification-024-sda24"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "101",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "54",
+        "status": "ok"
+      },
+      "evidence_id": "boot_attest_pre_node_absent",
+      "payload_sha256": "9daa93aca7689ca55338c070dda459fd27d65cd4715b810148c5522f7342760d",
+      "payload_size": 40,
+      "transcript_sha256": "e580931a6551f91cbf12f6f299dbb107664d39584acd5f81dba87b51e406a6ea",
+      "transcript_size": 270
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "test",
+        "!",
+        "-L",
+        "/tmp/a90-native/verification-024-sda24"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "101",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "55",
+        "status": "ok"
+      },
+      "evidence_id": "boot_attest_pre_node_absent_not_symlink",
+      "payload_sha256": "ccb0a5be54742c4c3e704a1d917807f7fe0afcf1550815a8fca2cc777b055ae1",
+      "payload_size": 40,
+      "transcript_sha256": "d5ab283acaf91d57e016a5bece2823461d3f6af308eef2271354a322b5bde012",
+      "transcript_size": 270
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "test",
+        "!",
+        "-e",
+        "/tmp/a90-native/verification-024-boot-prefix.bin"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "101",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "56",
+        "status": "ok"
+      },
+      "evidence_id": "boot_attest_pre_file_absent",
+      "payload_sha256": "d3ebedf290495d3a202eb28009f35f3a02e7910085fe91c038d980e11c671c48",
+      "payload_size": 40,
+      "transcript_sha256": "e4571cc11168f5d91aa13c89a693201e42c33a4974488712e2d61e098c0911cf",
+      "transcript_size": 280
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "test",
+        "!",
+        "-L",
+        "/tmp/a90-native/verification-024-boot-prefix.bin"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "100",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "57",
+        "status": "ok"
+      },
+      "evidence_id": "boot_attest_pre_file_absent_not_symlink",
+      "payload_sha256": "d5258f1f329b9909c7f1034988df885726a5a488d5ecf15675d543485ef8c330",
+      "payload_size": 40,
+      "transcript_sha256": "f769276558c99e0acc2911cb26370c4bcdcc9739e96558db9145f1f8a4805549",
+      "transcript_size": 280
+    },
+    {
+      "argv": [
+        "cat",
+        "/sys/class/block/sda24/uevent"
+      ],
+      "end": {
+        "cmd": "cat",
+        "duration_ms": "0",
+        "errno": "0",
+        "flags": "0x0",
+        "rc": "0",
+        "seq": "58",
+        "status": "ok"
+      },
+      "evidence_id": "boot_sysfs_uevent",
+      "payload_sha256": "6fc2b888670d8502d039eefc4eb18b51ad19828b07c3e1eb9140ac919b2444ad",
+      "payload_size": 73,
+      "transcript_sha256": "f16b5909407f196b304b4073d4e010672461efcfb313556101ece60908170dc9",
+      "transcript_size": 268
+    },
+    {
+      "argv": [
+        "cat",
+        "/sys/class/block/sda24/size"
+      ],
+      "end": {
+        "cmd": "cat",
+        "duration_ms": "0",
+        "errno": "0",
+        "flags": "0x0",
+        "rc": "0",
+        "seq": "59",
+        "status": "ok"
+      },
+      "evidence_id": "boot_sysfs_size",
+      "payload_sha256": "38ea4bbef6fea8d73df79e1cfd9ee0e1e8aa44b963877e0285c6e892018cacda",
+      "payload_size": 7,
+      "transcript_sha256": "60ff35b14ed12b02cbacce5c3be3b327e09ec56e208fd38580de13ab8de1f50a",
+      "transcript_size": 200
+    },
+    {
+      "argv": [
+        "cat",
+        "/sys/class/block/sda24/ro"
+      ],
+      "end": {
+        "cmd": "cat",
+        "duration_ms": "0",
+        "errno": "0",
+        "flags": "0x0",
+        "rc": "0",
+        "seq": "60",
+        "status": "ok"
+      },
+      "evidence_id": "boot_sysfs_ro",
+      "payload_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "payload_size": 2,
+      "transcript_sha256": "abd76837d9c6d4dbce74ec47a26e7f66c10f28375d9f219be1fad3da221cf4c6",
+      "transcript_size": 193
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "mkdir",
+        "-p",
+        "/tmp/a90-native"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "100",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "61",
+        "status": "ok"
+      },
+      "evidence_id": "boot_attest_mkdir",
+      "payload_sha256": "61eedc240015dbcb4525271c1997c1c73d0287d5532d7c9ab6cf40e87ca8f47c",
+      "payload_size": 40,
+      "transcript_sha256": "3ed510051336e842eeda17073de45f55ba362a110ac3ddb1ea4032150e7926cc",
+      "transcript_size": 246
+    },
+    {
+      "argv": [
+        "mknodb",
+        "/tmp/a90-native/verification-024-sda24",
+        "259",
+        "8"
+      ],
+      "end": {
+        "cmd": "mknodb",
+        "duration_ms": "0",
+        "errno": "0",
+        "flags": "0x0",
+        "rc": "0",
+        "seq": "62",
+        "status": "ok"
+      },
+      "evidence_id": "boot_attest_mknod",
+      "payload_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "payload_size": 0,
+      "transcript_sha256": "c4352b76bdb09730710505c936812b2e24dd472ab2e25ff5005508733a025384",
+      "transcript_size": 220
+    },
+    {
+      "argv": [
+        "stat",
+        "/tmp/a90-native/verification-024-sda24"
+      ],
+      "end": {
+        "cmd": "stat",
+        "duration_ms": "0",
+        "errno": "0",
+        "flags": "0x0",
+        "rc": "0",
+        "seq": "63",
+        "status": "ok"
+      },
+      "evidence_id": "boot_attest_stat_node",
+      "payload_sha256": "ffa48e563fb8170f3c3658ce4a7384e89621b2583346b4f3c3d970502643844b",
+      "payload_size": 40,
+      "transcript_sha256": "6c1ced46e516a68a947dd58a17ee32bc40e7bca653e88a2a0279b46e45b46222",
+      "transcript_size": 248
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "dd",
+        "if=/tmp/a90-native/verification-024-sda24",
+        "of=/tmp/a90-native/verification-024-boot-prefix.bin",
+        "bs=4096",
+        "count=14864",
+        "conv=fsync",
+        "status=none"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "201",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "64",
+        "status": "ok"
+      },
+      "evidence_id": "boot_attest_capture",
+      "payload_sha256": "91a56105b00763799067bc9870f66dff99acac567d1e36015a56713d63721b12",
+      "payload_size": 40,
+      "transcript_sha256": "b76b519906f4c71a2fe005d07afa06caafc4123ccc67cc2d47f22fedbb273700",
+      "transcript_size": 361
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "sha256sum",
+        "/tmp/a90-native/verification-024-boot-prefix.bin"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "601",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "65",
+        "status": "ok"
+      },
+      "evidence_id": "boot_attest_hash",
+      "payload_sha256": "5306fe4c8a0098f3b702887faaf66817de9b0f156eeec178cc5075d66d6c5e88",
+      "payload_size": 155,
+      "transcript_sha256": "c382553fedfc869ac68ff1488be4b08d789a9b594289b88b98b2fde467746233",
+      "transcript_size": 395
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "wc",
+        "-c",
+        "/tmp/a90-native/verification-024-boot-prefix.bin"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "101",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "66",
+        "status": "ok"
+      },
+      "evidence_id": "boot_attest_size",
+      "payload_sha256": "c1898f069b149283c988cb0975fe4a81a9635df63644c1259975f029c4784393",
+      "payload_size": 98,
+      "transcript_sha256": "0c544acd76a37e67acfc19709b0a9b54b76ac5eea969cf2cc633686459cb2108",
+      "transcript_size": 334
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "rm",
+        "-f",
+        "/tmp/a90-native/verification-024-sda24"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "101",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "67",
+        "status": "ok"
+      },
+      "evidence_id": "boot_attest_remove_node",
+      "payload_sha256": "77e9ea7955df53624a8c9c1166714c1484379c1c93c47abdc12332f1e056adce",
+      "payload_size": 40,
+      "transcript_sha256": "f8fbf01994348c5c4ea163ba062c8a90aa49e8ee1e713ee1b0f455fea2fdb28d",
+      "transcript_size": 266
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "rm",
+        "-f",
+        "/tmp/a90-native/verification-024-boot-prefix.bin"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "101",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "68",
+        "status": "ok"
+      },
+      "evidence_id": "boot_attest_remove_file",
+      "payload_sha256": "c04734fc77b49e46a16e0341ab06d8ed5ebffab8254a180dd50f89e4b5416d2f",
+      "payload_size": 40,
+      "transcript_sha256": "d101aff056498aebef8e7837005f4296a62be998aead99d3ccd43f8f32e802cf",
+      "transcript_size": 276
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "test",
+        "!",
+        "-e",
+        "/tmp/a90-native/verification-024-sda24"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "101",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "69",
+        "status": "ok"
+      },
+      "evidence_id": "boot_attest_node_absent",
+      "payload_sha256": "9bf70cabf7b11087a9ff07081e4e5171060c9f0159942962e7b8a4104ccf0336",
+      "payload_size": 40,
+      "transcript_sha256": "fdf62f0e7f9c4988de88a8fbe20ef67a8f676c6cd1653fa062ef03888579fc3c",
+      "transcript_size": 270
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "test",
+        "!",
+        "-L",
+        "/tmp/a90-native/verification-024-sda24"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "101",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "70",
+        "status": "ok"
+      },
+      "evidence_id": "boot_attest_node_absent_not_symlink",
+      "payload_sha256": "49f26255012e856e3fe5d9a5d0a57687833464ea71da7847d6cc85ab94ce75fe",
+      "payload_size": 40,
+      "transcript_sha256": "a042c94c9f04caf728a4ed6ffb689c0157d3996259f7073beb0df3a2b9902399",
+      "transcript_size": 270
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "test",
+        "!",
+        "-e",
+        "/tmp/a90-native/verification-024-boot-prefix.bin"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "100",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "71",
+        "status": "ok"
+      },
+      "evidence_id": "boot_attest_file_absent",
+      "payload_sha256": "2fc399b84ff019675a808f406b4687007230160ecc722610d69434fbe1186c13",
+      "payload_size": 40,
+      "transcript_sha256": "40646ce6f6144e382540b4cc0a356420bbc68df63452768fbc148e6ebed4a31e",
+      "transcript_size": 280
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "test",
+        "!",
+        "-L",
+        "/tmp/a90-native/verification-024-boot-prefix.bin"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "100",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "72",
+        "status": "ok"
+      },
+      "evidence_id": "boot_attest_file_absent_not_symlink",
+      "payload_sha256": "3094746d293120de09cef4a73a543e71429df8a874d1e849177fd2ef9a3016ff",
+      "payload_size": 40,
+      "transcript_sha256": "932b8968cbb3e43c0a336916df5475a37a2adbbfdf1020aaf36c1d2083defb21",
+      "transcript_size": 280
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "test",
+        "!",
+        "-e",
+        "/tmp/a90-native/verification-024-sda24"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "100",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "73",
+        "status": "ok"
+      },
+      "evidence_id": "v024_temp_0",
+      "payload_sha256": "2792857c2c19f4c4d7e4120c3c7e5704938c3461317a357c91b782c1c32ad8d9",
+      "payload_size": 40,
+      "transcript_sha256": "b9ae9ca34a4c4847d398ee73d1a4506d9281eb0f4cb1ca5d56547c22caff71fc",
+      "transcript_size": 270
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "test",
+        "!",
+        "-L",
+        "/tmp/a90-native/verification-024-sda24"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "100",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "74",
+        "status": "ok"
+      },
+      "evidence_id": "v024_temp_0_not_symlink",
+      "payload_sha256": "53ce663518a205e446cfaeb2a2a3a90f2edb0892741a85bd151db8bbaf42e198",
+      "payload_size": 40,
+      "transcript_sha256": "3a0e8d42dcd5fa805fd8b7f28a0ae41173b4289dce747554f509af28c0c31b20",
+      "transcript_size": 270
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "test",
+        "!",
+        "-e",
+        "/tmp/a90-native/verification-024-boot-prefix.bin"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "101",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "75",
+        "status": "ok"
+      },
+      "evidence_id": "v024_temp_1",
+      "payload_sha256": "e7bdc16b37ad5f91400a5aa772ff3d6953354765223cb359a6e7d1b55277c829",
+      "payload_size": 40,
+      "transcript_sha256": "3a186a2e3435d9ac3ca904f65498d7a10e3219ba7eb1ac8ab63ef552dfeed880",
+      "transcript_size": 280
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "test",
+        "!",
+        "-L",
+        "/tmp/a90-native/verification-024-boot-prefix.bin"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "101",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "76",
+        "status": "ok"
+      },
+      "evidence_id": "v024_temp_1_not_symlink",
+      "payload_sha256": "7b730f44e86faf08516f4b5b29b07bdc4a5f5f5163b68103398c0fb323855485",
+      "payload_size": 40,
+      "transcript_sha256": "f00fca65a84df9cf1b3f5c89d05d10bec23d73512ab867fffb097b7883087324",
+      "transcript_size": 280
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "test",
+        "!",
+        "-e",
+        "/tmp/sdm855_mblab_param_debug_payload"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "101",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "77",
+        "status": "ok"
+      },
+      "evidence_id": "v024_temp_2",
+      "payload_sha256": "34f7007a7cc560eac10e69c90a3d6086066f93ae72388889b04762ed02b24375",
+      "payload_size": 40,
+      "transcript_sha256": "753ce0b2ba275fd129ccddde297efff9dffee46be06b81f8cf67fa02c9c1dc57",
+      "transcript_size": 269
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "test",
+        "!",
+        "-L",
+        "/tmp/sdm855_mblab_param_debug_payload"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "101",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "78",
+        "status": "ok"
+      },
+      "evidence_id": "v024_temp_2_not_symlink",
+      "payload_sha256": "527047036f391d3613992bfcf1d878e2d280463c63078134f35a638d73cd02aa",
+      "payload_size": 40,
+      "transcript_sha256": "e6fbb2b0990dd1e63e1313ff1131a86698d69743e98af4d1cb7c1585066c2403",
+      "transcript_size": 269
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "test",
+        "!",
+        "-e",
+        "/tmp/sdm855_mblab_param_debug_dd_smoke"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "101",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "79",
+        "status": "ok"
+      },
+      "evidence_id": "v024_temp_3",
+      "payload_sha256": "c87c3ad1ac3b587b1b62f8b47d56bc3e75c946493f60911d7493d530d7289c17",
+      "payload_size": 40,
+      "transcript_sha256": "d8168fdb7e23bd8e28e2773e0712ec15c433f5ec0bfc964b4e09856280b3b8ca",
+      "transcript_size": 270
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "test",
+        "!",
+        "-L",
+        "/tmp/sdm855_mblab_param_debug_dd_smoke"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "101",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "80",
+        "status": "ok"
+      },
+      "evidence_id": "v024_temp_3_not_symlink",
+      "payload_sha256": "8df87cfd526d59ffe81dfb2be291786bd760ac897f24f652f7d8915541fc6012",
+      "payload_size": 40,
+      "transcript_sha256": "9d8890542c52e8b924e1ae38524d9bdcfc7d627bbb10873860c6afed14c331c9",
+      "transcript_size": 270
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "test",
+        "!",
+        "-e",
+        "/dev/sdm855_mblab_sda10"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "101",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "81",
+        "status": "ok"
+      },
+      "evidence_id": "v024_temp_4",
+      "payload_sha256": "99eb97854e5a028c52e61ed6e310421cf118f46c798557da7047e28cb7f4835c",
+      "payload_size": 40,
+      "transcript_sha256": "9cc094b9c96d1bfb48e4ad4c5e4c31b75b5742736fe2a62e659b97e320609011",
+      "transcript_size": 255
+    },
+    {
+      "argv": [
+        "run",
+        "/bin/toybox",
+        "test",
+        "!",
+        "-L",
+        "/dev/sdm855_mblab_sda10"
+      ],
+      "end": {
+        "cmd": "run",
+        "duration_ms": "101",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "82",
+        "status": "ok"
+      },
+      "evidence_id": "v024_temp_4_not_symlink",
+      "payload_sha256": "6952b19d785939ec2c1cad2701746d36d6b27827d832dd3b7fef4dbee55bac06",
+      "payload_size": 40,
+      "transcript_sha256": "74a82c9f816e738f846194f207f01449042a353ba40ed1ce61fb659918c82b2a",
+      "transcript_size": 255
+    },
+    {
+      "argv": [
+        "selftest",
+        "status"
+      ],
+      "end": {
+        "cmd": "selftest",
+        "duration_ms": "0",
+        "errno": "0",
+        "flags": "0x0",
+        "rc": "0",
+        "seq": "83",
+        "status": "ok"
+      },
+      "evidence_id": "selftest",
+      "payload_sha256": "b370529287c8d8aae3616b57f92c117e92cd09d2162834072f6c82b3986d2eb5",
+      "payload_size": 56,
+      "transcript_sha256": "0d908503643cdb2ae1e6b30f7dd7bf841e9d3c3cd352f112171dc1204ba2262c",
+      "transcript_size": 248
+    },
+    {
+      "argv": [
+        "cat",
+        "/sys/class/power_supply/battery/capacity"
+      ],
+      "end": {
+        "cmd": "cat",
+        "duration_ms": "0",
+        "errno": "0",
+        "flags": "0x0",
+        "rc": "0",
+        "seq": "84",
+        "status": "ok"
+      },
+      "evidence_id": "battery_capacity",
+      "payload_sha256": "eea8254c7500ba3de996aa8ad6af399183f04e17d4a8102fde539dbc93a90012",
+      "payload_size": 4,
+      "transcript_sha256": "7f5089c2754783e905fe9632b2b0402ba7439b0d29080c8be85f92d771ce4d5b",
+      "transcript_size": 210
+    }
+  ],
+  "runtime": "0.9.285",
+  "schema": "sdm855-a90-runtime-health-public-v2",
+  "security_state_writes": false,
+  "selftest": {
+    "duration": 39,
+    "entries": 12,
+    "fail": 0,
+    "passed": 11,
+    "warn": 1
+  },
+  "soc": "SM8150",
+  "soc_id": 339,
+  "started_utc": "2026-08-28T13:23:19+00:00",
+  "stophud": {
+    "accepted": true,
+    "attempts": [
+      {
+        "attempt": 1,
+        "evidence_id": "stophud_1",
+        "payload_sha256": "9c49f25b7c794497a77fe87cac95c307aad50b2d2d6a97f93d4c31bc02ea6ae4",
+        "payload_size": 20,
+        "rc": 0,
+        "status": "ok",
+        "transcript_sha256": "bd779baa45af78c30640f0dfc077f1fabefc092662152301fb6811a5b589d91a",
+        "transcript_size": 201
+      }
+    ],
+    "busy_retries": 0
+  },
+  "stophud_accepted": true,
+  "stophud_busy_retries": 0,
+  "stophud_device_state_write": true,
+  "stophud_frames": [
+    {
+      "argv": [
+        "stophud"
+      ],
+      "begin": {
+        "argc": "1",
+        "cmd": "stophud",
+        "flags": "0x8",
+        "seq": "43"
+      },
+      "end": {
+        "cmd": "stophud",
+        "duration_ms": "0",
+        "errno": "0",
+        "flags": "0x8",
+        "rc": "0",
+        "seq": "43",
+        "status": "ok"
+      },
+      "evidence_id": "stophud_1",
+      "payload_sha256": "9c49f25b7c794497a77fe87cac95c307aad50b2d2d6a97f93d4c31bc02ea6ae4",
+      "payload_size": 20,
+      "transcript_sha256": "bd779baa45af78c30640f0dfc077f1fabefc092662152301fb6811a5b589d91a",
+      "transcript_size": 201
+    }
+  ],
+  "target_model": "SM-A908N",
+  "target_verified": true,
+  "temporary_block_node_mutations": true,
+  "temporary_filesystem_mutations": true,
+  "transport_module": "tools.a90_pa28_live",
+  "transport_source": "tools/a90_pa28_live.py",
+  "v024_temp_absence": {
+    "absence_verified": true,
+    "frame_count": 10,
+    "paths_count": 5,
+    "paths_sha256": "b1be7ed6f731c0c301184ecb19d0142bea432c946b1fecdde852871bb104224e"
+  },
+  "version": "A90 Linux init 0.9.285"
+}
