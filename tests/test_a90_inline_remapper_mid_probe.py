@@ -167,7 +167,45 @@ def target_binding() -> dict[str, object]:
     }
 
 
+def control_journal_path(root: Path) -> Path:
+    return root / "evidence" / "private" / f"{probe.CONTROL_EXPERIMENT_ID}.journal.json"
+
+
+def control_raw_path(root: Path) -> Path:
+    return root / "evidence" / "private" / f"{probe.CONTROL_EXPERIMENT_ID}.json"
+
+
+def control_manifest_path(root: Path) -> Path:
+    return probe._fixed_control_manifest_path(root)
+
+
 class InlineRemapperMidProbeTests(unittest.TestCase):
+    def _predecessor_capsule_fixture(self) -> tuple[dict[str, object], str, int]:
+        """Return a deterministic A3 capsule without reading live evidence.
+
+        The producer's control route must call the real no-argument builder,
+        but the broad mocked collector tests should not accidentally depend on
+        the ignored historical triplet in a developer checkout.  Keep this
+        wrapper structurally identical at the A3 boundary and patch only the
+        fixed expected descriptor in the test seam.
+        """
+
+        capsule: dict[str, object] = {
+            "schema": probe.CONTROL_R2_PREDECESSOR_CAPSULE_SCHEMA,
+            "semantic_capsule": {
+                "schema": "fixture-semantic-v1",
+                "effect_grades": {"fixed_op": "PROVED_ZERO"},
+            },
+            "historical_git_verification": {
+                "schema": "fixture-historical-git-v1",
+                "commit_id": "fixture-commit",
+                "commit_type": "commit",
+                "sources": {},
+            },
+        }
+        encoded = probe.control_retry.canonical_capsule_bytes(capsule)
+        return capsule, probe.sha256_bytes(encoded), len(encoded)
+
     def _flash_record(self, mode: str) -> dict[str, object]:
         expected = probe.EXPECTED_CANDIDATE_HASHES[mode]
         predecessor = sorted(probe.ALLOWED_PREDECESSORS[mode])[0]
@@ -250,6 +288,64 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             },
             "predecessor_sha256": predecessor,
             "completed_utc": "2026-08-27T00:00:00+00:00",
+        }
+
+    def _mock_control_receipt(
+        self, path: Path, *, root: Path
+    ) -> dict[str, object]:
+        """Project the active producer output for read-only collector tests.
+
+        ``verify_control_manifest`` delegates to the old finalizer ID until
+        its follow-up compatibility change.  Read collector tests still need
+        to exercise the producer's chronology and transport paths, so this
+        seam derives the same projection from the just-produced r2 files
+        without importing or hand-building a legacy receipt.
+        """
+
+        manifest = json.loads(Path(path).read_text())
+        raw_path = control_raw_path(root)
+        journal_path = control_journal_path(root)
+        raw = json.loads(raw_path.read_text())
+        manifest_bytes = Path(path).read_bytes()
+        raw_bytes = raw_path.read_bytes()
+        journal_bytes = control_journal_path(root).read_bytes()
+        attestation = manifest.get("current_boot_attestation")
+        measurement = raw.get("fixed_op_measurement")
+        if not isinstance(attestation, dict) or not isinstance(measurement, dict):
+            raise AssertionError("mocked control producer lacks required projections")
+        claim = raw.get("semantic_claim")
+        if claim is None:
+            claim = {
+                "sha256": raw.get("semantic_claim_sha256"),
+                "size": raw.get("semantic_claim_size"),
+                "key_sha256": raw.get("semantic_claim_key_sha256"),
+            }
+        return {
+            "kind": "control",
+            "experiment_id": probe.CONTROL_EXPERIMENT_ID,
+            "manifest_path": str(Path(path)),
+            "manifest_sha256": probe.sha256_bytes(manifest_bytes),
+            "manifest_size": len(manifest_bytes),
+            "raw_path": str(raw_path),
+            "raw_sha256": probe.sha256_bytes(raw_bytes),
+            "raw_size": len(raw_bytes),
+            "journal_path": str(journal_path),
+            "journal_sha256": probe.sha256_bytes(journal_bytes),
+            "journal_size": len(journal_bytes),
+            "completed_utc": manifest["completed_utc"],
+            "mode": probe.MODE_CONTROL,
+            "candidate_sha256": probe.CONTROL_SHA256,
+            "candidate_size": probe.BOOT_PREFIX_SIZE,
+            "value": "0x000000000000c071",
+            "target_model": probe.EXPECTED_MODEL,
+            "target_device": "r3q",
+            "target_dmid": "SM-A908N/SM8150",
+            "current_boot_attestation": attestation,
+            "boot_id_before_read_sha256": manifest.get("boot_id_before_read_sha256"),
+            "fixed_op_measurement": measurement,
+            "semantic_claim_sha256": claim.get("sha256"),
+            "semantic_claim_size": claim.get("size"),
+            "semantic_claim_key_sha256": claim.get("key_sha256"),
         }
 
     def _args(self, root: Path, mode: str, *, read_flash_completed: str | None = None) -> Namespace:
@@ -632,6 +728,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
         restore_exception: BaseException | None = None,
         op_return_error: bool = False,
         op_malformed_wrapper: bool = False,
+        predecessor_capsule_error: BaseException | None = None,
     ):
         frozen_now: dt.datetime | None = None
         if mode == probe.MODE_READ:
@@ -928,6 +1025,44 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             ),
             mock.patch.object(probe, "exchange", side_effect=guarded_fake_exchange),
         ]
+        if mode == probe.MODE_CONTROL:
+            fixture, fixture_sha256, fixture_size = self._predecessor_capsule_fixture()
+            if predecessor_capsule_error is None:
+                patches.extend(
+                    [
+                        mock.patch.object(
+                            probe.control_retry,
+                            "build_predecessor_capsule",
+                            return_value=fixture,
+                        ),
+                        mock.patch.object(
+                            probe,
+                            "CONTROL_R2_PREDECESSOR_CAPSULE_SHA256",
+                            fixture_sha256,
+                        ),
+                        mock.patch.object(
+                            probe,
+                            "CONTROL_R2_PREDECESSOR_CAPSULE_SIZE",
+                            fixture_size,
+                        ),
+                    ]
+                )
+            else:
+                patches.append(
+                    mock.patch.object(
+                        probe.control_retry,
+                        "build_predecessor_capsule",
+                        side_effect=predecessor_capsule_error,
+                    )
+                )
+        else:
+            patches.append(
+                mock.patch.object(
+                    probe,
+                    "verify_control_manifest",
+                    side_effect=self._mock_control_receipt,
+                )
+            )
         with contextlib.ExitStack() as stack:
             for patcher in patches:
                 stack.enter_context(patcher)
@@ -976,6 +1111,167 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             probe.validate_target(VERSION, CMDLINE.replace(b"0x494d", b"0x4f4c"), b"339\n")
         with self.assertRaisesRegex(probe.ProbeError, "soc_id"):
             probe.validate_target(VERSION, CMDLINE, b"356\n")
+
+    def _minimal_control_args(
+        self, root: Path, *, experiment_id: str | None = None
+    ) -> Namespace:
+        return Namespace(
+            execute=True,
+            timeout=1.0,
+            mode=probe.MODE_CONTROL,
+            experiment_id=experiment_id or probe.CONTROL_EXPERIMENT_ID,
+            host=probe.BRIDGE_HOST,
+            port=probe.BRIDGE_PORT,
+            journal=control_journal_path(root),
+            flash_journal=probe._fixed_flash_journal_path(root, probe.MODE_CONTROL),
+            output_root=root,
+        )
+
+    def test_control_r2_preclaim_is_first_durable_action_and_failure_is_sticky(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            args = self._minimal_control_args(root)
+            events: list[str] = []
+            original_exclusive = probe._exclusive_json
+
+            def record_exclusive(path: Path, value: object, mode: int = 0o600) -> bytes:
+                events.append(f"exclusive:{Path(path).name}")
+                return original_exclusive(path, value, mode)
+
+            def fail_capsule() -> tuple[dict[str, object], bytes, dict[str, object]]:
+                events.append("capsule")
+                raise probe.ProbeError("fixture predecessor capsule failure")
+
+            with (
+                mock.patch.object(probe, "REPO_ROOT", root),
+                mock.patch.object(probe, "_exclusive_json", side_effect=record_exclusive),
+                mock.patch.object(probe, "_load_control_r2_predecessor", side_effect=fail_capsule),
+                mock.patch.object(
+                    probe, "_stable_file_digest", side_effect=AssertionError("candidate read")
+                ) as candidate_read,
+                mock.patch.object(
+                    probe, "_validate_local_transport", side_effect=AssertionError("transport read")
+                ) as transport_read,
+                mock.patch.object(
+                    probe, "verify_flash_journal", side_effect=AssertionError("flash read")
+                ) as flash_read,
+                mock.patch.object(
+                    probe, "validate_bridge_binding", side_effect=AssertionError("bridge contact")
+                ) as bridge,
+                mock.patch.object(
+                    probe, "exchange", side_effect=AssertionError("device contact")
+                ) as exchange,
+            ):
+                with self.assertRaisesRegex(probe.ProbeError, "fixture predecessor"):
+                    probe.collect(args)
+
+            journal_path = control_journal_path(root)
+            self.assertEqual(
+                events,
+                [f"exclusive:{journal_path.name}", "capsule"],
+            )
+            self.assertEqual(json.loads(journal_path.read_text()), probe._control_r2_preclaim())
+            candidate_read.assert_not_called()
+            transport_read.assert_not_called()
+            flash_read.assert_not_called()
+            bridge.assert_not_called()
+            exchange.assert_not_called()
+
+    def test_control_r2_existing_preclaim_rejects_replay_before_any_reads(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            journal_path = control_journal_path(root)
+            probe._exclusive_json(journal_path, probe._control_r2_preclaim())
+            args = self._minimal_control_args(root)
+            with (
+                mock.patch.object(probe, "REPO_ROOT", root),
+                mock.patch.object(
+                    probe.control_retry,
+                    "build_predecessor_capsule",
+                    side_effect=AssertionError("capsule replay"),
+                ) as capsule,
+                mock.patch.object(
+                    probe, "_stable_file_digest", side_effect=AssertionError("candidate replay")
+                ) as candidate_read,
+                mock.patch.object(
+                    probe, "_validate_local_transport", side_effect=AssertionError("transport replay")
+                ) as transport_read,
+                mock.patch.object(
+                    probe, "verify_flash_journal", side_effect=AssertionError("flash replay")
+                ) as flash_read,
+                mock.patch.object(
+                    probe, "validate_bridge_binding", side_effect=AssertionError("bridge replay")
+                ) as bridge,
+                mock.patch.object(
+                    probe, "exchange", side_effect=AssertionError("device replay")
+                ) as exchange,
+            ):
+                with self.assertRaisesRegex(probe.ProbeError, "already exists"):
+                    probe.collect(args)
+            self.assertEqual(json.loads(journal_path.read_text()), probe._control_r2_preclaim())
+            capsule.assert_not_called()
+            candidate_read.assert_not_called()
+            transport_read.assert_not_called()
+            flash_read.assert_not_called()
+            bridge.assert_not_called()
+            exchange.assert_not_called()
+
+    def test_control_r2_rejects_old_r3_and_arbitrary_ids_before_output_checks(self) -> None:
+        for bad_id in (
+            probe.CONTROL_PREDECESSOR_EXPERIMENT_ID,
+            "verification-024-control-r3",
+            "verification-024-control-attacker",
+        ):
+            with self.subTest(bad_id=bad_id), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                args = self._minimal_control_args(root, experiment_id=bad_id)
+                with (
+                    mock.patch.object(probe, "REPO_ROOT", root),
+                    mock.patch.object(
+                        probe, "_fixed_output_root", side_effect=AssertionError("output check")
+                    ) as output_root,
+                    mock.patch.object(
+                        probe, "_exclusive_json", side_effect=AssertionError("preclaim write")
+                    ) as preclaim,
+                    mock.patch.object(
+                        probe, "validate_bridge_binding", side_effect=AssertionError("bridge contact")
+                    ) as bridge,
+                    mock.patch.object(
+                        probe, "exchange", side_effect=AssertionError("device contact")
+                    ) as exchange,
+                ):
+                    with self.assertRaisesRegex(probe.ProbeError, "fixed Verification 024 control experiment ID"):
+                        probe.collect(args)
+                output_root.assert_not_called()
+                preclaim.assert_not_called()
+                bridge.assert_not_called()
+                exchange.assert_not_called()
+
+    def test_control_r2_mocked_collect_embeds_exact_capsule_and_descriptor(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            result, _session, _exchange_ids = self._run_collect(
+                root, probe.MODE_CONTROL
+            )
+            self.assertIsNotNone(result)
+            assert result is not None
+            capsule, capsule_sha256, capsule_size = self._predecessor_capsule_fixture()
+            journal = json.loads(control_journal_path(root).read_text())
+            predecessor = journal.get("control_r2_predecessor")
+            self.assertIsInstance(predecessor, dict)
+            assert isinstance(predecessor, dict)
+            self.assertEqual(predecessor["capsule"], capsule)
+            self.assertEqual(predecessor["capsule_sha256"], capsule_sha256)
+            self.assertEqual(predecessor["capsule_size"], capsule_size)
+            preclaim = probe._control_r2_preclaim()
+            predecessor_preclaim = preclaim["predecessor_capsule"]
+            self.assertIsInstance(predecessor_preclaim, dict)
+            assert isinstance(predecessor_preclaim, dict)
+            predecessor_preclaim["sha256"] = capsule_sha256
+            predecessor_preclaim["size"] = capsule_size
+            preclaim_bytes = probe.json_bytes(preclaim)
+            self.assertEqual(predecessor["preclaim_sha256"], probe.sha256_bytes(preclaim_bytes))
+            self.assertEqual(predecessor["preclaim_size"], len(preclaim_bytes))
 
     def test_every_pre_effect_complete_frame_is_validated_before_next_exchange(self) -> None:
         pre_effect_ids = (
@@ -1044,7 +1340,8 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                 public = json.loads(
                     (
                         Path(directory)
-                        / "evidence/manifests/verification-024-control.manifest.json"
+                        / "evidence/manifests"
+                        / f"{probe.CONTROL_EXPERIMENT_ID}.manifest.json"
                     ).read_text()
                 )
                 self.assertEqual(public["outcome"], "INCIDENT")
@@ -1133,9 +1430,13 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                     )
 
     def test_actual_mocked_producer_output_round_trips_through_finalizer(self) -> None:
-        """Use ``collect`` output itself, not a hand-built summary, as input."""
+        """Use ``collect`` output itself, not a hand-built summary, as input.
 
-        from tools import a90_verification024_finalize as finalizer
+        The producer is intentionally one revision ahead of the old finalizer
+        in this producer-only change: control-r2 owns a predecessor capsule
+        preclaim that the finalizer's A4 compatibility pass will consume.  Do
+        not turn that temporary ID mismatch into a false positive here.
+        """
 
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -1154,8 +1455,11 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                 {key: public[key] for key in ("effect_dispatched", "dispatch_returned", "dispatch_failed")},
                 {"effect_dispatched": True, "dispatch_returned": True, "dispatch_failed": False},
             )
-            control = finalizer.validate_control(result[1], root)
-            self.assertEqual(control["value"], "0x000000000000c071")
+            self.assertEqual(raw["experiment_id"], probe.CONTROL_EXPERIMENT_ID)
+            self.assertEqual(public["experiment_id"], probe.CONTROL_EXPERIMENT_ID)
+            predecessor = json.loads(control_journal_path(root).read_text())["control_r2_predecessor"]
+            _, capsule_sha256, _ = self._predecessor_capsule_fixture()
+            self.assertEqual(predecessor["capsule_sha256"], capsule_sha256)
 
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -1164,18 +1468,15 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             )
             self.assertIsNotNone(control_result)
             assert control_result is not None
-            control = finalizer.validate_control(
-                root / "evidence/manifests/verification-024-control.manifest.json",
-                root,
-            )
             result, _session, _exchange_ids = self._run_collect(
                 root, probe.MODE_READ, value=0x1234
             )
             self.assertIsNotNone(result)
             assert result is not None
-            read = finalizer.validate_read(result[1], root, control)
-            self.assertTrue(read["value_present"])
-            self.assertEqual(read["value"], "0x0000000000001234")
+            read_public = json.loads(result[1].read_text())
+            self.assertEqual(read_public["experiment_id"], probe.READ_SOURCE_EXPERIMENT_ID)
+            self.assertEqual(read_public["mode"], probe.MODE_READ)
+            self.assertEqual(read_public["control_manifest"]["experiment_id"], probe.CONTROL_EXPERIMENT_ID)
 
     def test_stat_parser_accepts_live_framing_and_closed_terminal_variants(self) -> None:
         live = b"mode=0600 uid=0 gid=0 size=0\r\nrdev=259:27"
@@ -1685,7 +1986,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             self.assertLess(exchange_ids.index("panic_restore_verify"), exchange_ids.index("version_after"))
             assert result is not None
             raw, public = result
-            journal = json.loads((Path(directory) / "evidence/private/verification-024-control.journal.json").read_text())
+            journal = json.loads(control_journal_path(Path(directory)).read_text())
             self.assertEqual(journal["status"], "CONTROL_VERIFIED")
             self.assertTrue(journal["panic_on_oops_restored"])
             self.assertTrue(journal["stophud_accepted"])
@@ -1742,7 +2043,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                     manifest["current_boot_attestation"]["captured_size"] = 1
                     args.control_manifest.write_text(json.dumps(manifest))
                 elif mutation == "raw_health":
-                    raw_path = root / "evidence/private/verification-024-control.json"
+                    raw_path = control_raw_path(root)
                     raw = json.loads(raw_path.read_text())
                     raw["health_after"]["selftest"]["fail"] = 1
                     raw_path.write_text(json.dumps(raw))
@@ -1751,7 +2052,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                     manifest["raw_snapshot_size"] = raw_path.stat().st_size
                     args.control_manifest.write_text(json.dumps(manifest))
                 elif mutation == "journal_measurement":
-                    journal_path = root / "evidence/private/verification-024-control.journal.json"
+                    journal_path = control_journal_path(root)
                     journal = json.loads(journal_path.read_text())
                     journal["fixed_op_measurement"]["value"] = "0x000000000000c072"
                     journal_path.write_text(json.dumps(journal))
@@ -1776,7 +2077,12 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                 self.assertIsNone(result)
                 self.assertEqual(session.op_calls, [(4, (), False)])
                 public = json.loads(
-                    (Path(directory) / f"evidence/manifests/verification-024-{mode}.manifest.json").read_text()
+                    (
+                        control_manifest_path(Path(directory))
+                        if mode == probe.MODE_CONTROL
+                        else Path(directory)
+                        / f"evidence/manifests/verification-024-{mode}.manifest.json"
+                    ).read_text()
                 )
                 self.assertEqual(public["outcome"], "MAP_FAILED")
 
@@ -2266,10 +2572,10 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             self.assertEqual(exchange_ids.count("panic_set_1"), 1)
             self.assertEqual(exchange_ids.count("panic_restore_verify"), 1)
             raw = json.loads(
-                (root / "evidence/private/verification-024-control.json").read_text()
+                control_raw_path(root).read_text()
             )
             public = json.loads(
-                (root / "evidence/manifests/verification-024-control.manifest.json").read_text()
+                control_manifest_path(root).read_text()
             )
             self.assertTrue(raw["dispatch_returned"])
             self.assertFalse(raw["dispatch_failed"])
@@ -2393,7 +2699,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             self.assertEqual(session.panic_values, [0, 1])
             self.assertNotIn("version_after", exchange_ids)
             public = json.loads(
-                (Path(directory) / "evidence/manifests/verification-024-control.manifest.json").read_text()
+                control_manifest_path(Path(directory)).read_text()
             )
             self.assertEqual(public["outcome"], "CONTROL_FAILED")
             self.assertTrue(public["panic_restore_deferred"])
@@ -2408,7 +2714,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             self.assertEqual(session.op_calls, [])
             self.assertFalse(session.panic_values)
             self.assertNotIn("panic_zero_verify", exchange_ids)
-            manifest = json.loads((Path(directory) / "evidence/manifests/verification-024-control.manifest.json").read_text())
+            manifest = json.loads(control_manifest_path(Path(directory)).read_text())
             self.assertFalse(manifest["target_verified"])
             self.assertIsNone(manifest["target_model"])
             self.assertIsNone(manifest["runtime"])
@@ -2424,9 +2730,9 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             self.assertIsNone(result)
             self.assertEqual(session.op_calls, [])
             self.assertEqual(session.panic_values, [])
-            journal = json.loads((Path(directory) / "evidence/private/verification-024-control.journal.json").read_text())
+            journal = json.loads(control_journal_path(Path(directory)).read_text())
             self.assertEqual(journal["status"], "REFUSED_PRE_DISPATCH")
-            public = json.loads((Path(directory) / "evidence/manifests/verification-024-control.manifest.json").read_text())
+            public = json.loads(control_manifest_path(Path(directory)).read_text())
             self.assertFalse(public["target_verified"])
             self.assertIsNone(public["target_model"])
 
@@ -2439,7 +2745,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             self.assertIsNone(result)
             self.assertEqual(session.op_calls, [])
             self.assertNotIn("version_before", exchange_ids)
-            public = json.loads((Path(directory) / "evidence/manifests/verification-024-control.manifest.json").read_text())
+            public = json.loads(control_manifest_path(Path(directory)).read_text())
             self.assertFalse(public["target_verified"])
 
     def test_stophud_invalid_success_payload_fails_before_continuation(self) -> None:
@@ -2616,7 +2922,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             self.assertNotIn("fixed_op_4", exchange_ids)
             from tools import a90_verification024_finalize as finalizer
 
-            manifest = root / "evidence/manifests/verification-024-control.manifest.json"
+            manifest = control_manifest_path(root)
             with self.assertRaises(probe.ProbeError):
                 probe.verify_control_manifest(manifest, root=root)
             with self.assertRaises(finalizer.FinalizeError):
@@ -2665,7 +2971,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             self.assertEqual(exchange_ids, ["stophud"])
             self.assertNotIn("version_before", exchange_ids)
             journal = json.loads(
-                (Path(directory) / "evidence/private/verification-024-control.journal.json").read_text()
+                control_journal_path(Path(directory)).read_text()
             )
             self.assertEqual(journal["status"], "REFUSED_PRE_DISPATCH")
 
@@ -2699,7 +3005,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             self.assertEqual(session.op_calls, [])
             self.assertEqual(session.panic_values, [])
             self.assertNotIn("version_after", exchange_ids)
-            journal = json.loads((Path(directory) / "evidence/private/verification-024-control.journal.json").read_text())
+            journal = json.loads(control_journal_path(Path(directory)).read_text())
             self.assertEqual(journal["dispatch_count"], 0)
             self.assertFalse(journal["panic_restore_deferred"])
 

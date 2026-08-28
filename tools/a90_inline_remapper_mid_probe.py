@@ -134,6 +134,11 @@ except ModuleNotFoundError:  # Direct execution from tools/.
     )
     import build_a90_inline_remapper_candidate as candidate  # type: ignore
 
+try:
+    from tools import a90_v024_control_retry as control_retry
+except ModuleNotFoundError:  # Direct execution from tools/.
+    import a90_v024_control_retry as control_retry  # type: ignore
+
 
 # Use the repository's local, partial-evidence-preserving A90P1 transport.
 # Tests replace this narrow name with a mock transport; production has no
@@ -142,7 +147,8 @@ exchange = native_exchange
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-CONTROL_EXPERIMENT_ID = "verification-024-control"
+CONTROL_EXPERIMENT_ID = "verification-024-control-r2"
+CONTROL_PREDECESSOR_EXPERIMENT_ID = "verification-024-control"
 READ_SOURCE_EXPERIMENT_ID = "verification-024-read"
 FLASH_JOURNAL_PREFIX = "verification-024-remapper-boot-flash-"
 MODE_CONTROL = candidate.MODE_CONTROL
@@ -459,6 +465,19 @@ V024_DISPLAY_RE = re.compile(
 )
 MAX_FLASH_JOURNAL_BYTES = 256 * 1024
 MAX_TIMEOUT_SEC = 120.0
+
+CONTROL_R2_PRECLAIM_SCHEMA = "sdm855-a90-inline-remapper-mid-journal-v1"
+CONTROL_R2_PRECLAIM_STATUS = "PREDECESSOR_VALIDATION_PENDING"
+CONTROL_R2_PREDECESSOR_CAPSULE_SCHEMA = (
+    "sdm855-a90-v024-control-predecessor-final-capsule-v1"
+)
+CONTROL_R2_PREDECESSOR_CAPSULE_SHA256 = (
+    "56d233030e1c970b486721b21293a91a154bdc5ebe0ae811b36473457648df15"
+)
+CONTROL_R2_PREDECESSOR_CAPSULE_SIZE = 4924
+CONTROL_R2_HISTORICAL_PINS_POLICY = (
+    "historical_predecessor_capsule_bound; current_r2_source_provenance_required_before_live"
+)
 
 
 class ProbeError(RuntimeError):
@@ -1217,6 +1236,57 @@ def _semantic_claim(
 
 def _fixed_control_manifest_path(root: Path) -> Path:
     return root / "evidence" / "manifests" / f"{CONTROL_EXPERIMENT_ID}.manifest.json"
+
+
+def _control_r2_preclaim() -> dict[str, object]:
+    """Return the file-only R2 predecessor-validation intent.
+
+    This object is built solely from fixed constants.  It is written before
+    any candidate, transport, flash, predecessor, bridge or device evidence
+    is read, so a failed predecessor check leaves a durable no-replay owner.
+    """
+
+    return {
+        "schema": CONTROL_R2_PRECLAIM_SCHEMA,
+        "status": CONTROL_R2_PRECLAIM_STATUS,
+        "experiment_id": CONTROL_EXPERIMENT_ID,
+        "predecessor_experiment_id": CONTROL_PREDECESSOR_EXPERIMENT_ID,
+        "mode": MODE_CONTROL,
+        "replay_safe": False,
+        "predecessor_capsule": {
+            "schema": CONTROL_R2_PREDECESSOR_CAPSULE_SCHEMA,
+            "sha256": CONTROL_R2_PREDECESSOR_CAPSULE_SHA256,
+            "size": CONTROL_R2_PREDECESSOR_CAPSULE_SIZE,
+            "historical_pins_policy": CONTROL_R2_HISTORICAL_PINS_POLICY,
+        },
+    }
+
+
+def _load_control_r2_predecessor() -> tuple[dict[str, object], bytes, dict[str, object]]:
+    """Load and bind the exact A2b capsule after the durable preclaim."""
+
+    capsule = control_retry.build_predecessor_capsule()
+    if type(capsule) is not dict or set(capsule) != {
+        "schema",
+        "semantic_capsule",
+        "historical_git_verification",
+    }:
+        raise ProbeError("predecessor capsule schema is not exact")
+    if capsule.get("schema") != CONTROL_R2_PREDECESSOR_CAPSULE_SCHEMA:
+        raise ProbeError("predecessor capsule schema is not the fixed final schema")
+    capsule_bytes = control_retry.canonical_capsule_bytes(capsule)
+    if type(capsule_bytes) is not bytes:
+        raise ProbeError("predecessor capsule bytes are not exact")
+    descriptor = {
+        "schema": CONTROL_R2_PREDECESSOR_CAPSULE_SCHEMA,
+        "sha256": sha256_bytes(capsule_bytes),
+        "size": len(capsule_bytes),
+    }
+    if descriptor["sha256"] != CONTROL_R2_PREDECESSOR_CAPSULE_SHA256:
+        raise ProbeError("predecessor capsule hash is not the fixed final hash")
+    if descriptor["size"] != CONTROL_R2_PREDECESSOR_CAPSULE_SIZE:
+        raise ProbeError("predecessor capsule size is not the fixed final size")
+    return capsule, capsule_bytes, descriptor
 
 
 def _fixed_flash_journal_path(root: Path, mode: str) -> Path:
@@ -3018,6 +3088,20 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
             allow_absent=True,
         )
 
+    predecessor_capsule: dict[str, object] | None = None
+    predecessor_capsule_bytes: bytes | None = None
+    predecessor_capsule_descriptor: dict[str, object] | None = None
+    preclaim_bytes: bytes | None = None
+    if args.mode == MODE_CONTROL:
+        # This is the first durable action in the control-r2 route.  It uses
+        # only fixed constants and O_EXCL; no candidate, transport, flash or
+        # predecessor evidence is read before this owner exists.
+        preclaim = _control_r2_preclaim()
+        preclaim_bytes = _exclusive_json(journal_path, preclaim)
+        predecessor_capsule, predecessor_capsule_bytes, predecessor_capsule_descriptor = (
+            _load_control_r2_predecessor()
+        )
+
     candidate_path = DEFAULT_CANDIDATES[args.mode]
     expected_hash = EXPECTED_CANDIDATE_HASHES[args.mode]
     candidate_size, actual_hash = _stable_file_digest(candidate_path)
@@ -3101,7 +3185,27 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
         "control_manifest": control_receipt,
         "started_utc": started,
     }
-    _exclusive_json(journal_path, journal)
+    if args.mode == MODE_CONTROL:
+        if (
+            preclaim_bytes is None
+            or predecessor_capsule is None
+            or predecessor_capsule_bytes is None
+            or predecessor_capsule_descriptor is None
+        ):
+            raise ProbeError("control-r2 predecessor preclaim is incomplete")
+        journal["control_r2_predecessor"] = {
+            "preclaim_sha256": sha256_bytes(preclaim_bytes),
+            "preclaim_size": len(preclaim_bytes),
+            "capsule": predecessor_capsule,
+            "capsule_sha256": predecessor_capsule_descriptor["sha256"],
+            "capsule_size": predecessor_capsule_descriptor["size"],
+        }
+        # The preclaim already owns this final inode.  Upgrade it only after
+        # candidate/transport/flash validation, preserving the original
+        # preclaim hash/size and the full redacted capsule in one section.
+        _atomic_json(journal_path, journal)
+    else:
+        _exclusive_json(journal_path, journal)
 
     frames: list[dict[str, object]] = []
     target: dict[str, object] | None = None
