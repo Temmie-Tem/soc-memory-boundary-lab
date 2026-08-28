@@ -152,14 +152,20 @@ MAX_TIMEOUT_SEC = 120.0
 LAST_KMSG_REFERENCE_SIZE = 2_097_136
 MAX_SOURCE_RECEIPT_BYTES = 512 * 1024
 READ_SOURCE_EXPERIMENT_ID = "verification-024-read"
-CONTROL_EXPERIMENT_ID = "verification-024-control-r3"
+# R2 and R3 are immutable consumed checkpoints.  The read consumer binds only
+# the active R4 control receipt; a source receipt carrying either consumed
+# execution ID is rejected by the exact binding check below.
+CONTROL_EXPERIMENT_ID = "verification-024-control-r4"
 CONTROL_R2_EXPERIMENT_ID = "verification-024-control-r2"
+CONTROL_R3_EXPERIMENT_ID = "verification-024-control-r3"
 CONTROL_R2_PREDECESSOR_CAPSULE_SHA256 = (
     "56d233030e1c970b486721b21293a91a154bdc5ebe0ae811b36473457648df15"
 )
 CONTROL_R2_PREDECESSOR_CAPSULE_SIZE = 4924
 CONTROL_R2_INCIDENT_MANIFEST_SHA256 = r2_incident.INCIDENT_MANIFEST_SHA256
 CONTROL_R2_INCIDENT_MANIFEST_SIZE = r2_incident.INCIDENT_MANIFEST_SIZE
+CONTROL_R3_INCIDENT_MANIFEST_SHA256 = r2_incident.R3_INCIDENT_MANIFEST_SHA256
+CONTROL_R3_INCIDENT_MANIFEST_SIZE = r2_incident.R3_INCIDENT_MANIFEST_SIZE
 LAST_KMSG_EXPERIMENT_ID = "last-kmsg-final"
 STOPHUD_MAX_ATTEMPTS = 3
 READ_SOURCE_MANIFEST_NAME = f"{READ_SOURCE_EXPERIMENT_ID}.manifest.json"
@@ -1161,6 +1167,9 @@ def _validate_source_control_binding(value: object, label: str) -> None:
         "r2_incident_manifest_sha256": CONTROL_R2_INCIDENT_MANIFEST_SHA256,
         "r2_incident_manifest_size": CONTROL_R2_INCIDENT_MANIFEST_SIZE,
         "r2_zero_effect_validated": True,
+        "r3_incident_manifest_sha256": CONTROL_R3_INCIDENT_MANIFEST_SHA256,
+        "r3_incident_manifest_size": CONTROL_R3_INCIDENT_MANIFEST_SIZE,
+        "r3_zero_op_restored_validated": True,
     }
     for key, expected_value in expected.items():
         if type(value.get(key)) is not type(expected_value) or value.get(key) != expected_value:
@@ -1224,6 +1233,9 @@ _SOURCE_CONTROL_BINDING_PROJECTION_KEYS = (
     "r2_incident_manifest_sha256",
     "r2_incident_manifest_size",
     "r2_zero_effect_validated",
+    "r3_incident_manifest_sha256",
+    "r3_incident_manifest_size",
+    "r3_zero_op_restored_validated",
     "current_boot_attestation",
     "boot_id_before_read_sha256",
     "fixed_op_measurement",
@@ -1239,8 +1251,8 @@ def _validate_source_control_projection(
 
     The inline producer emits a compact control projection in the public read
     receipt and a complete summary in each private read record.  Compare the
-    exact fields consumed here, including the R2 reconciliation identity, so a
-    stale or type-confused public projection cannot authorize last-kmsg.
+    exact fields consumed here, including the R2/R3 reconciliation identities,
+    so a stale or type-confused public projection cannot authorize last-kmsg.
     """
 
     if not isinstance(public, Mapping) or not isinstance(private, Mapping):
@@ -1454,6 +1466,9 @@ def _validate_source_read(
         "r2_incident_manifest_sha256": CONTROL_R2_INCIDENT_MANIFEST_SHA256,
         "r2_incident_manifest_size": CONTROL_R2_INCIDENT_MANIFEST_SIZE,
         "r2_zero_effect_validated": True,
+        "r3_incident_manifest_sha256": CONTROL_R3_INCIDENT_MANIFEST_SHA256,
+        "r3_incident_manifest_size": CONTROL_R3_INCIDENT_MANIFEST_SIZE,
+        "r3_zero_op_restored_validated": True,
         "cleanup_ok": False,
     }.items():
         if type(manifest.get(key)) is not type(expected) or manifest.get(key) != expected:
@@ -1658,11 +1673,14 @@ def _validate_source_read(
             "r2_incident_manifest_sha256": CONTROL_R2_INCIDENT_MANIFEST_SHA256,
             "r2_incident_manifest_size": CONTROL_R2_INCIDENT_MANIFEST_SIZE,
             "r2_zero_effect_validated": True,
+            "r3_incident_manifest_sha256": CONTROL_R3_INCIDENT_MANIFEST_SHA256,
+            "r3_incident_manifest_size": CONTROL_R3_INCIDENT_MANIFEST_SIZE,
+            "r3_zero_op_restored_validated": True,
         }.items():
             actual = owner.get(key)
             if type(actual) is not type(expected) or actual != expected:
                 raise ValueError(
-                    f"{owner_label} R2 reconciliation projection {key!r} differs"
+                    f"{owner_label} reconciliation projection {key!r} differs"
                 )
     _validate_source_panic_frames(journal.get("frames"), "read source journal")
     raw_boot_id = raw.get("boot_id_before_read")
