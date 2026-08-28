@@ -143,16 +143,17 @@ READ_SOURCE_JOURNAL_NAME = f"{READ_SOURCE_EXPERIMENT_ID}.journal.json"
 # the fixed final-chain producer slots.  Callers may patch REPO_ROOT for an
 # isolated host fixture, but may not mint another evidence namespace or swap
 # an arbitrary producer path into this chain.
-# R2 and R3 were consumed by preflight-only incidents and are retained as
-# fixed, read-only incident checkpoints.  R4 is the only executable control
+# R2, R3, and R4 were consumed by preflight-only incidents and are retained as
+# fixed, read-only incident checkpoints.  R5 is the only executable control
 # owner; the original control ID remains the historical predecessor.
-CONTROL_EXPERIMENT_ID = "verification-024-control-r4"
+CONTROL_EXPERIMENT_ID = "verification-024-control-r5"
 CONTROL_R2_EXPERIMENT_ID = "verification-024-control-r2"
 CONTROL_R3_EXPERIMENT_ID = "verification-024-control-r3"
+CONTROL_R4_EXPERIMENT_ID = "verification-024-control-r4"
 CONTROL_PREDECESSOR_EXPERIMENT_ID = "verification-024-control"
 CONTROL_MANIFEST_NAME = f"{CONTROL_EXPERIMENT_ID}.manifest.json"
-CONTROL_R4_PRECLAIM_SCHEMA = "sdm855-a90-inline-remapper-mid-journal-v1"
-CONTROL_R4_PRECLAIM_STATUS = "PREDECESSOR_VALIDATION_PENDING"
+CONTROL_R5_PRECLAIM_SCHEMA = "sdm855-a90-inline-remapper-mid-journal-v1"
+CONTROL_R5_PRECLAIM_STATUS = "PREDECESSOR_VALIDATION_PENDING"
 CONTROL_R2_PREDECESSOR_CAPSULE_SCHEMA = (
     "sdm855-a90-v024-control-predecessor-final-capsule-v1"
 )
@@ -160,23 +161,29 @@ CONTROL_R2_PREDECESSOR_CAPSULE_SHA256 = (
     "56d233030e1c970b486721b21293a91a154bdc5ebe0ae811b36473457648df15"
 )
 CONTROL_R2_PREDECESSOR_CAPSULE_SIZE = 4924
-CONTROL_R4_HISTORICAL_PINS_POLICY = (
-    "historical_predecessor_capsule_bound; current_r4_source_provenance_required_before_live"
+CONTROL_R5_HISTORICAL_PINS_POLICY = (
+    "historical_predecessor_capsule_bound; current_r5_source_provenance_required_before_live"
 )
 # Compatibility names are kept for host fixtures and historical callers. They
-# alias the active R4 preclaim values and do not make either consumed ID valid.
-CONTROL_R3_PRECLAIM_SCHEMA = CONTROL_R4_PRECLAIM_SCHEMA
-CONTROL_R3_PRECLAIM_STATUS = CONTROL_R4_PRECLAIM_STATUS
-CONTROL_R3_HISTORICAL_PINS_POLICY = CONTROL_R4_HISTORICAL_PINS_POLICY
-CONTROL_R2_PRECLAIM_SCHEMA = CONTROL_R4_PRECLAIM_SCHEMA
-CONTROL_R2_PRECLAIM_STATUS = CONTROL_R4_PRECLAIM_STATUS
-CONTROL_R2_HISTORICAL_PINS_POLICY = CONTROL_R4_HISTORICAL_PINS_POLICY
+# alias the active R5 preclaim values and do not make any consumed ID valid.
+CONTROL_R4_PRECLAIM_SCHEMA = CONTROL_R5_PRECLAIM_SCHEMA
+CONTROL_R4_PRECLAIM_STATUS = CONTROL_R5_PRECLAIM_STATUS
+CONTROL_R4_HISTORICAL_PINS_POLICY = CONTROL_R5_HISTORICAL_PINS_POLICY
+CONTROL_R3_PRECLAIM_SCHEMA = CONTROL_R5_PRECLAIM_SCHEMA
+CONTROL_R3_PRECLAIM_STATUS = CONTROL_R5_PRECLAIM_STATUS
+CONTROL_R3_HISTORICAL_PINS_POLICY = CONTROL_R5_HISTORICAL_PINS_POLICY
+CONTROL_R2_PRECLAIM_SCHEMA = CONTROL_R5_PRECLAIM_SCHEMA
+CONTROL_R2_PRECLAIM_STATUS = CONTROL_R5_PRECLAIM_STATUS
+CONTROL_R2_HISTORICAL_PINS_POLICY = CONTROL_R5_HISTORICAL_PINS_POLICY
 CONTROL_R2_INCIDENT_MANIFEST_SHA256 = r2_incident.INCIDENT_MANIFEST_SHA256
 CONTROL_R2_INCIDENT_MANIFEST_SIZE = r2_incident.INCIDENT_MANIFEST_SIZE
 CONTROL_R2_INCIDENT_VALIDATION_SCHEMA = r2_incident.VALIDATION_SCHEMA
 CONTROL_R3_INCIDENT_MANIFEST_SHA256 = r2_incident.R3_INCIDENT_MANIFEST_SHA256
 CONTROL_R3_INCIDENT_MANIFEST_SIZE = r2_incident.R3_INCIDENT_MANIFEST_SIZE
 CONTROL_R3_INCIDENT_VALIDATION_SCHEMA = r2_incident.R3_VALIDATION_SCHEMA
+CONTROL_R4_INCIDENT_MANIFEST_SHA256 = r2_incident.R4_INCIDENT_MANIFEST_SHA256
+CONTROL_R4_INCIDENT_MANIFEST_SIZE = r2_incident.R4_INCIDENT_MANIFEST_SIZE
+CONTROL_R4_INCIDENT_VALIDATION_SCHEMA = r2_incident.R4_VALIDATION_SCHEMA
 LAST_KMSG_EXPERIMENT_ID = "last-kmsg-final"
 LAST_KMSG_MANIFEST_NAME = f"{LAST_KMSG_EXPERIMENT_ID}.manifest.json"
 STOPHUD_MAX_ATTEMPTS = 3
@@ -943,6 +950,41 @@ def _validate_current_boot_attestation(
 
     if not isinstance(value, Mapping):
         raise FinalizeError(f"{label} current_boot_attestation is missing")
+    public_keys = frozenset(
+        {
+            "sysfs_root",
+            "block_node",
+            "bs",
+            "count",
+            "expected_size",
+            "captured_size",
+            "expected_sha256",
+            "captured_sha256",
+            "sectors",
+            "ro",
+            "hash_matches_candidate",
+            "size_matches_candidate",
+            "cleanup_ok",
+            "sysfs_uevent",
+            "stat",
+        }
+    )
+    private_keys = public_keys | frozenset(
+        {
+            "attest_file",
+            "attest_node",
+            "binding_events",
+            "binding_failure",
+            "cleanup_error",
+            "pre_cleanup_error",
+        }
+    )
+    expected_keys = private_keys if require_paths else public_keys
+    if frozenset(value) != expected_keys:
+        kind = "private" if require_paths else "public"
+        raise FinalizeError(
+            f"{label} current_boot_attestation {kind} fields are not exact"
+        )
     uevent = _validate_boot_uevent_mapping(
         value.get("sysfs_uevent"), f"{label} current boot"
     )
@@ -974,6 +1016,8 @@ def _validate_current_boot_attestation(
     stat_value = value.get("stat")
     if not isinstance(stat_value, Mapping):
         raise FinalizeError(f"{label} current_boot_attestation stat is missing")
+    if set(stat_value) != {"mode", "uid", "gid", "size", "rdev"}:
+        raise FinalizeError(f"{label} current boot stat fields are not exact")
     for key, expected_value in {
         "mode": "0600",
         "uid": "0",
@@ -982,10 +1026,12 @@ def _validate_current_boot_attestation(
         "rdev": f"{uevent['MAJOR']}:{uevent['MINOR']}",
     }.items():
         _require(stat_value, key, expected_value, f"{label} current boot stat")
-    if require_paths and ("cleanup_error" not in value or value.get("cleanup_error") is not None):
-        raise FinalizeError(f"{label} current boot cleanup has an error")
-    if not require_paths and "cleanup_error" in value and value.get("cleanup_error") is not None:
-        raise FinalizeError(f"{label} current boot cleanup has an error")
+    if require_paths:
+        _require(value, "binding_failure", False, label)
+        _require(value, "pre_cleanup_error", None, label)
+        _require(value, "cleanup_error", None, label)
+        if not isinstance(value.get("binding_events"), list):
+            raise FinalizeError(f"{label} current boot binding events are not a list")
     return value
 
 
@@ -2355,7 +2401,8 @@ def _validate_r3_incident_summary(
     The checkpoint module owns the file/hash/schema proof.  This additional
     projection check keeps a test seam or future validator revision from
     turning a generic zero-effect summary into the R3 reconciliation record
-    consumed by the active R4 control owner.
+    retained by the consumed R4 checkpoint and carried into the active R5
+    control owner.
     """
 
     if type(summary) is not dict:
@@ -2364,7 +2411,7 @@ def _validate_r3_incident_summary(
         "schema": CONTROL_R3_INCIDENT_VALIDATION_SCHEMA,
         "status": "VALIDATED_CONSUMED_ZERO_OP_RESTORED_STATE",
         "experiment_id": CONTROL_R3_EXPERIMENT_ID,
-        "next_registered_id": CONTROL_EXPERIMENT_ID,
+        "next_registered_id": CONTROL_R4_EXPERIMENT_ID,
         "classification": "CLASS_C_UNCHANGED",
         "security_boundary_result": "UNKNOWN_NOT_REACHED",
         "consumed_checkpoint": True,
@@ -2412,19 +2459,100 @@ def _validate_r3_incident_summary(
     return summary
 
 
+def _validate_r4_incident_summary(
+    summary: object,
+    label: str = "control r4 incident",
+) -> dict[str, object]:
+    """Require the fixed consumed-R4 returned-result incident summary."""
+
+    if type(summary) is not dict:
+        raise FinalizeError(f"{label} validator returned a non-object")
+    for key, expected in {
+        "schema": CONTROL_R4_INCIDENT_VALIDATION_SCHEMA,
+        "status": "VALIDATED_CONSUMED_RETURNED_FRAMING_INCIDENT",
+        "experiment_id": CONTROL_R4_EXPERIMENT_ID,
+        "next_registered_id": CONTROL_EXPERIMENT_ID,
+        "classification": "CLASS_C_UNCHANGED",
+        "security_boundary_result": "UNKNOWN_NOT_REACHED",
+        "consumed_checkpoint": True,
+    }.items():
+        _require(summary, key, expected, label)
+
+    incident_facts = summary.get("incident_facts")
+    expected_incident_facts = {
+        "fixed_op_dispatch_count": 1,
+        "fixed_op_returned": True,
+        "effect_dispatched": True,
+        "effect_ambiguous": False,
+        "effect_replayed": False,
+        "partition_writes": False,
+        "memory_or_mmio_writes": False,
+        "controller_writes": False,
+        "protected_memory_read": False,
+        "smc": False,
+        "panic_before": 1,
+        "panic_after_recovery": 1,
+        "panic_restore_verified": True,
+        "semantic_claim_retained": True,
+    }
+    if type(incident_facts) is not dict or set(incident_facts) != set(expected_incident_facts):
+        raise FinalizeError(f"{label} incident-facts keys are not exact")
+    for key, expected in expected_incident_facts.items():
+        _require(incident_facts, key, expected, f"{label} incident-facts")
+
+    exact_sections: tuple[tuple[str, Mapping[str, object]], ...] = (
+        ("source", r2_incident.R4_SOURCE_PINS),
+        ("target", r2_incident.R4_TARGET_PINS),
+        (
+            "post_incident_readonly_health",
+            r2_incident.R4_POST_INCIDENT_READONLY_HEALTH_PINS,
+        ),
+        ("panic_transition", r2_incident.R4_PANIC_TRANSITION_PINS),
+        ("fixed_op", r2_incident.R4_FIXED_OP_PINS),
+        ("parser_incident", r2_incident.R4_PARSER_INCIDENT_PINS),
+    )
+    for key, expected in exact_sections:
+        actual = summary.get(key)
+        if type(actual) is not dict or actual != dict(expected):
+            raise FinalizeError(f"{label} {key} projection is not exact")
+    fixed_op = summary["fixed_op"]
+    assert isinstance(fixed_op, dict)
+    if fixed_op.get("result_grade") != "RETURNED_SENTINEL_CANDIDATE_NOT_CONTROL_PASS":
+        raise FinalizeError(f"{label} result grade is not exact NOT_CONTROL_PASS")
+
+    expected_artifacts = {
+        role: dict(descriptor)
+        for role, descriptor in r2_incident.R4_ARTIFACT_PINS.items()
+    }
+    artifacts = summary.get("artifact_descriptors")
+    if type(artifacts) is not dict or artifacts != expected_artifacts:
+        raise FinalizeError(f"{label} artifact descriptors are not exact")
+
+    checkpoint = summary.get("checkpoint")
+    expected_checkpoint = {
+        "sha256": CONTROL_R4_INCIDENT_MANIFEST_SHA256,
+        "size_bytes": CONTROL_R4_INCIDENT_MANIFEST_SIZE,
+    }
+    if type(checkpoint) is not dict or set(checkpoint) != set(expected_checkpoint):
+        raise FinalizeError(f"{label} checkpoint descriptor is not exact")
+    for key, expected in expected_checkpoint.items():
+        _require(checkpoint, key, expected, label)
+    return summary
+
+
 def _validate_control_predecessors(
     journal: Mapping[str, object],
     label: str = "control journal",
     *,
     root: Path | None = None,
-) -> tuple[str, int, dict[str, object], dict[str, object]]:
-    """Validate historical, consumed-R2, consumed-R3, and active-R4 bindings.
+) -> tuple[str, int, dict[str, object], dict[str, object], dict[str, object]]:
+    """Validate historical, consumed-R2/R3/R4, and active-R5 bindings.
 
-    R2 and R3 are consumed checkpoints, never executable fallbacks.  The R4
-    producer durably records the exact preclaim, keeps the legacy R2 capsule
-    section and R3 reconciliation, and adds an R4 reconciliation containing
-    the canonical R3 incident summary.  Rebuilding every source here closes
-    semantic, path, and serialization substitution gaps.
+    R2, R3, and R4 are consumed checkpoints, never executable fallbacks.  The
+    R5 producer durably records the exact preclaim, keeps the legacy R2 capsule
+    section and R3/R4 reconciliation sections, and adds the R5 reconciliation
+    containing the canonical R4 incident summary.  Rebuilding every source
+    here closes semantic, path, and serialization substitution gaps.
     """
 
     section = journal.get("control_r2_predecessor")
@@ -2482,12 +2610,12 @@ def _validate_control_predecessors(
     _require(section, "capsule_size", capsule_size, label)
 
     try:
-        preclaim = inline_probe._control_r4_preclaim()
+        preclaim = inline_probe._control_r5_preclaim()
         preclaim_bytes = inline_probe.json_bytes(preclaim)
     except BaseException as exc:
-        raise FinalizeError("control r4 predecessor preclaim cannot be rebuilt") from exc
+        raise FinalizeError("control r5 predecessor preclaim cannot be rebuilt") from exc
     if type(preclaim) is not dict or type(preclaim_bytes) is not bytes:
-        raise FinalizeError("control r4 predecessor preclaim is not exact")
+        raise FinalizeError("control r5 predecessor preclaim is not exact")
     if set(preclaim) != {
         "schema",
         "status",
@@ -2495,40 +2623,44 @@ def _validate_control_predecessors(
         "predecessor_experiment_id",
         "consumed_r2_experiment_id",
         "consumed_r3_experiment_id",
+        "consumed_r4_experiment_id",
         "mode",
         "replay_safe",
         "predecessor_capsule",
         "r2_incident",
         "r3_incident",
+        "r4_incident",
     } | set(CONTROL_SAFETY_EFFECT_FIELDS):
-        raise FinalizeError("control r4 preclaim fields are not exact")
-    if preclaim.get("schema") != CONTROL_R4_PRECLAIM_SCHEMA:
-        raise FinalizeError("control r4 preclaim schema differs")
-    if preclaim.get("status") != CONTROL_R4_PRECLAIM_STATUS:
-        raise FinalizeError("control r4 preclaim status differs")
+        raise FinalizeError("control r5 preclaim fields are not exact")
+    if preclaim.get("schema") != CONTROL_R5_PRECLAIM_SCHEMA:
+        raise FinalizeError("control r5 preclaim schema differs")
+    if preclaim.get("status") != CONTROL_R5_PRECLAIM_STATUS:
+        raise FinalizeError("control r5 preclaim status differs")
     if preclaim.get("experiment_id") != CONTROL_EXPERIMENT_ID:
-        raise FinalizeError("control r4 preclaim active ID differs")
+        raise FinalizeError("control r5 preclaim active ID differs")
     if preclaim.get("predecessor_experiment_id") != CONTROL_PREDECESSOR_EXPERIMENT_ID:
-        raise FinalizeError("control r4 preclaim historical ID differs")
+        raise FinalizeError("control r5 preclaim historical ID differs")
     if preclaim.get("consumed_r2_experiment_id") != CONTROL_R2_EXPERIMENT_ID:
-        raise FinalizeError("control r4 preclaim consumed R2 ID differs")
+        raise FinalizeError("control r5 preclaim consumed R2 ID differs")
     if preclaim.get("consumed_r3_experiment_id") != CONTROL_R3_EXPERIMENT_ID:
-        raise FinalizeError("control r4 preclaim consumed R3 ID differs")
+        raise FinalizeError("control r5 preclaim consumed R3 ID differs")
+    if preclaim.get("consumed_r4_experiment_id") != CONTROL_R4_EXPERIMENT_ID:
+        raise FinalizeError("control r5 preclaim consumed R4 ID differs")
     if preclaim.get("mode") != "control" or preclaim.get("replay_safe") is not False:
-        raise FinalizeError("control r4 preclaim replay policy differs")
+        raise FinalizeError("control r5 preclaim replay policy differs")
     for field in CONTROL_SAFETY_EFFECT_FIELDS:
-        _require(preclaim, field, False, "control r4 preclaim")
+        _require(preclaim, field, False, "control r5 preclaim")
     expected_predecessor = {
         "schema": CONTROL_R2_PREDECESSOR_CAPSULE_SCHEMA,
         "sha256": CONTROL_R2_PREDECESSOR_CAPSULE_SHA256,
         "size": CONTROL_R2_PREDECESSOR_CAPSULE_SIZE,
-        "historical_pins_policy": CONTROL_R4_HISTORICAL_PINS_POLICY,
+        "historical_pins_policy": CONTROL_R5_HISTORICAL_PINS_POLICY,
     }
     predecessor_descriptor = preclaim.get("predecessor_capsule")
     if type(predecessor_descriptor) is not dict or set(predecessor_descriptor) != set(expected_predecessor):
-        raise FinalizeError("control r4 preclaim capsule fields are not exact")
+        raise FinalizeError("control r5 preclaim capsule fields are not exact")
     if predecessor_descriptor != expected_predecessor:
-        raise FinalizeError("control r4 preclaim capsule descriptor differs")
+        raise FinalizeError("control r5 preclaim capsule descriptor differs")
     expected_r2_descriptor = {
         "schema": CONTROL_R2_INCIDENT_VALIDATION_SCHEMA,
         "sha256": CONTROL_R2_INCIDENT_MANIFEST_SHA256,
@@ -2536,9 +2668,9 @@ def _validate_control_predecessors(
     }
     r2_descriptor = preclaim.get("r2_incident")
     if type(r2_descriptor) is not dict or set(r2_descriptor) != set(expected_r2_descriptor):
-        raise FinalizeError("control r4 preclaim R2 incident fields are not exact")
+        raise FinalizeError("control r5 preclaim R2 incident fields are not exact")
     if r2_descriptor != expected_r2_descriptor:
-        raise FinalizeError("control r4 preclaim R2 incident descriptor differs")
+        raise FinalizeError("control r5 preclaim R2 incident descriptor differs")
     expected_r3_descriptor = {
         "schema": CONTROL_R3_INCIDENT_VALIDATION_SCHEMA,
         "sha256": CONTROL_R3_INCIDENT_MANIFEST_SHA256,
@@ -2546,9 +2678,19 @@ def _validate_control_predecessors(
     }
     r3_descriptor = preclaim.get("r3_incident")
     if type(r3_descriptor) is not dict or set(r3_descriptor) != set(expected_r3_descriptor):
-        raise FinalizeError("control r4 preclaim R3 incident fields are not exact")
+        raise FinalizeError("control r5 preclaim R3 incident fields are not exact")
     if r3_descriptor != expected_r3_descriptor:
-        raise FinalizeError("control r4 preclaim R3 incident descriptor differs")
+        raise FinalizeError("control r5 preclaim R3 incident descriptor differs")
+    expected_r4_descriptor = {
+        "schema": CONTROL_R4_INCIDENT_VALIDATION_SCHEMA,
+        "sha256": CONTROL_R4_INCIDENT_MANIFEST_SHA256,
+        "size": CONTROL_R4_INCIDENT_MANIFEST_SIZE,
+    }
+    r4_descriptor = preclaim.get("r4_incident")
+    if type(r4_descriptor) is not dict or set(r4_descriptor) != set(expected_r4_descriptor):
+        raise FinalizeError("control r5 preclaim R4 incident fields are not exact")
+    if r4_descriptor != expected_r4_descriptor:
+        raise FinalizeError("control r5 preclaim R4 incident descriptor differs")
     preclaim_sha256 = hashlib.sha256(preclaim_bytes).hexdigest()
     _require(section, "preclaim_sha256", preclaim_sha256, label)
     _require(section, "preclaim_size", len(preclaim_bytes), label)
@@ -2600,7 +2742,36 @@ def _validate_control_predecessors(
         raise FinalizeError("control r4 reconciliation summary is not canonical") from exc
     if retained_r3_bytes != expected_r3_bytes:
         raise FinalizeError("control r4 reconciliation R3 summary differs")
-    return capsule_sha256, capsule_size, r2_incident_summary, r3_incident_summary
+
+    r4_reconciliation = journal.get("control_r5_reconciliation")
+    if not isinstance(r4_reconciliation, dict):
+        raise FinalizeError(f"{label} r5 reconciliation section is missing")
+    if set(r4_reconciliation) != {"preclaim_sha256", "preclaim_size", "r4_incident"}:
+        raise FinalizeError(f"{label} r5 reconciliation fields are not exact")
+    _require(r4_reconciliation, "preclaim_sha256", preclaim_sha256, label)
+    _require(r4_reconciliation, "preclaim_size", len(preclaim_bytes), label)
+    try:
+        r4_incident_summary = r2_incident.validate_r4_incident(incident_root)
+    except BaseException as exc:
+        raise FinalizeError("control r4 incident checkpoint cannot be validated") from exc
+    r4_incident_summary = _validate_r4_incident_summary(r4_incident_summary)
+    retained_r4_summary = r4_reconciliation.get("r4_incident")
+    if type(retained_r4_summary) is not dict:
+        raise FinalizeError("control r5 reconciliation R4 summary is missing")
+    try:
+        expected_r4_bytes = inline_probe.json_bytes(r4_incident_summary)
+        retained_r4_bytes = inline_probe.json_bytes(retained_r4_summary)
+    except BaseException as exc:
+        raise FinalizeError("control r5 reconciliation summary is not canonical") from exc
+    if retained_r4_bytes != expected_r4_bytes:
+        raise FinalizeError("control r5 reconciliation R4 summary differs")
+    return (
+        capsule_sha256,
+        capsule_size,
+        r2_incident_summary,
+        r3_incident_summary,
+        r4_incident_summary,
+    )
 
 
 def _validate_control_r2_predecessor(
@@ -2611,7 +2782,7 @@ def _validate_control_r2_predecessor(
 ) -> tuple[str, int, dict[str, object]]:
     """Compatibility wrapper retaining the historical helper name."""
 
-    capsule_sha256, capsule_size, r2_summary, _r3_summary = _validate_control_predecessors(
+    capsule_sha256, capsule_size, r2_summary, _r3_summary, _r4_summary = _validate_control_predecessors(
         journal, label, root=root
     )
     return capsule_sha256, capsule_size, r2_summary
@@ -2720,6 +2891,9 @@ def validate_control(path: Path, root: Path) -> dict[str, object]:
         "r3_incident_manifest_sha256": CONTROL_R3_INCIDENT_MANIFEST_SHA256,
         "r3_incident_manifest_size": CONTROL_R3_INCIDENT_MANIFEST_SIZE,
         "r3_zero_op_restored_validated": True,
+        "r4_incident_manifest_sha256": CONTROL_R4_INCIDENT_MANIFEST_SHA256,
+        "r4_incident_manifest_size": CONTROL_R4_INCIDENT_MANIFEST_SIZE,
+        "r4_returned_result_restored_validated": True,
     }.items():
         _require(manifest, key, value, "control manifest")
     manifest_attestation = _validate_current_boot_attestation(
@@ -2794,13 +2968,19 @@ def validate_control(path: Path, root: Path) -> dict[str, object]:
         predecessor_capsule_size,
         r2_incident_summary,
         r3_incident_summary,
+        r4_incident_summary,
     ) = _validate_control_predecessors(journal, root=root)
     _require(raw, "schema", "sdm855-a90-inline-remapper-mid-private-v1", "control raw")
+    _require(raw, "experiment_id", CONTROL_EXPERIMENT_ID, "control raw")
     _require(raw, "mode", "control", "control raw")
+    _require(journal, "experiment_id", CONTROL_EXPERIMENT_ID, "control journal")
+    _require(journal, "mode", "control", "control journal")
     for owner, owner_label in (
         (raw, "control raw"),
         (journal, "control journal"),
     ):
+        _require(owner, "experiment_id", CONTROL_EXPERIMENT_ID, owner_label)
+        _require(owner, "automatic_retries", False, owner_label)
         _require(
             owner,
             "r2_incident_manifest_sha256",
@@ -2827,6 +3007,19 @@ def validate_control(path: Path, root: Path) -> dict[str, object]:
             owner_label,
         )
         _require(owner, "r3_zero_op_restored_validated", True, owner_label)
+        _require(
+            owner,
+            "r4_incident_manifest_sha256",
+            CONTROL_R4_INCIDENT_MANIFEST_SHA256,
+            owner_label,
+        )
+        _require(
+            owner,
+            "r4_incident_manifest_size",
+            CONTROL_R4_INCIDENT_MANIFEST_SIZE,
+            owner_label,
+        )
+        _require(owner, "r4_returned_result_restored_validated", True, owner_label)
     _require_hash(raw.get("candidate_sha256"), CONTROL_SHA256, "control raw candidate")
     _require_size(raw.get("candidate_size"), BOOT_PREFIX_SIZE, "control raw candidate")
     raw_flash = raw.get("flash_journal")
@@ -3012,9 +3205,28 @@ def validate_control(path: Path, root: Path) -> dict[str, object]:
         _require(journal, key, value, "control journal")
     _require(journal, "value", "0x000000000000c071", "control journal")
     _require(raw, "value", "0x000000000000c071", "control raw")
-    completed = _utc(manifest.get("completed_utc"), "control manifest")
-    if _utc(raw.get("completed_utc"), "control raw") != completed or _utc(journal.get("completed_utc"), "control journal") != completed:
-        raise FinalizeError("control completion times are not hash-bound")
+    started_value = manifest.get("started_utc")
+    started = _utc(started_value, "control manifest started")
+    for owner, owner_label in (
+        (raw, "control raw"),
+        (journal, "control journal"),
+    ):
+        owner_started_value = owner.get("started_utc")
+        owner_started = _utc(owner_started_value, f"{owner_label} started")
+        if owner_started_value != started_value or owner_started != started:
+            raise FinalizeError("control start times are not hash-bound")
+    completed_value = manifest.get("completed_utc")
+    completed = _utc(completed_value, "control manifest")
+    if started > completed:
+        raise FinalizeError("control started after completion")
+    for owner, owner_label in (
+        (raw, "control raw"),
+        (journal, "control journal"),
+    ):
+        owner_completed_value = owner.get("completed_utc")
+        owner_completed = _utc(owner_completed_value, owner_label)
+        if owner_completed_value != completed_value or owner_completed != completed:
+            raise FinalizeError("control completion times are not hash-bound")
     return {
         "kind": "control",
         "experiment_id": _experiment_id(manifest, "control manifest"),
@@ -3047,6 +3259,9 @@ def validate_control(path: Path, root: Path) -> dict[str, object]:
         "r3_incident_manifest_sha256": CONTROL_R3_INCIDENT_MANIFEST_SHA256,
         "r3_incident_manifest_size": CONTROL_R3_INCIDENT_MANIFEST_SIZE,
         "r3_zero_op_restored_validated": True,
+        "r4_incident_manifest_sha256": CONTROL_R4_INCIDENT_MANIFEST_SHA256,
+        "r4_incident_manifest_size": CONTROL_R4_INCIDENT_MANIFEST_SIZE,
+        "r4_returned_result_restored_validated": True,
         "raw_path": str(raw_path),
         "journal_path": str(journal_path),
     }
@@ -3121,6 +3336,9 @@ def validate_read(path: Path, root: Path, control: Mapping[str, object]) -> dict
         "r3_incident_manifest_sha256": CONTROL_R3_INCIDENT_MANIFEST_SHA256,
         "r3_incident_manifest_size": CONTROL_R3_INCIDENT_MANIFEST_SIZE,
         "r3_zero_op_restored_validated": True,
+        "r4_incident_manifest_sha256": CONTROL_R4_INCIDENT_MANIFEST_SHA256,
+        "r4_incident_manifest_size": CONTROL_R4_INCIDENT_MANIFEST_SIZE,
+        "r4_returned_result_restored_validated": True,
     }.items():
         _require(manifest, key, value, "read manifest")
     read_attestation = _validate_current_boot_attestation(
@@ -3153,6 +3371,9 @@ def validate_read(path: Path, root: Path, control: Mapping[str, object]) -> dict
         "r3_incident_manifest_sha256": CONTROL_R3_INCIDENT_MANIFEST_SHA256,
         "r3_incident_manifest_size": CONTROL_R3_INCIDENT_MANIFEST_SIZE,
         "r3_zero_op_restored_validated": True,
+        "r4_incident_manifest_sha256": CONTROL_R4_INCIDENT_MANIFEST_SHA256,
+        "r4_incident_manifest_size": CONTROL_R4_INCIDENT_MANIFEST_SIZE,
+        "r4_returned_result_restored_validated": True,
     }.items():
         _require(binding, key, expected, "read control binding")
     for key, expected in {
@@ -3164,6 +3385,9 @@ def validate_read(path: Path, root: Path, control: Mapping[str, object]) -> dict
         "r3_incident_manifest_sha256": CONTROL_R3_INCIDENT_MANIFEST_SHA256,
         "r3_incident_manifest_size": CONTROL_R3_INCIDENT_MANIFEST_SIZE,
         "r3_zero_op_restored_validated": True,
+        "r4_incident_manifest_sha256": CONTROL_R4_INCIDENT_MANIFEST_SHA256,
+        "r4_incident_manifest_size": CONTROL_R4_INCIDENT_MANIFEST_SIZE,
+        "r4_returned_result_restored_validated": True,
     }.items():
         _require(control, key, expected, "validated control receipt")
     _validate_current_boot_attestation(
@@ -3177,7 +3401,7 @@ def validate_read(path: Path, root: Path, control: Mapping[str, object]) -> dict
         "0x000000000000c071",
         "read control binding fixed-op",
     )
-    for key in ("candidate_sha256", "candidate_size", "value", "completed_utc", "manifest_sha256", "manifest_size", "raw_sha256", "raw_size", "journal_sha256", "journal_size", "current_boot_attestation", "boot_id_before_read_sha256", "fixed_op_measurement", "r2_incident_manifest_sha256", "r2_incident_manifest_size", "r2_zero_effect_validated", "r3_incident_manifest_sha256", "r3_incident_manifest_size", "r3_zero_op_restored_validated"):
+    for key in ("candidate_sha256", "candidate_size", "value", "completed_utc", "manifest_sha256", "manifest_size", "raw_sha256", "raw_size", "journal_sha256", "journal_size", "current_boot_attestation", "boot_id_before_read_sha256", "fixed_op_measurement", "r2_incident_manifest_sha256", "r2_incident_manifest_size", "r2_zero_effect_validated", "r3_incident_manifest_sha256", "r3_incident_manifest_size", "r3_zero_op_restored_validated", "r4_incident_manifest_sha256", "r4_incident_manifest_size", "r4_returned_result_restored_validated"):
         if binding.get(key) != control.get(key) and not (key == "candidate_sha256" and binding.get(key) == CONTROL_SHA256):
             raise FinalizeError(f"read control binding field {key!r} differs")
     value_present = manifest.get("returned_value_present") is True
@@ -3267,6 +3491,9 @@ def validate_read(path: Path, root: Path, control: Mapping[str, object]) -> dict
             "r3_incident_manifest_sha256": CONTROL_R3_INCIDENT_MANIFEST_SHA256,
             "r3_incident_manifest_size": CONTROL_R3_INCIDENT_MANIFEST_SIZE,
             "r3_zero_op_restored_validated": True,
+            "r4_incident_manifest_sha256": CONTROL_R4_INCIDENT_MANIFEST_SHA256,
+            "r4_incident_manifest_size": CONTROL_R4_INCIDENT_MANIFEST_SIZE,
+            "r4_returned_result_restored_validated": True,
         }.items():
             _require(owner, key, expected, label)
     for owner, label in ((raw, "read raw"), (journal, "read journal")):
@@ -3277,9 +3504,12 @@ def validate_read(path: Path, root: Path, control: Mapping[str, object]) -> dict
             "r3_incident_manifest_sha256": CONTROL_R3_INCIDENT_MANIFEST_SHA256,
             "r3_incident_manifest_size": CONTROL_R3_INCIDENT_MANIFEST_SIZE,
             "r3_zero_op_restored_validated": True,
+            "r4_incident_manifest_sha256": CONTROL_R4_INCIDENT_MANIFEST_SHA256,
+            "r4_incident_manifest_size": CONTROL_R4_INCIDENT_MANIFEST_SIZE,
+            "r4_returned_result_restored_validated": True,
         }.items():
             _require(owner, key, expected, label)
-    for key in ("experiment_id", "manifest_sha256", "manifest_size", "raw_sha256", "raw_size", "journal_sha256", "journal_size", "completed_utc", "candidate_sha256", "candidate_size", "value", "predecessor_capsule_sha256", "predecessor_capsule_size", "r2_incident_manifest_sha256", "r2_incident_manifest_size", "r2_zero_effect_validated", "r3_incident_manifest_sha256", "r3_incident_manifest_size", "r3_zero_op_restored_validated"):
+    for key in ("experiment_id", "manifest_sha256", "manifest_size", "raw_sha256", "raw_size", "journal_sha256", "journal_size", "completed_utc", "candidate_sha256", "candidate_size", "value", "predecessor_capsule_sha256", "predecessor_capsule_size", "r2_incident_manifest_sha256", "r2_incident_manifest_size", "r2_zero_effect_validated", "r3_incident_manifest_sha256", "r3_incident_manifest_size", "r3_zero_op_restored_validated", "r4_incident_manifest_sha256", "r4_incident_manifest_size", "r4_returned_result_restored_validated"):
         if type(raw_control.get(key)) is not type(control.get(key)) or raw_control.get(key) != control.get(key):
             raise FinalizeError(f"read raw control binding field {key!r} differs")
     _require_hash(raw.get("candidate_sha256"), READ_SHA256, "read raw candidate")
@@ -3634,6 +3864,9 @@ def validate_read(path: Path, root: Path, control: Mapping[str, object]) -> dict
         "r3_incident_manifest_sha256": CONTROL_R3_INCIDENT_MANIFEST_SHA256,
         "r3_incident_manifest_size": CONTROL_R3_INCIDENT_MANIFEST_SIZE,
         "r3_zero_op_restored_validated": True,
+        "r4_incident_manifest_sha256": CONTROL_R4_INCIDENT_MANIFEST_SHA256,
+        "r4_incident_manifest_size": CONTROL_R4_INCIDENT_MANIFEST_SIZE,
+        "r4_returned_result_restored_validated": True,
     }
 
 

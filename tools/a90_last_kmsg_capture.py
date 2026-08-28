@@ -152,12 +152,13 @@ MAX_TIMEOUT_SEC = 120.0
 LAST_KMSG_REFERENCE_SIZE = 2_097_136
 MAX_SOURCE_RECEIPT_BYTES = 512 * 1024
 READ_SOURCE_EXPERIMENT_ID = "verification-024-read"
-# R2 and R3 are immutable consumed checkpoints.  The read consumer binds only
-# the active R4 control receipt; a source receipt carrying either consumed
-# execution ID is rejected by the exact binding check below.
-CONTROL_EXPERIMENT_ID = "verification-024-control-r4"
+# R2, R3, and R4 are immutable consumed checkpoints.  The read consumer binds
+# only the successful R5 control receipt; a source receipt carrying any
+# consumed execution ID is rejected by the exact binding check below.
+CONTROL_EXPERIMENT_ID = "verification-024-control-r5"
 CONTROL_R2_EXPERIMENT_ID = "verification-024-control-r2"
 CONTROL_R3_EXPERIMENT_ID = "verification-024-control-r3"
+CONTROL_R4_EXPERIMENT_ID = "verification-024-control-r4"
 CONTROL_R2_PREDECESSOR_CAPSULE_SHA256 = (
     "56d233030e1c970b486721b21293a91a154bdc5ebe0ae811b36473457648df15"
 )
@@ -166,6 +167,36 @@ CONTROL_R2_INCIDENT_MANIFEST_SHA256 = r2_incident.INCIDENT_MANIFEST_SHA256
 CONTROL_R2_INCIDENT_MANIFEST_SIZE = r2_incident.INCIDENT_MANIFEST_SIZE
 CONTROL_R3_INCIDENT_MANIFEST_SHA256 = r2_incident.R3_INCIDENT_MANIFEST_SHA256
 CONTROL_R3_INCIDENT_MANIFEST_SIZE = r2_incident.R3_INCIDENT_MANIFEST_SIZE
+CONTROL_R4_INCIDENT_MANIFEST_SHA256 = r2_incident.R4_INCIDENT_MANIFEST_SHA256
+CONTROL_R4_INCIDENT_MANIFEST_SIZE = r2_incident.R4_INCIDENT_MANIFEST_SIZE
+CONTROL_R5_MANIFEST_NAME = "verification-024-control-r5.manifest.json"
+CONTROL_R5_RAW_NAME = "verification-024-control-r5.json"
+CONTROL_R5_JOURNAL_NAME = "verification-024-control-r5.journal.json"
+# These are the exact public/private receipt bytes emitted by the successful
+# R5 control finalizer.  They are source provenance, not live READ authority.
+CONTROL_R5_MANIFEST_SHA256 = (
+    "8995bc212182d425d06cdad1f6944b4f1a05bd9d938324e3bff91e34554ec78d"
+)
+CONTROL_R5_MANIFEST_SIZE = 5645
+CONTROL_R5_RAW_SHA256 = (
+    "495fbde638593eb4cb19474f2771d80fc206d1e10dd2beed5d563cb1b312bb43"
+)
+CONTROL_R5_RAW_SIZE = 90529
+CONTROL_R5_JOURNAL_SHA256 = (
+    "7d2c479e48826a2b0e59ed5fc3e6385ff5721f7da9fa50c28494f6b2c57648d2"
+)
+CONTROL_R5_JOURNAL_SIZE = 114705
+CONTROL_R5_COMPLETED_UTC = "2026-08-28T11:21:20+00:00"
+CONTROL_R5_BOOT_ID_BEFORE_READ_SHA256 = (
+    "f81294792c8d6c0fd5ba3692b8b9c569773f6516368e7210c29c3b57d44b5a81"
+)
+CONTROL_R5_SEMANTIC_CLAIM_SHA256 = (
+    "791c211d8414f73b4297d6cccee7eac344d9922a6787596ed552ecd29b8faff8"
+)
+CONTROL_R5_SEMANTIC_CLAIM_SIZE = 512
+CONTROL_R5_SEMANTIC_CLAIM_KEY_SHA256 = (
+    "082e94c70867fff7c2b750831afae703f27af76a1f3e1bbc0cf2b141d874c3b0"
+)
 LAST_KMSG_EXPERIMENT_ID = "last-kmsg-final"
 STOPHUD_MAX_ATTEMPTS = 3
 READ_SOURCE_MANIFEST_NAME = f"{READ_SOURCE_EXPERIMENT_ID}.manifest.json"
@@ -194,6 +225,92 @@ TRANSPORT_NO_VALUE_EVIDENCE_KEYS = frozenset(
         "partial_evidence_present",
         "a90r_present",
         "bounded",
+    }
+)
+_SOURCE_CONTROL_BINDING_KEYS = frozenset(
+    {
+        "experiment_id",
+        "manifest_sha256",
+        "manifest_size",
+        "raw_sha256",
+        "raw_size",
+        "journal_sha256",
+        "journal_size",
+        "completed_utc",
+        "mode",
+        "value",
+        "candidate_sha256",
+        "candidate_size",
+        "target_dmid",
+        "current_boot_attestation",
+        "boot_id_before_read_sha256",
+        "fixed_op_measurement",
+        "semantic_claim_sha256",
+        "semantic_claim_size",
+        "semantic_claim_key_sha256",
+        "predecessor_capsule_sha256",
+        "predecessor_capsule_size",
+        "r2_incident_manifest_sha256",
+        "r2_incident_manifest_size",
+        "r2_zero_effect_validated",
+        "r3_incident_manifest_sha256",
+        "r3_incident_manifest_size",
+        "r3_zero_op_restored_validated",
+        "r4_incident_manifest_sha256",
+        "r4_incident_manifest_size",
+        "r4_returned_result_restored_validated",
+    }
+)
+# The public read manifest carries only the compact projection above.  The
+# producer stores the complete ``verify_control_manifest`` result in each
+# private raw/journal record; keep that shape closed as well so private-only
+# fields cannot be silently dropped or replaced with aliases.
+_SOURCE_CONTROL_FULL_KEYS = _SOURCE_CONTROL_BINDING_KEYS | frozenset(
+    {
+        "manifest_path",
+        "raw_path",
+        "journal_path",
+        "memory_or_mmio_writes",
+        "controller_writes",
+        "smc",
+        "protected_memory_read",
+        "partition_writes",
+        "reboot_dispatched",
+        "target_model",
+        "target_device",
+    }
+)
+_CONTROL_ATTESTATION_KEYS = frozenset(
+    {
+        "block_node",
+        "bs",
+        "captured_sha256",
+        "captured_size",
+        "cleanup_ok",
+        "count",
+        "expected_sha256",
+        "expected_size",
+        "hash_matches_candidate",
+        "ro",
+        "sectors",
+        "size_matches_candidate",
+        "stat",
+        "sysfs_root",
+        "sysfs_uevent",
+    }
+)
+_CONTROL_FIXED_OP_MEASUREMENT_KEYS = frozenset(
+    {
+        "a90r_record",
+        "args",
+        "argv",
+        "buffer_sha256",
+        "buffer_size",
+        "magic",
+        "op",
+        "rc",
+        "status",
+        "value",
     }
 )
 BOOT_ID_PATH = "/proc/sys/kernel/random/boot_id"
@@ -1153,15 +1270,40 @@ def _validate_source_transition(value: object, label: str) -> None:
         raise ValueError(f"{label} panic transition proof is not exact")
 
 
-def _validate_source_control_binding(value: object, label: str) -> None:
+def _validate_source_control_binding(
+    value: object,
+    label: str,
+    *,
+    root: Path | None = None,
+) -> None:
+    """Validate the fixed R5 public projection or private producer result."""
+
     if not isinstance(value, Mapping):
         raise ValueError(f"{label} control receipt binding is missing")
+    value_keys = set(value)
+    is_public = value_keys == _SOURCE_CONTROL_BINDING_KEYS
+    is_private = value_keys == _SOURCE_CONTROL_FULL_KEYS
+    if not is_public and not is_private:
+        raise ValueError(f"{label} control binding fields are not the exact R5 result set")
+
     expected = {
+        "experiment_id": CONTROL_EXPERIMENT_ID,
+        "manifest_sha256": CONTROL_R5_MANIFEST_SHA256,
+        "manifest_size": CONTROL_R5_MANIFEST_SIZE,
+        "raw_sha256": CONTROL_R5_RAW_SHA256,
+        "raw_size": CONTROL_R5_RAW_SIZE,
+        "journal_sha256": CONTROL_R5_JOURNAL_SHA256,
+        "journal_size": CONTROL_R5_JOURNAL_SIZE,
+        "completed_utc": CONTROL_R5_COMPLETED_UTC,
         "mode": "control",
+        "value": "0x000000000000c071",
         "candidate_sha256": CONTROL_CANDIDATE_SHA256,
         "candidate_size": BOOT_PREFIX_SIZE,
-        "value": "0x000000000000c071",
         "target_dmid": "SM-A908N/SM8150",
+        "boot_id_before_read_sha256": CONTROL_R5_BOOT_ID_BEFORE_READ_SHA256,
+        "semantic_claim_sha256": CONTROL_R5_SEMANTIC_CLAIM_SHA256,
+        "semantic_claim_size": CONTROL_R5_SEMANTIC_CLAIM_SIZE,
+        "semantic_claim_key_sha256": CONTROL_R5_SEMANTIC_CLAIM_KEY_SHA256,
         "predecessor_capsule_sha256": CONTROL_R2_PREDECESSOR_CAPSULE_SHA256,
         "predecessor_capsule_size": CONTROL_R2_PREDECESSOR_CAPSULE_SIZE,
         "r2_incident_manifest_sha256": CONTROL_R2_INCIDENT_MANIFEST_SHA256,
@@ -1170,38 +1312,66 @@ def _validate_source_control_binding(value: object, label: str) -> None:
         "r3_incident_manifest_sha256": CONTROL_R3_INCIDENT_MANIFEST_SHA256,
         "r3_incident_manifest_size": CONTROL_R3_INCIDENT_MANIFEST_SIZE,
         "r3_zero_op_restored_validated": True,
+        "r4_incident_manifest_sha256": CONTROL_R4_INCIDENT_MANIFEST_SHA256,
+        "r4_incident_manifest_size": CONTROL_R4_INCIDENT_MANIFEST_SIZE,
+        "r4_returned_result_restored_validated": True,
     }
+    if is_private:
+        evidence_root = (REPO_ROOT if root is None else Path(root)).resolve()
+        expected.update(
+            {
+                "manifest_path": str(
+                    evidence_root
+                    / "evidence"
+                    / "manifests"
+                    / CONTROL_R5_MANIFEST_NAME
+                ),
+                "raw_path": str(
+                    evidence_root
+                    / "evidence"
+                    / "private"
+                    / CONTROL_R5_RAW_NAME
+                ),
+                "journal_path": str(
+                    evidence_root
+                    / "evidence"
+                    / "private"
+                    / CONTROL_R5_JOURNAL_NAME
+                ),
+                "memory_or_mmio_writes": False,
+                "controller_writes": False,
+                "smc": False,
+                "protected_memory_read": False,
+                "partition_writes": False,
+                "reboot_dispatched": False,
+                "target_model": "SM-A908N",
+                "target_device": "r3q",
+            }
+        )
     for key, expected_value in expected.items():
-        if type(value.get(key)) is not type(expected_value) or value.get(key) != expected_value:
+        actual = value.get(key)
+        if type(actual) is not type(expected_value) or actual != expected_value:
             raise ValueError(f"{label} control binding field {key!r} is not exact")
-    experiment_id = value.get("experiment_id")
-    if experiment_id != CONTROL_EXPERIMENT_ID:
-        raise ValueError(f"{label} control binding experiment_id is not exact")
-    for key in ("manifest_sha256", "raw_sha256", "journal_sha256", "boot_id_before_read_sha256"):
-        digest = value.get(key)
-        if not isinstance(digest, str) or re.fullmatch(r"[0-9a-f]{64}", digest) is None:
-            raise ValueError(f"{label} control binding {key!r} is malformed")
-    for key in ("manifest_size", "raw_size", "journal_size"):
-        size = value.get(key)
-        if type(size) is not int or size <= 0 or size > MAX_SOURCE_RECEIPT_BYTES:
-            raise ValueError(f"{label} control binding {key!r} is malformed")
-    completion = value.get("completed_utc")
-    if not isinstance(completion, str) or re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{6})?\+00:00", completion) is None:
-        raise ValueError(f"{label} control binding completion is malformed")
+
+    attestation = value.get("current_boot_attestation")
+    if not isinstance(attestation, Mapping) or set(attestation) != _CONTROL_ATTESTATION_KEYS:
+        raise ValueError(f"{label} control current-boot attestation fields are not exact")
     _fixed_attestation(
-        value.get("current_boot_attestation"),
+        attestation,
         CONTROL_CANDIDATE_SHA256,
         f"{label} control current boot",
         require_paths=False,
     )
+
     measurement = value.get("fixed_op_measurement")
     if not isinstance(measurement, Mapping):
         raise ValueError(f"{label} control fixed-op measurement is missing")
-    if measurement.get("argv") != list(_fixed_op_argv_full()):
-        raise ValueError(f"{label} control fixed-op measurement argv is not exact")
-    for key, expected_value in {
+    if set(measurement) != _CONTROL_FIXED_OP_MEASUREMENT_KEYS:
+        raise ValueError(f"{label} control fixed-op measurement fields are not exact")
+    expected_measurement = {
         "op": 4,
         "args": [],
+        "argv": list(_fixed_op_argv_full()),
         "buffer_size": FIXED_OP_BUFFER_SIZE,
         "buffer_sha256": _fixed_op_buffer_hash(),
         "magic": "0xa90c0de5deadbeef",
@@ -1209,36 +1379,15 @@ def _validate_source_control_binding(value: object, label: str) -> None:
         "status": "ok",
         "value": "0x000000000000c071",
         "a90r_record": "A90Rc071",
-    }.items():
-        if measurement.get(key) != expected_value:
+    }
+    for key, expected_value in expected_measurement.items():
+        actual = measurement.get(key)
+        if type(actual) is not type(expected_value) or actual != expected_value:
             raise ValueError(f"{label} control fixed-op measurement {key!r} is not exact")
 
 
-_SOURCE_CONTROL_BINDING_PROJECTION_KEYS = (
-    "experiment_id",
-    "mode",
-    "manifest_sha256",
-    "manifest_size",
-    "raw_sha256",
-    "raw_size",
-    "journal_sha256",
-    "journal_size",
-    "completed_utc",
-    "candidate_sha256",
-    "candidate_size",
-    "value",
-    "target_dmid",
-    "predecessor_capsule_sha256",
-    "predecessor_capsule_size",
-    "r2_incident_manifest_sha256",
-    "r2_incident_manifest_size",
-    "r2_zero_effect_validated",
-    "r3_incident_manifest_sha256",
-    "r3_incident_manifest_size",
-    "r3_zero_op_restored_validated",
-    "current_boot_attestation",
-    "boot_id_before_read_sha256",
-    "fixed_op_measurement",
+_SOURCE_CONTROL_BINDING_PROJECTION_KEYS = tuple(
+    sorted(_SOURCE_CONTROL_BINDING_KEYS)
 )
 
 
@@ -1251,7 +1400,7 @@ def _validate_source_control_projection(
 
     The inline producer emits a compact control projection in the public read
     receipt and a complete summary in each private read record.  Compare the
-    exact fields consumed here, including the R2/R3 reconciliation identities,
+    exact fields consumed here, including the R2/R3/R4 reconciliation identities,
     so a stale or type-confused public projection cannot authorize last-kmsg.
     """
 
@@ -1469,6 +1618,9 @@ def _validate_source_read(
         "r3_incident_manifest_sha256": CONTROL_R3_INCIDENT_MANIFEST_SHA256,
         "r3_incident_manifest_size": CONTROL_R3_INCIDENT_MANIFEST_SIZE,
         "r3_zero_op_restored_validated": True,
+        "r4_incident_manifest_sha256": CONTROL_R4_INCIDENT_MANIFEST_SHA256,
+        "r4_incident_manifest_size": CONTROL_R4_INCIDENT_MANIFEST_SIZE,
+        "r4_returned_result_restored_validated": True,
         "cleanup_ok": False,
     }.items():
         if type(manifest.get(key)) is not type(expected) or manifest.get(key) != expected:
@@ -1482,7 +1634,9 @@ def _validate_source_read(
     _validate_source_fixed_op(manifest.get("fixed_op"), "read source manifest", terminal=True)
     _validate_source_transition(manifest.get("panic_transition"), "read source manifest")
     _validate_source_control_binding(
-        manifest.get("control_manifest"), "read source manifest"
+        manifest.get("control_manifest"),
+        "read source manifest",
+        root=root,
     )
     source_id = manifest.get("experiment_id")
     private_record = manifest.get("private_record")
@@ -1493,7 +1647,11 @@ def _validate_source_read(
     if raw.get("schema") != "sdm855-a90-inline-remapper-mid-private-v1" or raw.get("experiment_id") != source_id or raw.get("mode") != "read":
         raise ValueError("read source raw schema/experiment is not exact")
     _validate_source_target(raw.get("target"), "read source raw")
-    _validate_source_control_binding(raw.get("control_manifest"), "read source raw")
+    _validate_source_control_binding(
+        raw.get("control_manifest"),
+        "read source raw",
+        root=root,
+    )
     _validate_source_control_projection(
         manifest.get("control_manifest"),
         raw.get("control_manifest"),
@@ -1656,7 +1814,11 @@ def _validate_source_read(
     if journal_attestation.get("captured_sha256") != raw_attestation.get("captured_sha256"):
         raise ValueError("read source journal current boot attestation differs")
     _validate_source_transition(journal.get("panic_transition"), "read source journal")
-    _validate_source_control_binding(journal.get("control_manifest"), "read source journal")
+    _validate_source_control_binding(
+        journal.get("control_manifest"),
+        "read source journal",
+        root=root,
+    )
     _validate_source_control_projection(
         manifest.get("control_manifest"),
         journal.get("control_manifest"),
@@ -1676,6 +1838,9 @@ def _validate_source_read(
             "r3_incident_manifest_sha256": CONTROL_R3_INCIDENT_MANIFEST_SHA256,
             "r3_incident_manifest_size": CONTROL_R3_INCIDENT_MANIFEST_SIZE,
             "r3_zero_op_restored_validated": True,
+            "r4_incident_manifest_sha256": CONTROL_R4_INCIDENT_MANIFEST_SHA256,
+            "r4_incident_manifest_size": CONTROL_R4_INCIDENT_MANIFEST_SIZE,
+            "r4_returned_result_restored_validated": True,
         }.items():
             actual = owner.get(key)
             if type(actual) is not type(expected) or actual != expected:

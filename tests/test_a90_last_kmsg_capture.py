@@ -261,20 +261,44 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
             "begin": {"cmd": "run", "seq": "1", "argc": "5", "flags": "0x2"},
             "end": None,
         }
+        control_attestation = {
+            key: value for key, value in attestation.items() if key != "cleanup_error"
+        }
         control_binding = {
             "experiment_id": capture.CONTROL_EXPERIMENT_ID,
+            "manifest_sha256": capture.CONTROL_R5_MANIFEST_SHA256,
+            "manifest_size": capture.CONTROL_R5_MANIFEST_SIZE,
+            "raw_sha256": capture.CONTROL_R5_RAW_SHA256,
+            "raw_size": capture.CONTROL_R5_RAW_SIZE,
+            "journal_sha256": capture.CONTROL_R5_JOURNAL_SHA256,
+            "journal_size": capture.CONTROL_R5_JOURNAL_SIZE,
+            "completed_utc": capture.CONTROL_R5_COMPLETED_UTC,
             "mode": "control",
-            "manifest_sha256": "a" * 64,
-            "manifest_size": 100,
-            "raw_sha256": "b" * 64,
-            "raw_size": 101,
-            "journal_sha256": "c" * 64,
-            "journal_size": 102,
-            "completed_utc": "2026-08-26T23:59:00+00:00",
+            "value": "0x000000000000c071",
             "candidate_sha256": capture.CONTROL_CANDIDATE_SHA256,
             "candidate_size": capture.BOOT_PREFIX_SIZE,
-            "value": "0x000000000000c071",
             "target_dmid": "SM-A908N/SM8150",
+            "current_boot_attestation": {
+                **control_attestation,
+                "expected_sha256": capture.CONTROL_CANDIDATE_SHA256,
+                "captured_sha256": capture.CONTROL_CANDIDATE_SHA256,
+            },
+            "boot_id_before_read_sha256": capture.CONTROL_R5_BOOT_ID_BEFORE_READ_SHA256,
+            "fixed_op_measurement": {
+                "argv": list(probe.fixed_op_argv()),
+                "op": 4,
+                "args": [],
+                "buffer_size": capture.FIXED_OP_BUFFER_SIZE,
+                "buffer_sha256": capture._fixed_op_buffer_hash(),
+                "magic": "0xa90c0de5deadbeef",
+                "rc": 0,
+                "status": "ok",
+                "value": "0x000000000000c071",
+                "a90r_record": "A90Rc071",
+            },
+            "semantic_claim_sha256": capture.CONTROL_R5_SEMANTIC_CLAIM_SHA256,
+            "semantic_claim_size": capture.CONTROL_R5_SEMANTIC_CLAIM_SIZE,
+            "semantic_claim_key_sha256": capture.CONTROL_R5_SEMANTIC_CLAIM_KEY_SHA256,
             "predecessor_capsule_sha256": capture.CONTROL_R2_PREDECESSOR_CAPSULE_SHA256,
             "predecessor_capsule_size": capture.CONTROL_R2_PREDECESSOR_CAPSULE_SIZE,
             "r2_incident_manifest_sha256": capture.CONTROL_R2_INCIDENT_MANIFEST_SHA256,
@@ -283,9 +307,29 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
             "r3_incident_manifest_sha256": capture.CONTROL_R3_INCIDENT_MANIFEST_SHA256,
             "r3_incident_manifest_size": capture.CONTROL_R3_INCIDENT_MANIFEST_SIZE,
             "r3_zero_op_restored_validated": True,
-            "current_boot_attestation": {**attestation, "expected_sha256": capture.CONTROL_CANDIDATE_SHA256, "captured_sha256": capture.CONTROL_CANDIDATE_SHA256},
-            "boot_id_before_read_sha256": boot_hash,
-        "fixed_op_measurement": {"argv": list(probe.fixed_op_argv()), "op": 4, "args": [], "buffer_size": capture.FIXED_OP_BUFFER_SIZE, "buffer_sha256": capture._fixed_op_buffer_hash(), "magic": "0xa90c0de5deadbeef", "rc": 0, "status": "ok", "value": "0x000000000000c071", "a90r_record": "A90Rc071"},
+            "r4_incident_manifest_sha256": capture.CONTROL_R4_INCIDENT_MANIFEST_SHA256,
+            "r4_incident_manifest_size": capture.CONTROL_R4_INCIDENT_MANIFEST_SIZE,
+            "r4_returned_result_restored_validated": True,
+        }
+        control_binding_full = {
+            **control_binding,
+            "manifest_path": str(
+                (manifests / capture.CONTROL_R5_MANIFEST_NAME).resolve()
+            ),
+            "raw_path": str(
+                (private / capture.CONTROL_R5_RAW_NAME).resolve()
+            ),
+            "journal_path": str(
+                (private / capture.CONTROL_R5_JOURNAL_NAME).resolve()
+            ),
+            "memory_or_mmio_writes": False,
+            "controller_writes": False,
+            "smc": False,
+            "protected_memory_read": False,
+            "partition_writes": False,
+            "reboot_dispatched": False,
+            "target_model": "SM-A908N",
+            "target_device": "r3q",
         }
         transition = {"before": 1, "zero_write_attempted": True, "zero_set": True, "zero_verified": True, "restore_write_attempted": False, "restored": False, "restore_deferred": True, "proof_frame_ids": ["panic_before", "panic_set_0", "panic_zero_verify"]}
         fixed_op = {"op": 4, "args": [], "buffer_size": capture.FIXED_OP_BUFFER_SIZE, "buffer_sha256": capture._fixed_op_buffer_hash(), "rc": None, "status": None, "value": None}
@@ -381,13 +425,16 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
             "candidate_size": capture.BOOT_PREFIX_SIZE,
             "target": {"model": "SM-A908N", "soc": "SM8150", "soc_id": "339", "runtime_version": "0.9.285", "runtime_build": "v2321-usb-clean-identity-rodata", "kernel": "Linux 4.14.190-25818860-abA908NKSU5EWA3 aarch64", "bootloader": "A908NKSU5EWA3", "debug_level": "0x494d", "force_upload": "0", "dump_sink": "0", "selftest_before": {"passed": 11, "warn": 1, "fail": 0, "duration": 43, "entries": 12}},
             "flash_journal": flash_binding,
-            "control_manifest": control_binding,
+            "control_manifest": control_binding_full,
             "r2_incident_manifest_sha256": capture.CONTROL_R2_INCIDENT_MANIFEST_SHA256,
             "r2_incident_manifest_size": capture.CONTROL_R2_INCIDENT_MANIFEST_SIZE,
             "r2_zero_effect_validated": True,
             "r3_incident_manifest_sha256": capture.CONTROL_R3_INCIDENT_MANIFEST_SHA256,
             "r3_incident_manifest_size": capture.CONTROL_R3_INCIDENT_MANIFEST_SIZE,
             "r3_zero_op_restored_validated": True,
+            "r4_incident_manifest_sha256": capture.CONTROL_R4_INCIDENT_MANIFEST_SHA256,
+            "r4_incident_manifest_size": capture.CONTROL_R4_INCIDENT_MANIFEST_SIZE,
+            "r4_returned_result_restored_validated": True,
             "current_boot_attestation": attestation_private,
             "boot_id_before_read": boot_id,
             "boot_id_before_read_sha256": boot_hash,
@@ -446,13 +493,16 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
             "boot_id_before_read_sha256": boot_hash,
             "fixed_op": journal_fixed_op,
             "flash_journal": flash_binding,
-            "control_manifest": control_binding,
+            "control_manifest": control_binding_full,
             "r2_incident_manifest_sha256": capture.CONTROL_R2_INCIDENT_MANIFEST_SHA256,
             "r2_incident_manifest_size": capture.CONTROL_R2_INCIDENT_MANIFEST_SIZE,
             "r2_zero_effect_validated": True,
             "r3_incident_manifest_sha256": capture.CONTROL_R3_INCIDENT_MANIFEST_SHA256,
             "r3_incident_manifest_size": capture.CONTROL_R3_INCIDENT_MANIFEST_SIZE,
             "r3_zero_op_restored_validated": True,
+            "r4_incident_manifest_sha256": capture.CONTROL_R4_INCIDENT_MANIFEST_SHA256,
+            "r4_incident_manifest_size": capture.CONTROL_R4_INCIDENT_MANIFEST_SIZE,
+            "r4_returned_result_restored_validated": True,
             "fixed_op_measurement": None,
             "error": error,
             "semantic_claim_path": str(claim_path),
@@ -505,6 +555,9 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
             "r3_incident_manifest_sha256": capture.CONTROL_R3_INCIDENT_MANIFEST_SHA256,
             "r3_incident_manifest_size": capture.CONTROL_R3_INCIDENT_MANIFEST_SIZE,
             "r3_zero_op_restored_validated": True,
+            "r4_incident_manifest_sha256": capture.CONTROL_R4_INCIDENT_MANIFEST_SHA256,
+            "r4_incident_manifest_size": capture.CONTROL_R4_INCIDENT_MANIFEST_SIZE,
+            "r4_returned_result_restored_validated": True,
             "current_boot_attestation": attestation,
             "boot_id_before_read_sha256": boot_hash,
             "panic_transition": transition,
@@ -701,6 +754,110 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
                 capture.collect(args)
         binding.assert_not_called()
 
+    def test_source_r5_control_binding_matches_finalizer_result_shape(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self._write_read_source(root)
+            manifest = json.loads(
+                (
+                    root
+                    / "evidence/manifests"
+                    / capture.READ_SOURCE_MANIFEST_NAME
+                ).read_text()
+            )
+            binding = manifest["control_manifest"]
+            self.assertEqual(set(binding), capture._SOURCE_CONTROL_BINDING_KEYS)
+            self.assertEqual(binding["mode"], "control")
+            self.assertEqual(binding["experiment_id"], "verification-024-control-r5")
+            self.assertEqual(binding["manifest_sha256"], capture.CONTROL_R5_MANIFEST_SHA256)
+            self.assertEqual(binding["raw_sha256"], capture.CONTROL_R5_RAW_SHA256)
+            self.assertEqual(binding["journal_sha256"], capture.CONTROL_R5_JOURNAL_SHA256)
+            self.assertEqual(
+                binding["r4_incident_manifest_sha256"],
+                capture.CONTROL_R4_INCIDENT_MANIFEST_SHA256,
+            )
+            raw = json.loads(
+                (
+                    root
+                    / "evidence/private"
+                    / capture.READ_SOURCE_RAW_NAME
+                ).read_text()
+            )
+            journal = json.loads(
+                (
+                    root
+                    / "evidence/private"
+                    / capture.READ_SOURCE_JOURNAL_NAME
+                ).read_text()
+            )
+            for owner in (raw, journal):
+                private_binding = owner["control_manifest"]
+                self.assertEqual(set(private_binding), capture._SOURCE_CONTROL_FULL_KEYS)
+                self.assertEqual(private_binding["target_model"], "SM-A908N")
+                self.assertEqual(private_binding["target_device"], "r3q")
+                for safety_field in (
+                    "memory_or_mmio_writes",
+                    "controller_writes",
+                    "smc",
+                    "protected_memory_read",
+                    "partition_writes",
+                    "reboot_dispatched",
+                ):
+                    self.assertIs(private_binding[safety_field], False)
+            self.assertEqual(
+                raw["control_manifest"], journal["control_manifest"]
+            )
+            self.assertEqual(
+                capture._validate_source_read(root)["experiment_id"],
+                capture.READ_SOURCE_EXPERIMENT_ID,
+            )
+
+    def test_source_private_control_paths_and_safety_effects_are_fixed(self) -> None:
+        cases = (
+            ("manifest_path", "/tmp/foreign-control.manifest.json"),
+            ("raw_path", "/tmp/foreign-control.json"),
+            ("journal_path", "/tmp/foreign-control.journal.json"),
+            ("target_model", "SM-S906N"),
+            ("target_device", "r4q"),
+            ("memory_or_mmio_writes", True),
+            ("controller_writes", True),
+            ("smc", True),
+            ("protected_memory_read", True),
+            ("partition_writes", True),
+            ("reboot_dispatched", True),
+        )
+        for key, replacement in cases:
+            with self.subTest(field=key), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                self._write_read_source(root)
+                private = root / "evidence/private"
+                manifests = root / "evidence/manifests"
+                raw_path = private / capture.READ_SOURCE_RAW_NAME
+                journal_path = private / capture.READ_SOURCE_JOURNAL_NAME
+                manifest_path = manifests / capture.READ_SOURCE_MANIFEST_NAME
+                raw = json.loads(raw_path.read_text())
+                journal = json.loads(journal_path.read_text())
+                manifest = json.loads(manifest_path.read_text())
+                raw["control_manifest"][key] = replacement
+                journal["control_manifest"][key] = replacement
+                raw_bytes = json.dumps(raw, sort_keys=True, separators=(",", ":")).encode()
+                journal_bytes = json.dumps(journal, sort_keys=True, separators=(",", ":")).encode()
+                raw_path.write_bytes(raw_bytes)
+                journal_path.write_bytes(journal_bytes)
+                manifest.update(
+                    {
+                        "raw_snapshot_sha256": capture.sha256(raw_bytes),
+                        "raw_snapshot_size": len(raw_bytes),
+                        "journal_sha256": capture.sha256(journal_bytes),
+                        "journal_size": len(journal_bytes),
+                    }
+                )
+                manifest_path.write_bytes(
+                    json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode()
+                )
+                with self.assertRaises(ValueError):
+                    capture._validate_source_read(root)
+
     def test_source_control_capsule_descriptor_is_required_and_exactly_typed(self) -> None:
         cases = (
             ("missing_hash", "predecessor_capsule_sha256", None),
@@ -709,6 +866,22 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
             ("bool_size", "predecessor_capsule_size", True),
             ("consumed_r2_id", "experiment_id", capture.CONTROL_R2_EXPERIMENT_ID),
             ("consumed_r3_id", "experiment_id", capture.CONTROL_R3_EXPERIMENT_ID),
+            ("consumed_r4_id", "experiment_id", capture.CONTROL_R4_EXPERIMENT_ID),
+            ("missing_mode", "mode", None),
+            ("wrong_mode", "mode", "read"),
+            ("wrong_manifest_hash", "manifest_sha256", "0" * 64),
+            ("wrong_raw_hash", "raw_sha256", "0" * 64),
+            ("wrong_journal_hash", "journal_sha256", "0" * 64),
+            ("float_manifest_size", "manifest_size", float(capture.CONTROL_R5_MANIFEST_SIZE)),
+            ("missing_raw_size", "raw_size", None),
+            ("missing_journal_size", "journal_size", None),
+            ("wrong_control_completion", "completed_utc", "2026-08-28T11:21:21+00:00"),
+            ("wrong_control_boot_hash", "boot_id_before_read_sha256", "0" * 64),
+            ("wrong_control_claim_hash", "semantic_claim_sha256", "0" * 64),
+            ("wrong_control_claim_key", "semantic_claim_key_sha256", "0" * 64),
+            ("wrong_control_value", "value", "0x000000000000c070"),
+            ("wrong_control_target", "target_dmid", "SM-S906N/SM8250"),
+            ("unexpected_control_path", "path", "/tmp/foreign-control.manifest.json"),
             ("missing_r2_incident_hash", "r2_incident_manifest_sha256", None),
             ("mutated_r2_incident_hash", "r2_incident_manifest_sha256", "0" * 64),
             ("float_r2_incident_size", "r2_incident_manifest_size", float(capture.CONTROL_R2_INCIDENT_MANIFEST_SIZE)),
@@ -721,6 +894,12 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
             ("missing_r3_incident_size", "r3_incident_manifest_size", None),
             ("false_r3_zero_op_restored", "r3_zero_op_restored_validated", False),
             ("missing_r3_zero_op_restored", "r3_zero_op_restored_validated", None),
+            ("missing_r4_incident_hash", "r4_incident_manifest_sha256", None),
+            ("mutated_r4_incident_hash", "r4_incident_manifest_sha256", "0" * 64),
+            ("float_r4_incident_size", "r4_incident_manifest_size", float(capture.CONTROL_R4_INCIDENT_MANIFEST_SIZE)),
+            ("missing_r4_incident_size", "r4_incident_manifest_size", None),
+            ("false_r4_restored", "r4_returned_result_restored_validated", False),
+            ("missing_r4_restored", "r4_returned_result_restored_validated", None),
         )
         for name, key, replacement in cases:
             with self.subTest(case=name), tempfile.TemporaryDirectory() as directory:

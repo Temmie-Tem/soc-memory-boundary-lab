@@ -112,6 +112,18 @@ class V024AuthorizerFrameContractTests(unittest.TestCase):
         destination.chmod(0o644)
         return destination
 
+    @staticmethod
+    def _install_r4_incident_manifest(root: Path) -> Path:
+        """Install exact committed R4 checkpoint bytes in an isolated root."""
+
+        relative = probe.r2_incident.R4_MANIFEST_RELATIVE_PATH
+        source = probe.r2_incident.REPO_ROOT / relative
+        destination = root / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(source.read_bytes())
+        destination.chmod(0o644)
+        return destination
+
     def _collect_control(self, root: Path) -> tuple[Path, Path, Path]:
         # Reuse the existing actual mocked collect path.  Calling the helper
         # on a fixture instance keeps all device-facing work replaced by its
@@ -137,6 +149,7 @@ class V024AuthorizerFrameContractTests(unittest.TestCase):
         self.assertTrue(journal_path.is_file())
         self._install_r2_incident_manifest(root)
         self._install_r3_incident_manifest(root)
+        self._install_r4_incident_manifest(root)
         return raw_path, manifest_path, journal_path
 
     @staticmethod
