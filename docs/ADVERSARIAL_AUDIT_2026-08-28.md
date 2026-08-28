@@ -705,14 +705,68 @@ or recommended by this audit; every proposed next step is read-only.
 
 ---
 
-*Prepared 2026-08-28 as an independent adversarial audit. All new results
-(§2.2, §2.3, §2.5, §6.1, §6.2) were derived host-only from the pinned TZ image
-(SHA-256 `a5e6c574e18e2e576a25df6274b20bdb142386811dfda6383f86d7b1b3c102ab`,
-4,194,304 bytes) and the retained `last_kmsg`
-(SHA-256 `fdceab48dc267dd74ec6c70edbec6b51ee13dcd8532cf8b121c4fe93b425c66e`,
-2,097,136 bytes), and the retained boot image's flattened device tree. The XPU
-region walk reproduces `verification-025/026` exactly. Regenerating tool:
+## Provenance and method
+
+### What produced this audit
+
+| | |
+|---|---|
+| Model | **Claude Opus 5** — exact model ID `claude-opus-5` |
+| Reasoning effort | **`xhigh`** — `modelSettings["claude-opus-5"].effortLevel` in `~/.claude/settings.json`, corroborated by `CLAUDE_EFFORT=xhigh` in the environment |
+| Extended thinking | enabled (`alwaysThinkingEnabled: true`) |
+| Harness | Claude Code CLI, single interactive session, 2026-08-28 |
+| Subagents | **none** — see the independence caveat below |
+| Role | independent adversarial verification of the concurrent Codex line |
+
+### Exact inputs
+
+Every new result in this document is derived host-only from these pinned
+artifacts. No device, MMIO, SMC or firmware write occurred at any point.
+
+| Artifact | SHA-256 | Size | Used for |
+|---|---|---:|---|
+| Repository state audited | commit `3715135` (*research: close V024 DMID refusal*) | — | the tree every claim is graded against |
+| TrustZone image `tz--sdd5.bin` | `a5e6c574e18e2e576a25df6274b20bdb142386811dfda6383f86d7b1b3c102ab` | 4,194,304 | §2.2 XPU regions, §2.5 SMC table, §6.1 allowlist |
+| `last_kmsg` at DMID | `fdceab48dc267dd74ec6c70edbec6b51ee13dcd8532cf8b121c4fe93b425c66e` | 2,097,136 | §2.2 watchdog pets, §2.3 EL2 record, §6.2 DCC |
+| Boot image `boot_linux_inline_remapper_read_v1.img` | `6fe92825702f304a067fc716c3814a63b2f4e76198a054de4c666cad55a462ed` | — | flattened device tree: DDRSS nodes, `wdt@17c10000`, `dcc_v2@10a2000`, GIC reg |
+
+The boot-image hash equals `read.candidate_sha256` in
+`evidence/manifests/007-inline-remapper-read-watchdog-20260825-01.manifest.json`,
+so the device tree read here is the same image the route-2 probe ran from.
+
+The XPU region walk reproduces `verification-025/026` exactly (109 address
+regions, both selector branches). Regenerating tool:
 `tools/sm8150_tz_smc_and_io_allowlist.py`; manifest:
-`evidence/manifests/audit-tz-smc-io-allowlist-20260828-01.manifest.json`
-(verified byte-identical on regeneration). No device, MMIO, SMC or firmware
-write occurred.*
+`evidence/manifests/audit-tz-smc-io-allowlist-20260828-01.manifest.json`,
+verified byte-identical on regeneration.
+
+### Independence caveat — read this before weighing §7
+
+The eight perspectives in §7 were run **inside one model context, sequentially,
+by one model**. They are not independent observers. Each pass could see
+everything the previous passes had concluded, and all eight share the same
+priors, the same reading of the evidence, and the same blind spots. Convergence
+among them is therefore **weak** evidence — it mostly measures internal
+consistency, not agreement between separate judgements.
+
+The same limitation applies to the audit as a whole. It was produced by a single
+model in a single session, and its most consequential findings (§2.1, §2.2) turn
+on interpretation rather than on arithmetic. Where this document says a claim is
+`REFUTED`, that verdict deserves an independent check by a different model or
+person against the same pinned artifacts above.
+
+A genuinely independent replication should start from commit `3715135` — the
+state this audit was written against, and the last commit before it — so that
+the replicating agent cannot read these conclusions before forming its own.
+
+### Repair recorded
+
+This provenance section was added after the fact. The original commit pinned the
+input artifacts by hash but **did not pin the repository state it audited**,
+which is exactly the binding this project requires everywhere else and the same
+class of omission the audit criticises in §2.5. It is recorded as a repair
+rather than silently amended.
+
+---
+
+*Prepared 2026-08-28 as an independent adversarial audit of the `CLASS C (TRANSFORM ONLY)` conclusion. Inputs, model, effort level and method limitations are pinned in the section above.*
