@@ -1,6 +1,6 @@
 # Verification 030 — A90 RBIN physical-allocation oracle
 
-Status: `PRE_REGISTERED / HOST GATE PASS / 30 FOCUSED TESTS PASS / INDEPENDENT HOSTILE PASS / NO LIVE EFFECT YET`
+Status: `PRE_REGISTERED / HOST GATE PASS / 30 FOCUSED + 2,027 FULL TESTS PASS / INDEPENDENT HOSTILE PASS / NO LIVE EFFECT YET`
 
 ## Question
 
@@ -207,7 +207,10 @@ by changing the CMA fixture to the exact Samsung source order
 `docs/VERIFICATION030_HOST_GATE_REVIEW_2026-08-29.md`.
 
 No `--execute`, bridge, USB, ADB, ACM, MMIO, allocation, or other device
-command was invoked during this host implementation pass.  Repository-wide
-validation remains an integration step at the canonical worktree because
-older tests bind ignored private fixtures and one V024 journal to that exact
-path; no full-suite PASS or live result is claimed here.
+command was invoked during this host implementation pass.  After fast-forward
+integration, the canonical worktree completed `python3 -m unittest discover
+-s tests` under `ulimit -v 4194304`: 2,027 tests passed with one skip in
+220.219 seconds.  Maximum RSS was 708,576 KiB and the run swapped zero times.
+The 8,997-byte private log hashes to
+`dd4d30735b1b5fba210a03bd0971d6f098a522ebd2fe16456e4eba99fcf6c427`.
+No live result is claimed here.

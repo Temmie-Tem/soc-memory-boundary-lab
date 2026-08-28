@@ -2,10 +2,10 @@
 
 ## Disposition
 
-`PASS_HOST_ONLY / LIVE_NOT_YET_EXECUTED / CLASS C UNCHANGED`.
+`PASS_HOST_INTEGRATED / LIVE_NOT_YET_EXECUTED / CLASS C UNCHANGED`.
 
-This review authorizes promotion of the fixed V030 implementation to `main`.
-It does not claim a repository-wide suite pass, a live allocation, a physical
+The fixed V030 implementation is promoted to `main` and passed the canonical
+repository-wide suite.  This does not claim a live allocation, a physical
 address result, aliasing, transform mutability, protected reach or bypass.
 
 ## Exact reviewed snapshot
@@ -63,6 +63,15 @@ private fixtures were absent.  After copying those fixtures and normalizing
 their local modes, a 2,007-test run had one remaining error because the V024
 flash journal is deliberately pinned to the canonical repository path.
 
-Therefore the only valid repository-wide run is a serial, memory-capped run
-from `/home/temmie/dev/soc-memory-boundary-lab` after fast-forward integration.
-Until that succeeds, this checkpoint remains `PASS_HOST_ONLY`.
+The valid repository-wide run was then made serially from
+`/home/temmie/dev/soc-memory-boundary-lab` under `ulimit -v 4194304`:
+
+- `Ran 2027 tests in 220.219s`
+- `OK (skipped=1)`
+- exit status 0;
+- maximum RSS 708,576 KiB;
+- zero swaps;
+- private log: 8,997 bytes, SHA-256
+  `dd4d30735b1b5fba210a03bd0971d6f098a522ebd2fe16456e4eba99fcf6c427`.
+
+This closes the host-integration gate.  V030 remains unexecuted on the device.
