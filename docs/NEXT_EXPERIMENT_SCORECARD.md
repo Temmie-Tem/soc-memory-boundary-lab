@@ -7,16 +7,25 @@ controller-write, protected-memory, or numbered Experiments 015/016 authority.
 Later moving-branch commits are evidence to repair, never moving-tip authority.
 
 The completed static-trace top row is 020L. The 020M/021/022 chain and the
-fresh 022R acquisition now establish the same model-level PA28 result with
-complete same-run provenance and without touching a controller. The next
-candidate must answer a different residual `UNKNOWN`; repeating 022R again has
-low information value. Verification 024 is selected because Verification 023
-substituted an SHRM address for the originally proposed remapper address, which
-has a distinct narrow XPU policy and remains untested at `DMID`.
+fresh 022R acquisition establish the same model-level PA28 result without
+touching a controller, but retain physical allocation placement as `UNKNOWN`.
+Verification 024 subsequently tested the exact remapper address at `DMID` and
+closed as `REFUSED_AT_MID`; it did not validate a successful MMIO load through
+the same inline instrument.
+
+Verification 030 is now selected.  The exact source contains allocation-local
+RBIN chunk tracepoints, and `cma:cma_alloc` provides same-run `(pfn,page)`
+calibration records.  This can close or sharply bound physical provenance
+without a boot transition.  The GICD read positive control remains next and is
+not superseded: it answers the orthogonal Route-2 instrument question.  Numeric
+ranks on older completed rows below are their historical selection ranks, not
+competitors to the current rows 0 and 1.
 
 | Rank | Experiment | Information target | Scope and gate | Status |
 |---:|---|---|---|---|
-| 0 | Verification 024 exact remapper page at DMID | Determine whether the exact `0x09248080` remapper page remains refused with dumps enabled, after a same-state map/unmap-only control. | Existing fixed no-load/read candidates; exact A90/TWRP/MID binding; one read dispatch; complete boot/param rollback; no MMIO write or protected-memory access. A returned value is an immediate disclosure stop. | `SELECTED / PRE_REGISTERED / HOST IMPLEMENTATION PENDING` |
+| 0 | Verification 030 RBIN physical-allocation oracle | Observe the complete allocation-local chunk list for one exact heap-30/320-MiB allocation and bind raw page pointers to PFNs with three same-run CMA affine calibration records. | Exact A90/V2321 binding; fixed self-scoped perf tracepoints; three tiny held `user_contig` calibration allocations plus one `camera_preview` allocation; no reboot, partition, MMIO, SMC, controller or protected-memory action. | `SELECTED / PRE_REGISTERED / HOST IMPLEMENTATION COMPLETE / 10 FOCUSED PASS / NO LIVE EFFECT` |
+| 1 | Verification 031 same-harness DC_NOC read ladder | Separate broken-instrument, hard-coded-return, clock/path and address-specific access-control explanations for V024 with a two-register GICD control, LLCC-PMU, MCCC, raw-bit-30-set LLCC and raw-bit-30-clear remapper reads; actor identity remains `UNKNOWN`. | Six fixed read-only addresses; tier 0 requires nonzero, distinct `GICD_TYPER`/`GICD_IIDR` values and IIDR Implementer `0x43b`; step 3 is `LLCC_COMMON_STATUS0 @ 0x0923000c` in a raw-bit-30-set `DC_NOC_BROADCAST_MPU` row, step 4 is `0x09248080` in the adjacent raw-bit-30-clear row; one boot candidate and exact V2321 rollback; no MMIO write. | `NEXT / NOT DROPPED / DESIGN COMPLETE` |
+| — | Verification 024 exact remapper page at DMID | Determine whether the exact `0x09248080` remapper page remains refused with dumps enabled, after a same-state map/unmap-only control. | Fixed no-load/read candidates; exact A90/TWRP/MID binding; one read dispatch; complete boot/param rollback; no MMIO write or protected-memory access. | `COMPLETED / REFUSED_AT_MID / CLASS C UNCHANGED` |
 | 1 | 020K barrier operand/target metadata inventory | Decode the operands, branch targets, addressing modes and immediate fields of the exact 020J barrier words without extending the caller trace, to separate control/prologue context from data-manipulation shape. | Host-only exact-XBL follow-up from 020J stop rows; strict family-specific operand/target decoders, raw hashes only, no path continuation and no device/MMIO/controller write. | `COMPLETED; 13/13 / CLASS C UNCHANGED` |
 | 2 | 1b known-aperture reachability checkpoint | Determine whether any exact identified transform aperture is demonstrably reachable from Normal World after the retained TZ/XPU/SMMU evidence, without inventing a new writer or mutating ownership. | Host-only reconciliation of the eight known remapper/BIMC candidates, TZ policy coverage, `/dev/mem` availability and prior fixed-EL1 failure; no SCM/XPU/SMMU mutation, no controller write and no protected-memory access. | `COMPLETED; BOUNDED STATIC COVERAGE / GLOBAL UNKNOWN / CLASS C UNCHANGED` |
 | 3 | 020J caller-context barrier/opcode inventory | Decode the first unsupported barriers in 020I caller windows to distinguish ordinary prologue/control forms from a remaining unknown path without extending runtime or controller claims. | Host-only exact-XBL follow-up from 020I stop VAs; strict opcode-family inventory only, no path continuation past the stop and no device/MMIO/controller write. | `COMPLETED; 12/12 / CLASS C UNCHANGED` |
