@@ -216,7 +216,9 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
             argv = capture._source_frame_argv(evidence_id)
             assert argv is not None
             payload = semantic_payloads.get(evidence_id, panic_payloads.get(evidence_id, b""))
-            if evidence_id in toybox_empty:
+            if evidence_id.startswith("stophud_"):
+                payload = b"autohud: stopped"
+            elif evidence_id in toybox_empty:
                 payload = b"run: pid=1, q/Ctrl-C cancels\n[exit 0]"
             elif evidence_id == "boot_attest_hash":
                 payload = (
@@ -531,7 +533,8 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
                 index = state["stophud"]
                 state["stophud"] += 1
                 rc, status = stop_results[min(index, len(stop_results) - 1)]
-                return FakeFrame(b"", "stophud", rc=rc, status=status)
+                payload = b"autohud: stopped" if rc == 0 and status == "ok" else b""
+                return FakeFrame(payload, "stophud", rc=rc, status=status)
             if command.evidence_id == "version_before":
                 return FakeFrame(_version(), "version")
             if command.evidence_id == "cmdline_before":
@@ -767,6 +770,62 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
                 )
             with self.assertRaises(ValueError):
                 capture._validate_source_frame_list([], "hostile zero stophud")
+
+    def test_source_stophud_evidence_size_bound_matches_shared_contract(self) -> None:
+        self.assertEqual(capture.STOPHUD_MAX_PAYLOAD_BYTES, 20)
+        self.assertEqual(capture.STOPHUD_MAX_TRANSCRIPT_BYTES, 4096)
+
+        def projection(frame: FakeFrame, transcript: bytes) -> dict[str, object]:
+            return {
+                "evidence_id": "stophud_1",
+                "argv": ["stophud"],
+                "begin": frame.begin,
+                "end": frame.end,
+                "payload_base64": base64.b64encode(frame.payload).decode("ascii"),
+                "payload_sha256": capture.sha256(frame.payload),
+                "payload_size": len(frame.payload),
+                "transcript_base64": base64.b64encode(transcript).decode("ascii"),
+                "transcript_sha256": capture.sha256(transcript),
+                "transcript_size": len(transcript),
+            }
+
+        base = FakeFrame(b"autohud: stopped", "stophud")
+        for target in (
+            capture.STOPHUD_MAX_TRANSCRIPT_BYTES - 1,
+            capture.STOPHUD_MAX_TRANSCRIPT_BYTES,
+        ):
+            with self.subTest(target=target):
+                frame = FakeFrame(b"autohud: stopped", "stophud")
+                prefix_size = target - len(frame.transcript)
+                transcript = b"x" * (prefix_size - 1) + b"\n" + frame.transcript
+                capture._validate_source_protocol_frame(
+                    projection(frame, transcript),
+                    "stophud_1",
+                    ("stophud",),
+                    "boundary stophud",
+                    expected_rc="0",
+                    expected_status="ok",
+                )
+
+        for transcript in (
+            b"x"
+            * (capture.STOPHUD_MAX_TRANSCRIPT_BYTES + 1 - len(base.transcript) - 1)
+            + b"\n"
+            + base.transcript,
+            base.transcript
+            + b"x" * (capture.STOPHUD_MAX_TRANSCRIPT_BYTES + 1 - len(base.transcript)),
+        ):
+            with self.subTest(transcript_size=len(transcript)):
+                frame = FakeFrame(b"autohud: stopped", "stophud")
+                with self.assertRaises(ValueError):
+                    capture._validate_source_protocol_frame(
+                        projection(frame, transcript),
+                        "stophud_1",
+                        ("stophud",),
+                        "oversized stophud",
+                        expected_rc="0",
+                        expected_status="ok",
+                    )
 
     def test_source_no_value_evidence_rejects_legacy_timeout(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

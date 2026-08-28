@@ -839,7 +839,9 @@ class Verification024FinalizerTests(unittest.TestCase):
                     records.append(fixed_frame(fixed["value"]))
                 else:
                     payload = semantic_payloads.get(evidence_id, panic_payloads.get(evidence_id, b""))
-                    if evidence_id in {"version_before", "cmdline_before", "soc_id_before", "selftest_before", "boot_id_before_read"}:
+                    if evidence_id.startswith("stophud_"):
+                        payload = b"autohud: stopped"
+                    elif evidence_id in {"version_before", "cmdline_before", "soc_id_before", "selftest_before", "boot_id_before_read"}:
                         pass
                     elif evidence_id in {"version_after", "cmdline_after", "soc_id_after", "selftest_after"}:
                         payload = semantic_payloads[evidence_id.replace("_after", "_before")]
@@ -1235,7 +1237,9 @@ class Verification024FinalizerTests(unittest.TestCase):
             last_record("last_kmsg", ("cat", "/proc/last_kmsg"), last_payloads[3]),
             last_record("selftest_after", ("selftest", "status"), last_payloads[4]),
         ]
-        stophud_frame = last_record("stophud_1", ("stophud",), b"")
+        stophud_frame = last_record(
+            "stophud_1", ("stophud",), b"autohud: stopped"
+        )
         stophud = {
             "accepted": True,
             "attempts": [{
@@ -1465,7 +1469,9 @@ class Verification024FinalizerTests(unittest.TestCase):
             "attempts": [{"attempt": 1, "rc": 0, "status": "ok", "evidence_id": "stophud_1", "payload_size": 0, "payload_sha256": finalizer.hashlib.sha256(b"").hexdigest(), "transcript_size": 6, "transcript_sha256": finalizer.hashlib.sha256(b"A90P1 ").hexdigest()}],
             "busy_retries": 0,
         }
-        stophud_frame = runtime_frame("stophud_1", ("stophud",), b"")
+        stophud_frame = runtime_frame(
+            "stophud_1", ("stophud",), b"autohud: stopped"
+        )
         # The shared stophud arbiter's accepted attempt points at this frame;
         # retain a complete protocol transcript for finalizer validation.
         runtime_raw["stophud"]["attempts"][0].update(
@@ -2174,6 +2180,88 @@ class Verification024FinalizerTests(unittest.TestCase):
                         f"hostile {mutation}",
                     )
 
+    def test_finalizer_stophud_evidence_size_bound_matches_shared_contract(self) -> None:
+        self.assertEqual(finalizer.STOPHUD_MAX_PAYLOAD_BYTES, 20)
+        self.assertEqual(finalizer.STOPHUD_MAX_TRANSCRIPT_BYTES, 4096)
+
+        def make_frame(payload: bytes, transcript: bytes) -> dict[str, object]:
+            return {
+                "evidence_id": "stophud_1",
+                "argv": ["stophud"],
+                "begin": {
+                    "cmd": "stophud",
+                    "seq": "1",
+                    "argc": "1",
+                    "flags": "0x8",
+                },
+                "end": {
+                    "cmd": "stophud",
+                    "seq": "1",
+                    "rc": "0",
+                    "errno": "0",
+                    "duration_ms": "0",
+                    "flags": "0x8",
+                    "status": "ok",
+                },
+                "payload_base64": base64.b64encode(payload).decode("ascii"),
+                "payload_sha256": finalizer.hashlib.sha256(payload).hexdigest(),
+                "payload_size": len(payload),
+                "transcript_base64": base64.b64encode(transcript).decode("ascii"),
+                "transcript_sha256": finalizer.hashlib.sha256(transcript).hexdigest(),
+                "transcript_size": len(transcript),
+            }
+
+        def transcript_for(payload: bytes) -> bytes:
+            return (
+                b"A90P1 BEGIN seq=1 cmd=stophud argc=1 flags=0x8\n"
+                + payload
+                + b"\n[done] stophud (0ms)\n"
+                b"A90P1 END seq=1 cmd=stophud rc=0 errno=0 duration_ms=0 "
+                b"flags=0x8 status=ok\n"
+            )
+
+        payload = b"autohud: not running"
+        base = transcript_for(payload)
+        for target in (
+            finalizer.STOPHUD_MAX_TRANSCRIPT_BYTES - 1,
+            finalizer.STOPHUD_MAX_TRANSCRIPT_BYTES,
+        ):
+            with self.subTest(target=target):
+                prefix_size = target - len(base)
+                transcript = b"x" * (prefix_size - 1) + b"\n" + base
+                finalizer._validate_protocol_frame(
+                    make_frame(payload, transcript),
+                    "stophud_1",
+                    ("stophud",),
+                    "boundary stophud",
+                )
+
+        for transcript in (
+            b"x"
+            * (finalizer.STOPHUD_MAX_TRANSCRIPT_BYTES + 1 - len(base) - 1)
+            + b"\n"
+            + base,
+            base
+            + b"x" * (finalizer.STOPHUD_MAX_TRANSCRIPT_BYTES + 1 - len(base)),
+        ):
+            with self.subTest(transcript_size=len(transcript)):
+                with self.assertRaises(finalizer.FinalizeError):
+                    finalizer._validate_protocol_frame(
+                        make_frame(payload, transcript),
+                        "stophud_1",
+                        ("stophud",),
+                        "oversized stophud",
+                    )
+
+        oversized_payload = b"x" * (finalizer.STOPHUD_MAX_PAYLOAD_BYTES + 1)
+        with self.assertRaises(finalizer.FinalizeError):
+            finalizer._validate_protocol_frame(
+                make_frame(oversized_payload, transcript_for(oversized_payload)),
+                "stophud_1",
+                ("stophud",),
+                "oversized stophud payload",
+            )
+
     def test_complete_chain_emits_refused_at_mid_and_no_device_contact(self) -> None:
         control = finalizer.validate_control(self.control_manifest, self.root)
         self.assertEqual(control["value"], "0x000000000000c071")
@@ -2746,7 +2834,7 @@ class Verification024FinalizerTests(unittest.TestCase):
             return result
 
         first_frame = rewrite_frame(raw["stophud_frames"][0], evidence_id="stophud_1", rc="-16", status="busy", transcript=b"")
-        second_frame = rewrite_frame(raw["stophud_frames"][0], evidence_id="stophud_2", rc="0", status="ok", transcript=b"")
+        second_frame = rewrite_frame(raw["stophud_frames"][0], evidence_id="stophud_2", rc="0", status="ok", transcript=b"autohud: stopped")
         attempts = [
             {"attempt": 1, "rc": -16, "status": "busy", "evidence_id": "stophud_1", "payload_size": first_frame["payload_size"], "payload_sha256": first_frame["payload_sha256"], "transcript_size": first_frame["transcript_size"], "transcript_sha256": first_frame["transcript_sha256"]},
             {"attempt": 2, "rc": 0, "status": "ok", "evidence_id": "stophud_2", "payload_size": second_frame["payload_size"], "payload_sha256": second_frame["payload_sha256"], "transcript_size": second_frame["transcript_size"], "transcript_sha256": second_frame["transcript_sha256"]},

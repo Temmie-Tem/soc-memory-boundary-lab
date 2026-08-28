@@ -50,7 +50,14 @@ try:
         parse_last_frame,
         write_new,
     )
-    from tools.a90_autohud_arbitration import run_stophud
+    from tools.a90_autohud_arbitration import (
+        STOPHUD_ARGV,
+        STOPHUD_MAX_PAYLOAD_BYTES,
+        STOPHUD_MAX_TRANSCRIPT_BYTES,
+        run_stophud,
+        validate_stophud_evidence_sizes,
+        validate_stophud_payload,
+    )
     from tools.a90_pa28_live import (
         BRIDGE_HOST,
         BRIDGE_PORT,
@@ -98,7 +105,14 @@ except ModuleNotFoundError:  # Direct execution from tools/.
         parse_last_frame,
         write_new,
     )
-    from a90_autohud_arbitration import run_stophud  # type: ignore
+    from a90_autohud_arbitration import (  # type: ignore
+        STOPHUD_ARGV,
+        STOPHUD_MAX_PAYLOAD_BYTES,
+        STOPHUD_MAX_TRANSCRIPT_BYTES,
+        run_stophud,
+        validate_stophud_evidence_sizes,
+        validate_stophud_payload,
+    )
     from a90_pa28_live import (  # type: ignore
         BRIDGE_HOST,
         BRIDGE_PORT,
@@ -1746,6 +1760,11 @@ def _validate_source_protocol_frame(
         frame.get("transcript_sha256"),
         f"{label} transcript",
     )
+    if argv == STOPHUD_ARGV:
+        try:
+            validate_stophud_evidence_sizes(payload, transcript)
+        except BaseException as exc:
+            raise ValueError(f"{label} stophud evidence size is not bounded") from exc
     if expected_payload is not None and payload not in _source_payload_line_variants(expected_payload):
         raise ValueError(f"{label} payload is not exact")
     begins = list(BEGIN_RE.finditer(transcript))
@@ -1859,8 +1878,14 @@ def _validate_source_frame_list(frames: object, label: str) -> None:
                 frame.get("payload_sha256"),
                 f"{label}[{index}] stophud payload",
             )
-            if stop_payload != b"":
-                raise ValueError(f"{label}[{index}] stophud payload is not empty")
+            try:
+                validate_stophud_payload(
+                    stop_payload, int(expected_rc, 10), expected_status
+                )
+            except BaseException as exc:
+                raise ValueError(
+                    f"{label}[{index}] stophud payload is not canonical"
+                ) from exc
     _validate_source_panic_frames(frames, label)
 
 
@@ -2030,10 +2055,23 @@ def _validate_source_frame_payload_semantics(
 
     ordered_payloads = _source_semantic_payloads(frames, label)
     payloads: dict[str, bytes] = {}
+    stop_ids = [
+        evidence_id
+        for evidence_id, _payload in ordered_payloads
+        if evidence_id.startswith("stophud_")
+    ]
     for evidence_id, payload in ordered_payloads:
         payloads.setdefault(evidence_id, payload)
-        if evidence_id.startswith("stophud_") and payload != b"":
-            raise ValueError(f"{label} {evidence_id} must have an empty payload")
+        if evidence_id.startswith("stophud_"):
+            attempt = int(evidence_id.rsplit("_", 1)[1])
+            expected_rc = -16 if attempt < len(stop_ids) else 0
+            expected_status = "busy" if attempt < len(stop_ids) else "ok"
+            try:
+                validate_stophud_payload(payload, expected_rc, expected_status)
+            except BaseException as exc:
+                raise ValueError(
+                    f"{label} {evidence_id} stophud payload is not canonical"
+                ) from exc
     version_identity = _parse_v024_version_payload(
         payloads["version_before"], f"{label} version_before"
     )
@@ -2419,16 +2457,16 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
                 exchange_timeout,
                 **kwargs,
             )
-            _inline_validate_complete_frame(
+            stophud_exchange_frames.append(frame)
+            return frame
+
+        def validate_stophud_frame(frame: object) -> object:
+            return _inline_validate_complete_frame(
                 frame,
-                command.argv,
+                STOPHUD_ARGV,
                 "stophud attempt",
                 allow_stophud_busy=True,
             )
-            if getattr(frame, "payload", None) != b"":
-                raise ValueError("stophud attempt payload is not empty")
-            stophud_exchange_frames.append(frame)
-            return frame
 
         stophud = run_stophud(
             args.host,
@@ -2437,6 +2475,7 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
             guarded_stophud_exchange,
             frame_records=stophud_frames,
             persist=persist_stophud,
+            validate_frame=validate_stophud_frame,
         )
         if (
             not isinstance(stophud, Mapping)

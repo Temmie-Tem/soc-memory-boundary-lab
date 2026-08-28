@@ -119,3 +119,41 @@ live authority.
 Until the complete live sequence closes, the scientific classification remains
 `CLASS C (TRANSFORM ONLY)` / `NOT_ELIGIBLE` and the exact remapper read at DMID
 remains `UNKNOWN`.
+
+## Post-live parser and evidence amendment
+
+The first control probe stopped before target attestation, panic transition or
+fixed op 4 because the host wrapper incorrectly required an empty successful
+`stophud` payload. Exact native source and live receipts refute that assumption:
+success is exactly `autohud: stopped` or `autohud: not running`; only
+`-16/busy` is empty. The original control ID is consumed immutable incident
+evidence with fixed-op/panic/partition/MMIO effects all zero. Its exact frame
+bytes are unrecoverable and the possible idempotent HUD state change remains
+`UNKNOWN_IDEMPOTENT`.
+
+Hostile rounds 24 and 25 found duplicate validation/transport records,
+noncanonical return-code acceptance, missing-wire empty-hash confusion,
+terminal-kind drift, callback mutation and inconsistent transcript limits.
+Round 26 verified the repaired 20-byte payload and 4,096-byte transcript
+contract with `P0=P1=P2=0`. The exact eleven-module set is 319/319 PASS,
+maximum RSS 349,056 KiB and process swap zero. After the last compatibility
+fixture repair, the complete suite finished 1,916 tests with 1,915 passed and
+one skipped in 198.868 seconds, maximum RSS 893,116 KiB, process swap zero and
+no kernel OOM event.
+
+The control-reboot public v1 also exposed a transient raw boot UUID. A bounded
+host-only repair preserved the exact 1,884-byte v1 privately, revalidated the
+22,905-byte journal and 663-byte one-shot claim, and emitted a UUID-redacted,
+source-bound public v2 of 2,140 bytes, SHA-256
+`fbe92a29ba66f282e15c79fc4344d2b8a96c6cece44dba29326be656137bd248`.
+No source inode or content changed, no open writer existed, and idempotent
+reverification was byte-identical. Under that immutable-evidence operational
+precondition the independent result is `P0=P1=P2=0`; an adversarial
+non-cooperating same-UID writer is explicitly outside this authority model.
+The retained pre/post projection is recorded in
+`docs/VERIFICATION024_REBOOT_PUBLIC_REPAIR_RECEIPT_2026-08-28.md`; its
+no-open-writer observation is `SUPPORTED`, not an atomic program receipt.
+
+The live gate is therefore not reopened under the old identifier. The next
+host task is the independently reviewed, predecessor-bound
+`verification-024-control-r2` owner described in the live execution log.

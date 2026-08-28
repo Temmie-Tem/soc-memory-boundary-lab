@@ -122,6 +122,15 @@ in one boot may each record an accepted idempotent stop. This exception never
 applies to op 4, flash, `param`, sysctl, or reboot. Reboot restores the normal
 HUD lifecycle.
 
+The wire contract is exact. A `0/ok` terminal must carry either
+`autohud: stopped` or `autohud: not running` after transport line-delimiter
+removal; a `-16/busy` terminal must carry zero payload bytes. Success with an
+empty payload is `REFUTED` by the retained source and live receipts. The shared
+arbiter and every V024 consumer bind canonical BEGIN/END mappings, terminal
+text, prompt tail and payload, with a 20-byte payload bound and 4,096-byte
+transcript bound. A complete invalid frame is one validation incident, not a
+transport failure, and may not be retried.
+
 Initial state must be a complete V2321 boot-prefix hash and complete 10-MiB
 `param` capture whose fixed `[1,0xA00000)` hash is stable LOW, whose decoded
 gate fields are exact LOW/zero/zero/zero, and whose cmdline has
@@ -149,6 +158,23 @@ before the `1 -> 0` sysctl write; a second rebind remains immediately before
 the op arm.
 
 ## Fixed execution sequence
+
+### Live amendment: consumed control identifier
+
+`verification-024-control` is now immutable pre-dispatch incident evidence.
+It proves zero fixed-op dispatch and zero panic/partition/MMIO effect, but its
+complete `stophud` frame bytes were discarded by the old host wrapper. The
+HUD state change is therefore `UNKNOWN_IDEMPOTENT`; the incident is not a
+successful control and the identifier must not be reused.
+
+Any continuation must use the single fixed identifier
+`verification-024-control-r2`. Before device contact it must claim its journal
+with O_EXCL, validate the exact original public/raw/journal hashes plus producer
+commit/source/helper/transport pins, and durably bind that predecessor capsule.
+It must retain the same semantic-claim key `(mode,candidate,boot_id)`. The old
+identifier is predecessor-only in the producer, finalizer, READ authorizer and
+last-kmsg validator. There is no caller-selected retry flag, old-ID fallback,
+or r3; an r2 failure terminates this route for explicit reconciliation.
 
 1. Rebuild or recheck the control/read/rollback images and all tool/test pins.
 2. Enter exact TWRP using the existing one-shot recovery journal.

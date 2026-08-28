@@ -442,14 +442,27 @@ class A90ParamDebugTransitionTests(unittest.TestCase):
 
         class Frame:
             payload = b""
-            transcript = b""
+            transcript = (
+                b"A90P1 BEGIN seq=1 cmd=stophud argc=1 flags=0x8\r\n\r\n"
+                b"[busy] auto menu active; send hide/q before command\r\n"
+                b"A90P1 END seq=1 cmd=stophud rc=-16 errno=16 duration_ms=0 "
+                b"flags=0x8 status=busy\r\n"
+            )
 
             def __init__(self) -> None:
-                self.begin = {"cmd": "stophud", "seq": "1"}
+                self.begin = {
+                    "cmd": "stophud",
+                    "seq": "1",
+                    "argc": "1",
+                    "flags": "0x8",
+                }
                 self.end = {
                     "cmd": "stophud",
                     "seq": "1",
                     "rc": "-16",
+                    "errno": "16",
+                    "duration_ms": "0",
+                    "flags": "0x8",
                     "status": "busy",
                 }
 

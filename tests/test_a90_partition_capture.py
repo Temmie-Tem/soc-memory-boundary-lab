@@ -193,13 +193,46 @@ class PartitionCaptureTests(unittest.TestCase):
     def test_stophud_busy_is_bounded_and_already_stopped_is_terminal(self) -> None:
         class Frame:
             def __init__(self, sequence: int, rc: int, status: str) -> None:
-                self.payload = b""
-                self.transcript = b""
-                self.begin = {"cmd": "stophud", "seq": str(sequence)}
+                self.payload = (
+                    b"autohud: stopped"
+                    if rc == 0 and status == "ok"
+                    else b""
+                )
+                terminal = (
+                    b"[done] stophud (0ms)\r\n"
+                    if rc == 0 and status == "ok"
+                    else b"[busy] auto menu active; send hide/q before command\r\n"
+                )
+                self.transcript = (
+                    b"A90P1 BEGIN seq="
+                    + str(sequence).encode("ascii")
+                    + b" cmd=stophud argc=1 flags=0x8\r\n"
+                    + self.payload
+                    + b"\r\n"
+                    + terminal
+                    + b"A90P1 END seq="
+                    + str(sequence).encode("ascii")
+                    + b" cmd=stophud rc="
+                    + str(rc).encode("ascii")
+                    + b" errno="
+                    + str(abs(rc)).encode("ascii")
+                    + b" duration_ms=0 flags=0x8 status="
+                    + status.encode("ascii")
+                    + b"\r\n"
+                )
+                self.begin = {
+                    "cmd": "stophud",
+                    "seq": str(sequence),
+                    "argc": "1",
+                    "flags": "0x8",
+                }
                 self.end = {
                     "cmd": "stophud",
                     "seq": str(sequence),
                     "rc": str(rc),
+                    "errno": str(abs(rc)),
+                    "duration_ms": "0",
+                    "flags": "0x8",
                     "status": status,
                 }
 
@@ -332,14 +365,27 @@ class PartitionCaptureTests(unittest.TestCase):
     def test_collect_rebinds_before_each_stophud_retry_and_stops_on_drift(self) -> None:
         class Frame:
             payload = b""
-            transcript = b""
+            transcript = (
+                b"A90P1 BEGIN seq=1 cmd=stophud argc=1 flags=0x8\r\n\r\n"
+                b"[busy] auto menu active; send hide/q before command\r\n"
+                b"A90P1 END seq=1 cmd=stophud rc=-16 errno=16 duration_ms=0 "
+                b"flags=0x8 status=busy\r\n"
+            )
 
             def __init__(self) -> None:
-                self.begin = {"cmd": "stophud", "seq": "1"}
+                self.begin = {
+                    "cmd": "stophud",
+                    "seq": "1",
+                    "argc": "1",
+                    "flags": "0x8",
+                }
                 self.end = {
                     "cmd": "stophud",
                     "seq": "1",
                     "rc": "-16",
+                    "errno": "16",
+                    "duration_ms": "0",
+                    "flags": "0x8",
                     "status": "busy",
                 }
 

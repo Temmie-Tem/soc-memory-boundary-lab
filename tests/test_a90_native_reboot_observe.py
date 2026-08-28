@@ -3,6 +3,7 @@ from __future__ import annotations
 import contextlib
 import io
 import json
+import shutil
 import tempfile
 import threading
 import unittest
@@ -11,10 +12,13 @@ from pathlib import Path
 from unittest import mock
 
 from tools import a90_native_reboot_observe as reboot
+from tools import a90_native_reboot_public_repair as repair
 
 
 class FakeFrame:
     def __init__(self, payload: bytes, command: str, *, rc: int = 0, status: str = "ok"):
+        if command == "stophud" and rc == 0 and status == "ok" and payload == b"":
+            payload = b"autohud: stopped"
         self.payload = payload
         self.transcript = b"A90P1 " + payload
         self.begin = {"cmd": command, "seq": "1"}
@@ -24,6 +28,35 @@ class FakeFrame:
             "rc": str(rc),
             "status": status,
         }
+        if command == "stophud":
+            self.begin.update({"argc": "1", "flags": "0x8"})
+            self.end.update(
+                {
+                    "errno": str(abs(rc)),
+                    "duration_ms": "0",
+                    "flags": "0x8",
+                }
+            )
+            terminal = (
+                b"[done] stophud (0ms)\r\n"
+                if rc == 0 and status == "ok"
+                else b"[busy] auto menu active; send hide/q before command\r\n"
+                if rc == -16 and status == "busy"
+                else f"[err] stophud rc={rc} (0ms)\r\n".encode("ascii")
+            )
+            self.transcript = (
+                b"A90P1 BEGIN seq=1 cmd=stophud argc=1 flags=0x8\r\n"
+                + payload
+                + b"\r\n"
+                + terminal
+                + b"A90P1 END seq=1 cmd=stophud rc="
+                + str(rc).encode("ascii")
+                + b" errno="
+                + str(abs(rc)).encode("ascii")
+                + b" duration_ms=0 flags=0x8 status="
+                + status.encode("ascii")
+                + b"\r\n"
+            )
 
 
 OLD_BOOT = "00000000-0000-0000-0000-000000000001"
@@ -406,6 +439,329 @@ class A90NativeRebootObserveTests(unittest.TestCase):
                     with self.assertRaises(ValueError):
                         reboot.collect(args)
                 bind.assert_not_called()
+
+    def _stage_public_repair_fixture(self, root: Path) -> tuple[Path, Path, Path]:
+        """Synthesize a complete pinned-shape fixture without live evidence."""
+
+        public = root / "evidence/manifests" / repair.PUBLIC_MANIFEST_NAME
+        journal = root / "evidence/private" / repair.JOURNAL_NAME
+        public.parent.mkdir(parents=True, exist_ok=True)
+        journal.parent.mkdir(parents=True, exist_ok=True)
+        boot_before = "11111111-1111-4111-8111-111111111111"
+        boot_after = "22222222-2222-4222-8222-222222222222"
+        claim_identity = {
+            "schema": repair.NATIVE_TRANSITION_CLAIM_SCHEMA,
+            "resource": repair.NATIVE_TRANSITION_RESOURCE,
+            "current_native_boot_id": boot_before,
+        }
+        claim_key = repair.sha256(repair._json_bytes(claim_identity))
+        claim_name = f"verification-024-native-boot-transition-{claim_key}.claim.json"
+        claim = root / "evidence/private" / claim_name
+        claim_value = {
+            "schema": repair.NATIVE_TRANSITION_CLAIM_SCHEMA,
+            "claim_key_sha256": claim_key,
+            "claim_identity": claim_identity,
+            "claimed_by_experiment_id": repair.EXPERIMENT_ID,
+            "provenance": {"owner_kind": "native-reboot", "effect": "cmdv1 reboot"},
+            "effect_replayed": False,
+            "claim_status": "COMPLETE",
+            "created_utc": "2026-08-28T00:00:00+00:00",
+        }
+        claim_data = repair._json_bytes(claim_value)
+        claim.write_bytes(claim_data)
+        claim.chmod(0o600)
+        journal_value = {
+            "schema": repair.JOURNAL_SCHEMA,
+            "experiment_id": repair.EXPERIMENT_ID,
+            "started_utc": "2026-08-28T00:00:00+00:00",
+            "completed_utc": "2026-08-28T00:01:00+00:00",
+            "status": "NEW_BOOT_PROVED",
+            "effect": "cmdv1 reboot",
+            "effect_dispatched": True,
+            "effect_replayed": False,
+            "before": {"boot_id": boot_before},
+            "after": {
+                "boot_id": boot_after,
+                "cmdline": {
+                    "androidboot.debug_level": "0x494d",
+                    "androidboot.force_upload": "0x0",
+                    "sec_debug.dump_sink": "0x0",
+                },
+                "download_mode": "1",
+                "selftest": {"passed": 11, "warn": 1, "fail": 0, "duration": 43, "entries": 12},
+                "stophud": {"accepted": True, "busy_retries": 0},
+            },
+            "dispatch_receipt": {
+                "a90p1_begin_observed": True,
+                "reboot_marker_observed": True,
+                "begin": {"seq": "1", "cmd": "reboot", "argc": "1", "flags": "0x14"},
+                "socket_disconnect_observed": True,
+                "transcript_sha256": "a" * 64,
+                "transcript_size": 105,
+            },
+            "physical_effect_claim": {
+                "claimed": True,
+                "attempted": True,
+                "key_sha256": claim_key,
+                "claim_path": str(claim),
+                "claim_sha256": repair.sha256(claim_data),
+                "claim_size": len(claim_data),
+                "boot_id": boot_before,
+            },
+            "pre_stophud": {"accepted": True, "busy_retries": 0},
+        }
+        journal_data = repair._json_bytes(journal_value)
+        journal.write_bytes(journal_data)
+        journal.chmod(0o600)
+        public_data = repair._json_bytes(repair._legacy_public_projection(journal_value))
+        public.write_bytes(public_data)
+        public.chmod(0o644)
+        self._repair_pin_overrides = {
+            "LEGACY_PUBLIC_SIZE": len(public_data),
+            "LEGACY_PUBLIC_SHA256": repair.sha256(public_data),
+            "JOURNAL_SIZE": len(journal_data),
+            "JOURNAL_SHA256": repair.sha256(journal_data),
+            "CLAIM_NAME": claim_name,
+            "CLAIM_SIZE": len(claim_data),
+            "CLAIM_SHA256": repair.sha256(claim_data),
+        }
+        return public, journal, claim
+
+    def _repair_context(self, root: Path):
+        return mock.patch.multiple(
+            repair,
+            REPO_ROOT=root,
+            **getattr(self, "_repair_pin_overrides", {}),
+        )
+
+    def test_future_public_projection_is_v2_and_contains_no_raw_uuid(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            _public_path, journal_path, _claim_path = self._stage_public_repair_fixture(root)
+            journal = json.loads(journal_path.read_text())
+            boot_id = journal["before"]["boot_id"]
+            journal["physical_effect_claim"]["current_native_boot_id"] = boot_id
+            journal_data = reboot.json_bytes(journal)
+            public = reboot.public_manifest_v2(
+                journal,
+                journal_filename=repair.JOURNAL_NAME,
+                journal_sha256=reboot.sha256(journal_data),
+                journal_size=len(journal_data),
+                boot_id=boot_id,
+            )
+            encoded = json.dumps(public, ensure_ascii=True, sort_keys=True)
+            self.assertEqual(public["schema"], reboot.PUBLIC_MANIFEST_SCHEMA_V2)
+            self.assertNotIn("boot_id", public["physical_effect_claim"])
+            self.assertEqual(
+                public["physical_effect_claim"]["boot_id_sha256"],
+                reboot.sha256(boot_id.encode("ascii")),
+            )
+            self.assertEqual(
+                public["private_journal"],
+                {
+                    "filename": repair.JOURNAL_NAME,
+                    "sha256": reboot.sha256(journal_data),
+                    "size": len(journal_data),
+                    "git_ignored": True,
+                },
+            )
+            self.assertNotRegex(encoded, reboot.BOOT_ID_SUBSTRING_RE)
+            self.assertNotIn("claim_path", encoded)
+            self.assertNotIn("serial_device", encoded)
+
+    def test_public_projection_rejects_a_durable_journal_different_from_memory(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            _public_path, journal_path, _claim_path = self._stage_public_repair_fixture(root)
+            journal = json.loads(journal_path.read_text())
+            changed = json.loads(journal_path.read_text())
+            changed["status"] = "EFFECT_DISPATCHED_OBSERVATION_INCOMPLETE"
+            journal_path.write_bytes(reboot.json_bytes(changed))
+            journal_path.chmod(0o600)
+            with self.assertRaisesRegex(RuntimeError, "changed"):
+                reboot._load_final_journal(journal_path, journal)
+
+    def test_host_only_repair_archives_legacy_then_publishes_v2_and_is_idempotent(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            public, _journal, _claim = self._stage_public_repair_fixture(root)
+            legacy = public.read_bytes()
+            with self._repair_context(root):
+                output = repair.repair_legacy_public_manifest()
+                self.assertEqual(output, public)
+                first_v2 = public.read_bytes()
+                first_inode = public.stat().st_ino
+                self.assertNotEqual(first_v2, legacy)
+                self.assertEqual(
+                    json.loads(first_v2.decode())["schema"],
+                    repair.PUBLIC_MANIFEST_SCHEMA_V2,
+                )
+                self.assertNotRegex(first_v2.decode("ascii"), repair.BOOT_ID_SUBSTRING_RE)
+                archive = root / "evidence/private" / repair.LEGACY_ARCHIVE_NAME
+                self.assertEqual(archive.read_bytes(), legacy)
+                self.assertEqual(archive.stat().st_mode & 0o777, 0o600)
+                self.assertEqual(repair.repair(), public)
+                self.assertEqual(public.read_bytes(), first_v2)
+                self.assertEqual(public.stat().st_ino, first_inode)
+
+    def test_repair_archive_failure_leaves_legacy_public_untouched_and_no_device_contact(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            public, _journal, _claim = self._stage_public_repair_fixture(root)
+            legacy = public.read_bytes()
+            with self._repair_context(root), mock.patch.object(
+                repair, "_write_exclusive_archive", side_effect=repair.RepairError("archive fsync failed")
+            ) as archive_write:
+                with self.assertRaisesRegex(repair.RepairError, "archive fsync failed"):
+                    repair.repair_legacy_public_manifest()
+            archive_write.assert_called_once()
+            self.assertEqual(public.read_bytes(), legacy)
+            self.assertFalse((root / "evidence/private" / repair.LEGACY_ARCHIVE_NAME).exists())
+
+    def test_repair_privacy_gate_runs_before_archive_or_public_replacement(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            public, _journal, _claim = self._stage_public_repair_fixture(root)
+            legacy = public.read_bytes()
+            leaked = {
+                "schema": repair.PUBLIC_MANIFEST_SCHEMA_V2,
+                "boot_id": "11111111-1111-4111-8111-111111111111",
+                "claim_path": "/private/absolute/claim.json",
+            }
+            with self._repair_context(root), mock.patch.object(
+                repair, "_public_v2_projection", return_value=leaked
+            ):
+                with self.assertRaisesRegex(repair.RepairError, "private|UUID"):
+                    repair.repair_legacy_public_manifest()
+            self.assertEqual(public.read_bytes(), legacy)
+            self.assertFalse((root / "evidence/private" / repair.LEGACY_ARCHIVE_NAME).exists())
+
+    def test_repair_final_state_rejects_archive_or_source_mutation_after_archive(self) -> None:
+        for mutation in ("archive", "journal", "claim"):
+            with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                public, journal, claim = self._stage_public_repair_fixture(root)
+                archive = root / "evidence/private" / repair.LEGACY_ARCHIVE_NAME
+                original_replace = repair._replace_public
+
+                def mutate_then_replace(path: Path, data: bytes) -> None:
+                    target = {"archive": archive, "journal": journal, "claim": claim}[mutation]
+                    changed = bytearray(target.read_bytes())
+                    changed[-1] ^= 0x01
+                    target.write_bytes(bytes(changed))
+                    target.chmod(0o644 if target == public else 0o600)
+                    original_replace(path, data)
+
+                with self._repair_context(root), mock.patch.object(
+                    repair, "_replace_public", side_effect=mutate_then_replace
+                ):
+                    with self.assertRaises(repair.RepairError):
+                        repair.repair_legacy_public_manifest()
+                # The operation may have published v2 before the final source
+                # re-read detects the persistent mutation; that state is
+                # intentionally explicit reconciliation evidence.
+                self.assertTrue(public.exists())
+                self.assertTrue(archive.exists())
+
+    def test_future_and_repair_v2_projections_have_parity(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            _public, journal_path, _claim = self._stage_public_repair_fixture(root)
+            journal = json.loads(journal_path.read_text())
+            boot_id = journal["before"]["boot_id"]
+            journal["physical_effect_claim"]["current_native_boot_id"] = boot_id
+            journal_data = repair._json_bytes(journal)
+            repaired = repair._public_v2_projection(journal, journal_data, boot_id)
+            future = reboot.public_manifest_v2(
+                journal,
+                journal_filename=repair.JOURNAL_NAME,
+                journal_sha256=repair.sha256(journal_data),
+                journal_size=len(journal_data),
+                boot_id=boot_id,
+            )
+            # The only private difference in a real producer call is the
+            # source binding supplied by the caller; normalize it explicitly
+            # so this test detects semantic projection drift, not caller
+            # metadata formatting.
+            future["private_journal"] = repaired["private_journal"]
+            self.assertEqual(future, repaired)
+
+    def test_repair_rejects_partial_states_and_all_pinned_source_attacks(self) -> None:
+        source_names = ("public", "journal", "claim")
+        for source_name in source_names:
+            with self.subTest(source=source_name), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                public, journal, claim = self._stage_public_repair_fixture(root)
+                source = {"public": public, "journal": journal, "claim": claim}[source_name]
+                data = bytearray(source.read_bytes())
+                data[-1] ^= 0x01
+                source.write_bytes(bytes(data))
+                source.chmod(0o644 if source_name == "public" else 0o600)
+                with self._repair_context(root):
+                    with self.assertRaises(repair.RepairError):
+                        repair.repair_legacy_public_manifest()
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            public, journal, claim = self._stage_public_repair_fixture(root)
+            for path in (public, journal, claim):
+                with self.subTest(kind="symlink", path=path.name):
+                    replacement = path.with_name(path.name + ".copy")
+                    shutil.copyfile(path, replacement)
+                    path.unlink()
+                    path.symlink_to(replacement)
+                    try:
+                        with self._repair_context(root):
+                            with self.assertRaises(repair.RepairError):
+                                repair.repair_legacy_public_manifest()
+                    finally:
+                        path.unlink(missing_ok=True)
+                        replacement.unlink(missing_ok=True)
+                        self._stage_public_repair_fixture(root)
+                        public, journal, claim = (
+                            root / "evidence/manifests" / repair.PUBLIC_MANIFEST_NAME,
+                            root / "evidence/private" / repair.JOURNAL_NAME,
+                            root / "evidence/private" / repair.CLAIM_NAME,
+                        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            public, _journal, _claim = self._stage_public_repair_fixture(root)
+            public.chmod(0o600)
+            with self._repair_context(root):
+                with self.assertRaises(repair.RepairError):
+                    repair.repair_legacy_public_manifest()
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self._stage_public_repair_fixture(root)
+            with self._repair_context(root), mock.patch.object(
+                repair.os, "getuid", return_value=0
+            ):
+                with self.assertRaises(repair.RepairError):
+                    repair.repair_legacy_public_manifest()
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            public, _journal, _claim = self._stage_public_repair_fixture(root)
+            archive = root / "evidence/private" / repair.LEGACY_ARCHIVE_NAME
+            archive.write_bytes(public.read_bytes())
+            archive.chmod(0o600)
+            with self._repair_context(root):
+                with self.assertRaisesRegex(repair.RepairError, "partial"):
+                    repair.repair_legacy_public_manifest()
+
+    def test_repair_revalidates_claim_identity_owner_and_uuid_without_device_calls(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            public, journal_path, claim_path = self._stage_public_repair_fixture(root)
+            journal = json.loads(journal_path.read_text())
+            claim_data = claim_path.read_bytes()
+            journal["before"]["boot_id"] = "00000000-0000-0000-0000-000000000002"
+            with mock.patch.object(repair, "REPO_ROOT", root):
+                with self.assertRaises(repair.RepairError):
+                    repair._validate_private_claim(root, journal, claim_path, claim_data)
+            self.assertEqual(public.read_bytes()[0], ord("{"))
 
 
 if __name__ == "__main__":

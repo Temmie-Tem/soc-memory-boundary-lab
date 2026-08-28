@@ -22,6 +22,8 @@ class FakeFrame:
         status: str = "ok",
         argc: int | None = None,
     ) -> None:
+        if command == "stophud" and rc == 0 and status == "ok" and payload == b"":
+            payload = b"autohud: stopped"
         self.payload = payload
         protocol_flags = probe.protocol_flags_for_argv((command,))
         if protocol_flags is None:

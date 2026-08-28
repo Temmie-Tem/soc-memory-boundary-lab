@@ -42,21 +42,30 @@ below `/tmp/a90-native`. The temporary character node and probe were removed;
 the final exact-target receipt reports V2321 `0.9.285`, selftest `fail=0`, and
 battery 100%. No partition or hardware-control register was written.
 
-Verification 024 is `LIVE_CONTROL_BOOTED / PARAM_EFFECT_NOT_DISPATCHED /
-PARSER_REPAIR_GO / RESUME_READY`. The exact control image was written once,
-read back completely and booted. Three subsequent `param` transactions refused
-before their effect and recorded zero partition writes. The repaired host
-closure passed 1,895 tests with one skip under a 4-GiB virtual-memory ceiling
-(893,252 KiB peak RSS, zero test-process swaps, no OOM),
-and independent review passed 743 frame rows, 156 stable-`param`/static rows
-and 870 live-derived whitespace rows with no P0/P1 finding. `PROVED`: entry
-and rollback use the same fixed
-`param[1:0xA00000]` LOW identity
-`c0c7147418cf13145a44369a960c81647d347f317cb35baed1d85b286253c68a`
-while complete-image before/host/after hashes remain exact transfer evidence.
-`SUPPORTED`: reboot can change byte 0 without changing that state. `UNKNOWN`:
-byte 0's writer/semantics and the live remapper-page result. Classification
-remains `CLASS C (TRANSFORM ONLY)`.
+Verification 024 is `LIVE_CONTROL_BOOTED / PARAM_MID_PROVED /
+CONTROL_FIXED_OP_NOT_DISPATCHED / CONTROL_R2_RECONCILIATION_REQUIRED`. The
+exact control image was written once, read back completely and booted. Three
+`param` owners refused before their effect; the fourth proved stable LOW,
+wrote only `DLOW -> DMID`, proved stable MID and rebooted once into exact
+`debug_level=0x494d` with healthy `11/1/0/12` self-test. `PROVED`: byte 0 is
+boot-volatile and the state predicate is the fixed `[1,0xA00000)` hash; the
+full-image hashes remain exact transfer evidence.
+
+The first fixed control probe then refused before target attestation, panic
+transition and op 4 because the host incorrectly required an empty successful
+`stophud` payload. Exact source and live receipts `REFUTED` that assumption;
+success is `autohud: stopped` or `autohud: not running`, while busy alone is
+empty. The consumed original ID proves zero fixed-op/panic/partition/MMIO
+effect; its lost frame leaves only the idempotent HUD state change
+`UNKNOWN`. Hostile round 26 closed the repaired stop-HUD contract at
+`P0=P1=P2=0` and 319/319 related tests; the complete suite finished 1,916
+tests with 1,915 passed and one skipped, zero process swaps and no OOM. A
+separate host-only repair archived
+the UUID-bearing reboot public v1 privately and emitted the source-bound public
+v2 (`fbe92a29...`, 2,140 bytes) with no raw UUID. The next action is a single
+O_EXCL, exact-predecessor-bound `verification-024-control-r2` implementation;
+the old ID is never reused. The live remapper-page result remains `UNKNOWN`,
+and classification remains `CLASS C (TRANSFORM ONLY)`.
 
 Host-only Experiment 017 then cross-referenced the exact XBL MC address table
 and helper read-copy path. It made no device, SMC or MMIO access and does not

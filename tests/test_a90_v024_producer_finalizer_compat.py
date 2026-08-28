@@ -117,6 +117,7 @@ class ProducerFinalizerCompatibilityTests(unittest.TestCase):
         status: str,
         message: bytes | None = None,
         duration_ms: int = 0,
+        payload: bytes = b"",
     ) -> tuple[dict[str, object], Frame]:
         """Build one native-shaped frame for cross-consumer contract tests."""
 
@@ -167,7 +168,9 @@ class ProducerFinalizerCompatibilityTests(unittest.TestCase):
             + str(len(argv)).encode("ascii")
             + b" flags="
             + flags.encode("ascii")
-            + b"\n\n"
+            + b"\n"
+            + payload
+            + b"\n"
             + terminal
             + b"A90P1 END seq=1 cmd="
             + command
@@ -176,9 +179,9 @@ class ProducerFinalizerCompatibilityTests(unittest.TestCase):
         record = probe.frame_record(
             evidence_id,
             argv,
-            Frame(begin=begin, end=end, payload=b"", transcript=transcript),
+            Frame(begin=begin, end=end, payload=payload, transcript=transcript),
         )
-        return record, Frame(begin=begin, end=end, payload=b"", transcript=transcript)
+        return record, Frame(begin=begin, end=end, payload=payload, transcript=transcript)
 
     def test_native_result_errno_and_marker_contract_round_trips_all_consumers(self) -> None:
         """Positive rc errors use errno=0; negative text is source-exact."""
@@ -314,6 +317,8 @@ class ProducerFinalizerCompatibilityTests(unittest.TestCase):
             protocol_flags = finalizer.inline_protocol_flags_for_argv(argv)
             assert protocol_flags is not None
             payload = panic_payloads.get(evidence_id, b"")
+            if evidence_id.startswith("stophud_"):
+                payload = b"autohud: stopped"
             transcript = (
                 b"A90P1 BEGIN seq=1 cmd="
                 + argv[0].encode("ascii")
@@ -334,6 +339,37 @@ class ProducerFinalizerCompatibilityTests(unittest.TestCase):
             records, "actual inline producer frames", restored=False, allow_fixed=False
         )
         capture._validate_source_frame_list(records, "actual inline producer frames")
+        stophud_record = next(
+            record for record in records if record["evidence_id"] == "stophud_1"
+        )
+        self.assertEqual(
+            base64.b64decode(stophud_record["payload_base64"]),
+            b"autohud: stopped",
+        )
+        for success_payload in (b"autohud: stopped", b"autohud: not running"):
+            with self.subTest(success_payload=success_payload):
+                record, frame = self._protocol_frame(
+                    "stophud_1",
+                    ("stophud",),
+                    rc=0,
+                    status="ok",
+                    payload=success_payload,
+                )
+                probe.validate_complete_frame(
+                    frame, ("stophud",), allow_stophud_busy=True
+                )
+                finalizer._validate_protocol_frame(
+                    record,
+                    "stophud_1",
+                    ("stophud",),
+                    "exact stophud success",
+                )
+                capture._validate_source_protocol_frame(
+                    record,
+                    "stophud_1",
+                    ("stophud",),
+                    "exact stophud success",
+                )
 
     @staticmethod
     def _profiles(image: Path) -> dict[str, dict[str, object]]:

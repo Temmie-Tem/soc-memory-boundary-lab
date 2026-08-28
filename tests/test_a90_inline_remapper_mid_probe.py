@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Mapping
 from unittest import mock
 
+from tools import a90_autohud_arbitration as hud
 from tools import a90_inline_remapper_mid_probe as probe
 from tools import a90_verification024_finalize as finalizer
 
@@ -623,7 +624,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
         bad_terminal_frame: tuple[str, bytes] | None = None,
         bad_tail_frame_id: str | None = None,
         bad_payloads: Mapping[str, bytes] | None = None,
-        stophud_payload: bytes = b"",
+        stophud_payload: bytes | None = None,
         stophud_results: list[tuple[int, str]] | None = None,
         rebind: bool = False,
         stophud_rebind_drift_attempt: int | None = None,
@@ -679,7 +680,14 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                 self.assertTrue(allow_error)
                 self.assertEqual(command.argv, ("stophud",))
                 rc, status = stop_results.pop(0) if stop_results else (0, "ok")
-                return FakeFrame(stophud_payload, "stophud", rc=rc, status=status)
+                payload = stophud_payload
+                if payload is None:
+                    payload = (
+                        b"autohud: stopped"
+                        if rc == 0 and status == "ok"
+                        else b""
+                    )
+                return FakeFrame(payload, "stophud", rc=rc, status=status)
             if command.evidence_id == "fixed_op_4":
                 if op_return_error:
                     return FakeFrame(b"unexpected\n", "run", rc=1, status="error")
@@ -1086,6 +1094,43 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             self.assertEqual(session.panic_values, [0, 1])
             self.assertEqual(exchange_ids.count("fixed_op_4"), 1)
             self.assertNotIn("version_after", exchange_ids)
+
+    def test_stophud_evidence_size_bound_matches_shared_contract(self) -> None:
+        self.assertEqual(probe.STOPHUD_MAX_PAYLOAD_BYTES, 20)
+        self.assertEqual(probe.STOPHUD_MAX_TRANSCRIPT_BYTES, 4096)
+        base = FakeFrame(b"autohud: stopped", "stophud").transcript
+        for target in (
+            probe.STOPHUD_MAX_TRANSCRIPT_BYTES - 1,
+            probe.STOPHUD_MAX_TRANSCRIPT_BYTES,
+        ):
+            with self.subTest(target=target):
+                frame = FakeFrame(b"autohud: stopped", "stophud")
+                prefix_size = target - len(frame.transcript)
+                frame.transcript = b"x" * (prefix_size - 1) + b"\n" + frame.transcript
+                probe.validate_complete_frame(
+                    frame,
+                    ("stophud",),
+                    "boundary stophud",
+                    allow_stophud_busy=True,
+                )
+
+        for transcript in (
+            b"x"
+            * (probe.STOPHUD_MAX_TRANSCRIPT_BYTES + 1 - len(base) - 1)
+            + b"\n"
+            + base,
+            base + b"x" * (probe.STOPHUD_MAX_TRANSCRIPT_BYTES + 1 - len(base)),
+        ):
+            with self.subTest(transcript_size=len(transcript)):
+                frame = FakeFrame(b"autohud: stopped", "stophud")
+                frame.transcript = transcript
+                with self.assertRaises(probe.ProbeError):
+                    probe.validate_complete_frame(
+                        frame,
+                        ("stophud",),
+                        "oversized stophud",
+                        allow_stophud_busy=True,
+                    )
 
     def test_actual_mocked_producer_output_round_trips_through_finalizer(self) -> None:
         """Use ``collect`` output itself, not a hand-built summary, as input."""
@@ -2397,8 +2442,15 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             public = json.loads((Path(directory) / "evidence/manifests/verification-024-control.manifest.json").read_text())
             self.assertFalse(public["target_verified"])
 
-    def test_stophud_success_with_nonempty_payload_fails_before_continuation(self) -> None:
-        for payload in (b"\n", b"\r\n", b"forged"):
+    def test_stophud_invalid_success_payload_fails_before_continuation(self) -> None:
+        for payload in (
+            b"",
+            b"\n",
+            b"\r\n",
+            b"autohud: stopped\n",
+            b"autohud: not running\r\n",
+            b"forged",
+        ):
             with self.subTest(payload=payload), tempfile.TemporaryDirectory() as directory:
                 result, session, exchange_ids = self._run_collect(
                     Path(directory),
@@ -2411,6 +2463,18 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                 self.assertEqual(session.panic_values, [])
                 self.assertNotIn("version_before", exchange_ids)
                 self.assertNotIn("fixed_op_4", exchange_ids)
+
+    def test_stophud_both_success_payloads_allow_continuation(self) -> None:
+        for payload in sorted(hud.STOPHUD_SUCCESS_PAYLOADS):
+            with self.subTest(payload=payload), tempfile.TemporaryDirectory() as directory:
+                result, session, exchange_ids = self._run_collect(
+                    Path(directory),
+                    probe.MODE_CONTROL,
+                    stophud_payload=payload,
+                )
+                self.assertIsNotNone(result)
+                self.assertEqual(session.panic_values, [0, 1])
+                self.assertIn("fixed_op_4", exchange_ids)
 
     def test_stophud_busy_with_nonempty_payload_fails_without_retry_or_continuation(self) -> None:
         for payload in (b"\n", b"\r\n", b"forged"):

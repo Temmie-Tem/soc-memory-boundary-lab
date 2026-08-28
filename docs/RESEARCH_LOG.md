@@ -2436,3 +2436,38 @@ cleanup and final health. `SUPPORTED`: the bounded normal-RAM timing/model
 extension. `UNKNOWN`: physical-page identity, physical alias, complete DRAM
 coordinates, transform mutability, protected reach and bypass. Classification
 remains `CLASS C (TRANSFORM ONLY)` and eligibility remains `NOT_ELIGIBLE`.
+
+# 2026-08-28 — Verification 024 MID transition and control pre-dispatch repair
+
+The exact control candidate was flashed with full 60,882,944-byte readback and
+booted once. After three pre-effect parser refusals, a fresh owner proved
+stable LOW `c0c71474...`, dispatched one four-byte `DLOW -> DMID` write,
+proved stable MID `9b85da06...`, and rebooted once into an exact V2321 MID
+cmdline with force-upload/dump-sink zero and self-test `11/1/0/12`.
+
+The first control probe did not reach its measurement. It stopped before
+target attestation, panic sysctl transition, semantic claim or fixed op 4
+because the old wrapper rejected the source-defined non-empty `stophud`
+success text. The public/raw/journal incident hashes are respectively
+`fcdeaf36...`/`4adbdfcc...`/`e6d4589b...`; they prove zero fixed-op,
+panic, partition and MMIO effect. The discarded complete frame cannot be
+reconstructed, so the possible HUD stop is `UNKNOWN_IDEMPOTENT`, not a
+no-state-change claim.
+
+Luna Max repaired the shared contract to accept only exact
+`autohud: stopped` or `autohud: not running` success and empty `-16/busy`,
+with canonical A90P1 transcript semantics, 20/4,096-byte bounds, single
+validation provenance and callback-mutation detection. Hostile round 26 is
+`P0=P1=P2=0`; 319 related tests passed with 349,056 KiB maximum RSS and zero
+process swaps. The final complete suite finished 1,916 tests with 1,915 passed
+and one skipped in 198.868 seconds, maximum RSS 893,116 KiB, zero process swaps
+and no kernel OOM event.
+
+A second P1 exposed a raw transient boot UUID in the derived reboot public
+manifest. A host-only exact-pin repair archived v1 (`3a91e6ea...`, 1,884
+bytes) privately and emitted v2 (`fbe92a29...`, 2,140 bytes), binding the
+unchanged private journal `8760aa1f...` and claim `03d1f63e...`. No device
+contact occurred during either host repair. The original control ID is
+immutable; only a future fixed, predecessor-bound `verification-024-control-r2`
+may continue. The remapper value, transform mutability, alias and protected
+reach remain `UNKNOWN`; classification stays `CLASS C (TRANSFORM ONLY)`.

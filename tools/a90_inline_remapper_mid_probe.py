@@ -45,9 +45,13 @@ try:
         write_new,
     )
     from tools.a90_autohud_arbitration import (
+        STOPHUD_ARGV,
+        STOPHUD_MAX_PAYLOAD_BYTES,
+        STOPHUD_MAX_TRANSCRIPT_BYTES,
         STOPHUD_MAX_ATTEMPTS,
         STOPHUD_RETRY_DELAY_SEC,
         run_stophud,
+        validate_stophud_evidence_sizes,
     )
     from tools.a90_twrp_remapper_boot_flash import (
         ALLOWED_PREDECESSORS,
@@ -91,9 +95,13 @@ except ModuleNotFoundError:  # Direct execution from tools/.
         write_new,
     )
     from a90_autohud_arbitration import (  # type: ignore
+        STOPHUD_ARGV,
+        STOPHUD_MAX_PAYLOAD_BYTES,
+        STOPHUD_MAX_TRANSCRIPT_BYTES,
         STOPHUD_MAX_ATTEMPTS,
         STOPHUD_RETRY_DELAY_SEC,
         run_stophud,
+        validate_stophud_evidence_sizes,
     )
     from a90_twrp_remapper_boot_flash import (  # type: ignore
         ALLOWED_PREDECESSORS,
@@ -792,6 +800,11 @@ def validate_complete_frame(
         or len(payload) > MAX_PARTIAL_EVIDENCE_BYTES
     ):
         raise ProbeError(f"{label} complete frame fields are not bounded")
+    if expected_argv == STOPHUD_ARGV:
+        try:
+            validate_stophud_evidence_sizes(payload, transcript)
+        except BaseException as exc:
+            raise ProbeError(f"{label} stophud evidence size is not bounded") from exc
     begin_matches = list(BEGIN_RE.finditer(transcript))
     end_matches = list(END_RE.finditer(transcript))
     if (
@@ -2080,20 +2093,15 @@ def stop_autohud(
             exchange_timeout,
             **kwargs,
         )
-        validate_complete_frame(
+        return frame
+
+    def validate_stophud_frame(frame: Any) -> Any:
+        return validate_complete_frame(
             frame,
-            command.argv,
+            STOPHUD_ARGV,
             "stophud attempt",
             allow_stophud_busy=True,
         )
-        # ``stophud`` is a controller action, not a data-producing command.
-        # Its success and bounded busy refusal both have an exact empty
-        # post-BEGIN payload.  Reject any LF/CRLF or other bytes here, before
-        # the shared arbiter can retry a busy result or continue to the first
-        # target-attestation command.
-        if getattr(frame, "payload", None) != b"":
-            raise ProbeError("stophud attempt payload is not empty")
-        return frame
 
     def persist(attempts: list[dict[str, object]]) -> None:
         latest = attempts[-1]
@@ -2113,6 +2121,7 @@ def stop_autohud(
         guarded_exchange,
         frame_records=frames,
         persist=persist,
+        validate_frame=validate_stophud_frame,
         max_attempts=STOPHUD_MAX_ATTEMPTS,
     )
     journal["stophud_accepted"] = True

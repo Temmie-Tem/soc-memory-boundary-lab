@@ -39,9 +39,23 @@ SELFTEST = b"selftest: pass=11 warn=1 fail=0 duration=43ms entries=12\n"
 
 def frame(command: str, payload: bytes = b"", evidence_id: str = "") -> Frame:
     del evidence_id
+    if command == "stophud" and payload == b"":
+        payload = b"autohud: stopped"
     begin = {"seq": "1", "cmd": command}
     end = {**begin, "rc": "0", "status": "ok"}
-    return Frame(begin, end, payload, b"A90P1 frame")
+    if command == "stophud":
+        begin.update({"argc": "1", "flags": "0x8"})
+        end.update({"errno": "0", "duration_ms": "0", "flags": "0x8"})
+        transcript = (
+            b"A90P1 BEGIN seq=1 cmd=stophud argc=1 flags=0x8\r\n"
+            + payload
+            + b"\r\n[done] stophud (0ms)\r\n"
+            b"A90P1 END seq=1 cmd=stophud rc=0 errno=0 duration_ms=0 "
+            b"flags=0x8 status=ok\r\n"
+        )
+    else:
+        transcript = b"A90P1 frame"
+    return Frame(begin, end, payload, transcript)
 
 
 def binding() -> dict[str, object]:
@@ -674,10 +688,26 @@ class RecoveryEntryTests(unittest.TestCase):
             initial = binding()
             drifted = {**initial, "process_pid": 999}
             busy = Frame(
-                {"seq": "1", "cmd": "stophud"},
-                {"seq": "1", "cmd": "stophud", "rc": "-16", "status": "busy"},
+                {
+                    "seq": "1",
+                    "cmd": "stophud",
+                    "argc": "1",
+                    "flags": "0x8",
+                },
+                {
+                    "seq": "1",
+                    "cmd": "stophud",
+                    "rc": "-16",
+                    "errno": "16",
+                    "duration_ms": "0",
+                    "flags": "0x8",
+                    "status": "busy",
+                },
                 b"",
-                b"A90P1 busy",
+                b"A90P1 BEGIN seq=1 cmd=stophud argc=1 flags=0x8\r\n\r\n"
+                b"[busy] auto menu active; send hide/q before command\r\n"
+                b"A90P1 END seq=1 cmd=stophud rc=-16 errno=16 duration_ms=0 "
+                b"flags=0x8 status=busy\r\n",
             )
 
             def fake_exchange(host, port, command, timeout, **kwargs):

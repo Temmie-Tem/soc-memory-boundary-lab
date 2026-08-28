@@ -19,6 +19,7 @@ import math
 import os
 import re
 import socket
+import stat
 import time
 from pathlib import Path
 from typing import Mapping, Sequence
@@ -96,6 +97,15 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_ROOT = REPO_ROOT
 SAFE_ID_RE = re.compile(r"[a-z0-9][a-z0-9._-]{0,95}\Z")
 SHA256_RE = re.compile(r"[0-9a-f]{64}\Z")
+PUBLIC_MANIFEST_SCHEMA_V2 = "sdm855-a90-native-reboot-public-v2"
+PRIVATE_JOURNAL_GIT_IGNORED = True
+LEGACY_REBOOT_EXPERIMENT_ID = "verification-024-control-reboot-mid"
+LEGACY_REBOOT_PUBLIC_NAME = f"{LEGACY_REBOOT_EXPERIMENT_ID}.manifest.json"
+LEGACY_REBOOT_JOURNAL_NAME = f"{LEGACY_REBOOT_EXPERIMENT_ID}.journal.json"
+LEGACY_REBOOT_CLAIM_NAME = (
+    "verification-024-native-boot-transition-"
+    "fab98190df754dfb1d2ae5a4a3372c64fca7b1da9b22ff27f7905b259b47a366.claim.json"
+)
 REBOOT_BEGIN_RE = re.compile(
     rb"(?:^|\r?\n)A90P1 BEGIN (?P<fields>[^\r\n]+)\r?\n"
 )
@@ -119,6 +129,10 @@ EXPECTED_REBOOT_ARGC = "1"
 EXPECTED_REBOOT_FLAGS = "0x14"
 BOOT_ID_RE = re.compile(
     r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\Z"
+)
+BOOT_ID_SUBSTRING_RE = re.compile(
+    r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+    re.IGNORECASE,
 )
 DEBUG_CMDLINE = {"low": "0x4f4c", "mid": "0x494d"}
 EXPECTED_DEBUG_PREDECESSOR = {"low": "mid", "mid": "low"}
@@ -276,6 +290,129 @@ def _create_initial_json(path: Path, value: object) -> None:
         os.close(descriptor)
 
 
+def _read_stable_bytes(
+    path: Path,
+    *,
+    label: str,
+    expected_size: int | None = None,
+    expected_sha256: str | None = None,
+    expected_mode: int | None = None,
+) -> bytes:
+    """Read one fixed private/public file through a stable no-follow inode."""
+
+    checked = Path(path)
+    _reject_symlink_components(checked, label)
+    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+    if hasattr(os, "O_CLOEXEC"):
+        flags |= os.O_CLOEXEC
+    try:
+        descriptor = os.open(checked, flags)
+    except OSError as exc:
+        raise RuntimeError(f"{label} cannot be opened safely") from exc
+    try:
+        before = os.fstat(descriptor)
+        if not stat.S_ISREG(before.st_mode):
+            raise RuntimeError(f"{label} is not a regular file")
+        if expected_mode is not None and stat.S_IMODE(before.st_mode) != expected_mode:
+            raise RuntimeError(f"{label} mode is not exact")
+        if before.st_uid != os.getuid() or before.st_gid != os.getgid():
+            raise RuntimeError(f"{label} owner is not the current evidence owner")
+        if before.st_size < 0:
+            raise RuntimeError(f"{label} size is negative")
+        if expected_size is not None and before.st_size != expected_size:
+            raise RuntimeError(f"{label} size is not exact")
+        # A caller cannot turn an unbounded private journal or claim into an
+        # allocation oracle.  The legacy pins are much smaller, and future
+        # receipts remain bounded by the dispatch transcript cap.
+        if before.st_size > MAX_DISPATCH_TRANSCRIPT_BYTES:
+            raise RuntimeError(f"{label} exceeds the fixed evidence bound")
+        chunks: list[bytes] = []
+        total = 0
+        while True:
+            chunk = os.read(descriptor, 1024 * 1024)
+            if not chunk:
+                break
+            chunks.append(chunk)
+            total += len(chunk)
+            if total > MAX_DISPATCH_TRANSCRIPT_BYTES:
+                raise RuntimeError(f"{label} exceeds the fixed evidence bound")
+        after = os.fstat(descriptor)
+        identity = (
+            before.st_dev,
+            before.st_ino,
+            before.st_mode,
+            before.st_uid,
+            before.st_gid,
+            before.st_size,
+            before.st_mtime_ns,
+            before.st_ctime_ns,
+        )
+        after_identity = (
+            after.st_dev,
+            after.st_ino,
+            after.st_mode,
+            after.st_uid,
+            after.st_gid,
+            after.st_size,
+            after.st_mtime_ns,
+            after.st_ctime_ns,
+        )
+        if identity != after_identity or total != after.st_size:
+            raise RuntimeError(f"{label} changed while being read")
+        data = b"".join(chunks)
+        if expected_size is not None and len(data) != expected_size:
+            raise RuntimeError(f"{label} byte size is not exact")
+        digest = sha256(data)
+        if expected_sha256 is not None and digest != expected_sha256:
+            raise RuntimeError(f"{label} SHA-256 is not exact")
+        return data
+    finally:
+        os.close(descriptor)
+
+
+def _strict_json_object(data: bytes, label: str) -> dict[str, object]:
+    """Decode a stable journal without duplicate/NaN reinterpretation."""
+
+    def pairs(items: list[tuple[str, object]]) -> dict[str, object]:
+        result: dict[str, object] = {}
+        for key, value in items:
+            if key in result:
+                raise RuntimeError(f"{label} contains duplicate key {key!r}")
+            result[key] = value
+        return result
+
+    def reject_constant(value: str) -> object:
+        raise RuntimeError(f"{label} contains non-finite JSON value {value}")
+
+    try:
+        value = json.loads(
+            data.decode("utf-8"), object_pairs_hook=pairs, parse_constant=reject_constant
+        )
+    except RuntimeError:
+        raise
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise RuntimeError(f"{label} is not strict UTF-8 JSON") from exc
+    if not isinstance(value, dict):
+        raise RuntimeError(f"{label} root is not an object")
+    return value
+
+
+def _load_final_journal(
+    path: Path, in_memory: Mapping[str, object]
+) -> tuple[dict[str, object], bytes]:
+    """Bind the public projection to the exact final journal inode bytes."""
+
+    data = _read_stable_bytes(
+        path,
+        label="native reboot private journal",
+        expected_mode=0o600,
+    )
+    parsed = _strict_json_object(data, "native reboot private journal")
+    if json_bytes(parsed) != data or parsed != dict(in_memory):
+        raise RuntimeError("native reboot private journal changed before public projection")
+    return parsed, data
+
+
 def _reboot_effect_identity(boot_id: str) -> tuple[dict[str, object], str]:
     try:
         return native_transition_claim_identity(boot_id)
@@ -311,6 +448,218 @@ def _create_reboot_effect_claim(
         ) from exc
     except PhysicalClaimError as exc:
         raise ValueError(str(exc)) from exc
+
+
+def _validate_private_effect_claim(
+    root: Path,
+    journal: Mapping[str, object],
+    experiment_id: str,
+) -> tuple[str, str, Path, bytes]:
+    """Validate the exact private native-transition claim for one journal.
+
+    The public manifest intentionally carries only hashes.  This private
+    validator is the point where the raw pre-reboot UUID, canonical claim
+    filename, claim inode bytes, and claim owner are joined before a public
+    projection is emitted.
+    """
+
+    before = journal.get("before")
+    physical = journal.get("physical_effect_claim")
+    if not isinstance(before, Mapping) or not isinstance(physical, Mapping):
+        raise RuntimeError("native reboot private claim binding is incomplete")
+    boot_id = before.get("boot_id")
+    if not isinstance(boot_id, str) or BOOT_ID_RE.fullmatch(boot_id) is None:
+        raise RuntimeError("native reboot private pre-effect boot_id is malformed")
+    if physical.get("boot_id") != boot_id:
+        raise RuntimeError("native reboot private claim boot_id differs from before")
+    if physical.get("current_native_boot_id") != boot_id:
+        raise RuntimeError("native reboot claim current_native_boot_id is not bound")
+    if physical.get("claimed") is not True or physical.get("attempted") is not True:
+        raise RuntimeError("native reboot physical claim is not complete")
+    identity, key_sha256 = _reboot_effect_identity(boot_id)
+    if physical.get("key_sha256") != key_sha256:
+        raise RuntimeError("native reboot physical claim key is not canonical")
+    expected_path = _reboot_effect_claim_path(root, key_sha256).resolve(strict=False)
+    claim_path_value = physical.get("claim_path")
+    if not isinstance(claim_path_value, str):
+        raise RuntimeError("native reboot private claim path is missing")
+    claim_path = Path(claim_path_value)
+    _reject_symlink_components(claim_path, "native reboot claim")
+    if claim_path.resolve(strict=False) != expected_path:
+        raise RuntimeError("native reboot private claim path is not canonical")
+    try:
+        claim = inspect_native_transition_claim(root, boot_id)
+    except PhysicalClaimPartial as exc:
+        raise RuntimeError(str(exc)) from exc
+    if claim is None:
+        raise RuntimeError("native reboot private claim file is missing")
+    if claim.path.resolve(strict=False) != expected_path:
+        raise RuntimeError("native reboot inspected claim path is not canonical")
+    if claim.key_sha256 != key_sha256 or dict(claim.identity) != identity:
+        raise RuntimeError("native reboot private claim identity is not exact")
+    record = claim.record
+    if (
+        record.get("schema") != NATIVE_TRANSITION_CLAIM_SCHEMA
+        or record.get("claim_key_sha256") != key_sha256
+        or record.get("claim_identity") != identity
+        or record.get("claimed_by_experiment_id") != experiment_id
+        or record.get("effect_replayed") is not False
+        or record.get("claim_status") != "COMPLETE"
+    ):
+        raise RuntimeError("native reboot private claim record is not exact")
+    claim_data = claim.data
+    if physical.get("claim_sha256") != sha256(claim_data):
+        raise RuntimeError("native reboot private claim hash is not bound")
+    if physical.get("claim_size") != len(claim_data):
+        raise RuntimeError("native reboot private claim size is not bound")
+    return boot_id, key_sha256, expected_path, claim_data
+
+
+def public_manifest_v2(
+    journal: Mapping[str, object],
+    *,
+    journal_filename: str,
+    journal_sha256: str,
+    journal_size: int,
+    boot_id: str,
+) -> dict[str, object]:
+    """Build the deterministic privacy-preserving native reboot projection."""
+
+    physical = journal.get("physical_effect_claim")
+    before = journal.get("before")
+    after = journal.get("after")
+    pre_stophud = journal.get("pre_stophud")
+    if not all(
+        isinstance(item, Mapping)
+        for item in (physical, before, after, pre_stophud)
+    ):
+        raise RuntimeError("native reboot journal lacks complete public facts")
+    if not isinstance(journal_filename, str) or "/" in journal_filename:
+        raise RuntimeError("native reboot public journal filename is not basename-only")
+    if (
+        not isinstance(journal_sha256, str)
+        or SHA256_RE.fullmatch(journal_sha256) is None
+        or type(journal_size) is not int
+        or journal_size < 0
+    ):
+        raise RuntimeError("native reboot public journal binding is malformed")
+    if BOOT_ID_RE.fullmatch(boot_id) is None:
+        raise RuntimeError("native reboot public source boot_id is malformed")
+    if (
+        before.get("boot_id") != boot_id
+        or physical.get("boot_id") != boot_id
+        or physical.get("current_native_boot_id") != boot_id
+        or after.get("boot_id") == boot_id
+        or journal.get("status") != "NEW_BOOT_PROVED"
+        or journal.get("effect") != "cmdv1 reboot"
+        or journal.get("effect_dispatched") is not True
+        or journal.get("effect_replayed") is not False
+        or physical.get("claimed") is not True
+        or physical.get("attempted") is not True
+    ):
+        raise RuntimeError("native reboot journal facts are not complete for v2")
+    # Deliberately construct the projection field-for-field from the old
+    # producer's semantics.  No raw UUID, serial, bridge path, or transcript
+    # bytes are copied into this public object.
+    dispatch_receipt = journal.get("dispatch_receipt")
+    if not isinstance(dispatch_receipt, Mapping):
+        raise RuntimeError("native reboot dispatch receipt is missing")
+    dispatch_public = {
+        key: value
+        for key, value in dispatch_receipt.items()
+        if key != "transcript_base64"
+    }
+    manifest = {
+        "schema": PUBLIC_MANIFEST_SCHEMA_V2,
+        "experiment_id": journal.get("experiment_id"),
+        "started_utc": journal.get("started_utc"),
+        "completed_utc": journal.get("completed_utc"),
+        "target_model": TARGET_MODEL,
+        "soc": TARGET_SOC,
+        "bootloader": TARGET_BOOTLOADER,
+        "runtime": TARGET_RUNTIME,
+        "kernel": TARGET_KERNEL,
+        "classification": journal.get("status"),
+        "effect_dispatched_count": 1,
+        "effect_replayed": False,
+        "cmd_no_done": True,
+        "dispatch_receipt": dispatch_public,
+        "physical_effect_claim": {
+            "claimed": True,
+            "attempted": True,
+            "key_sha256": physical.get("key_sha256"),
+            "claim_sha256": physical.get("claim_sha256"),
+            "claim_size": physical.get("claim_size"),
+            "boot_id_sha256": sha256(boot_id.encode("ascii")),
+        },
+        "private_journal": {
+            "filename": journal_filename,
+            "sha256": journal_sha256,
+            "size": journal_size,
+            "git_ignored": PRIVATE_JOURNAL_GIT_IGNORED,
+        },
+        "pre_stophud_accepted": pre_stophud.get("accepted"),
+        "pre_stophud_busy_retries": pre_stophud.get("busy_retries"),
+        "boot_id_changed": before.get("boot_id") != after.get("boot_id"),
+        "post_boot": {
+            "debug_level": after.get("cmdline", {}).get("androidboot.debug_level")
+            if isinstance(after.get("cmdline"), Mapping)
+            else None,
+            "force_upload": after.get("cmdline", {}).get("androidboot.force_upload")
+            if isinstance(after.get("cmdline"), Mapping)
+            else None,
+            "dump_sink": after.get("cmdline", {}).get("sec_debug.dump_sink")
+            if isinstance(after.get("cmdline"), Mapping)
+            else None,
+            "download_mode": after.get("download_mode"),
+            "selftest": after.get("selftest"),
+            "stophud_accepted": (
+                after.get("stophud", {}).get("accepted")
+                if isinstance(after.get("stophud"), Mapping)
+                else None
+            ),
+            "stophud_busy_retries": (
+                after.get("stophud", {}).get("busy_retries")
+                if isinstance(after.get("stophud"), Mapping)
+                else None
+            ),
+        },
+        "claims": {
+            "PROVED": [
+                "The reboot command was dispatched exactly once and accepted by the exact A90P1 CMD_NO_DONE path.",
+                "A different boot ID returned with the exact native runtime and requested source-backed debug-level cmdline value.",
+            ]
+        },
+    }
+    # Keep the public projection independently privacy-checked even when this
+    # pure builder is called from a host test or an embedding caller.
+    _reject_public_private_data(manifest, "native reboot public manifest")
+    return manifest
+
+
+def _reject_public_private_data(value: object, label: str) -> None:
+    """Reject raw UUIDs and private path/serial fields from public output."""
+
+    if isinstance(value, Mapping):
+        for key, item in value.items():
+            if key in {
+                "boot_id",
+                "claim_path",
+                "journal_path",
+                "serial",
+                "serial_device",
+                "serial_identity",
+            }:
+                raise RuntimeError(f"{label} exposes private field {key!r}")
+            _reject_public_private_data(item, label)
+    elif isinstance(value, list):
+        for item in value:
+            _reject_public_private_data(item, label)
+    elif isinstance(value, str):
+        if BOOT_ID_SUBSTRING_RE.search(value) is not None:
+            raise RuntimeError(f"{label} exposes a raw boot UUID")
+        if value.startswith(("/", "~", "file://")):
+            raise RuntimeError(f"{label} exposes a private absolute path")
 
 
 def validate_reboot_transcript(transcript: bytes) -> dict[str, object]:
@@ -802,6 +1151,7 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
             "claim_sha256": None,
             "claim_size": None,
             "boot_id": None,
+            "current_native_boot_id": None,
         },
     }
     _create_initial_json(journal_path, journal)
@@ -930,6 +1280,7 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
                     "key_sha256": effect_claim_key_sha256,
                     "claim_path": str(effect_claim_path),
                     "boot_id": claim_boot_id,
+                    "current_native_boot_id": claim_boot_id,
                 }
             )
         try:
@@ -1086,57 +1437,27 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
         _atomic_json(journal_path, journal)
         raise
 
-    manifest = {
-        "schema": "sdm855-a90-native-reboot-public-v1",
-        "experiment_id": experiment_id,
-        "started_utc": started,
-        "completed_utc": journal["completed_utc"],
-        "target_model": TARGET_MODEL,
-        "soc": TARGET_SOC,
-        "bootloader": TARGET_BOOTLOADER,
-        "runtime": TARGET_RUNTIME,
-        "kernel": TARGET_KERNEL,
-        "classification": journal["status"],
-        "effect_dispatched_count": 1,
-        "effect_replayed": False,
-        "cmd_no_done": True,
-        "dispatch_receipt": {
-            key: value
-            for key, value in journal["dispatch_receipt"].items()
-            if key != "transcript_base64"
-        },
-        "physical_effect_claim": {
-            key: journal.get("physical_effect_claim", {}).get(key)
-            for key in (
-                "claimed",
-                "attempted",
-                "key_sha256",
-                "claim_sha256",
-                "claim_size",
-                "boot_id",
-            )
-            if isinstance(journal.get("physical_effect_claim"), Mapping)
-            and key in journal.get("physical_effect_claim", {})
-        },
-        "pre_stophud_accepted": journal["pre_stophud"]["accepted"],
-        "pre_stophud_busy_retries": journal["pre_stophud"]["busy_retries"],
-        "boot_id_changed": journal["before"]["boot_id"] != journal["after"]["boot_id"],
-        "post_boot": {
-            "debug_level": journal["after"]["cmdline"].get("androidboot.debug_level"),
-            "force_upload": journal["after"]["cmdline"].get("androidboot.force_upload"),
-            "dump_sink": journal["after"]["cmdline"].get("sec_debug.dump_sink"),
-            "download_mode": journal["after"]["download_mode"],
-            "selftest": journal["after"]["selftest"],
-            "stophud_accepted": journal["after"]["stophud"]["accepted"],
-            "stophud_busy_retries": journal["after"]["stophud"]["busy_retries"],
-        },
-        "claims": {
-            "PROVED": [
-                "The reboot command was dispatched exactly once and accepted by the exact A90P1 CMD_NO_DONE path.",
-                "A different boot ID returned with the exact native runtime and requested source-backed debug-level cmdline value.",
-            ]
-        },
-    }
+    # Re-open the final journal through a stable descriptor and validate the
+    # private claim before publishing any public projection.  In particular,
+    # this keeps a raw pre-reboot UUID confined to the journal/claim files.
+    # The final public hash and all private-claim joins must come from the
+    # exact durable bytes, not from a stale in-memory object that an
+    # overlapping same-owner writer could have replaced after the last
+    # lifecycle update.  ``_load_final_journal`` binds those bytes to the
+    # producer's canonical serializer before any public projection is built.
+    journal, journal_bytes = _load_final_journal(journal_path, journal)
+    before_boot_id, _key, _claim_path, _claim_data = _validate_private_effect_claim(
+        root, journal, experiment_id
+    )
+    if before_boot_id != journal["before"]["boot_id"]:
+        raise RuntimeError("native reboot private claim is not bound to final journal")
+    manifest = public_manifest_v2(
+        journal,
+        journal_filename=journal_path.name,
+        journal_sha256=sha256(journal_bytes),
+        journal_size=len(journal_bytes),
+        boot_id=before_boot_id,
+    )
     write_new(manifest_path, json_bytes(manifest), 0o644)
     return journal_path, manifest_path
 

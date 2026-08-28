@@ -44,6 +44,13 @@ try:
         verify_flash_journal,
     )
     from tools.a90_acm_snapshot import BEGIN_RE, END_RE, parse_last_frame
+    from tools.a90_autohud_arbitration import (
+        STOPHUD_ARGV,
+        STOPHUD_MAX_PAYLOAD_BYTES,
+        STOPHUD_MAX_TRANSCRIPT_BYTES,
+        validate_stophud_evidence_sizes,
+        validate_stophud_payload,
+    )
     from tools.a90_v024_physical_claim import (
         boot_prefix_claim_identity,
         boot_prefix_claim_path,
@@ -67,6 +74,13 @@ except ModuleNotFoundError:  # Direct execution from tools/.
         verify_flash_journal,
     )
     from a90_acm_snapshot import BEGIN_RE, END_RE, parse_last_frame  # type: ignore
+    from a90_autohud_arbitration import (  # type: ignore
+        STOPHUD_ARGV,
+        STOPHUD_MAX_PAYLOAD_BYTES,
+        STOPHUD_MAX_TRANSCRIPT_BYTES,
+        validate_stophud_evidence_sizes,
+        validate_stophud_payload,
+    )
     from a90_v024_physical_claim import (  # type: ignore
         boot_prefix_claim_identity,
         boot_prefix_claim_path,
@@ -1208,6 +1222,13 @@ def _validate_protocol_frame(
         frame.get("transcript_sha256"),
         f"{label} transcript",
     )
+    if argv == STOPHUD_ARGV:
+        try:
+            validate_stophud_evidence_sizes(payload, transcript)
+        except BaseException as exc:
+            raise FinalizeError(
+                f"{label} stophud evidence size is not bounded"
+            ) from exc
     if expected_payload is not None and payload not in _payload_line_variants(expected_payload):
         raise FinalizeError(f"{label} payload is not exact")
     begin_matches = list(BEGIN_RE.finditer(transcript))
@@ -1354,8 +1375,14 @@ def _validate_frame_list(
                 frame.get("payload_sha256"),
                 f"{label}[{index}] stophud payload",
             )
-            if stop_payload != b"":
-                raise FinalizeError(f"{label}[{index}] stophud payload is not empty")
+            try:
+                validate_stophud_payload(
+                    stop_payload, int(expected_rc, 10), expected_status
+                )
+            except BaseException as exc:
+                raise FinalizeError(
+                    f"{label}[{index}] stophud payload is not canonical"
+                ) from exc
     _validate_panic_frame_set(frames, label, restored=restored)
 
 
@@ -1597,14 +1624,26 @@ def _validate_inline_frame_payload_semantics(
 
     ordered_payloads = _semantic_frame_payloads(frames, label)
     payloads: dict[str, bytes] = {}
+    stop_ids = [
+        evidence_id
+        for evidence_id, _payload in ordered_payloads
+        if evidence_id.startswith("stophud_")
+    ]
     for evidence_id, payload in ordered_payloads:
         # Unique records are addressed by ID below, while cleanup records are
         # intentionally retained as ordered occurrences.  Their run-wrapper
         # PID is dynamic per dispatch and must be checked independently.
         payloads.setdefault(evidence_id, payload)
         if evidence_id.startswith("stophud_"):
-            if payload != b"":
-                raise FinalizeError(f"{label} {evidence_id} must have an empty payload")
+            attempt = int(evidence_id.rsplit("_", 1)[1])
+            expected_rc = -16 if attempt < len(stop_ids) else 0
+            expected_status = "busy" if attempt < len(stop_ids) else "ok"
+            try:
+                validate_stophud_payload(payload, expected_rc, expected_status)
+            except BaseException as exc:
+                raise FinalizeError(
+                    f"{label} {evidence_id} stophud payload is not canonical"
+                ) from exc
 
     version_identity = _semantic_version_payload(
         payloads["version_before"], f"{label} version_before"
@@ -5241,6 +5280,13 @@ def _runtime_frame(
         or record["transcript_sha256"] != hashlib.sha256(transcript).hexdigest()
     ):
         raise FinalizeError(f"{label} payload/transcript hash or size is not exact")
+    if argv == STOPHUD_ARGV:
+        try:
+            validate_stophud_evidence_sizes(payload, transcript)
+        except BaseException as exc:
+            raise FinalizeError(
+                f"{label} stophud evidence size is not bounded"
+            ) from exc
     if not transcript:
         raise FinalizeError(f"{label} transcript is empty")
     if len(BEGIN_RE.findall(transcript)) != 1 or len(END_RE.findall(transcript)) != 1:
@@ -5492,8 +5538,10 @@ def _validate_last_stophud(
             expected_status=expected_status,
             max_bytes=MAX_RECEIPT_BYTES,
         )
-        if stop_payload != b"":
-            raise FinalizeError("last-kmsg stophud payload must be empty")
+        try:
+            validate_stophud_payload(stop_payload, rc, status)
+        except BaseException as exc:
+            raise FinalizeError("last-kmsg stophud payload is not canonical") from exc
         for key in (
             "payload_size",
             "payload_sha256",
@@ -5564,8 +5612,10 @@ def _runtime_validate_stophud(
             expected_rc=expected_rc,
             expected_status=expected_status,
         )
-        if stop_payload != b"":
-            raise FinalizeError("runtime stophud payload must be empty")
+        try:
+            validate_stophud_payload(stop_payload, attempt_rc, attempt_status)
+        except BaseException as exc:
+            raise FinalizeError("runtime stophud payload is not canonical") from exc
         if attempt_rc == -16 and attempt_status == "busy":
             busy += 1
         if attempt.get("payload_sha256") != frame.get("payload_sha256") or attempt.get("payload_size") != frame.get("payload_size") or attempt.get("transcript_sha256") != frame.get("transcript_sha256") or attempt.get("transcript_size") != frame.get("transcript_size"):
