@@ -1,0 +1,142 @@
+{
+  "claims": {
+    "live_authority": false,
+    "r2_replay_allowed": false,
+    "r3_execution_attempted": false,
+    "r3_registered": true,
+    "requires_fresh_target_rebind": true
+  },
+  "control": {
+    "active_experiment_id": "verification-024-control-r3",
+    "candidate_sha256": "dbbf81f26cd3d9d2d52d2a2dbe84575b759b45cea8946d02646bd4503ad08247",
+    "candidate_size": 60882944,
+    "consumed_experiment_id": "verification-024-control-r2",
+    "historical_predecessor_experiment_id": "verification-024-control",
+    "historical_predecessor_capsule": {
+      "sha256": "56d233030e1c970b486721b21293a91a154bdc5ebe0ae811b36473457648df15",
+      "size": 4924
+    },
+    "r2_incident_checkpoint": {
+      "sha256": "ef4b3edc01b23f91e24f5ad3737b83c2922b1fc7cf9e399a31e74efb5a9e97fa",
+      "size": 3052,
+      "zero_effect_validated": true
+    }
+  },
+  "device_contact": false,
+  "dynamic_boot_devt": {
+    "authoritative_source": "/sys/class/block/sda24/uevent",
+    "cross_binding": [
+      "uevent MAJOR:MINOR",
+      "mknodb argv",
+      "stat rdev",
+      "current_boot_attestation"
+    ],
+    "fixed_fields": {
+      "DEVNAME": "sda24",
+      "DEVTYPE": "partition",
+      "PARTN": "24",
+      "PARTNAME": "boot"
+    },
+    "major_range": [
+      1,
+      4095
+    ],
+    "minor_range": [
+      0,
+      1048575
+    ],
+    "numeric_value_pinned_across_boots": false,
+    "ultimate_identity_check": "60882944-byte boot-prefix SHA-256 equals control candidate"
+  },
+  "generated_utc": "2026-08-28T09:11:47Z",
+  "hostile_review": {
+    "device_contact": false,
+    "findings": {
+      "P0": 0,
+      "P1": 0,
+      "P2": 0
+    },
+    "result": "PASS",
+    "scope": [
+      "active r3 and consumed r2 identities",
+      "first durable O_EXCL preclaim",
+      "r2 zero-effect checkpoint",
+      "dynamic boot devt cross-binding",
+      "single fixed op4 dispatch",
+      "panic_on_oops restore and ambiguous no-replay"
+    ],
+    "targeted_tests": 15,
+    "task": "luna_v024_r3_hostile"
+  },
+  "implementation_commit": "ea45aaac705a9584da0ed7d26233b28cb928b0e5",
+  "note": "Host source gate only. Fresh exact A90 binding is still required immediately before the one-shot control-r3 execution.",
+  "schema": "sdm855-a90-v024-control-r3-host-source-gate-v1",
+  "source_records": [
+    {
+      "blob_sha1": "992a828ff9a98f52a647d37d08aa1bffaebf4292",
+      "path": "tools/a90_inline_remapper_mid_probe.py",
+      "sha256": "699bf1dcf28aa96b0752712be0913c6cb16806f85602fcdf7a9c710f96f1cb01",
+      "size": 177006
+    },
+    {
+      "blob_sha1": "277e9c90f533df688a06c54750b625a22d46869d",
+      "path": "tools/a90_v024_control_retry.py",
+      "sha256": "c35adf105fa350c8d39e557a25f7d72222154f5a8a02612b11da5a35802ae704",
+      "size": 75407
+    },
+    {
+      "blob_sha1": "2ec6f5812dd7dd06097728e5dfe6c907577db60a",
+      "path": "tools/a90_v024_r2_incident.py",
+      "sha256": "a5e69455a1466d0f136309b006140344c5d0d40315d4f97f88268bb7fc0ab054",
+      "size": 10149
+    },
+    {
+      "blob_sha1": "8bc2b525c1ea759f4888be6c210eb57d12a4cc87",
+      "path": "tools/a90_v024_boot_attestation.py",
+      "sha256": "1e6b3226173b0857c86a5c839d60a23bc55cc4e86cdf5358ce7472d42b194144",
+      "size": 3270
+    },
+    {
+      "blob_sha1": "748363da7dae1b8653dc085a5362636c0acafabd",
+      "path": "tools/a90_verification024_finalize.py",
+      "sha256": "436ceaafab734ad6b94e7e9e8298f6ace793d538d4f9937aba190a739a5cf5d1",
+      "size": 318858
+    },
+    {
+      "blob_sha1": "797e6b60815d54a6654c6474f9fbf43e525baff8",
+      "path": "tools/a90_last_kmsg_capture.py",
+      "sha256": "43a3c00141ee2026697dd2c09d70fb258ed03a3a3c7254c65590233768ce2d10",
+      "size": 126999
+    },
+    {
+      "blob_sha1": "2a121badf4ff5a257bba6ea3f9aad3ebef9bdce6",
+      "path": "tools/a90_autohud_arbitration.py",
+      "sha256": "8273cb1a85e4836b21f306f6383e2ed426f12cf62e12415a33c41a61f28d134c",
+      "size": 18009
+    },
+    {
+      "blob_sha1": "81c426069be191b061e33b26803da113fffe878f",
+      "path": "tools/a90_pa28_live.py",
+      "sha256": "0f50a20453f00a6f647d52cc2c3cd10ba52f8869d6b9264d5b9c47671197bc66",
+      "size": 150104
+    }
+  ],
+  "status": "HOST_SOURCE_GATE_PASS",
+  "target": {
+    "model": "SM-A908N",
+    "scope": "A90_ONLY",
+    "soc": "SM8150"
+  },
+  "tests": {
+    "command": "python3 -W error -m unittest discover -s tests -q",
+    "errors": 0,
+    "failures": 0,
+    "max_rss_kib": 889540,
+    "process_swaps": 0,
+    "seconds": 193.483,
+    "skipped": 1,
+    "total": 1962,
+    "ulimit_virtual_kib": 4194304
+  },
+  "worktree_clean_at_gate": true
+}
