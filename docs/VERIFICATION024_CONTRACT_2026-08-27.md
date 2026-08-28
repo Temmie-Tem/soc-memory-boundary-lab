@@ -2,8 +2,8 @@
 
 ## Status and question
 
-**Status: `PRE_REGISTERED / HOST_REVIEW_GO /
-FRESH_TARGET_BINDING_REQUIRED / DEVICE_NOT_RUN`.**
+**Status: `LIVE_CONTROL_BOOTED / PARAM_EFFECT_NOT_DISPATCHED /
+PARSER_REPAIR_GO / RESUME_READY`.**
 
 Verification 023 answered a nearby but different question. Its executed load
 was the SHRM snapshot word at `0x0906566c`, protected by the SHRM policy stack,
@@ -70,12 +70,14 @@ The fixed op buffer is 88 bytes and hashes to
 `7cb5cf5aa907dce3b48ddc5dce8f296782ac2d1b24d18cb55fa54d45cb86c6b4`.
 
 `PROVED`: after the replay, frame, payload and stable-`param` repairs, the
-current host execution closure compiled and passed 1,883 serial tests with one
+current host execution closure compiled and passed 1,891 serial tests with one
 intentional skip. The run used a 4-GiB virtual-memory ceiling, reached 885,132
-KiB maximum RSS, performed zero test-process swaps and produced no kernel OOM
-event. Independent hostile review exercised 743 frame-contract rows and 156
-stable-`param`/static rows with `P0=0` and `P1=0`. This is host qualification;
-fresh exact live target binding remains mandatory before every device effect.
+KiB maximum RSS before the live parser repair; the post-repair full run reached
+890,136 KiB. Both performed zero test-process swaps and produced no kernel OOM
+event. Independent hostile review exercised 743 frame-contract rows, 156
+stable-`param`/static rows and 870 live-derived whitespace rows with `P0=0`
+and `P1=0`. This is host qualification; fresh exact live target binding
+remains mandatory before every device effect.
 
 `SUPPORTED`: live boot/recovery cycles can change `param` byte 0 independently
 of the debug record. The observed post-reboot full image differed from the

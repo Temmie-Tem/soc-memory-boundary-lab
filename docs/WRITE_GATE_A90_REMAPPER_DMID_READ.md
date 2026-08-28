@@ -1,7 +1,7 @@
 # Write gate — A90 exact remapper read at DMID
 
-**Gate status: `PRE_REGISTERED / HOST_REVIEW_GO /
-FRESH_TARGET_BINDING_REQUIRED / NOT_EXECUTED`.** This gate covers only
+**Gate status: `LIVE_CONTROL_BOOTED / PARAM_EFFECT_NOT_DISPATCHED /
+PARSER_REPAIR_GO / RESUME_READY`.** This gate covers only
 Verification 024 on exact `SM-A908N`/`SM8150`.
 
 ## Exact target and necessity
@@ -80,9 +80,9 @@ applicable, full boot/param rollback hashes, and final V2321
 `panic_on_oops=1` plus self-test `11/1/0/12`.
 
 Host qualification on 2026-08-28 rehashed every complete boot/param artifact
-and the fixed 88-byte op buffer. The repaired execution closure passed 1,883
-serial tests with one skip under a 4-GiB virtual-memory ceiling, at 885,132 KiB
-maximum RSS, zero test-process swaps and no kernel OOM event. Independent
-hostile review passed 743 frame rows and 156 stable-`param`/static rows with
-`P0=0` and `P1=0`. This is not device execution evidence; fresh exact A90
-binding remains required before each live action.
+and the fixed 88-byte op buffer. After the live cmdline parser repair, the
+execution closure passed 1,891 serial tests with one skip under a 4-GiB
+virtual-memory ceiling, at 890,136 KiB maximum RSS, zero test-process swaps and
+no kernel OOM event. Independent hostile review passed 743 frame rows, 156
+stable-`param`/static rows and 870 whitespace rows with `P0=0` and `P1=0`.
+Fresh exact A90 binding remains required before each live action.

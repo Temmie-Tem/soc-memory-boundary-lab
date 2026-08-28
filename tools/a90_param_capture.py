@@ -66,7 +66,8 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 SAFE_ID_RE = re.compile(r"[a-z0-9][a-z0-9._-]{0,95}\Z")
 # ``/proc/cmdline`` is an ASCII token stream.  Keys are strict tokens and
 # values are nonempty printable tokens (embedded ``=`` is valid in values such
-# as ``root=PARTUUID=...``); no whitespace/control/NUL can alter tokenization.
+# as ``root=PARTUUID=...``); ASCII-space runs delimit tokens, while every other
+# whitespace/control/NUL byte is rejected.
 CMDLINE_KEY_RE = re.compile(r"[A-Za-z0-9_.:-]+\Z")
 # Values may contain ``=`` (for example ``root=PARTUUID=...`` and the
 # framebuffer ``video=...,bpp=32`` token), but must begin with a non-separator
@@ -208,18 +209,18 @@ def parse_cmdline(payload: bytes) -> dict[str, str]:
         text = payload.decode("ascii", errors="strict")
     except UnicodeDecodeError as exc:
         raise ValueError("cmdline is not strict ASCII") from exc
-    # The native cat receipt leaves the proc file's one terminal LF in the
-    # payload.  Strip exactly that framing byte (and an optional CR paired
-    # with it); all other leading/trailing or repeated whitespace is invalid.
-    if text.endswith("\n"):
+    # The native cat receipt leaves one terminal LF (or one CRLF) in the
+    # payload.  Strip exactly that framing pair; all other whitespace remains
+    # part of the body and is validated below.
+    if text.endswith("\r\n"):
+        text = text[:-2]
+    elif text.endswith("\n"):
         text = text[:-1]
-        if text.endswith("\r"):
-            text = text[:-1]
     if not text or text[0].isspace() or text[-1].isspace():
         raise ValueError("cmdline is empty or has invalid surrounding whitespace")
-    tokens = text.split(" ")
-    if any(token == "" for token in tokens):
-        raise ValueError("cmdline contains repeated or non-space whitespace")
+    if any(char.isspace() and char != " " for char in text):
+        raise ValueError("cmdline contains non-space whitespace")
+    tokens = [token for token in text.split(" ") if token]
     result: dict[str, str] = {}
     for token in tokens:
         if "=" not in token:

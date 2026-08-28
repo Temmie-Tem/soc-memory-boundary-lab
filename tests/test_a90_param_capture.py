@@ -9,6 +9,7 @@ from pathlib import Path
 from unittest import mock
 
 from tools import a90_param_capture as capture
+from tools import a90_param_debug_transition as transition
 from tools.a90_partition_capture import Partition
 
 
@@ -153,13 +154,41 @@ class A90ParamCaptureTests(unittest.TestCase):
             b"key==two",
             b"key=",
             b" key=value",
-            b"key=value  other=x",
             b"key=value\x00 other=x",
             "key=\N{SNOWMAN}".encode("utf-8"),
         ):
             with self.subTest(payload=payload):
                 with self.assertRaises(ValueError):
                     capture.parse_cmdline(payload)
+
+    def test_cmdline_accepts_runs_of_ascii_spaces_but_rejects_other_whitespace(self) -> None:
+        canonical = (
+            b"skip_initramfs rootwait ro androidboot.em.model=SM-A908N "
+            b"androidboot.bootloader=A908NKSU5EWA3\n"
+        )
+        expected = capture.parse_cmdline(canonical)
+        for count in (2, 3, 7):
+            with self.subTest(space_count=count):
+                spaced = canonical[:-1].replace(b" ", b" " * count) + b"\n"
+                self.assertEqual(capture.parse_cmdline(spaced), expected)
+
+        body = canonical[:-1]
+        for whitespace in (b"\t", b"\v", b"\f", b"\r", b"\n"):
+            with self.subTest(whitespace=whitespace):
+                bad = body.replace(b" ", whitespace, 1) + b"\n"
+                with self.assertRaises(ValueError):
+                    capture.parse_cmdline(bad)
+        with self.assertRaises(ValueError):
+            capture.parse_cmdline(body.replace(b" ro ", b" ro  ro ") + b"\n")
+        for bad in (
+            b" " + canonical,
+            canonical[:-1] + b" \n",
+            canonical + b"\n",
+            canonical[:-1] + b"\r\n\n",
+        ):
+            with self.subTest(bad=bad):
+                with self.assertRaises(ValueError):
+                    capture.parse_cmdline(bad)
 
     def test_runtime_rejects_prefix_suffix_and_duplicate_identity_lines(self) -> None:
         version = (
@@ -191,7 +220,7 @@ class A90ParamCaptureTests(unittest.TestCase):
         self.assertEqual(parsed["root"], "PARTUUID=97d7b011-54da-4835-b3c4-917ad6e73d74")
         self.assertEqual(parsed["video"], "vfb:640x400,bpp=32,memsize=3072000")
 
-    def test_stophud_is_first_device_command_and_is_retained_by_metadata_path(self) -> None:
+    def test_stophud_is_first_device_command_and_double_space_reaches_next_pre_effect_stage(self) -> None:
         calls: list[str] = []
         binding_order: list[str] = []
 
@@ -206,7 +235,7 @@ class A90ParamCaptureTests(unittest.TestCase):
             b"kernel: Linux 4.14.190-25818860-abA908NKSU5EWA3 aarch64\n"
         )
         cmdline = (
-            b"androidboot.em.model=SM-A908N "
+            b"androidboot.em.model=SM-A908N  "
             b"androidboot.bootloader=A908NKSU5EWA3 "
             b"androidboot.debug_level=0x4f4c "
             b"androidboot.force_upload=0x0 sec_debug.dump_sink=0x0 "
@@ -265,6 +294,52 @@ class A90ParamCaptureTests(unittest.TestCase):
         self.assertEqual(calls[0], "stophud")
         self.assertEqual(calls[1:], ["version", "proc_cmdline", "download_mode"])
         self.assertEqual(binding_order, ["initial", "rebind", "stophud"])
+
+    def test_param_transition_preflight_accepts_double_space_cmdline_before_write(self) -> None:
+        class Frame:
+            def __init__(self, payload: bytes) -> None:
+                self.payload = payload
+
+        version = (
+            b"version: 0.9.285 build=v2321-usb-clean-identity-rodata\n"
+            b"kernel: Linux 4.14.190-25818860-abA908NKSU5EWA3 aarch64\n"
+        )
+        cmdline = (
+            b"androidboot.em.model=SM-A908N  "
+            b"androidboot.bootloader=A908NKSU5EWA3 "
+            b"androidboot.debug_level=0x4f4c "
+            b"androidboot.force_upload=0x0 sec_debug.dump_sink=0x0 "
+            b"androidboot.upload_offset=9438196\n"
+        )
+        partition = Partition("param", "sda10", 8, 10, 20480, 0xA00000, 0, 4096)
+        calls: list[str] = []
+
+        def fake_exchange(host, port, command, timeout):
+            del host, port, timeout
+            calls.append(command.evidence_id)
+            if command.evidence_id == "version":
+                return Frame(version)
+            if command.evidence_id == "proc_cmdline":
+                return Frame(cmdline)
+            if command.evidence_id == "download_mode":
+                return Frame(b"1\n")
+            raise AssertionError(command.evidence_id)
+
+        args = Namespace(
+            host="127.0.0.1",
+            port=54321,
+            command_timeout=1.0,
+        )
+        with mock.patch.object(transition, "exchange", side_effect=fake_exchange), mock.patch.object(
+            transition,
+            "discover_param",
+            return_value=(partition, 125080),
+        ) as discover:
+            result = transition._preflight(args)
+        self.assertEqual(result[0]["androidboot.em.model"], "SM-A908N")
+        self.assertEqual(result[1], "1")
+        discover.assert_called_once_with("127.0.0.1", 54321, 1.0)
+        self.assertEqual(calls, ["version", "proc_cmdline", "download_mode"])
 
     def test_bridge_binding_failure_precedes_stophud_and_exchange(self) -> None:
         calls: list[str] = []

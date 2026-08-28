@@ -176,18 +176,21 @@ def parse_cmdline(payload: bytes) -> dict[str, str]:
         text = payload.decode("ascii", errors="strict")
     except UnicodeDecodeError as exc:
         raise ValueError("cmdline payload is not ASCII") from exc
-    if "\r" in text.replace("\r\n", ""):
-        raise ValueError("cmdline contains a bare CR")
     if text.endswith("\r\n"):
         text = text[:-2]
     elif text.endswith("\n"):
         text = text[:-1]
-    if not text or text != text.strip() or "\x00" in text:
+    if (
+        not text
+        or text[0].isspace()
+        or text[-1].isspace()
+        or "\x00" in text
+    ):
         raise ValueError("cmdline framing is not exact")
+    if any(char.isspace() and char != " " for char in text):
+        raise ValueError("cmdline contains non-space whitespace")
     result: dict[str, str] = {}
-    for token in text.split(" "):
-        if not token:
-            raise ValueError("cmdline has an empty token")
+    for token in (item for item in text.split(" ") if item):
         if "=" not in token:
             if token not in KNOWN_BARE_FLAGS:
                 raise ValueError(f"malformed cmdline token: {token!r}")

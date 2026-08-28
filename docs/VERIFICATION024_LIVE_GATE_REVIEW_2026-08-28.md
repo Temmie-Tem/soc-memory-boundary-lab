@@ -2,7 +2,8 @@
 
 ## Current disposition
 
-**`HOST_REVIEW_GO / FRESH_TARGET_BINDING_REQUIRED / DEVICE_NOT_RUN`.**
+**`HOST_REVIEW_GO / LIVE_CONTROL_BOOTED / PARAM_EFFECT_NOT_DISPATCHED /
+RESUME_READY`.**
 
 This record covers the host execution closure for the exact
 `SM-A908N`/`SM8150` remapper control/read experiment. It grants no authority to
@@ -51,9 +52,12 @@ MMIO store. Stack saves are not controller writes.
 
 The final param-recovery core/effect/live set passed 97/97 focused tests. The
 current six-module V024 gate set passed 177/177. The complete `tests/test_*.py`
-suite passed 1,883 tests with one skip in 195.473 seconds. It ran serially under
-`ulimit -v 4194304`; maximum RSS was 885,132 KiB, test-process swaps were zero,
-and the kernel recorded no OOM event during the run.
+suite passed 1,883 tests with one skip in 195.473 seconds. After the live
+cmdline and public-claim redaction repairs, the final full suite passed 1,891
+tests with one skip in 195.938 seconds. Both ran serially under
+`ulimit -v 4194304`; the final maximum RSS was 890,136 KiB, test-process swaps
+were zero, and the kernel recorded no
+OOM event during either run.
 
 ## Independent hostile review result
 
@@ -92,14 +96,22 @@ uses the full banner, and caller-added `triple_hash_match:false` aliases at
 locations the producer never emits are ignored. Neither value is consumed as
 authority; required public `capture.triple_hash_match` remains exact `true`.
 
+The subsequent live-derived parser review passed 870/870 whitespace rows and
+repeated all 743 frame rows. The affected tests passed 112/112 and the exact
+six-module gate passed 180/180, again with `P0=0` and `P1=0`.
+
+Public physical-claim redaction then passed 87 hostile assertions and 19/19
+focused tests with `P0=P1=P2=0`. Raw boot UUIDs remain in the private causal
+journal; public manifests contain only their exact ASCII/no-newline SHA-256.
+
 ## Remaining gate
 
-Host repair and independent review are complete. Before any V024 device command
-the runner must freshly enumerate and bind the exact A90 in its current native
-or Recovery state, rehash the fixed candidate/rollback inputs, and refuse any
-unexpected endpoint or predecessor. No historical receipt grants live
-authority.
+Host repair and independent review are complete. Before the next V024 device
+command the runner must freshly enumerate and bind the exact A90 in its current
+native or Recovery state, rehash the fixed candidate/rollback inputs, and
+refuse any unexpected endpoint or predecessor. No historical receipt grants
+live authority.
 
-Until then the scientific classification remains
+Until the complete live sequence closes, the scientific classification remains
 `CLASS C (TRANSFORM ONLY)` / `NOT_ELIGIBLE` and the exact remapper read at DMID
 remains `UNKNOWN`.

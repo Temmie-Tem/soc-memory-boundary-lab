@@ -70,6 +70,7 @@ try:
         native_transition_claim_identity,
         native_transition_claim_path,
         inspect_native_transition_claim,
+        MAX_CLAIM_BYTES,
     )
 except ModuleNotFoundError:  # Direct execution from tools/.
     from a90_acm_snapshot import Command, exchange, json_bytes, parse_fields  # type: ignore
@@ -102,6 +103,7 @@ except ModuleNotFoundError:  # Direct execution from tools/.
         native_transition_claim_identity,
         native_transition_claim_path,
         inspect_native_transition_claim,
+        MAX_CLAIM_BYTES,
     )
 
 
@@ -189,6 +191,7 @@ def run_text(
 BOOT_ID_RE = re.compile(
     r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\Z"
 )
+SHA256_RE = re.compile(r"[0-9a-f]{64}\Z")
 SELFTEST_RE = re.compile(
     rb"(?m)^selftest:\s+pass=(?P<passed>[0-9]+)\s+"
     rb"warn=(?P<warn>[0-9]+)\s+fail=(?P<fail>[0-9]+)\s+"
@@ -196,6 +199,7 @@ SELFTEST_RE = re.compile(
 )
 KNOWN_BARE_FLAGS = frozenset({"skip_initramfs", "rootwait", "ro"})
 CMDLINE_KEY_RE = re.compile(r"[A-Za-z0-9_.:-]+\Z")
+CMDLINE_VALUE_RE = re.compile(r"[^\x00-\x20\x7f][^\x00-\x20\x7f]*\Z")
 
 JOURNAL_SCHEMA = "sdm855-a90-recovery-entry-journal-v1"
 PUBLIC_SCHEMA = "sdm855-a90-recovery-entry-public-v1"
@@ -463,20 +467,39 @@ def parse_cmdline(payload: bytes) -> dict[str, str]:
     """Parse the exact native cmdline and reject malformed/duplicate tokens."""
 
     try:
-        text = payload.decode("ascii", errors="strict").strip()
+        text = payload.decode("ascii", errors="strict")
     except UnicodeDecodeError as exc:
         raise RecoveryEntryError("target cmdline is not ASCII") from exc
-    if not text or "\x00" in text:
-        raise RecoveryEntryError("target cmdline is empty or contains NUL")
+    # The native cat receipt permits one terminal LF or CRLF only.  Do not use
+    # ``strip`` here: leading/trailing whitespace and repeated terminal
+    # newlines are framing errors, while repeated ASCII spaces in the body are
+    # ordinary token delimiters.
+    if text.endswith("\r\n"):
+        text = text[:-2]
+    elif text.endswith("\n"):
+        text = text[:-1]
+    if (
+        not text
+        or text[0].isspace()
+        or text[-1].isspace()
+        or "\x00" in text
+    ):
+        raise RecoveryEntryError("target cmdline framing is not exact")
+    if any(char.isspace() and char != " " for char in text):
+        raise RecoveryEntryError("target cmdline contains non-space whitespace")
     result: dict[str, str] = {}
-    for token in text.split():
+    for token in (item for item in text.split(" ") if item):
         if "=" not in token:
             if token not in KNOWN_BARE_FLAGS or token in result:
                 raise RecoveryEntryError(f"malformed cmdline token: {token!r}")
             result[token] = ""
             continue
         key, value = token.split("=", 1)
-        if CMDLINE_KEY_RE.fullmatch(key) is None or not value or key in result:
+        if (
+            CMDLINE_KEY_RE.fullmatch(key) is None
+            or CMDLINE_VALUE_RE.fullmatch(value) is None
+            or key in result
+        ):
             raise RecoveryEntryError(f"malformed or duplicate cmdline token: {token!r}")
         result[key] = value
     if not result:
@@ -1086,6 +1109,96 @@ def _target_public(target: Mapping[str, object]) -> dict[str, object]:
     }
 
 
+def _physical_effect_claim_public(
+    effect_claim: Mapping[str, object] | None,
+) -> dict[str, object]:
+    """Redact and validate one private physical claim for public output.
+
+    There are four valid private states.  Keeping the state machine explicit
+    prevents a UUID (or another value of the wrong type) from being copied
+    into one of the public hash/size fields.  The raw UUID remains private;
+    only its hash over the exact ASCII UUID without a newline is published.
+    """
+
+    if effect_claim is None:
+        return {}
+    if not isinstance(effect_claim, Mapping):
+        raise RecoveryEntryError("physical effect claim is not a mapping")
+    fields = (
+        "attempted",
+        "claimed",
+        "boot_id",
+        "key_sha256",
+        "claim_sha256",
+        "claim_size",
+    )
+    if any(field not in effect_claim for field in fields):
+        raise RecoveryEntryError("physical effect claim fields are incomplete")
+
+    attempted = effect_claim["attempted"]
+    claimed = effect_claim["claimed"]
+    if type(attempted) is not bool or type(claimed) is not bool:
+        raise RecoveryEntryError("physical effect claim state is not boolean")
+    boot_id = effect_claim["boot_id"]
+    key_sha256 = effect_claim["key_sha256"]
+    claim_sha256 = effect_claim["claim_sha256"]
+    claim_size = effect_claim["claim_size"]
+
+    # A: the durable pre-effect journal has no claim identity yet.
+    if not attempted and not claimed:
+        if any(
+            value is not None
+            for value in (boot_id, key_sha256, claim_sha256, claim_size)
+        ):
+            raise RecoveryEntryError(
+                "unattempted physical effect claim contains claim identity"
+            )
+        return {
+            "attempted": False,
+            "claimed": False,
+            "key_sha256": None,
+            "claim_sha256": None,
+            "claim_size": None,
+        }
+
+    if not attempted and claimed:
+        raise RecoveryEntryError("physical effect claim is claimed without an attempt")
+    if type(boot_id) is not str or BOOT_ID_RE.fullmatch(boot_id) is None:
+        raise RecoveryEntryError("physical effect claim boot_id is not an exact UUID")
+    if type(key_sha256) is not str or SHA256_RE.fullmatch(key_sha256) is None:
+        raise RecoveryEntryError("physical effect claim key_sha256 is not exact")
+
+    public = {
+        "attempted": True,
+        "claimed": claimed,
+        "key_sha256": key_sha256,
+        "boot_id_sha256": sha256(boot_id.encode("ascii")),
+    }
+    if not claimed:
+        # B: claim identity reserved, but the private claim file is not yet
+        # complete.  Both completion fields must remain null.
+        if claim_sha256 is not None or claim_size is not None:
+            raise RecoveryEntryError(
+                "attempted-unclaimed physical effect claim is partially complete"
+            )
+        public.update({"claim_sha256": None, "claim_size": None})
+        return public
+
+    if claim_sha256 is None and claim_size is None:
+        # D: a claim was attempted/marked claimed, but publication of its
+        # completion digest/size is ambiguous.  Retain this state so the
+        # failure manifest remains publishable for reconciliation.
+        public.update({"claim_sha256": None, "claim_size": None})
+        return public
+    if type(claim_sha256) is not str or SHA256_RE.fullmatch(claim_sha256) is None:
+        raise RecoveryEntryError("physical effect claim claim_sha256 is not exact")
+    if type(claim_size) is not int or not 0 < claim_size <= MAX_CLAIM_BYTES:
+        raise RecoveryEntryError("physical effect claim claim_size is not bounded")
+    # C: complete claim record with both source-backed completion fields.
+    public.update({"claim_sha256": claim_sha256, "claim_size": claim_size})
+    return public
+
+
 def _public_manifest(
     *,
     experiment_id: str,
@@ -1141,18 +1254,7 @@ def _public_manifest(
             "effect_replayed": False,
             "receipt": dispatch_public,
         },
-        "physical_effect_claim": {
-            key: effect_claim.get(key)
-            for key in (
-                "claimed",
-                "attempted",
-                "key_sha256",
-                "claim_sha256",
-                "claim_size",
-                "boot_id",
-            )
-            if isinstance(effect_claim, Mapping) and key in effect_claim
-        },
+        "physical_effect_claim": _physical_effect_claim_public(effect_claim),
         "recovery": recovery_public,
         "dispatch_count": 1 if dispatch is not None else 0,
         "effect_replayed": False,

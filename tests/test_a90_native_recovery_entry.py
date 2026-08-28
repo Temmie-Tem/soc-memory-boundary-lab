@@ -170,6 +170,29 @@ class RecoveryEntryTests(unittest.TestCase):
             validate.assert_not_called()
             exchange.assert_not_called()
 
+    def test_cmdline_accepts_ascii_space_runs_and_rejects_other_whitespace(self) -> None:
+        expected = entry.parse_cmdline(CMDLINE)
+        for count in (2, 3, 9):
+            with self.subTest(space_count=count):
+                spaced = CMDLINE[:-1].replace(b" ", b" " * count) + b"\n"
+                self.assertEqual(entry.parse_cmdline(spaced), expected)
+        body = CMDLINE[:-1]
+        for whitespace in (b"\t", b"\v", b"\f", b"\r", b"\n"):
+            with self.subTest(whitespace=whitespace):
+                with self.assertRaises(entry.RecoveryEntryError):
+                    entry.parse_cmdline(body.replace(b" ", whitespace, 1) + b"\n")
+        with self.assertRaises(entry.RecoveryEntryError):
+            entry.parse_cmdline(body.replace(b" ro ", b" ro  ro ") + b"\n")
+        for bad in (
+            b" " + CMDLINE,
+            CMDLINE[:-1] + b" \n",
+            CMDLINE + b"\n",
+            CMDLINE[:-1] + b"\r\n\n",
+        ):
+            with self.subTest(bad=bad):
+                with self.assertRaises(entry.RecoveryEntryError):
+                    entry.parse_cmdline(bad)
+
     def test_missing_execute_refuses_before_contact(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             with mock.patch.object(entry, "validate_bridge_binding") as validate, mock.patch.object(
@@ -274,16 +297,192 @@ class RecoveryEntryTests(unittest.TestCase):
                 journal["physical_effect_claim"]["boot_id"],
                 BOOT_ID.decode().strip(),
             )
+            public_claim = manifest["physical_effect_claim"]
+            self.assertNotIn("boot_id", public_claim)
+            self.assertEqual(
+                public_claim["boot_id_sha256"],
+                hashlib.sha256(BOOT_ID.decode().strip().encode("ascii")).hexdigest(),
+            )
             self.assertEqual(manifest["status"], entry.SUCCESS_STATUS)
             self.assertEqual(manifest["phase"], "control")
             self.assertEqual(manifest["effect"]["dispatch_count"], 1)
             self.assertFalse(manifest["partition_writes"])
             rendered = manifest_path.read_text(encoding="utf-8")
+            self.assertNotIn(BOOT_ID.decode().strip(), rendered)
             self.assertNotIn("cmdline_base64", rendered)
             self.assertNotIn("A90-RECOVERY", rendered)
             self.assertNotIn("serial\"", rendered)
             self.assertTrue(manifest["raw_cmdline_omitted"])
             self.assertTrue(manifest["raw_transcript_omitted"])
+
+    def test_public_claim_redacts_boot_id_and_rejects_malformed_claims(self) -> None:
+        def render(claim):
+            return entry._public_manifest(
+                experiment_id="claim-redaction",
+                phase="control",
+                started="2026-08-28T00:00:00+00:00",
+                completed="2026-08-28T00:00:01+00:00",
+                status=entry.SUCCESS_STATUS,
+                target=None,
+                journal_data=b"private",
+                bridge_bound=True,
+                stophud=None,
+                dispatch=None,
+                recovery=None,
+                effect_claim=claim,
+            )
+
+        boot_id = BOOT_ID.decode().strip()
+        public = render({
+            "attempted": True,
+            "claimed": True,
+            "boot_id": boot_id,
+            "key_sha256": "a" * 64,
+            "claim_sha256": "b" * 64,
+            "claim_size": 1,
+        })
+        claim = public["physical_effect_claim"]
+        self.assertNotIn("boot_id", claim)
+        self.assertEqual(
+            claim["boot_id_sha256"], hashlib.sha256(boot_id.encode("ascii")).hexdigest()
+        )
+        self.assertNotIn(boot_id, json.dumps(public, sort_keys=True))
+        self.assertEqual(render(None)["physical_effect_claim"], {})
+        self.assertNotIn(
+            "boot_id",
+            render({
+                "attempted": False,
+                "claimed": False,
+                "boot_id": None,
+                "key_sha256": None,
+                "claim_sha256": None,
+                "claim_size": None,
+            })["physical_effect_claim"],
+        )
+
+        malformed_claims = (
+            {
+                "attempted": True,
+                "claimed": True,
+                "boot_id": 7,
+                "key_sha256": "a" * 64,
+                "claim_sha256": "b" * 64,
+                "claim_size": 1,
+            },
+            {
+                "attempted": True,
+                "claimed": True,
+                "boot_id": boot_id,
+                "claim_sha256": "b" * 64,
+                "claim_size": 1,
+            },
+            {
+                "attempted": False,
+                "claimed": False,
+                "boot_id": "not-a-uuid",
+                "key_sha256": None,
+                "claim_sha256": None,
+                "claim_size": None,
+            },
+            {
+                "attempted": "true",
+                "claimed": False,
+                "boot_id": boot_id,
+                "key_sha256": "a" * 64,
+                "claim_sha256": None,
+                "claim_size": None,
+            },
+        )
+        for malformed in malformed_claims:
+            with self.subTest(malformed=malformed):
+                with self.assertRaisesRegex(entry.RecoveryEntryError, "physical effect claim"):
+                    render(malformed)
+
+    def test_public_claim_state_matrix_only_publishes_safe_fields(self) -> None:
+        boot_id = BOOT_ID.decode().strip()
+
+        def render_claim(claim):
+            return entry._physical_effect_claim_public(claim)
+
+        states = {
+            "A": {
+                "attempted": False,
+                "claimed": False,
+                "boot_id": None,
+                "key_sha256": None,
+                "claim_sha256": None,
+                "claim_size": None,
+            },
+            "B": {
+                "attempted": True,
+                "claimed": False,
+                "boot_id": boot_id,
+                "key_sha256": "a" * 64,
+                "claim_sha256": None,
+                "claim_size": None,
+            },
+            "C": {
+                "attempted": True,
+                "claimed": True,
+                "boot_id": boot_id,
+                "key_sha256": "a" * 64,
+                "claim_sha256": "b" * 64,
+                "claim_size": entry.MAX_CLAIM_BYTES,
+            },
+            "D": {
+                "attempted": True,
+                "claimed": True,
+                "boot_id": boot_id,
+                "key_sha256": "a" * 64,
+                "claim_sha256": None,
+                "claim_size": None,
+            },
+        }
+        for state, private in states.items():
+            with self.subTest(state=state):
+                public = render_claim(private)
+                self.assertNotIn("boot_id", public)
+                self.assertNotIn("claim_path", public)
+                if state == "A":
+                    self.assertNotIn("boot_id_sha256", public)
+                    self.assertEqual(public["key_sha256"], None)
+                else:
+                    self.assertEqual(
+                        public["boot_id_sha256"],
+                        hashlib.sha256(boot_id.encode("ascii")).hexdigest(),
+                    )
+                    self.assertEqual(public["key_sha256"], "a" * 64)
+
+        # A UUID is never accepted as a substitute for any allowlisted hash or
+        # size field, including when the private state otherwise looks valid.
+        for state in ("B", "C"):
+            for field in ("key_sha256", "claim_sha256", "claim_size"):
+                with self.subTest(state=state, uuid_field=field):
+                    forged = dict(states[state])
+                    forged[field] = boot_id
+                    with self.assertRaises(entry.RecoveryEntryError):
+                        render_claim(forged)
+
+        invalid = [
+            {**states["A"], "boot_id": boot_id},
+            {**states["A"], "key_sha256": "a" * 64},
+            {**states["A"], "claimed": True},
+            {**states["B"], "claim_sha256": "b" * 64},
+            {**states["B"], "claim_size": 1},
+            {**states["C"], "claim_sha256": None},
+            {**states["C"], "claim_size": None},
+            {**states["C"], "key_sha256": "A" * 64},
+            {**states["C"], "claim_sha256": "B" * 64},
+            {**states["C"], "claim_size": True},
+            {**states["C"], "claim_size": 0},
+            {**states["C"], "claim_size": -1},
+            {**states["C"], "claim_size": entry.MAX_CLAIM_BYTES + 1},
+            {**states["C"], "boot_id": boot_id + "\n"},
+        ]
+        for forged in invalid:
+            with self.subTest(forged=forged):
+                with self.assertRaises(entry.RecoveryEntryError):
+                    render_claim(forged)
 
     def test_dispatch_wire_and_exact_begin_marker_without_end(self) -> None:
         class SocketFixture:

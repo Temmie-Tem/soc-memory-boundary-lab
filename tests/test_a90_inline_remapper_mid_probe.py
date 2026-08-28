@@ -16,6 +16,7 @@ from typing import Mapping
 from unittest import mock
 
 from tools import a90_inline_remapper_mid_probe as probe
+from tools import a90_verification024_finalize as finalizer
 
 
 VERSION = (
@@ -1477,6 +1478,38 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             probe.parse_cmdline(CMDLINE.rstrip() + b" androidboot.debug_level=0x494d\n")
         with self.assertRaisesRegex(probe.ProbeError, "malformed"):
             probe.parse_cmdline(b"androidboot.debug_level=0x494d malformed\n")
+
+    def test_cmdline_accepts_ascii_space_runs_and_rejects_other_whitespace(self) -> None:
+        expected = probe.parse_cmdline(CMDLINE)
+        for count in (2, 3, 9):
+            with self.subTest(space_count=count):
+                spaced = CMDLINE[:-1].replace(b" ", b" " * count) + b"\n"
+                self.assertEqual(probe.parse_cmdline(spaced), expected)
+        body = CMDLINE[:-1]
+        for whitespace in (b"\t", b"\v", b"\f", b"\r", b"\n"):
+            with self.subTest(whitespace=whitespace):
+                with self.assertRaises(probe.ProbeError):
+                    probe.parse_cmdline(body.replace(b" ", whitespace, 1) + b"\n")
+        with self.assertRaises(probe.ProbeError):
+            probe.parse_cmdline(body.replace(b" ro ", b" ro  ro ") + b"\n")
+        for bad in (
+            b" " + CMDLINE,
+            CMDLINE[:-1] + b" \n",
+            CMDLINE + b"\n",
+            CMDLINE[:-1] + b"\r\n\n",
+        ):
+            with self.subTest(bad=bad):
+                with self.assertRaises(probe.ProbeError):
+                    probe.parse_cmdline(bad)
+
+    def test_double_space_live_cmdline_matches_finalizer_parser(self) -> None:
+        live_shape = CMDLINE[:-1].replace(
+            b"androidboot.bootloader=", b"  androidboot.bootloader=", 1
+        ) + b"\n"
+        self.assertEqual(
+            probe.parse_cmdline(live_shape),
+            finalizer.inline_parse_cmdline(live_shape),
+        )
 
     def test_classification_map_failure_precedes_mode(self) -> None:
         self.assertEqual(probe.classify_value(probe.MODE_CONTROL, probe.MAP_FAILURE_RESULT), "MAP_FAILED")

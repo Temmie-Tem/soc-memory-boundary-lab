@@ -129,6 +129,29 @@ class A90RuntimeHealthTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "panic_on_oops"):
             health.validate_target(VERSION, CMDLINE, b"339\n", b"0\n")
 
+    def test_cmdline_accepts_ascii_space_runs_and_rejects_other_whitespace(self) -> None:
+        expected = health.parse_cmdline(CMDLINE)
+        for count in (2, 3, 9):
+            with self.subTest(space_count=count):
+                spaced = CMDLINE[:-1].replace(b" ", b" " * count) + b"\n"
+                self.assertEqual(health.parse_cmdline(spaced), expected)
+        body = CMDLINE[:-1]
+        for whitespace in (b"\t", b"\v", b"\f", b"\r", b"\n"):
+            with self.subTest(whitespace=whitespace):
+                with self.assertRaises(ValueError):
+                    health.parse_cmdline(body.replace(b" ", whitespace, 1) + b"\n")
+        with self.assertRaises(ValueError):
+            health.parse_cmdline(body.replace(b" ro ", b" ro  ro ") + b"\n")
+        for bad in (
+            b" " + CMDLINE,
+            CMDLINE[:-1] + b" \n",
+            CMDLINE + b"\n",
+            CMDLINE[:-1] + b"\r\n\n",
+        ):
+            with self.subTest(bad=bad):
+                with self.assertRaises(ValueError):
+                    health.parse_cmdline(bad)
+
     def _run_collect(
         self,
         *,
