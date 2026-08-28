@@ -97,3 +97,19 @@ That was wrong, and it came from grepping a 160-line window of a 381-line
 function. It validates two frame classes thoroughly and omits the rest. The
 accurate statement is the one above: summary fields are checked, the evidence
 behind them is not.
+
+## Resolution and regression record
+
+The 0a63b92 finding was valid for the review snapshot named in that audit. The
+current resolution is the b773c66 delegation in `verify_control_manifest()`;
+it did not merely add more summary-field checks. The authorizer delegates to
+the complete `finalizer.validate_control()` contract, which reuses the single
+`_expected_full_frame_ids` implementation for the full producer sequence.
+
+Regression commit 943a032 uses the actual mocked producer baseline, removes
+each of the 41 raw and journal frame positions (including duplicate IDs),
+rebinds the public hash and size, and confirms that summaries, attestation and
+health remain unchanged while both gates reject. Representative extra and
+reordered frames are rejected as well. Root revalidation passed 130/130 with
+maximum RSS 98,656 KiB and zero swaps. This is host-only evidence: it grants
+no `verification-024-control-r2` live authority and made zero device contacts.
