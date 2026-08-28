@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 import os
@@ -224,6 +225,242 @@ class ControlRetryReaderTests(unittest.TestCase):
         self.assertEqual(artifacts["public"]["size_bytes"], 3715)
         self.assertEqual(artifacts["raw"]["size_bytes"], 4952)
         self.assertEqual(artifacts["journal"]["size_bytes"], 4662)
+
+
+class ControlRetrySemanticTests(unittest.TestCase):
+    """Exercise A2a over the retained producer-shaped predecessor triplet."""
+
+    def _actual_triplet(self) -> dict[str, object]:
+        paths = (
+            Path(retry.REPO_ROOT) / retry.PREDECESSOR_PUBLIC_RELATIVE_PATH,
+            Path(retry.REPO_ROOT) / retry.PREDECESSOR_RAW_RELATIVE_PATH,
+            Path(retry.REPO_ROOT) / retry.PREDECESSOR_JOURNAL_RELATIVE_PATH,
+        )
+        if not all(path.is_file() for path in paths):
+            self.skipTest("private predecessor triplet is not present")
+        return retry.stable_read_triplet()
+
+    def test_actual_triplet_builds_redacted_deterministic_capsule(self) -> None:
+        capsule = retry._validate_predecessor_semantics(self._actual_triplet())
+        self.assertEqual(capsule["schema"], retry.CAPSULE_SCHEMA)
+        self.assertEqual(capsule["phase"], retry.CAPSULE_PHASE)
+        self.assertEqual(capsule["predecessor_id"], retry.PREDECESSOR_ID)
+        self.assertEqual(capsule["active_control_id"], retry.ACTIVE_CONTROL_ID)
+        self.assertEqual(
+            set(capsule["claims"]),
+            {
+                "effect_grades",
+                "mmio_effect",
+                "stophud_state_change",
+                "partial_transport_retained_private_is_authority",
+                "historical_bridge_is_authority",
+                "live_authority",
+                "replay_allowed",
+                "old_id_reuse_allowed",
+                "fallback_allowed",
+                "legacy_marker",
+            },
+        )
+        self.assertEqual(
+            capsule["claims"]["effect_grades"],
+            {
+                "fixed_op": "PROVED_ZERO",
+                "panic": "PROVED_ZERO",
+                "partition": "PROVED_ZERO",
+                "controller": "PROVED_ZERO",
+                "device_state": "PROVED_ZERO",
+            },
+        )
+        self.assertEqual(capsule["claims"]["mmio_effect"], "PROVED_ZERO")
+        self.assertEqual(
+            capsule["claims"]["stophud_state_change"], "UNKNOWN_IDEMPOTENT"
+        )
+        self.assertEqual(
+            capsule["semantic"]["legacy_frame"]["recorded_failure"],
+            "STOPHUD_SUCCESS_PAYLOAD_NONEMPTY",
+        )
+        self.assertEqual(
+            capsule["claims"]["legacy_marker"],
+            {"partial_transport_retained_private": True, "authority": False},
+        )
+        self.assertFalse(capsule["claims"]["historical_bridge_is_authority"])
+        self.assertFalse(capsule["claims"]["live_authority"])
+        self.assertFalse(capsule["claims"]["replay_allowed"])
+        self.assertIn("current_r2_pins_are_A3_journal_scope", capsule["provenance"]["scope"])
+
+        serialized = retry.canonical_capsule_bytes(capsule)
+        self.assertEqual(serialized, retry.canonical_capsule_bytes(capsule))
+        descriptor = retry._canonical_capsule_descriptor(capsule)
+        self.assertEqual(descriptor["size_bytes"], len(serialized))
+        self.assertEqual(descriptor["sha256"], hashlib.sha256(serialized).hexdigest())
+        self.assertTrue(serialized.endswith(b"\n"))
+
+        encoded = serialized.decode("utf-8")
+        for forbidden in (
+            "/home/",
+            "/dev/tty",
+            "bridge_binding",
+            "process_argv",
+            "process_pid",
+            "listener",
+            "serial_identity",
+            "payload_base64",
+            "transcript_base64",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, encoded)
+
+        self.assertEqual(
+            capsule["provenance"]["historical_producer_commit"],
+            "6eaad666a7d666fdf50955d372e9b837bcb326ed",
+        )
+        for name, expected in retry.PRODUCER_SOURCE_PINS.items():
+            pin = capsule["provenance"]["historical_source_byte_pins"][name]
+            self.assertEqual(pin["pin_kind"], "historical_source_bytes")
+            self.assertEqual(pin["basename"], expected["basename"])
+            self.assertEqual(pin["size_bytes"], expected["size_bytes"])
+            self.assertEqual(pin["sha256"], expected["sha256"])
+
+    def test_semantic_mutations_and_cross_splices_are_rejected(self) -> None:
+        baseline = self._actual_triplet()
+        mutations: list[tuple[str, object]] = []
+
+        def public_outcome(triplet: dict[str, object]) -> None:
+            triplet["public"]["outcome"] = "CONTROL_PASS"
+
+        def public_type_confusion(triplet: dict[str, object]) -> None:
+            triplet["public"]["dispatch_count"] = False
+
+        def raw_measurement(triplet: dict[str, object]) -> None:
+            triplet["raw"]["fixed_op_measurement"] = {}
+
+        def raw_frame_id(triplet: dict[str, object]) -> None:
+            triplet["raw"]["frames"][0]["evidence_id"] = "fixed_op_4"
+
+        def journal_status(triplet: dict[str, object]) -> None:
+            triplet["journal"]["status"] = "CONTROL_VERIFIED"
+
+        def journal_frame_synthesis(triplet: dict[str, object]) -> None:
+            triplet["journal"]["frames"].append(
+                copy.deepcopy(triplet["journal"]["frames"][0])
+            )
+
+        def cross_splice(triplet: dict[str, object]) -> None:
+            triplet["journal"]["frames"][0]["transport_error"] = "foreign"
+
+        def hidden_a90r(triplet: dict[str, object]) -> None:
+            triplet["raw"]["error"]["exception_text"] = "A90Rc071"
+
+        mutations.extend(
+            [
+                ("public outcome", public_outcome),
+                ("public bool/int confusion", public_type_confusion),
+                ("raw fixed measurement", raw_measurement),
+                ("raw frame id", raw_frame_id),
+                ("journal status", journal_status),
+                ("journal frame synthesis", journal_frame_synthesis),
+                ("raw/journal frame cross-splice", cross_splice),
+                ("hidden A90R", hidden_a90r),
+            ]
+        )
+        for name, mutate in mutations:
+            with self.subTest(mutation=name):
+                hostile = copy.deepcopy(baseline)
+                mutate(hostile)
+                with self.assertRaises(retry.ControlRetryError):
+                    retry._validate_predecessor_semantics(hostile)
+
+    def test_capsule_serializer_rejects_nonfinite_values(self) -> None:
+        capsule = self._actual_triplet()
+        body = retry._validate_predecessor_semantics(capsule)
+        hostile = copy.deepcopy(body)
+        hostile["semantic"]["candidate"]["not_finite"] = float("nan")
+        with self.assertRaises(retry.ControlRetryError):
+            retry.canonical_capsule_bytes(hostile)
+
+    def test_exact_leaf_mutations_are_rejected_except_non_authority_bridge_values(self) -> None:
+        baseline = self._actual_triplet()
+        mutations = {
+            "public/arbitrary_address_input": lambda value: value["public"].update(
+                arbitrary_address_input=True
+            ),
+            "public/automatic_retries": lambda value: value["public"].update(
+                automatic_retries=True
+            ),
+            "public/controller_writes": lambda value: value["public"].update(
+                controller_writes=True
+            ),
+            "public/current_boot_attestation": lambda value: value["public"].update(
+                current_boot_attestation={}
+            ),
+            "public/device_state_write": lambda value: value["public"].update(
+                device_state_write=True
+            ),
+            "public/final_bridge_bound": lambda value: value["public"].update(
+                final_bridge_bound=True
+            ),
+            "public/semantic_claim": lambda value: value["public"].update(
+                semantic_claim={}
+            ),
+            "public/raw_snapshot_size": lambda value: value["public"].update(
+                raw_snapshot_size=float(retry.RAW_SIZE_BYTES)
+            ),
+            "public/journal_size": lambda value: value["public"].update(
+                journal_size=float(retry.JOURNAL_SIZE_BYTES)
+            ),
+            "raw/controller_writes": lambda value: value["raw"].update(
+                controller_writes=True
+            ),
+            "raw/final_bridge_bound": lambda value: value["raw"].update(
+                final_bridge_bound=True
+            ),
+            "raw/health_after": lambda value: value["raw"].update(
+                health_after={"ok": 0, "reason": "target_not_bound", "skipped": 1}
+            ),
+            "journal/health_after": lambda value: value["journal"].update(
+                health_after={"ok": 0, "reason": "target_not_bound", "skipped": 1}
+            ),
+            "artifacts/public/basename": lambda value: value["artifacts"]["public"].update(
+                basename="foreign.manifest.json"
+            ),
+            "artifacts/raw/basename": lambda value: value["artifacts"]["raw"].update(
+                basename="foreign.json"
+            ),
+            "artifacts/journal/basename": lambda value: value["artifacts"]["journal"].update(
+                basename="foreign.journal.json"
+            ),
+        }
+        for path, mutate in mutations.items():
+            with self.subTest(path=path):
+                hostile = copy.deepcopy(baseline)
+                mutate(hostile)
+                with self.assertRaises(retry.ControlRetryError):
+                    retry._validate_predecessor_semantics(hostile)
+
+    def test_bridge_descendant_is_not_promoted_into_capsule(self) -> None:
+        baseline = self._actual_triplet()
+        hostile = copy.deepcopy(baseline)
+        hostile["raw"]["bridge_binding"]["process_pid"] += 1
+        capsule = retry._validate_predecessor_semantics(hostile)
+        encoded = retry.canonical_capsule_bytes(capsule).decode("utf-8")
+        self.assertNotIn("bridge_binding", encoded)
+        self.assertFalse(capsule["claims"]["historical_bridge_is_authority"])
+
+    def test_capsule_args_do_not_alias_validator_state(self) -> None:
+        baseline = self._actual_triplet()
+        first = retry._validate_predecessor_semantics(baseline)
+        baseline_bytes = retry.canonical_capsule_bytes(first)
+        first["semantic"]["fixed_op"]["args"].append(99)
+
+        second = retry._validate_predecessor_semantics(baseline)
+        self.assertEqual(second["semantic"]["fixed_op"]["args"], [])
+        self.assertEqual(retry.canonical_capsule_bytes(second), baseline_bytes)
+        self.assertEqual(retry.FIXED_OP_ARGS, [])
+
+        hostile = copy.deepcopy(baseline)
+        hostile["raw"]["op_args"] = [99]
+        with self.assertRaises(retry.ControlRetryError):
+            retry._validate_predecessor_semantics(hostile)
 
 
 if __name__ == "__main__":
