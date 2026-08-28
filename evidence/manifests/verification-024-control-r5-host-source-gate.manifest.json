@@ -1,0 +1,170 @@
+{
+  "claims": {
+    "classification": "CLASS_C_UNCHANGED",
+    "control_live_scope_qualified": true,
+    "live_authority": false,
+    "r2_replay_allowed": false,
+    "r3_replay_allowed": false,
+    "r4_replay_allowed": false,
+    "r5_execution_attempted": false,
+    "r5_registered": true,
+    "read_authorized": false,
+    "requires_fresh_target_rebind": true
+  },
+  "control": {
+    "active_experiment_id": "verification-024-control-r5",
+    "candidate_sha256": "dbbf81f26cd3d9d2d52d2a2dbe84575b759b45cea8946d02646bd4503ad08247",
+    "candidate_size": 60882944,
+    "consumed_experiment_ids": [
+      "verification-024-control-r2",
+      "verification-024-control-r3",
+      "verification-024-control-r4"
+    ],
+    "r4_incident_checkpoint": {
+      "result_grade": "RETURNED_SENTINEL_CANDIDATE_NOT_CONTROL_PASS",
+      "schema": "sdm855-a90-v024-control-r4-incident-validation-v1",
+      "sha256": "4ff3b6db16e2290e391dc13005062fd2f3fa962ef1336adcf19fc0913c15f85b",
+      "size": 4758,
+      "status": "VALIDATED_CONSUMED_RETURNED_FRAMING_INCIDENT"
+    }
+  },
+  "device_observation": {
+    "contact": true,
+    "controller_writes": false,
+    "memory_or_mmio_writes": false,
+    "partition_writes": false,
+    "protected_memory_read": false,
+    "purpose": "output-only BusyBox stderr suppression and bounded sed canonicalization probes",
+    "security_state_writes": false,
+    "smc": false,
+    "writes": false
+  },
+  "downstream_boundary": {
+    "deferred_finding": "P1_R5_OUTPUT_NOT_YET_CONSUMABLE_BY_R4_FINALIZER",
+    "effect_on_control_execution": "NONE; control collect does not call the finalizer or READ authorizer",
+    "failed_test": "test_actual_mocked_producer_output_has_r4_reconciliation_bindings",
+    "required_before": "READ_ONE_SHOT",
+    "status": "READ_NOT_AUTHORIZED"
+  },
+  "fixed_op": {
+    "buffer_sha256": "7cb5cf5aa907dce3b48ddc5dce8f296782ac2d1b24d18cb55fa54d45cb86c6b4",
+    "buffer_size": 88,
+    "command_properties": [
+      "set -eu",
+      "exec 2>/dev/null before child commands",
+      "pre/post dmesg cursor with exact prefix comparison",
+      "last 16 new lines only",
+      "anchored A90R lowercase-hex length 1..16 canonicalization"
+    ],
+    "shell_sha256": "f8daaaad2b9f497f83f419e41210e8aa73a924e63803fa0e2292b8df28862096",
+    "shell_size": 1180,
+    "wire_sha256": "f548a4f876418ef4e52b2ef8d81cade2b85a1afda3d726dea0096eba529e1eae",
+    "wire_size": 2424
+  },
+  "generated_utc": "2026-08-28T11:16:53Z",
+  "hostile_review": {
+    "control_live_scope": {
+      "findings": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "result": "PASS"
+    },
+    "downstream_scope": {
+      "finding": "P1_DEFERRED_INTEGRATION_BOUNDARY",
+      "result": "NOT_REVIEWED_AS_LIVE_AUTHORITY"
+    },
+    "verified": [
+      "R5 O_EXCL preclaim precedes all reads and device contact",
+      "R2 R3 R4 IDs are consumed and rejected",
+      "R4 remains NOT_CONTROL_PASS",
+      "R2 R3 R4 checkpoints and reconciliation are exact",
+      "single op4 dispatch and no retry are retained",
+      "panic restore and six safety facts are retained",
+      "fixed shell and wire identity are exact"
+    ]
+  },
+  "implementation_commit": "e4959ac5b760f85ca9192e431261988c21339394",
+  "live_output_probe": {
+    "bounded_sed_payload_sha256": "7d6c7774f46050fe572991b1e93c062d02e9460ab0551cc3e5b456898b6e5b8c",
+    "bounded_sed_payload_size": 49,
+    "existing_strict_parser_result": "PASS_A90Rc071",
+    "grade": "SUPPORTED_LIVE_OUTPUT_ONLY",
+    "stderr_suppression_payload_sha256": "8208808e87a97a20988d3d7ca5d26e0acc755f3a06dcbfeac2a9a8c97df9db46",
+    "stderr_suppression_payload_size": 49
+  },
+  "note": "Control-only host source gate. It is not generic live authority. A fresh exact A90 bind and a new boot ID are required before the one-shot control-r5 execution. READ remains prohibited until downstream finalizer and last-kmsg consumers are upgraded and reviewed.",
+  "schema": "sdm855-a90-v024-control-r5-host-source-gate-v1",
+  "source_records": [
+    {
+      "blob_sha1": "04f4b60ebf6b7549763ee618fdd71ea9d4a3654e",
+      "path": "tools/a90_inline_remapper_mid_probe.py",
+      "sha256": "d8cabdbd223e2b4e62d00f3fb718ab01c599fb7fef1073c0d316ba666df9038c",
+      "size": 198504
+    },
+    {
+      "blob_sha1": "4d581958b9d4416a8bc71044341d1a3ba50f6384",
+      "path": "tools/a90_v024_r2_incident.py",
+      "sha256": "d8b97b6535d63c6964dc3a653bd6e8c76b3a17d017e6f268bb2e67f15d9a4569",
+      "size": 27772
+    },
+    {
+      "blob_sha1": "277e9c90f533df688a06c54750b625a22d46869d",
+      "path": "tools/a90_v024_control_retry.py",
+      "sha256": "c35adf105fa350c8d39e557a25f7d72222154f5a8a02612b11da5a35802ae704",
+      "size": 75407
+    },
+    {
+      "blob_sha1": "8bc2b525c1ea759f4888be6c210eb57d12a4cc87",
+      "path": "tools/a90_v024_boot_attestation.py",
+      "sha256": "1e6b3226173b0857c86a5c839d60a23bc55cc4e86cdf5358ce7472d42b194144",
+      "size": 3270
+    },
+    {
+      "blob_sha1": "2a121badf4ff5a257bba6ea3f9aad3ebef9bdce6",
+      "path": "tools/a90_autohud_arbitration.py",
+      "sha256": "8273cb1a85e4836b21f306f6383e2ed426f12cf62e12415a33c41a61f28d134c",
+      "size": 18009
+    },
+    {
+      "blob_sha1": "81c426069be191b061e33b26803da113fffe878f",
+      "path": "tools/a90_pa28_live.py",
+      "sha256": "0f50a20453f00a6f647d52cc2c3cd10ba52f8869d6b9264d5b9c47671197bc66",
+      "size": 150104
+    },
+    {
+      "blob_sha1": "86c4f6fa1f63a5b93ce131ef8a72e448741f9bf7",
+      "path": "tools/a90_native_reboot_observe.py",
+      "sha256": "f66d573add71da108399f5edab16242516809ee1525016ea51c3bab71ec4ec58",
+      "size": 62493
+    }
+  ],
+  "status": "HOST_SOURCE_GATE_PASS_CONTROL_ONLY",
+  "target": {
+    "model": "SM-A908N",
+    "scope": "A90_ONLY",
+    "soc": "SM8150"
+  },
+  "tests": {
+    "checkpoint_and_control_core": {
+      "errors": 0,
+      "failures": 0,
+      "max_rss_kib": 31188,
+      "process_swaps": 0,
+      "seconds": 0.036,
+      "total": 15
+    },
+    "control_scope": {
+      "errors": 0,
+      "excluded_downstream_tests": 1,
+      "failures": 0,
+      "max_rss_kib": 42068,
+      "process_swaps": 0,
+      "seconds": 1.048,
+      "total": 68
+    },
+    "full_suite_current_head": "NOT_RUN_BY_PROPORTIONAL_CONTROL_ONLY_GATE"
+  },
+  "worktree_clean_at_gate": true
+}
