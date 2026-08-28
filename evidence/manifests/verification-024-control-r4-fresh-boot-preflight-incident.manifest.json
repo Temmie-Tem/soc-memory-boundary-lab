@@ -1,0 +1,35 @@
+{
+  "claims": {
+    "bridge_binding_established": false,
+    "device_contact": false,
+    "effect_dispatched": false,
+    "effect_replayed": false,
+    "physical_effect_claim_attempted": false,
+    "reboot_dispatched": false,
+    "target_verified": false
+  },
+  "error": {
+    "category": "EXACT_BRIDGE_ABSENT",
+    "detail": "The fixed bridge validator found zero uniquely bound A90 bridge processes."
+  },
+  "experiment_id": "verification-024-control-r4-fresh-boot",
+  "journal": {
+    "basename": "verification-024-control-r4-fresh-boot.journal.json",
+    "mode": "0600",
+    "sha256": "56d50a1898317c2884edc052438f201f0c84fe4f37ba70af285d32409a30ad90",
+    "size": 769
+  },
+  "next_registered_id": "verification-024-control-r4-fresh-boot-r2",
+  "reconciliation": {
+    "bridge_restarted_after_incident": true,
+    "bridge_script_sha256": "febfb95f408f62f516c2e4f6c25f5da61535f7b75366c3f73cc47bfd91fba077",
+    "selected_serial_device": "/dev/ttyACM0",
+    "selected_serial_identity": "/dev/serial/by-id/usb-A90-LNX_A90_Linux_ARM64_A90NATIVE001-if00",
+    "successful_successor_public_sha256": "98d5e37c49307eecc76d93067f16b0a943ed1cc0e1b581af31ce1c5a7ec29e1b",
+    "successful_successor_public_size": 2255
+  },
+  "schema": "sdm855-a90-v024-control-r4-reboot-preflight-incident-v1",
+  "started_utc": "2026-08-28T10:35:26+00:00",
+  "status": "PRE_EFFECT_PREFLIGHT_INCOMPLETE",
+  "target_scope": "A90_ONLY"
+}
