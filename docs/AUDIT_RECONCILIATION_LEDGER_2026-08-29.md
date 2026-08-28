@@ -294,3 +294,69 @@ evidence exists, and the bounded low-bit result is the part that survives.**
 Everything in §1 was re-derived here from the pinned inputs rather than accepted
 from B's text: the V016 recomputation from 288 retained per-pair deltas, the two
 analyzer defects from source, `dcc_v2.c`, and the TZ ELF program headers.
+
+---
+
+## 8. Correction to this ledger — verdict pass on final report v2
+
+Produced while adjudicating `docs/FINAL_REPORT_2026-08-29.md` at `791cf5f`.
+Two entries above are stale or too strong.
+
+### 8.1 §1.2's second half is narrowed — `C5`
+
+§1.2 graded B's claim `CONFIRMED` in two halves and titled the row *"discards
+the evidence."* The first half — the hardcoded `static_policy_interpretation`
+narrative, emitted identically for every region — stands unchanged and is the
+serious defect. The second half does not.
+
+`client_permission_bytes` is not a retained datum. The MPU region record is
+32 bytes, `<IIIIQQ` = `index, flags, read_vmid, write_vmid, start, end`; it
+carries **no client-permission field**. `decode_mpu_region_permissions`
+synthesises the vector from `flags` plus four hardcoded bit tests on
+`read_vmid`/`write_vmid`. For the exact tested DC_NOC region
+`0x09248000..0x09249000` (`read_vmid 0x80000000`, `write_vmid 0x00000000`,
+owner `TZ`) the whole derivation is two steps:
+
+```text
+read_vmid bit 31 set      -> client_byte0 |= 0x10
+flags TZ owner branch     -> client_byte0 |= 0x01, client_byte1 |= 0x08
+                          => 0x11, 0x08
+=> nonsecure_client_ro_vector = (0x11 >> 3) & 7 = 2
+```
+
+`nonsecure_client_ro_vector = 2` is therefore a restatement of *one raw bit*,
+`read_vmid` bit 31 — not an independent grant to a non-secure client. Because
+`flags`, `read_vmid` and `write_vmid` are all retained by
+`sm8150_xpu_initializer_inventory.py`, discarding the computed vector loses
+**zero** information. "Computed and thrown away" was right; "discards the
+evidence" was not.
+
+Audit A §2.8 had already recorded this at `MEDIUM` confidence — *"the
+'non-standard construction' is partly a property of this project's decoder …
+the raw asymmetry survives; the narrative built on it does not"* — and this
+ledger failed to carry it into §1.2. The error is mine, not B's.
+
+Consequences, in scope order:
+
+- B's `POSSIBLE COUNTEREXAMPLE` in §1.4 — *"broad regions have non-owner client
+  write bits"* — reduces to "`write_vmid` has bits set." True, but not a
+  separate finding, and not evidence about client identity.
+- **No verdict changes.** `FINAL-XPU/POLICY-PATH` remains `UNKNOWN`; the
+  non-discriminating bit-3 predicate, instance/path/overlap selection and the
+  absent live policy readback each carry that axis on their own.
+- The correction tally in v2 §6 becomes `A -> B: 1 (narrowing)`,
+  `B -> A: 4`. The measured asymmetry stands.
+
+The signature is the same one recorded in §2: **a bounded fact about a static
+artifact stated one notch too strong** — here, a decoder output named as
+retained evidence. It survived two audits and a reconciliation pass because
+both auditors were arguing about whether the vector was *kept*, and neither
+re-derived where it came from.
+
+### 8.2 §7's last row is stale
+
+`B's four verdicts in §3` was recorded as *"delivered in review, not yet
+written into B's document."* They were written in at `f9ec259`, as
+§1.4.1 of `docs/INDEPENDENT_ADVERSARIAL_RESEARCH_AUDIT_2026-08-28.md`
+(+27 lines), with the derivations and the V023/V024 provenance split intact.
+That row is closed.
