@@ -163,8 +163,11 @@ Under bit 30 the grant counts change from 21/109 read and 15/109 write to
 
 **A separate, unresolved case.** `CNOC_AOSS_MPU` region 5 covers
 `0x17c00000..0x18200000` with `read_vmid = write_vmid = 0x00000000` — deny under
-*either* reading. Yet the retained `last_kmsg` from the same boot that produced
-the route-2 negative shows, at ~9.5 s intervals from 9.95 s to 85.7 s:
+*either* reading. Yet the retained `last_kmsg` from the boot that produced the
+**DMID** route-2 negative — Verification 023, candidate `7ee6a41f…`, whose
+`snapshot_physical_address` is the SHRM word `0x0906566c` and **not** the
+remapper, an address substitution `FINAL_REPORT` §8 itself lists as open work —
+shows, at ~9.5 s intervals from 9.95 s to 85.7 s:
 `msm_watchdog 17c10000.qcom,wdt: [pet_watchdog] last_count : …, new_count : …` —
 HLOS reading and writing MMIO in that range continuously; the DT also declares
 `syscon@17c0000c` bound by `qcom,ipc`/`smp2p`; and `010-xpu-initializer-inventory`
@@ -627,7 +630,7 @@ build. That is why it ranks first below.
 | **1** | **Decode all 152 TZ SMC records; disassemble any handler touching `0x09xxxxxx` or DDR** | H7, H6 | yes — an exact second closure | none (host-only) | static |
 | **2** | **MMIO positive control** — one load at an HLOS-readable register, identical harness | H3 → gates H1 | yes — either way it repairs the record | one reboot; recovery proven | live, read |
 | **3** | **Read the retained EL2 fault record** (`hyp_mem` @ `0x858df200`) | H2 | yes — pins protection identity | read-only; V012 path proven | live, read |
-| **4** | **DCC read-only probe**: known-good / `0x09248080` / unmapped | H1, H3, H6 | yes — first measured statement about a second initiator | DCC config volatile; **read-only, no `config_write`** | live, read |
+| ~~4~~ | ~~**DCC read-only probe**~~ — **WITHDRAWN, see Corrections** | H1, H3, H6 | — | **not read-only**; configuring it resets a live production list | **not eligible** |
 | **5** | **SMEM item 603** | H4 | yes | trivial | live, read |
 | **6** | **Forced DDR OPP change + tag invariance** | H5 | yes — closes route 4 row by test | reversible | live, read |
 | **7** | Re-derive the VMID encoding from TZ's own `tzbsp_mpu_partition_config`, then re-grade every document citing "no HLOS VMID grant" | fixes §2.2 for good | yes | none | static |
@@ -679,15 +682,15 @@ Specifically:
 
 5. **The search space was never swept on the initiator or proxy axes.** Two
    interfaces that exist on this exact target were never examined: the TZ MMIO
-   proxy (now closed here, exactly, by an 81-entry allowlist containing no DDRSS
-   address) and **DCC**, a live second bus initiator with 1053 configured
-   entries, a hardware timeout, and TZ code that sanitizes HLOS's configuration
-   of it as a function of debug policy.
+   proxy (whose **on-disk** 81-entry allowlist contains no DDRSS address) and
+   **DCC**, a live second bus initiator with 1053 configured entries, a hardware
+   timeout, and TZ code that sanitizes HLOS's configuration of it as a function
+   of debug policy.
 
 6. **The binding constraint was never the authority — it was the instrument.**
-   Two probe attempts in seventy experiments, because each costs a reset. DCC
-   removes that constraint, is read-only in the proposed use, and is the single
-   highest-value thing this project could build.
+   Two probe attempts in seventy experiments, because each costs a reset. A
+   non-fatal probe is still the single highest-value capability this project
+   could build — but **DCC is not it**, for the reason in Corrections.
 
 The correct form of the conclusion is therefore **not** "the transform is
 reachable only from behind an access-control boundary that held every time it was
@@ -697,11 +700,40 @@ tested," but:
 > found. Whether the paths tried were *refused* — rather than merely
 > unproductive — is not yet established, because the instrument that tried them
 > has never succeeded anywhere. Two interfaces that could answer this were never
-> examined; one of them is now exactly closed, and the other is open, cheap, and
-> read-only.
+> examined; one is default-denied by its on-disk table, and the other is open but
+> is not the cheap read-only probe this audit first took it for.
 
 Classification unchanged. Stop condition not triggered. No write is authorised
 or recommended by this audit; every proposed next step is read-only.
+
+---
+
+## Corrections — 2026-08-29
+
+Four claims in this document were wrong or overstated. All four were caught by
+the second adversarial audit
+(`docs/INDEPENDENT_ADVERSARIAL_RESEARCH_AUDIT_2026-08-28.md`) and then verified
+independently here against the pinned artifacts. They are recorded rather than
+quietly amended.
+
+| # | Original claim | Correct form | How it was settled |
+|---|---|---|---|
+| C1 | "bit 30 **is** the non-secure/HLOS class bit" (§2.2) | bit 30 separates this six-address sample; bit 3 separates none of it. The **actor name is not established** | naming withdrawn; the bit-3 falsification was independently `CONFIRMED` |
+| C2 | DCC is a "read-only probe, no `config_write`", ranked 4 and called the highest-value capability (§6.2, §11) | **DCC is not read-only.** Building a read list writes `DCC_LL_CFG/BASE/LOCK/SW_TRIGGER`, and `dcc_enable()` runs `__dcc_config_reset()`, destroying the 1053 entries already configured in production | verified in `dcc_v2.c` of the exact target kernel; row withdrawn |
+| C3 | SCM_IO is "closed, exactly, by an 81-entry allowlist" (§6.1, §12) | `PROVED` for the **on-disk image**; `UNKNOWN` at runtime — the table at `0x1c111238` is in LOAD segment 11, flags **RW**, as is the 152-record dispatch table | verified from the TZ ELF program headers |
+| C4 | the watchdog pets come from "the same boot that produced the route-2 negative" (§2.2) | that boot is Verification 023, candidate `7ee6a41f…`, reading the **SHRM** word `0x0906566c` — not the remapper. `FINAL_REPORT` §8 lists closing this address substitution as open work | verified from the V023 manifest |
+
+C1, C2 and C3 share one signature, and it is the same defect §2.1 reports
+against `FINAL_REPORT`: **a bounded fact about a static artifact stated as a
+claim about the live system, one notch too strong.** This audit named that
+defect and then committed it three times.
+
+What the corrections do **not** touch: the bit-3 predicate falsification (§2.2),
+the `CNOC_AOSS_MPU` live counterexample (§2.2), the missing MMIO positive
+control (§2.1), the 152-record dispatch table (§2.5), the deep-suspend
+subsumption argument (§2.4), and the retained EL2 fault record (§2.3). Each of
+those was put to the second audit and returned `CONFIRMED`, except the *cause*
+of the route-2 non-return, which both audits now record as `UNDECIDABLE`.
 
 ---
 
