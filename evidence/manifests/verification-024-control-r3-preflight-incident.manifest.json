@@ -1,0 +1,90 @@
+{
+  "artifacts": {
+    "journal": {
+      "basename": "verification-024-control-r3.journal.json",
+      "mode": "0600",
+      "sha256": "3e55bb1b85b4ab3a7c63a682a05a58220d4c26a7dfb7fbd08e2d1df8f181378e",
+      "size": 79467
+    },
+    "panic_recovery": {
+      "basename": "verification-024-control-r3-panic-recovery.manifest.json",
+      "sha256": "29439f2d8a6dc5cbb6113ca7a8843f37940e7201a26c378ceb019fa3cbbfc149",
+      "size": 1879
+    },
+    "public": {
+      "basename": "verification-024-control-r3.manifest.json",
+      "mode": "0644",
+      "sha256": "551465718605e47db02ca8b4e469ae8be2def65b79f7e8aeb5c5b7648a0606bc",
+      "size": 5099
+    },
+    "raw": {
+      "basename": "verification-024-control-r3.json",
+      "mode": "0600",
+      "sha256": "f0cefe3490f325761208514a665e5be506c87b9c36e01157513019b1d654dd05",
+      "size": 68518
+    },
+    "semantic_claim": {
+      "basename": "verification-024-inline-op-067684363cc867c284a5e18c8867964479426e0ece9a2b5bf55aab6c7bf93035.claim.json",
+      "mode": "0600",
+      "sha256": "568e910893a831af9b9ed7d69c778a6cb03f4a27bc64a7323cdd507f940de0a3",
+      "size": 512
+    },
+    "source_gate": {
+      "basename": "verification-024-control-r3-host-source-gate.manifest.json",
+      "sha256": "b92b728b4be4e44ee9a84ffef45e1f2927dd780512584bef5b449e6693425adf",
+      "size": 4553
+    }
+  },
+  "claims": {
+    "classification": "CLASS_C_UNCHANGED",
+    "controller_writes": false,
+    "effect_ambiguous": false,
+    "effect_dispatched": false,
+    "effect_replayed": false,
+    "fixed_op_dispatch_count": 0,
+    "memory_or_mmio_writes": false,
+    "panic_after_recovery": 1,
+    "panic_before": 1,
+    "panic_restore_verified": true,
+    "panic_set_0_applied": true,
+    "partition_writes": false,
+    "protected_memory_read": false,
+    "r3_id_consumed": true,
+    "same_id_reuse": false,
+    "security_boundary_result": "UNKNOWN_NOT_REACHED",
+    "semantic_claim_created": true,
+    "semantic_claim_retained": true,
+    "smc": false,
+    "temporary_sysctl_write": true,
+    "temporary_sysctl_write_rolled_back": true
+  },
+  "completed_utc": "2026-08-28T09:15:22Z",
+  "execution": {
+    "completed_utc": "2026-08-28T09:13:39+00:00",
+    "head": "aaa338b12376a5be42532cf62020d91a784b5d08",
+    "started_utc": "2026-08-28T09:13:36+00:00"
+  },
+  "experiment_id": "verification-024-control-r3-preflight-incident",
+  "next_registered_id": "verification-024-control-r4",
+  "reconciliation": {
+    "producer_device_state_field": "UNKNOWN",
+    "producer_temporary_sysctl_write_field": false,
+    "reason": "The writefile command completed rc=0/status=ok with the exact payload 'writefile: ok'; an independent read observed panic_on_oops=0 before the recovery write.",
+    "reconciled_device_state": "TEMPORARILY_CHANGED_AND_RESTORED",
+    "reconciled_temporary_sysctl_write": true,
+    "writefile_payload_sha256": "e71253fbda8d47143381003ab14d4887d8f214858728278267bf5daa9907e42b",
+    "writefile_payload_size": 13
+  },
+  "required_before_r4": [
+    "accept only the exact V2321 writefile success payload and rc/status",
+    "retain r3 as a consumed incident and never replay it",
+    "reboot to obtain a new boot_id because r3 created the same-boot semantic claim",
+    "freshly attest exact A90 identity, panic_on_oops=1 and control boot hash"
+  ],
+  "schema": "sdm855-a90-v024-control-r3-preflight-incident-v1",
+  "target": {
+    "model": "SM-A908N",
+    "scope": "A90_ONLY",
+    "soc": "SM8150"
+  }
+}
