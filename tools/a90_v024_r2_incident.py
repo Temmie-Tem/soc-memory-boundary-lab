@@ -69,6 +69,171 @@ R3_ARTIFACT_PINS: Mapping[str, tuple[str, int]] = {
         4553,
     ),
 }
+R4_MANIFEST_RELATIVE_PATH = Path(
+    "evidence/manifests/verification-024-control-r4-returned-incident.manifest.json"
+)
+R4_INCIDENT_MANIFEST_SHA256 = (
+    "4ff3b6db16e2290e391dc13005062fd2f3fa962ef1336adcf19fc0913c15f85b"
+)
+R4_INCIDENT_MANIFEST_SIZE = 4758
+R4_VALIDATION_SCHEMA = "sdm855-a90-v024-control-r4-incident-validation-v1"
+R4_INCIDENT_ID = "verification-024-control-r4-returned-incident"
+R4_ID = "verification-024-control-r4"
+R4_NEXT_ID = "verification-024-control-r5"
+
+R4_TARGET_PINS: Mapping[str, object] = {
+    "boot_id_sha256": "8953331fec3a0c638cb06e4f77fa1b6127e75f5e30d55f7e638ec5703a185dc9",
+    "boot_prefix_sha256": "dbbf81f26cd3d9d2d52d2a2dbe84575b759b45cea8946d02646bd4503ad08247",
+    "boot_prefix_size": 60882944,
+    "model": "SM-A908N",
+    "scope": "A90_ONLY",
+    "soc": "SM8150",
+}
+R4_CLAIMS_PINS: Mapping[str, object] = {
+    "classification": "CLASS_C_UNCHANGED",
+    "controller_writes": False,
+    "effect_ambiguous": False,
+    "effect_dispatched": True,
+    "effect_replayed": False,
+    "fixed_op_dispatch_count": 1,
+    "fixed_op_returned": True,
+    "memory_or_mmio_writes": False,
+    "panic_after_recovery": 1,
+    "panic_before": 1,
+    "panic_restore_verified": True,
+    "partition_writes": False,
+    "protected_memory_read": False,
+    "r4_id_consumed": True,
+    "security_boundary_result": "UNKNOWN_NOT_REACHED",
+    "semantic_claim_retained": True,
+    "smc": False,
+}
+R4_ARTIFACT_PINS: Mapping[str, Mapping[str, object]] = {
+    "host_source_gate": {
+        "basename": "verification-024-control-r4-host-source-gate.manifest.json",
+        "sha256": "6110b5bbd94fce23e433a046598b38b117f99f6b94db6b62d0a30235e72e4730",
+        "size": 6355,
+    },
+    "journal": {
+        "basename": "verification-024-control-r4.journal.json",
+        "mode": "0600",
+        "sha256": "2252bdeffdec0770deb3fb456662d91a7f09aff33ee147ef1e2547beb5984807",
+        "size": 108554,
+    },
+    "public": {
+        "basename": "verification-024-control-r4.manifest.json",
+        "mode": "0644",
+        "sha256": "e7f09da6283d84bba0492394019d6e14c02893b3560976db6cba216944a7fbcb",
+        "size": 5346,
+    },
+    "raw": {
+        "basename": "verification-024-control-r4.json",
+        "mode": "0600",
+        "sha256": "d85705efac9ceac7c4acc74830eb80859eaaaea32fa33679f3583bdb88fd6b21",
+        "size": 89998,
+    },
+    "semantic_claim": {
+        "basename": "verification-024-inline-op-f490728959ac4cef0e3a4de7267db2a1c87fa351f6095af1a415c3fa4bf7b322.claim.json",
+        "mode": "0600",
+        "sha256": "561bc65dd24c0fabb29f5240ce137fe199acc440b44161878b546966d73ac5c2",
+        "size": 512,
+    },
+}
+R4_PANIC_TRANSITION_PINS: Mapping[str, object] = {
+    "before": 1,
+    "proof_frame_ids": [
+        "panic_before",
+        "panic_set_0",
+        "panic_zero_verify",
+        "panic_set_1",
+        "panic_restore_verify",
+    ],
+    "restore_deferred": False,
+    "restore_write_attempted": True,
+    "restored": True,
+    "zero_set": True,
+    "zero_verified": True,
+    "zero_write_attempted": True,
+}
+R4_FIXED_OP_PINS: Mapping[str, object] = {
+    "a90r_marker_count": 1,
+    "a90r_marker_line": "[  116.230307] [5:        busybox:  676] A90Rc071",
+    "begin": {
+        "argc": "5",
+        "cmd": "run",
+        "flags": "0x2",
+        "seq": "49",
+    },
+    "canonical_value_candidate": "0x000000000000c071",
+    "end": {
+        "cmd": "run",
+        "duration_ms": "702",
+        "errno": "0",
+        "flags": "0x2",
+        "rc": "0",
+        "seq": "49",
+        "status": "ok",
+    },
+    "frame_canonical_sha256": "c4d0530cb6b60797acab56aa056f094b700d40f2d39349c5e221c383f1a7a858",
+    "frame_canonical_size": 9665,
+    "payload_line_count": 19,
+    "payload_sha256": "0fdb2adf322e5f6848428c19430b87a39e7a6ea5081e1672c1cf9be39da44003",
+    "payload_size": 1730,
+    "result_grade": "RETURNED_SENTINEL_CANDIDATE_NOT_CONTROL_PASS",
+    "transcript_sha256": "05ef2e84b9160ee00909b06a9bd819f4127fcc357601375ce9ddbc722f7521d6",
+    "transcript_size": 4215,
+}
+R4_PARSER_INCIDENT_PINS: Mapping[str, object] = {
+    "exception_type": "OperationReturnedError",
+    "reason": (
+        "The fixed operation returned one complete rc=0/status=ok frame and one "
+        "prefixed A90Rc071 marker, but the payload also contained dynamic-linker "
+        "diagnostics and one empty line, so the strict one-record parser refused "
+        "promotion."
+    ),
+    "repair_precondition": (
+        "Suppress child stderr before subcommands and canonicalize only one "
+        "line-ending A90R token; do not broaden the parser to arbitrary noise."
+    ),
+}
+R4_TOP_LEVEL_KEYS = (
+    "artifacts",
+    "claims",
+    "completed_utc",
+    "experiment_id",
+    "fixed_op",
+    "next_registered_id",
+    "panic_transition",
+    "parser_incident",
+    "post_incident_readonly_health",
+    "schema",
+    "source",
+    "started_utc",
+    "status",
+    "target",
+)
+R4_STARTED_UTC = "2026-08-28T10:38:40+00:00"
+R4_COMPLETED_UTC = "2026-08-28T10:38:43+00:00"
+R4_SOURCE_PINS: Mapping[str, object] = {
+    "commit": "5395249ce31170c43a45fcf42d7d438ad2957477",
+    "producer_sha256": "12c8690520e4bbd054a1e6155d700753f23eb3a20a3322552e0fc8fc69c55786",
+}
+R4_POST_INCIDENT_READONLY_HEALTH_PINS: Mapping[str, object] = {
+    "boot_id_sha256": "8953331fec3a0c638cb06e4f77fa1b6127e75f5e30d55f7e638ec5703a185dc9",
+    "bridge_process_pid": 47726,
+    "debug_level": "0x494d",
+    "evidence_grade": "SUPPORTED_EXEC_TRANSCRIPT",
+    "force_upload": "0",
+    "panic_on_oops": 1,
+    "selftest": {
+        "entries": 12,
+        "fail": 0,
+        "passed": 11,
+        "warn": 1,
+    },
+    "target_model": "SM-A908N",
+    "target_soc": "SM8150",
+}
 
 
 class R2IncidentError(ValueError):
@@ -258,6 +423,29 @@ def _require(document: Mapping[str, object], dotted: str, expected: object) -> N
         valid = type(actual) is type(expected) and actual == expected
     if not valid:
         raise R2IncidentError(f"field {dotted} is not the pinned value")
+
+
+def _pin_r4_value(actual: object, expected: object, label: str) -> None:
+    """Compare an R4 value recursively, including JSON scalar types."""
+
+    if isinstance(expected, dict):
+        if type(actual) is not dict or set(actual) != set(expected):
+            raise R2IncidentError(f"field {label} is not the pinned object")
+        for key, value in expected.items():
+            _pin_r4_value(actual[key], value, f"{label}.{key}")
+        return
+    if isinstance(expected, list):
+        if type(actual) is not list or len(actual) != len(expected):
+            raise R2IncidentError(f"field {label} is not the pinned list")
+        for index, value in enumerate(expected):
+            _pin_r4_value(actual[index], value, f"{label}[{index}]")
+        return
+    if type(actual) is not type(expected) or actual != expected:
+        raise R2IncidentError(f"field {label} is not the pinned value")
+
+
+def _require_r4(document: Mapping[str, object], dotted: str, expected: object) -> None:
+    _pin_r4_value(_get(document, dotted), expected, dotted)
 
 
 def _validate(document: Mapping[str, object]) -> None:
@@ -455,6 +643,104 @@ def validate_r3_incident(root: Path | str) -> dict[str, object]:
                 "sha256": R3_RECOVERY_DESCRIPTOR_SHA256,
                 "size": R3_RECOVERY_DESCRIPTOR_SIZE,
             }
+        },
+        "checkpoint": metadata,
+    }
+
+
+def _validate_r4(document: Mapping[str, object]) -> None:
+    """Validate the fixed R4 returned-result framing incident."""
+
+    if set(document) != set(R4_TOP_LEVEL_KEYS):
+        raise R2IncidentError("R4 manifest top-level keys are not exact")
+    for dotted, expected in {
+        "schema": "sdm855-a90-v024-control-r4-returned-incident-v1",
+        "experiment_id": R4_INCIDENT_ID,
+        "next_registered_id": R4_NEXT_ID,
+        "status": "CONSUMED_RETURNED_RESULT_FRAMING_INCIDENT",
+        "started_utc": R4_STARTED_UTC,
+        "completed_utc": R4_COMPLETED_UTC,
+    }.items():
+        _require_r4(document, dotted, expected)
+    _require_r4(document, "source", R4_SOURCE_PINS)
+    _require_r4(
+        document,
+        "post_incident_readonly_health",
+        R4_POST_INCIDENT_READONLY_HEALTH_PINS,
+    )
+    _require_r4(document, "target", R4_TARGET_PINS)
+    _require_r4(document, "claims", R4_CLAIMS_PINS)
+    _require_r4(document, "artifacts", R4_ARTIFACT_PINS)
+    _require_r4(document, "panic_transition", R4_PANIC_TRANSITION_PINS)
+    _require_r4(document, "fixed_op", R4_FIXED_OP_PINS)
+    _require_r4(document, "parser_incident", R4_PARSER_INCIDENT_PINS)
+
+
+def validate_r4_incident(root: Path | str) -> dict[str, object]:
+    """Validate the consumed R4 incident and return a compact redacted summary."""
+
+    data, metadata = _read_fixed_manifest(
+        root,
+        R4_MANIFEST_RELATIVE_PATH,
+        R4_INCIDENT_MANIFEST_SHA256,
+        R4_INCIDENT_MANIFEST_SIZE,
+    )
+    document = _json_object(data)
+    _validate_r4(document)
+
+    target = _get(document, "target")
+    claims = _get(document, "claims")
+    artifacts = _get(document, "artifacts")
+    panic_transition = _get(document, "panic_transition")
+    fixed_op = _get(document, "fixed_op")
+    parser_incident = _get(document, "parser_incident")
+    source = _get(document, "source")
+    post_health = _get(document, "post_incident_readonly_health")
+    assert isinstance(target, dict)  # established by _validate_r4
+    assert isinstance(claims, dict)
+    assert isinstance(artifacts, dict)
+    assert isinstance(panic_transition, dict)
+    assert isinstance(fixed_op, dict)
+    assert isinstance(parser_incident, dict)
+    assert isinstance(source, dict)
+    assert isinstance(post_health, dict)
+
+    return {
+        "schema": R4_VALIDATION_SCHEMA,
+        "status": "VALIDATED_CONSUMED_RETURNED_FRAMING_INCIDENT",
+        "experiment_id": R4_ID,
+        "next_registered_id": R4_NEXT_ID,
+        "classification": "CLASS_C_UNCHANGED",
+        "security_boundary_result": "UNKNOWN_NOT_REACHED",
+        "consumed_checkpoint": True,
+        "started_utc": R4_STARTED_UTC,
+        "completed_utc": R4_COMPLETED_UTC,
+        "source": dict(source),
+        "incident_facts": {
+            "fixed_op_dispatch_count": 1,
+            "fixed_op_returned": True,
+            "effect_dispatched": True,
+            "effect_ambiguous": False,
+            "effect_replayed": False,
+            "partition_writes": False,
+            "memory_or_mmio_writes": False,
+            "controller_writes": False,
+            "protected_memory_read": False,
+            "smc": False,
+            "panic_before": 1,
+            "panic_after_recovery": 1,
+            "panic_restore_verified": True,
+            "semantic_claim_retained": True,
+        },
+        "target": dict(target),
+        "post_incident_readonly_health": dict(post_health),
+        "panic_transition": dict(panic_transition),
+        "fixed_op": dict(fixed_op),
+        "parser_incident": dict(parser_incident),
+        "artifact_descriptors": {
+            role: dict(descriptor)
+            for role, descriptor in artifacts.items()
+            if isinstance(descriptor, dict)
         },
         "checkpoint": metadata,
     }
