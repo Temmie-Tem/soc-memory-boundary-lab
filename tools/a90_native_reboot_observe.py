@@ -569,6 +569,28 @@ def public_manifest_v2(
         for key, value in dispatch_receipt.items()
         if key != "transcript_base64"
     }
+    # Journals created by the extended producer retain the selected
+    # predecessor profile and whether it came from the explicit CLI option.
+    # Historical v1/v2 journals predate those fields; leave their projection
+    # shape unchanged so the fixed repair path can continue to validate them.
+    debug_profile_summary: dict[str, object] | None = None
+    if "expected_debug_before" in journal or "expected_debug_before_explicit" in journal:
+        expected_debug_before = journal.get("expected_debug_before")
+        expected_debug_after = journal.get("expected_debug_after")
+        expected_debug_before_explicit = journal.get("expected_debug_before_explicit")
+        if expected_debug_before not in DEBUG_CMDLINE:
+            raise RuntimeError("native reboot expected-before debug profile is malformed")
+        if expected_debug_after not in DEBUG_CMDLINE:
+            raise RuntimeError("native reboot expected-after debug profile is malformed")
+        if type(expected_debug_before_explicit) is not bool:
+            raise RuntimeError(
+                "native reboot expected-before explicit marker is malformed"
+            )
+        debug_profile_summary = {
+            "before": expected_debug_before,
+            "after": expected_debug_after,
+            "before_explicit": expected_debug_before_explicit,
+        }
     manifest = {
         "schema": PUBLIC_MANIFEST_SCHEMA_V2,
         "experiment_id": journal.get("experiment_id"),
@@ -631,6 +653,8 @@ def public_manifest_v2(
             ]
         },
     }
+    if debug_profile_summary is not None:
+        manifest["debug_profile_summary"] = debug_profile_summary
     # Keep the public projection independently privacy-checked even when this
     # pure builder is called from a host test or an embedding caller.
     _reject_public_private_data(manifest, "native reboot public manifest")
@@ -1108,6 +1132,15 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
     expect_debug_after = getattr(args, "expect_debug_after", None)
     if expect_debug_after not in DEBUG_CMDLINE:
         raise ValueError("expect-debug-after must be one of the fixed debug profiles")
+    requested_debug_before = getattr(args, "expect_debug_before", None)
+    if requested_debug_before is not None and requested_debug_before not in DEBUG_CMDLINE:
+        raise ValueError("expect-debug-before must be one of the fixed debug profiles")
+    expected_debug_before = (
+        requested_debug_before
+        if requested_debug_before is not None
+        else EXPECTED_DEBUG_PREDECESSOR[expect_debug_after]
+    )
+    expected_debug_before_explicit = requested_debug_before is not None
     command_timeout, dispatch_timeout, boot_timeout, poll_interval = _validate_timeout_set(
         command_timeout=getattr(args, "command_timeout", DEFAULT_COMMAND_TIMEOUT_SEC),
         dispatch_timeout=getattr(args, "dispatch_timeout", DEFAULT_DISPATCH_TIMEOUT_SEC),
@@ -1140,6 +1173,8 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
         "effect": "cmdv1 reboot",
         "effect_dispatched": False,
         "effect_replayed": False,
+        "expected_debug_before": expected_debug_before,
+        "expected_debug_before_explicit": expected_debug_before_explicit,
         "expected_debug_after": expect_debug_after,
         "pre_stophud": None,
         "pre_stophud_frames": pre_stophud_frames,
@@ -1214,9 +1249,7 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
         journal["pre_stophud"] = pre_stophud
         before = _preflight(host, port, command_timeout)
         current_debug = before["cmdline"].get("androidboot.debug_level")
-        expected_predecessor_debug = DEBUG_CMDLINE[
-            EXPECTED_DEBUG_PREDECESSOR[expect_debug_after]
-        ]
+        expected_predecessor_debug = DEBUG_CMDLINE[expected_debug_before]
         if current_debug != expected_predecessor_debug:
             raise ValueError(
                 "requested reboot debug profile does not follow the exact current predecessor"
@@ -1466,6 +1499,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--experiment-id", required=True)
     parser.add_argument("--expect-debug-after", required=True, choices=tuple(DEBUG_CMDLINE))
+    parser.add_argument("--expect-debug-before", choices=tuple(DEBUG_CMDLINE))
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=54321)

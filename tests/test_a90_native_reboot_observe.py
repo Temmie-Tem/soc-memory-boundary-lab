@@ -174,11 +174,223 @@ class A90NativeRebootObserveTests(unittest.TestCase):
             ]
         )
         self.assertTrue(parsed.execute)
+        self.assertIsNone(parsed.expect_debug_before)
+        explicit = parser.parse_args(
+            [
+                "--experiment-id",
+                "test",
+                "--expect-debug-before",
+                "mid",
+                "--expect-debug-after",
+                "mid",
+            ]
+        )
+        self.assertEqual(explicit.expect_debug_before, "mid")
         with contextlib.redirect_stderr(io.StringIO()):
             with self.assertRaises(SystemExit):
                 parser.parse_args(
                     ["--experiment-id", "test", "--expect-debug-after", "high"]
                 )
+
+    def test_mid_to_mid_collect_binds_explicit_profile_and_public_summary(self) -> None:
+        binding = {"process_pid": 123, "serial_device": "/dev/ttyACM0"}
+        before = {
+            "version": VERSION,
+            "cmdline": {
+                "androidboot.em.model": "SM-A908N",
+                "androidboot.bootloader": "A908NKSU5EWA3",
+                "androidboot.debug_level": "0x494d",
+            },
+            "boot_id": OLD_BOOT,
+        }
+        after = {
+            "version": (
+                b"A90 Linux init 0.9.285 (v2321-usb-clean-identity-rodata)\n"
+                b"version: 0.9.285 build=v2321-usb-clean-identity-rodata\n"
+                b"kernel: Linux 4.14.190-25818860-abA908NKSU5EWA3 aarch64\n"
+            ),
+            "boot_id": NEW_BOOT,
+            "attempts": 1,
+            "stophud": {"accepted": True, "busy_retries": 0},
+            "stophud_events": [],
+            "candidate_version": VERSION,
+            "candidate_boot_id": NEW_BOOT,
+        }
+        args = Namespace(
+            execute=True,
+            experiment_id="reboot-mid-to-mid",
+            expect_debug_before="mid",
+            expect_debug_after="mid",
+            host="127.0.0.1",
+            port=54321,
+            command_timeout=1.0,
+            dispatch_timeout=1.0,
+            boot_timeout=1.0,
+            poll_interval=0.01,
+        )
+        transcript = (
+            b"A90P1 BEGIN seq=1 cmd=reboot argc=1 flags=0x14\r\n"
+            b"reboot: syncing and restarting\r\n"
+        )
+
+        def fake_read(host, port, evidence_id, argv, timeout):
+            del host, port, argv, timeout
+            return {
+                "boot_id_claim": (OLD_BOOT + "\n").encode("ascii"),
+                "cmdline_after": (
+                    b"androidboot.em.model=SM-A908N "
+                    b"androidboot.bootloader=A908NKSU5EWA3 "
+                    b"androidboot.debug_level=0x494d "
+                    b"androidboot.force_upload=0x0 sec_debug.dump_sink=0x0\n"
+                ),
+                "download_mode_after": b"1\n",
+                "selftest_after": (
+                    b"selftest: pass=11 warn=1 fail=0 duration=43ms entries=12\n"
+                ),
+                "boot_id_final": (NEW_BOOT + "\n").encode("ascii"),
+            }[evidence_id]
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            with mock.patch.object(reboot, "REPO_ROOT", root), mock.patch.object(
+                reboot, "validate_bridge_binding", return_value=binding
+            ), mock.patch.object(
+                reboot, "revalidate_bridge_binding", return_value=binding
+            ), mock.patch.object(
+                reboot,
+                "run_stophud",
+                return_value={"accepted": True, "busy_retries": 0},
+            ), mock.patch.object(
+                reboot, "_preflight", return_value=before
+            ), mock.patch.object(
+                reboot, "wait_for_new_boot", return_value=after
+            ), mock.patch.object(
+                reboot, "_read", side_effect=fake_read
+            ), mock.patch.object(
+                reboot, "_dispatch_reboot_wire", return_value=(transcript, True)
+            ) as dispatch:
+                journal_path, manifest_path = reboot.collect(args)
+            journal = json.loads(journal_path.read_text())
+            manifest = json.loads(manifest_path.read_text())
+
+        self.assertEqual(journal["expected_debug_before"], "mid")
+        self.assertTrue(journal["expected_debug_before_explicit"])
+        self.assertEqual(journal["expected_debug_after"], "mid")
+        self.assertEqual(
+            manifest["debug_profile_summary"],
+            {"before": "mid", "after": "mid", "before_explicit": True},
+        )
+        dispatch.assert_called_once()
+
+    def test_explicit_wrong_pre_profile_stops_before_claim_and_dispatch(self) -> None:
+        binding = {"process_pid": 123, "serial_device": "/dev/ttyACM0"}
+        for suffix, (expected_before, observed_before, expected_after) in enumerate(
+            (("mid", "low", "mid"), ("low", "mid", "low")),
+            start=1,
+        ):
+            with self.subTest(
+                expected_before=expected_before,
+                observed_before=observed_before,
+                expected_after=expected_after,
+            ), tempfile.TemporaryDirectory() as directory:
+                experiment_id = f"reboot-explicit-before-mismatch-{suffix}"
+                args = Namespace(
+                    execute=True,
+                    experiment_id=experiment_id,
+                    expect_debug_before=expected_before,
+                    expect_debug_after=expected_after,
+                    host="127.0.0.1",
+                    port=54321,
+                    command_timeout=1.0,
+                    dispatch_timeout=1.0,
+                    boot_timeout=1.0,
+                    poll_interval=0.01,
+                )
+                before = {
+                    "version": VERSION,
+                    "cmdline": {
+                        "androidboot.em.model": "SM-A908N",
+                        "androidboot.bootloader": "A908NKSU5EWA3",
+                        "androidboot.debug_level": reboot.DEBUG_CMDLINE[observed_before],
+                    },
+                    "boot_id": OLD_BOOT,
+                }
+                root = Path(directory)
+                with mock.patch.object(reboot, "REPO_ROOT", root), mock.patch.object(
+                    reboot, "validate_bridge_binding", return_value=binding
+                ), mock.patch.object(
+                    reboot,
+                    "run_stophud",
+                    return_value={"accepted": True, "busy_retries": 0},
+                ), mock.patch.object(
+                    reboot, "_preflight", return_value=before
+                ), mock.patch.object(
+                    reboot, "claim_native_transition"
+                ) as claim, mock.patch.object(
+                    reboot, "_dispatch_reboot_wire"
+                ) as dispatch:
+                    with self.assertRaisesRegex(ValueError, "current predecessor"):
+                        reboot.collect(args)
+                journal = json.loads(
+                    (root / "evidence/private" / f"{experiment_id}.journal.json").read_text()
+                )
+
+            claim.assert_not_called()
+            dispatch.assert_not_called()
+            self.assertEqual(journal["expected_debug_before"], expected_before)
+            self.assertTrue(journal["expected_debug_before_explicit"])
+            self.assertFalse(journal["effect_dispatched"])
+            self.assertFalse(journal["physical_effect_claim"]["attempted"])
+
+    def test_legacy_predecessor_mapping_is_retained_when_before_is_omitted(self) -> None:
+        binding = {"process_pid": 123, "serial_device": "/dev/ttyACM0"}
+        before = {
+            "version": VERSION,
+            "cmdline": {
+                "androidboot.em.model": "SM-A908N",
+                "androidboot.bootloader": "A908NKSU5EWA3",
+                "androidboot.debug_level": "0x4f4c",
+            },
+            "boot_id": OLD_BOOT,
+        }
+        args = Namespace(
+            execute=True,
+            experiment_id="reboot-legacy-predecessor",
+            expect_debug_after="mid",
+            host="127.0.0.1",
+            port=54321,
+            command_timeout=1.0,
+            dispatch_timeout=1.0,
+            boot_timeout=1.0,
+            poll_interval=0.01,
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            with mock.patch.object(reboot, "REPO_ROOT", root), mock.patch.object(
+                reboot, "validate_bridge_binding", return_value=binding
+            ), mock.patch.object(
+                reboot,
+                "run_stophud",
+                return_value={"accepted": True, "busy_retries": 0},
+            ), mock.patch.object(
+                reboot, "_preflight", return_value=before
+            ), mock.patch.object(
+                reboot,
+                "revalidate_bridge_binding",
+                side_effect=RuntimeError("stop before effect"),
+            ), mock.patch.object(reboot, "_dispatch_reboot_wire") as dispatch:
+                with self.assertRaisesRegex(RuntimeError, "stop before effect"):
+                    reboot.collect(args)
+            journal = json.loads(
+                (root / "evidence/private/reboot-legacy-predecessor.journal.json").read_text()
+            )
+
+        self.assertEqual(
+            journal["expected_debug_before"],
+            reboot.EXPECTED_DEBUG_PREDECESSOR["mid"],
+        )
+        self.assertFalse(journal["expected_debug_before_explicit"])
+        dispatch.assert_not_called()
 
     def test_postboot_stophud_waits_for_new_boot_id_and_reobserves(self) -> None:
         calls: list[str] = []
