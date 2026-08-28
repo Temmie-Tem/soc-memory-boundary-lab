@@ -217,6 +217,14 @@ COMMAND_PROTOCOL_FLAGS: dict[str, str] = {
     "stophud": "0x8",
 }
 
+# V2321's native ``writefile`` command returns this exact success body.  The
+# write is an authorizing state transition, so an empty body or a body with
+# any framing/diagnostic byte must not be treated as a successful write.
+PANIC_WRITE_SUCCESS_PAYLOAD = b"writefile: ok"
+PANIC_WRITE_SUCCESS_PAYLOAD_SHA256 = (
+    "e71253fbda8d47143381003ab14d4887d8f214858728278267bf5daa9907e42b"
+)
+
 
 def protocol_flags_for_argv(argv: Sequence[str]) -> str | None:
     """Return the exact native protocol flags for an allowlisted command."""
@@ -1024,7 +1032,7 @@ def _write_panic_on_oops(
     argv = ("writefile", "/proc/sys/kernel/panic_on_oops", str(value))
     command = ExtendedCommand(f"panic_set_{value}", argv)
     frame = _attest_one(host, port, timeout, command, frames)
-    if getattr(frame, "payload", None) != b"":
+    if getattr(frame, "payload", None) != PANIC_WRITE_SUCCESS_PAYLOAD:
         raise ProbeError(f"panic_set_{value} returned unexpected payload")
 
 

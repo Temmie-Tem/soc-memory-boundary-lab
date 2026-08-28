@@ -440,9 +440,17 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
 
             panic_frames = [
                 panic_record("panic_before", ("cat", "/proc/sys/kernel/panic_on_oops"), b"1\n"),
-                panic_record("panic_set_0", ("writefile", "/proc/sys/kernel/panic_on_oops", "0"), b""),
+                panic_record(
+                    "panic_set_0",
+                    ("writefile", "/proc/sys/kernel/panic_on_oops", "0"),
+                    probe.PANIC_WRITE_SUCCESS_PAYLOAD,
+                ),
                 panic_record("panic_zero_verify", ("cat", "/proc/sys/kernel/panic_on_oops"), b"0\n"),
-                panic_record("panic_set_1", ("writefile", "/proc/sys/kernel/panic_on_oops", "1"), b""),
+                panic_record(
+                    "panic_set_1",
+                    ("writefile", "/proc/sys/kernel/panic_on_oops", "1"),
+                    probe.PANIC_WRITE_SUCCESS_PAYLOAD,
+                ),
                 panic_record("panic_restore_verify", ("cat", "/proc/sys/kernel/panic_on_oops"), b"1\n"),
             ]
             fixed_payload = b"run: pid=1, q/Ctrl-C cancels\nA90Rc071\n[exit 0]\n"
@@ -841,7 +849,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                 )
                 session.panic_values.append(0)
                 panic_state = 0
-                return FakeFrame(b"", "writefile")
+                return FakeFrame(probe.PANIC_WRITE_SUCCESS_PAYLOAD, "writefile")
             if command.evidence_id == "panic_set_1":
                 self.assertEqual(
                     command.argv,
@@ -851,7 +859,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                 if restore_exception is not None:
                     raise restore_exception
                 panic_state = 1
-                return FakeFrame(b"", "writefile")
+                return FakeFrame(probe.PANIC_WRITE_SUCCESS_PAYLOAD, "writefile")
             if command.evidence_id in {"version_before", "version_after"}:
                 return FakeFrame(VERSION, "version")
             if command.evidence_id in {"cmdline_before", "cmdline_after"}:
@@ -3155,6 +3163,78 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                 self.assertEqual(session.panic_values, [])
                 self.assertNotIn("version_before", exchange_ids)
                 self.assertNotIn("fixed_op_4", exchange_ids)
+
+    def test_panic_write_requires_exact_v2321_success_payload(self) -> None:
+        self.assertEqual(probe.PANIC_WRITE_SUCCESS_PAYLOAD, b"writefile: ok")
+        self.assertEqual(len(probe.PANIC_WRITE_SUCCESS_PAYLOAD), 13)
+        self.assertEqual(
+            probe.sha256_bytes(probe.PANIC_WRITE_SUCCESS_PAYLOAD),
+            "e71253fbda8d47143381003ab14d4887d8f214858728278267bf5daa9907e42b",
+        )
+
+        for value in (0, 1):
+            with self.subTest(value=value):
+                frames: list[dict[str, object]] = []
+                frame = FakeFrame(probe.PANIC_WRITE_SUCCESS_PAYLOAD, "writefile")
+                with mock.patch.object(probe, "exchange", return_value=frame) as exchange_mock:
+                    probe._write_panic_on_oops(
+                        probe.BRIDGE_HOST,
+                        probe.BRIDGE_PORT,
+                        1.0,
+                        value,
+                        frames,
+                    )
+                exchange_mock.assert_called_once()
+                self.assertEqual(len(frames), 1)
+                self.assertEqual(
+                    frames[0]["payload_sha256"],
+                    probe.PANIC_WRITE_SUCCESS_PAYLOAD_SHA256,
+                )
+                self.assertEqual(frames[0]["payload_size"], 13)
+
+        invalid_payloads = (
+            b"",
+            b"\n",
+            b"\r\n",
+            b"writefile: ",
+            b"writefile: ok\n",
+            b"writefile: ok\r\n",
+            b"writefile: okay",
+            b"writefile: failed",
+            b"ok",
+        )
+        for value in (0, 1):
+            for payload in invalid_payloads:
+                with self.subTest(value=value, payload=payload):
+                    frames = []
+                    frame = FakeFrame(payload, "writefile")
+                    with mock.patch.object(probe, "exchange", return_value=frame):
+                        with self.assertRaisesRegex(
+                            probe.ProbeError, "returned unexpected payload"
+                        ):
+                            probe._write_panic_on_oops(
+                                probe.BRIDGE_HOST,
+                                probe.BRIDGE_PORT,
+                                1.0,
+                                value,
+                                frames,
+                            )
+                    # The complete frame is retained before its semantic
+                    # payload check; no later write or probe is authorized.
+                    self.assertEqual(len(frames), 1)
+
+        malformed = FakeFrame(probe.PANIC_WRITE_SUCCESS_PAYLOAD, "writefile")
+        malformed.begin["flags"] = "0x2"
+        malformed.end["flags"] = "0x2"
+        with mock.patch.object(probe, "exchange", return_value=malformed):
+            with self.assertRaisesRegex(probe.ProbeError, "command/sequence"):
+                probe._write_panic_on_oops(
+                    probe.BRIDGE_HOST,
+                    probe.BRIDGE_PORT,
+                    1.0,
+                    0,
+                    [],
+                )
 
     def test_pre_effect_payload_semantics_fail_closed_before_panic_or_fixed_op(self) -> None:
         empty_body_violation = b"run: pid=1, q/Ctrl-C cancels\nextra\n[exit 0]\n"
