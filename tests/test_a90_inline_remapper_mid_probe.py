@@ -298,7 +298,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
         ``verify_control_manifest`` delegates to the downstream finalizer
         compatibility seam.  Read collector tests still need
         to exercise the producer's chronology and transport paths, so this
-        seam derives the same projection from the just-produced r3 files
+        seam derives the same projection from the just-produced r4 files
         without importing or hand-building a legacy receipt.
         """
 
@@ -351,12 +351,25 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             "r2_incident_manifest_sha256": probe.CONTROL_R2_INCIDENT_MANIFEST_SHA256,
             "r2_incident_manifest_size": probe.CONTROL_R2_INCIDENT_MANIFEST_SIZE,
             "r2_zero_effect_validated": True,
+            "r3_incident_manifest_sha256": probe.CONTROL_R3_INCIDENT_MANIFEST_SHA256,
+            "r3_incident_manifest_size": probe.CONTROL_R3_INCIDENT_MANIFEST_SIZE,
+            "r3_zero_op_restored_validated": True,
         }
 
     def _r2_incident_summary_fixture(self) -> dict[str, object]:
         """Return the real redacted projection from the committed checkpoint."""
 
         summary = probe.r2_incident.validate_r2_incident(
+            probe.r2_incident.REPO_ROOT
+        )
+        self.assertIsInstance(summary, dict)
+        assert isinstance(summary, dict)
+        return summary
+
+    def _r3_incident_summary_fixture(self) -> dict[str, object]:
+        """Return the stable redacted projection from the R3 checkpoint."""
+
+        summary = probe.r2_incident.validate_r3_incident(
             probe.r2_incident.REPO_ROOT
         )
         self.assertIsInstance(summary, dict)
@@ -373,6 +386,17 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
         destination.write_bytes(source.read_bytes())
         # The validator accepts non-executable, non-world-writable readable
         # regular files; make the fixture mode explicit and deterministic.
+        os.chmod(destination, 0o644)
+        return destination
+
+    def _install_r3_incident_manifest(self, root: Path) -> Path:
+        """Copy the committed consumed-R3 checkpoint into a temp root."""
+
+        relative = probe.r2_incident.R3_MANIFEST_RELATIVE_PATH
+        source = probe.r2_incident.REPO_ROOT / relative
+        destination = root / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(source.read_bytes())
         os.chmod(destination, 0o644)
         return destination
 
@@ -1095,6 +1119,11 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                             "validate_r2_incident",
                             return_value=self._r2_incident_summary_fixture(),
                         ),
+                        mock.patch.object(
+                            probe.r2_incident,
+                            "validate_r3_incident",
+                            return_value=self._r3_incident_summary_fixture(),
+                        ),
                     ]
                 )
             else:
@@ -1177,7 +1206,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             output_root=root,
         )
 
-    def test_control_r3_preclaim_is_first_durable_action_and_failure_is_sticky(self) -> None:
+    def test_control_r4_preclaim_is_first_durable_action_and_failure_is_sticky(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             args = self._minimal_control_args(root)
@@ -1220,18 +1249,18 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                 events,
                 [f"exclusive:{journal_path.name}", "capsule"],
             )
-            self.assertEqual(json.loads(journal_path.read_text()), probe._control_r3_preclaim())
+            self.assertEqual(json.loads(journal_path.read_text()), probe._control_r4_preclaim())
             candidate_read.assert_not_called()
             transport_read.assert_not_called()
             flash_read.assert_not_called()
             bridge.assert_not_called()
             exchange.assert_not_called()
 
-    def test_control_r3_existing_preclaim_rejects_replay_before_any_reads(self) -> None:
+    def test_control_r4_existing_preclaim_rejects_replay_before_any_reads(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             journal_path = control_journal_path(root)
-            probe._exclusive_json(journal_path, probe._control_r3_preclaim())
+            probe._exclusive_json(journal_path, probe._control_r4_preclaim())
             args = self._minimal_control_args(root)
             with (
                 mock.patch.object(probe, "REPO_ROOT", root),
@@ -1258,7 +1287,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             ):
                 with self.assertRaisesRegex(probe.ProbeError, "already exists"):
                     probe.collect(args)
-            self.assertEqual(json.loads(journal_path.read_text()), probe._control_r3_preclaim())
+            self.assertEqual(json.loads(journal_path.read_text()), probe._control_r4_preclaim())
             capsule.assert_not_called()
             candidate_read.assert_not_called()
             transport_read.assert_not_called()
@@ -1266,13 +1295,14 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             bridge.assert_not_called()
             exchange.assert_not_called()
 
-    def test_control_r3_incident_validation_is_after_preclaim_and_sticky_on_failure(self) -> None:
-        """A failed consumed-R2 validation leaves the R3 owner and no device contact."""
+    def test_control_r4_r3_incident_validation_is_after_preclaim_and_sticky_on_failure(self) -> None:
+        """A failed consumed-R3 validation leaves the R4 owner and no device contact."""
 
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             args = self._minimal_control_args(root)
             fixture, fixture_sha256, fixture_size = self._predecessor_capsule_fixture()
+            r2_fixture = self._r2_incident_summary_fixture()
             events: list[str] = []
             original_exclusive = probe._exclusive_json
 
@@ -1284,13 +1314,21 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                 events.append("incident")
                 raise ValueError("fixture incident mismatch")
 
+            def pass_r2(_root: Path) -> dict[str, object]:
+                events.append("r2")
+                return r2_fixture
+
+            def return_capsule() -> dict[str, object]:
+                events.append("capsule")
+                return fixture
+
             with (
                 mock.patch.object(probe, "REPO_ROOT", root),
                 mock.patch.object(probe, "_exclusive_json", side_effect=record_exclusive),
                 mock.patch.object(
                     probe.control_retry,
                     "build_predecessor_capsule",
-                    return_value=fixture,
+                    side_effect=return_capsule,
                 ),
                 mock.patch.object(
                     probe, "CONTROL_R2_PREDECESSOR_CAPSULE_SHA256", fixture_sha256
@@ -1301,6 +1339,11 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                 mock.patch.object(
                     probe.r2_incident,
                     "validate_r2_incident",
+                    side_effect=pass_r2,
+                ),
+                mock.patch.object(
+                    probe.r2_incident,
+                    "validate_r3_incident",
                     side_effect=fail_incident,
                 ),
                 mock.patch.object(
@@ -1325,9 +1368,9 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             journal_path = control_journal_path(root)
             self.assertEqual(
                 events,
-                [f"exclusive:{journal_path.name}", "incident"],
+                [f"exclusive:{journal_path.name}", "capsule", "r2", "incident"],
             )
-            expected = probe._control_r3_preclaim()
+            expected = probe._control_r4_preclaim()
             predecessor = expected["predecessor_capsule"]
             self.assertIsInstance(predecessor, dict)
             assert isinstance(predecessor, dict)
@@ -1340,23 +1383,24 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             bridge.assert_not_called()
             exchange.assert_not_called()
 
-    def test_control_r3_incident_summary_rejects_checkpoint_descriptor_mutation(self) -> None:
-        fixture = self._r2_incident_summary_fixture()
+    def test_control_r4_r3_incident_summary_rejects_checkpoint_descriptor_mutation(self) -> None:
+        fixture = self._r3_incident_summary_fixture()
         fixture["checkpoint"] = {
             "sha256": "0" * 64,
-            "size_bytes": probe.CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+            "size_bytes": probe.CONTROL_R3_INCIDENT_MANIFEST_SIZE,
         }
         with tempfile.TemporaryDirectory() as directory:
             with mock.patch.object(
-                probe.r2_incident, "validate_r2_incident", return_value=fixture
+                probe.r2_incident, "validate_r3_incident", return_value=fixture
             ):
                 with self.assertRaisesRegex(probe.ProbeError, "checkpoint hash"):
-                    probe._validate_control_r2_incident(Path(directory))
+                    probe._validate_control_r3_incident(Path(directory))
 
-    def test_control_r3_rejects_consumed_r2_and_arbitrary_ids_before_output_checks(self) -> None:
+    def test_control_r4_rejects_consumed_ids_and_arbitrary_ids_before_output_checks(self) -> None:
         for bad_id in (
             probe.CONTROL_PREDECESSOR_EXPERIMENT_ID,
             probe.CONTROL_R2_EXPERIMENT_ID,
+            probe.CONTROL_R3_EXPERIMENT_ID,
             "verification-024-control-attacker",
         ):
             with self.subTest(bad_id=bad_id), tempfile.TemporaryDirectory() as directory:
@@ -1384,7 +1428,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                 bridge.assert_not_called()
                 exchange.assert_not_called()
 
-    def test_control_r3_mocked_collect_embeds_exact_capsule_and_descriptor(self) -> None:
+    def test_control_r4_mocked_collect_embeds_prior_incidents_and_capsule(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             result, _session, _exchange_ids = self._run_collect(
@@ -1407,7 +1451,14 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                 reconciliation["r2_incident"],
                 self._r2_incident_summary_fixture(),
             )
-            expected_preclaim = probe._control_r3_preclaim()
+            r3_reconciliation = journal.get("control_r4_reconciliation")
+            self.assertIsInstance(r3_reconciliation, dict)
+            assert isinstance(r3_reconciliation, dict)
+            self.assertEqual(
+                r3_reconciliation["r3_incident"],
+                self._r3_incident_summary_fixture(),
+            )
+            expected_preclaim = probe._control_r4_preclaim()
             expected_predecessor = expected_preclaim["predecessor_capsule"]
             self.assertIsInstance(expected_predecessor, dict)
             assert isinstance(expected_predecessor, dict)
@@ -1421,7 +1472,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                 reconciliation["preclaim_size"],
                 len(probe.json_bytes(expected_preclaim)),
             )
-            preclaim = probe._control_r3_preclaim()
+            preclaim = probe._control_r4_preclaim()
             predecessor_preclaim = preclaim["predecessor_capsule"]
             self.assertIsInstance(predecessor_preclaim, dict)
             assert isinstance(predecessor_preclaim, dict)
@@ -1600,11 +1651,19 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             raw = json.loads(result[0].read_text())
             public = json.loads(result[1].read_text())
             incident_manifest = self._install_r2_incident_manifest(root)
+            r3_incident_manifest = self._install_r3_incident_manifest(root)
             self.assertEqual(
                 incident_manifest.read_bytes(),
                 (
                     probe.r2_incident.REPO_ROOT
                     / probe.r2_incident.MANIFEST_RELATIVE_PATH
+                ).read_bytes(),
+            )
+            self.assertEqual(
+                r3_incident_manifest.read_bytes(),
+                (
+                    probe.r2_incident.REPO_ROOT
+                    / probe.r2_incident.R3_MANIFEST_RELATIVE_PATH
                 ).read_bytes(),
             )
             self.assertEqual(
@@ -1647,6 +1706,23 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                     "r2_zero_effect_validated": True,
                 },
             )
+            for record in (raw, public):
+                with self.subTest(record="raw" if record is raw else "public"):
+                    self.assertEqual(
+                        {
+                            key: record[key]
+                            for key in (
+                                "r3_incident_manifest_sha256",
+                                "r3_incident_manifest_size",
+                                "r3_zero_op_restored_validated",
+                            )
+                        },
+                        {
+                            "r3_incident_manifest_sha256": probe.CONTROL_R3_INCIDENT_MANIFEST_SHA256,
+                            "r3_incident_manifest_size": probe.CONTROL_R3_INCIDENT_MANIFEST_SIZE,
+                            "r3_zero_op_restored_validated": True,
+                        },
+                    )
             self.assertEqual(
                 public["current_boot_attestation"]["sysfs_uevent"],
                 {
@@ -1746,6 +1822,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                 self.assertIsNotNone(control_result)
                 assert control_result is not None
                 self._install_r2_incident_manifest(root)
+                self._install_r3_incident_manifest(root)
                 result, _session, _exchange_ids = self._run_collect(
                     root, probe.MODE_READ, value=0x1234
                 )
@@ -1768,6 +1845,21 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                         "r2_incident_manifest_sha256": probe.CONTROL_R2_INCIDENT_MANIFEST_SHA256,
                         "r2_incident_manifest_size": probe.CONTROL_R2_INCIDENT_MANIFEST_SIZE,
                         "r2_zero_effect_validated": True,
+                    },
+                )
+                self.assertEqual(
+                    {
+                        key: read_public["control_manifest"][key]
+                        for key in (
+                            "r3_incident_manifest_sha256",
+                            "r3_incident_manifest_size",
+                            "r3_zero_op_restored_validated",
+                        )
+                    },
+                    {
+                        "r3_incident_manifest_sha256": probe.CONTROL_R3_INCIDENT_MANIFEST_SHA256,
+                        "r3_incident_manifest_size": probe.CONTROL_R3_INCIDENT_MANIFEST_SIZE,
+                        "r3_zero_op_restored_validated": True,
                     },
                 )
                 self.assertEqual(
@@ -2213,6 +2305,10 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                 probe.r2_incident,
                 "validate_r2_incident",
                 return_value=self._r2_incident_summary_fixture(),
+            ), mock.patch.object(
+                probe.r2_incident,
+                "validate_r3_incident",
+                return_value=self._r3_incident_summary_fixture(),
             ):
                 with self.assertRaisesRegex(probe.ProbeError, "source SHA-256"):
                     probe.collect(args)

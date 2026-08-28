@@ -154,9 +154,10 @@ exchange = native_exchange
 REPO_ROOT = Path(__file__).resolve().parents[1]
 # ``control-r2`` was consumed by a preflight devt mismatch.  It is retained
 # only as a fixed, read-only incident checkpoint and can never be selected as
-# an execution ID again.  The next and only active control owner is r3.
-CONTROL_EXPERIMENT_ID = "verification-024-control-r3"
+# an execution ID again.  The next and only active control owner is r4.
+CONTROL_EXPERIMENT_ID = "verification-024-control-r4"
 CONTROL_R2_EXPERIMENT_ID = "verification-024-control-r2"
+CONTROL_R3_EXPERIMENT_ID = "verification-024-control-r3"
 CONTROL_PREDECESSOR_EXPERIMENT_ID = "verification-024-control"
 READ_SOURCE_EXPERIMENT_ID = "verification-024-read"
 FLASH_JOURNAL_PREFIX = "verification-024-remapper-boot-flash-"
@@ -490,8 +491,8 @@ V024_DISPLAY_RE = re.compile(
 MAX_FLASH_JOURNAL_BYTES = 256 * 1024
 MAX_TIMEOUT_SEC = 120.0
 
-CONTROL_R3_PRECLAIM_SCHEMA = "sdm855-a90-inline-remapper-mid-journal-v1"
-CONTROL_R3_PRECLAIM_STATUS = "PREDECESSOR_VALIDATION_PENDING"
+CONTROL_R4_PRECLAIM_SCHEMA = "sdm855-a90-inline-remapper-mid-journal-v1"
+CONTROL_R4_PRECLAIM_STATUS = "PREDECESSOR_VALIDATION_PENDING"
 CONTROL_R2_PREDECESSOR_CAPSULE_SCHEMA = (
     "sdm855-a90-v024-control-predecessor-final-capsule-v1"
 )
@@ -499,15 +500,18 @@ CONTROL_R2_PREDECESSOR_CAPSULE_SHA256 = (
     "56d233030e1c970b486721b21293a91a154bdc5ebe0ae811b36473457648df15"
 )
 CONTROL_R2_PREDECESSOR_CAPSULE_SIZE = 4924
-CONTROL_R3_HISTORICAL_PINS_POLICY = (
-    "historical_predecessor_capsule_bound; current_r3_source_provenance_required_before_live"
+CONTROL_R4_HISTORICAL_PINS_POLICY = (
+    "historical_predecessor_capsule_bound; current_r4_source_provenance_required_before_live"
 )
-# Compatibility names are deliberately aliases for the r3 preclaim values.
-# They do not make r2 executable again; collect() accepts only
+# Compatibility names are deliberately aliases for the active r4 preclaim.
+# They do not make r2 or r3 executable again; collect() accepts only
 # CONTROL_EXPERIMENT_ID above.
-CONTROL_R2_PRECLAIM_SCHEMA = CONTROL_R3_PRECLAIM_SCHEMA
-CONTROL_R2_PRECLAIM_STATUS = CONTROL_R3_PRECLAIM_STATUS
-CONTROL_R2_HISTORICAL_PINS_POLICY = CONTROL_R3_HISTORICAL_PINS_POLICY
+CONTROL_R3_PRECLAIM_SCHEMA = CONTROL_R4_PRECLAIM_SCHEMA
+CONTROL_R3_PRECLAIM_STATUS = CONTROL_R4_PRECLAIM_STATUS
+CONTROL_R3_HISTORICAL_PINS_POLICY = CONTROL_R4_HISTORICAL_PINS_POLICY
+CONTROL_R2_PRECLAIM_SCHEMA = CONTROL_R4_PRECLAIM_SCHEMA
+CONTROL_R2_PRECLAIM_STATUS = CONTROL_R4_PRECLAIM_STATUS
+CONTROL_R2_HISTORICAL_PINS_POLICY = CONTROL_R4_HISTORICAL_PINS_POLICY
 
 # The incident module is the sole source of these committed checkpoint pins.
 # Do not duplicate or infer them locally; the stable interface deliberately
@@ -515,6 +519,9 @@ CONTROL_R2_HISTORICAL_PINS_POLICY = CONTROL_R3_HISTORICAL_PINS_POLICY
 CONTROL_R2_INCIDENT_MANIFEST_SHA256 = r2_incident.INCIDENT_MANIFEST_SHA256
 CONTROL_R2_INCIDENT_MANIFEST_SIZE = r2_incident.INCIDENT_MANIFEST_SIZE
 CONTROL_R2_INCIDENT_VALIDATION_SCHEMA = r2_incident.VALIDATION_SCHEMA
+CONTROL_R3_INCIDENT_MANIFEST_SHA256 = r2_incident.R3_INCIDENT_MANIFEST_SHA256
+CONTROL_R3_INCIDENT_MANIFEST_SIZE = r2_incident.R3_INCIDENT_MANIFEST_SIZE
+CONTROL_R3_INCIDENT_VALIDATION_SCHEMA = r2_incident.R3_VALIDATION_SCHEMA
 
 
 class ProbeError(RuntimeError):
@@ -1275,45 +1282,59 @@ def _fixed_control_manifest_path(root: Path) -> Path:
     return root / "evidence" / "manifests" / f"{CONTROL_EXPERIMENT_ID}.manifest.json"
 
 
-def _control_r3_preclaim() -> dict[str, object]:
-    """Return the file-only R3 reconciliation-validation intent.
+def _control_r4_preclaim() -> dict[str, object]:
+    """Return the file-only R4 reconciliation-validation intent.
 
     Every value in this object is fixed before the first candidate,
-    transport, flash, historical-capsule, bridge, or device read.  The
-    consumed R2 identifier is represented only as an immutable checkpoint
-    binding; it is never an executable fallback.
+    transport, flash, historical-capsule, bridge, or device read.  R2 and
+    R3 are immutable consumed checkpoints, never executable fallbacks.  The
+    returned object is therefore safe to write with O_EXCL as the first
+    durable action of the R4 route.
     """
 
     return {
-        "schema": CONTROL_R3_PRECLAIM_SCHEMA,
-        "status": CONTROL_R3_PRECLAIM_STATUS,
+        "schema": CONTROL_R4_PRECLAIM_SCHEMA,
+        "status": CONTROL_R4_PRECLAIM_STATUS,
         "experiment_id": CONTROL_EXPERIMENT_ID,
         "predecessor_experiment_id": CONTROL_PREDECESSOR_EXPERIMENT_ID,
         "consumed_r2_experiment_id": CONTROL_R2_EXPERIMENT_ID,
+        "consumed_r3_experiment_id": CONTROL_R3_EXPERIMENT_ID,
         "mode": MODE_CONTROL,
         "replay_safe": False,
         "predecessor_capsule": {
             "schema": CONTROL_R2_PREDECESSOR_CAPSULE_SCHEMA,
             "sha256": CONTROL_R2_PREDECESSOR_CAPSULE_SHA256,
             "size": CONTROL_R2_PREDECESSOR_CAPSULE_SIZE,
-            "historical_pins_policy": CONTROL_R3_HISTORICAL_PINS_POLICY,
+            "historical_pins_policy": CONTROL_R4_HISTORICAL_PINS_POLICY,
         },
         "r2_incident": {
             "schema": CONTROL_R2_INCIDENT_VALIDATION_SCHEMA,
             "sha256": CONTROL_R2_INCIDENT_MANIFEST_SHA256,
             "size": CONTROL_R2_INCIDENT_MANIFEST_SIZE,
         },
+        "r3_incident": {
+            "schema": CONTROL_R3_INCIDENT_VALIDATION_SCHEMA,
+            "sha256": CONTROL_R3_INCIDENT_MANIFEST_SHA256,
+            "size": CONTROL_R3_INCIDENT_MANIFEST_SIZE,
+        },
     }
 
 
-def _control_r2_preclaim() -> dict[str, object]:
-    """Compatibility alias for callers that named the former preclaim.
+def _control_r3_preclaim() -> dict[str, object]:
+    """Compatibility alias for the active R4 preclaim.
 
-    The returned object is the active R3 preclaim, and collect() rejects the
-    consumed R2 ID before this function can be used to create a journal.
+    Older consumers used this helper name while R3 was active.  Keeping the
+    alias makes the transition explicit without reopening either consumed
+    execution ID; collect() accepts only CONTROL_EXPERIMENT_ID.
     """
 
-    return _control_r3_preclaim()
+    return _control_r4_preclaim()
+
+
+def _control_r2_preclaim() -> dict[str, object]:
+    """Compatibility alias for callers that named the former preclaim."""
+
+    return _control_r4_preclaim()
 
 
 def _validate_control_r2_incident(root: Path) -> dict[str, object]:
@@ -1337,7 +1358,7 @@ def _validate_control_r2_incident(root: Path) -> dict[str, object]:
         "schema": CONTROL_R2_INCIDENT_VALIDATION_SCHEMA,
         "status": "VALIDATED_ZERO_EFFECT",
         "experiment_id": CONTROL_R2_EXPERIMENT_ID,
-        "next_registered_id": CONTROL_EXPERIMENT_ID,
+        "next_registered_id": CONTROL_R3_EXPERIMENT_ID,
         "classification": "CLASS_C_UNCHANGED",
         "security_boundary_result": "UNKNOWN_NOT_REACHED",
     }
@@ -1368,6 +1389,100 @@ def _validate_control_r2_incident(root: Path) -> dict[str, object]:
         or checkpoint.get("size_bytes") != CONTROL_R2_INCIDENT_MANIFEST_SIZE
     ):
         raise ProbeError("control-r2 incident checkpoint size is not exact")
+    return dict(summary)
+
+
+def _validate_control_r3_incident(root: Path) -> dict[str, object]:
+    """Validate the consumed R3 checkpoint and bind its exact summary.
+
+    R3 did not dispatch the fixed op, but it did temporarily change
+    ``panic_on_oops`` and retain a semantic claim.  Those facts are part of
+    the reconciliation evidence and must not be reduced to a generic
+    "zero effect" label.  The checkpoint module performs the fixed-file
+    no-follow/hash/schema validation; this wrapper cross-checks the complete
+    redacted projection before it can enter the R4 journal.
+    """
+
+    try:
+        summary = r2_incident.validate_r3_incident(root)
+    except BaseException as exc:
+        raise ProbeError(
+            f"control-r3 incident checkpoint validation failed: {exc}"
+        ) from exc
+    if type(summary) is not dict:
+        raise ProbeError("control-r3 incident validator returned a non-object")
+
+    expected_scalars: dict[str, object] = {
+        "schema": CONTROL_R3_INCIDENT_VALIDATION_SCHEMA,
+        "status": "VALIDATED_CONSUMED_ZERO_OP_RESTORED_STATE",
+        "experiment_id": CONTROL_R3_EXPERIMENT_ID,
+        "next_registered_id": CONTROL_EXPERIMENT_ID,
+        "classification": "CLASS_C_UNCHANGED",
+        "security_boundary_result": "UNKNOWN_NOT_REACHED",
+        "consumed_checkpoint": True,
+    }
+    for key, expected in expected_scalars.items():
+        actual = summary.get(key)
+        if type(actual) is not type(expected) or actual != expected:
+            raise ProbeError(f"control-r3 incident summary field {key!r} is not exact")
+
+    expected_incident_facts: dict[str, object] = {
+        "fixed_op_dispatch_count": 0,
+        "effect_dispatched": False,
+        "effect_ambiguous": False,
+        "effect_replayed": False,
+        "partition_writes": False,
+        "memory_or_mmio_writes": False,
+        "controller_writes": False,
+        "protected_memory_read": False,
+        "smc": False,
+        "panic_before": 1,
+        "panic_set_0_applied": True,
+        "panic_after_recovery": 1,
+        "panic_restore_verified": True,
+        "semantic_claim_retained": True,
+    }
+    incident_facts = summary.get("incident_facts")
+    if type(incident_facts) is not dict:
+        raise ProbeError("control-r3 incident facts are not an object")
+    if set(incident_facts) != set(expected_incident_facts):
+        raise ProbeError("control-r3 incident-facts keys are not exact")
+    for key, expected in expected_incident_facts.items():
+        actual = incident_facts.get(key)
+        if type(actual) is not type(expected) or actual != expected:
+            raise ProbeError(
+                f"control-r3 incident-facts field {key!r} is not exact"
+            )
+
+    expected_reconciliation: dict[str, object] = {
+        "temporary_sysctl_write": True,
+        "temporary_sysctl_write_rolled_back": True,
+        "writefile_payload_sha256": PANIC_WRITE_SUCCESS_PAYLOAD_SHA256,
+        "writefile_payload_size": len(PANIC_WRITE_SUCCESS_PAYLOAD),
+    }
+    reconciliation = summary.get("reconciliation")
+    if type(reconciliation) is not dict:
+        raise ProbeError("control-r3 incident reconciliation is not an object")
+    if set(reconciliation) != set(expected_reconciliation):
+        raise ProbeError("control-r3 incident reconciliation keys are not exact")
+    for key, expected in expected_reconciliation.items():
+        actual = reconciliation.get(key)
+        if type(actual) is not type(expected) or actual != expected:
+            raise ProbeError(
+                f"control-r3 incident reconciliation field {key!r} is not exact"
+            )
+
+    checkpoint = summary.get("checkpoint")
+    if type(checkpoint) is not dict:
+        raise ProbeError("control-r3 incident checkpoint descriptor is missing")
+    for key, expected in {
+        "sha256": CONTROL_R3_INCIDENT_MANIFEST_SHA256,
+        "size_bytes": CONTROL_R3_INCIDENT_MANIFEST_SIZE,
+    }.items():
+        actual = checkpoint.get(key)
+        if type(actual) is not type(expected) or actual != expected:
+            label = "hash" if key == "sha256" else key
+            raise ProbeError(f"control-r3 incident checkpoint {label} is not exact")
     return dict(summary)
 
 
@@ -3058,6 +3173,9 @@ def verify_control_manifest(path: Path, *, root: Path | None = None) -> dict[str
         "r2_incident_manifest_sha256": CONTROL_R2_INCIDENT_MANIFEST_SHA256,
         "r2_incident_manifest_size": CONTROL_R2_INCIDENT_MANIFEST_SIZE,
         "r2_zero_effect_validated": True,
+        "r3_incident_manifest_sha256": CONTROL_R3_INCIDENT_MANIFEST_SHA256,
+        "r3_incident_manifest_size": CONTROL_R3_INCIDENT_MANIFEST_SIZE,
+        "r3_zero_op_restored_validated": True,
     }.items():
         actual = finalizer_receipt.get(key)
         if type(actual) is not type(expected) or actual != expected:
@@ -3102,6 +3220,11 @@ def verify_control_manifest(path: Path, *, root: Path | None = None) -> dict[str
         "r2_incident_manifest_size": CONTROL_R2_INCIDENT_MANIFEST_SIZE,
         "r2_zero_effect_validated": True,
     }
+    r3_projection = {
+        "r3_incident_manifest_sha256": CONTROL_R3_INCIDENT_MANIFEST_SHA256,
+        "r3_incident_manifest_size": CONTROL_R3_INCIDENT_MANIFEST_SIZE,
+        "r3_zero_op_restored_validated": True,
+    }
     for label, record in (
         ("control manifest", manifest),
         ("control raw", raw),
@@ -3112,6 +3235,12 @@ def verify_control_manifest(path: Path, *, root: Path | None = None) -> dict[str
             if type(actual) is not type(expected) or actual != expected:
                 raise ProbeError(
                     f"{label} r2 reconciliation projection {key!r} differs"
+                )
+        for key, expected in r3_projection.items():
+            actual = record.get(key)
+            if type(actual) is not type(expected) or actual != expected:
+                raise ProbeError(
+                    f"{label} r3 reconciliation projection {key!r} differs"
                 )
 
     completed = _parse_completed_utc(
@@ -3171,6 +3300,15 @@ def verify_control_manifest(path: Path, *, root: Path | None = None) -> dict[str
         "r2_zero_effect_validated": finalizer_receipt.get(
             "r2_zero_effect_validated"
         ),
+        "r3_incident_manifest_sha256": finalizer_receipt.get(
+            "r3_incident_manifest_sha256"
+        ),
+        "r3_incident_manifest_size": finalizer_receipt.get(
+            "r3_incident_manifest_size"
+        ),
+        "r3_zero_op_restored_validated": finalizer_receipt.get(
+            "r3_zero_op_restored_validated"
+        ),
     }
 
     # Bind every field consumed by READ to the receipt returned by the
@@ -3206,6 +3344,13 @@ def verify_control_manifest(path: Path, *, root: Path | None = None) -> dict[str
         ],
         "r2_incident_manifest_size": summary["r2_incident_manifest_size"],
         "r2_zero_effect_validated": summary["r2_zero_effect_validated"],
+        "r3_incident_manifest_sha256": summary[
+            "r3_incident_manifest_sha256"
+        ],
+        "r3_incident_manifest_size": summary["r3_incident_manifest_size"],
+        "r3_zero_op_restored_validated": summary[
+            "r3_zero_op_restored_validated"
+        ],
         "raw_path": summary["raw_path"],
         "journal_path": summary["journal_path"],
     }
@@ -3300,22 +3445,24 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
     predecessor_capsule_bytes: bytes | None = None
     predecessor_capsule_descriptor: dict[str, object] | None = None
     r2_incident_summary: dict[str, object] | None = None
+    r3_incident_summary: dict[str, object] | None = None
     preclaim_bytes: bytes | None = None
     if args.mode == MODE_CONTROL:
-        # This is the first durable action in the control-r3 route.  It uses
+        # This is the first durable action in the control-r4 route.  It uses
         # only fixed constants and O_EXCL; no candidate, transport, flash,
         # predecessor, incident, bridge or device evidence is read before
-        # this owner exists.  The consumed r2 ID is never replayed.
-        preclaim = _control_r3_preclaim()
+        # this owner exists.  The consumed r2 and r3 IDs are never replayed.
+        preclaim = _control_r4_preclaim()
         preclaim_bytes = _exclusive_json(journal_path, preclaim)
         predecessor_capsule, predecessor_capsule_bytes, predecessor_capsule_descriptor = (
             _load_control_r2_predecessor()
         )
         r2_incident_summary = _validate_control_r2_incident(root)
-        # Upgrade the already-owned journal immediately after both fixed
+        r3_incident_summary = _validate_control_r3_incident(root)
+        # Upgrade the already-owned journal immediately after all fixed
         # host-only validators pass.  If candidate, transport, flash, bridge,
-        # or device work fails later, the durable reconciliation result still
-        # survives and cannot be mistaken for a replayable preclaim.
+        # or device work fails later, both reconciliation results still
+        # survive and cannot be mistaken for a replayable preclaim.
         _atomic_json(
             journal_path,
             {
@@ -3324,6 +3471,11 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
                     "preclaim_sha256": sha256_bytes(preclaim_bytes),
                     "preclaim_size": len(preclaim_bytes),
                     "r2_incident": r2_incident_summary,
+                },
+                "control_r4_reconciliation": {
+                    "preclaim_sha256": sha256_bytes(preclaim_bytes),
+                    "preclaim_size": len(preclaim_bytes),
+                    "r3_incident": r3_incident_summary,
                 },
             },
         )
@@ -3357,6 +3509,49 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
             raise ProbeError(
                 "read flash receipt must complete strictly after control receipt"
             )
+
+    # The READ producer has no local predecessor-validator summaries.  Carry
+    # the already-authorized control receipt's reconciliation projection into
+    # its own raw/public/journal records so downstream finalization sees the
+    # same immutable R2/R3 bindings on both legs of the experiment.
+    r2_incident_manifest_sha256 = (
+        CONTROL_R2_INCIDENT_MANIFEST_SHA256
+        if r2_incident_summary is not None
+        else control_receipt.get("r2_incident_manifest_sha256")
+        if isinstance(control_receipt, Mapping)
+        else None
+    )
+    r2_incident_manifest_size = (
+        CONTROL_R2_INCIDENT_MANIFEST_SIZE
+        if r2_incident_summary is not None
+        else control_receipt.get("r2_incident_manifest_size")
+        if isinstance(control_receipt, Mapping)
+        else None
+    )
+    r2_zero_effect_validated = (
+        r2_incident_summary is not None
+        if not isinstance(control_receipt, Mapping)
+        else control_receipt.get("r2_zero_effect_validated")
+    )
+    r3_incident_manifest_sha256 = (
+        CONTROL_R3_INCIDENT_MANIFEST_SHA256
+        if r3_incident_summary is not None
+        else control_receipt.get("r3_incident_manifest_sha256")
+        if isinstance(control_receipt, Mapping)
+        else None
+    )
+    r3_incident_manifest_size = (
+        CONTROL_R3_INCIDENT_MANIFEST_SIZE
+        if r3_incident_summary is not None
+        else control_receipt.get("r3_incident_manifest_size")
+        if isinstance(control_receipt, Mapping)
+        else None
+    )
+    r3_zero_op_restored_validated = (
+        r3_incident_summary is not None
+        if not isinstance(control_receipt, Mapping)
+        else control_receipt.get("r3_zero_op_restored_validated")
+    )
 
     started = dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat()
     journal: dict[str, object] = {
@@ -3409,17 +3604,12 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
         "semantic_claim_key_sha256": None,
         "semantic_claimed": False,
         "control_manifest": control_receipt,
-        "r2_incident_manifest_sha256": (
-            CONTROL_R2_INCIDENT_MANIFEST_SHA256
-            if r2_incident_summary is not None
-            else None
-        ),
-        "r2_incident_manifest_size": (
-            CONTROL_R2_INCIDENT_MANIFEST_SIZE
-            if r2_incident_summary is not None
-            else None
-        ),
-        "r2_zero_effect_validated": r2_incident_summary is not None,
+        "r2_incident_manifest_sha256": r2_incident_manifest_sha256,
+        "r2_incident_manifest_size": r2_incident_manifest_size,
+        "r2_zero_effect_validated": r2_zero_effect_validated,
+        "r3_incident_manifest_sha256": r3_incident_manifest_sha256,
+        "r3_incident_manifest_size": r3_incident_manifest_size,
+        "r3_zero_op_restored_validated": r3_zero_op_restored_validated,
         "started_utc": started,
     }
     if args.mode == MODE_CONTROL:
@@ -3429,8 +3619,9 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
             or predecessor_capsule_bytes is None
             or predecessor_capsule_descriptor is None
             or r2_incident_summary is None
+            or r3_incident_summary is None
         ):
-            raise ProbeError("control-r3 reconciliation preclaim is incomplete")
+            raise ProbeError("control-r4 reconciliation preclaim is incomplete")
         journal["control_r2_predecessor"] = {
             "preclaim_sha256": sha256_bytes(preclaim_bytes),
             "preclaim_size": len(preclaim_bytes),
@@ -3442,6 +3633,11 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
             "preclaim_sha256": sha256_bytes(preclaim_bytes),
             "preclaim_size": len(preclaim_bytes),
             "r2_incident": r2_incident_summary,
+        }
+        journal["control_r4_reconciliation"] = {
+            "preclaim_sha256": sha256_bytes(preclaim_bytes),
+            "preclaim_size": len(preclaim_bytes),
+            "r3_incident": r3_incident_summary,
         }
         # The preclaim already owns this final inode.  Upgrade it only after
         # candidate/transport/flash validation, preserving the original
@@ -4038,17 +4234,12 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
             )
         },
         "control_manifest": control_receipt,
-        "r2_incident_manifest_sha256": (
-            CONTROL_R2_INCIDENT_MANIFEST_SHA256
-            if r2_incident_summary is not None
-            else None
-        ),
-        "r2_incident_manifest_size": (
-            CONTROL_R2_INCIDENT_MANIFEST_SIZE
-            if r2_incident_summary is not None
-            else None
-        ),
-        "r2_zero_effect_validated": r2_incident_summary is not None,
+        "r2_incident_manifest_sha256": r2_incident_manifest_sha256,
+        "r2_incident_manifest_size": r2_incident_manifest_size,
+        "r2_zero_effect_validated": r2_zero_effect_validated,
+        "r3_incident_manifest_sha256": r3_incident_manifest_sha256,
+        "r3_incident_manifest_size": r3_incident_manifest_size,
+        "r3_zero_op_restored_validated": r3_zero_op_restored_validated,
         "transport_module": LOCAL_TRANSPORT_MODULE,
         "transport_source": LOCAL_TRANSPORT_SOURCE,
         "transport_source_sha256": LOCAL_TRANSPORT_SOURCE_SHA256,
@@ -4129,17 +4320,12 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
         "runtime": EXPECTED_RUNTIME if target_verified else None,
         "candidate_sha256": expected_hash,
         "candidate_size": BOOT_PREFIX_SIZE,
-        "r2_incident_manifest_sha256": (
-            CONTROL_R2_INCIDENT_MANIFEST_SHA256
-            if r2_incident_summary is not None
-            else None
-        ),
-        "r2_incident_manifest_size": (
-            CONTROL_R2_INCIDENT_MANIFEST_SIZE
-            if r2_incident_summary is not None
-            else None
-        ),
-        "r2_zero_effect_validated": r2_incident_summary is not None,
+        "r2_incident_manifest_sha256": r2_incident_manifest_sha256,
+        "r2_incident_manifest_size": r2_incident_manifest_size,
+        "r2_zero_effect_validated": r2_zero_effect_validated,
+        "r3_incident_manifest_sha256": r3_incident_manifest_sha256,
+        "r3_incident_manifest_size": r3_incident_manifest_size,
+        "r3_zero_op_restored_validated": r3_zero_op_restored_validated,
         "transport_module": LOCAL_TRANSPORT_MODULE,
         "transport_source": LOCAL_TRANSPORT_SOURCE,
         "transport_source_sha256": LOCAL_TRANSPORT_SOURCE_SHA256,
@@ -4228,6 +4414,15 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
                 ],
                 "r2_zero_effect_validated": control_receipt[
                     "r2_zero_effect_validated"
+                ],
+                "r3_incident_manifest_sha256": control_receipt[
+                    "r3_incident_manifest_sha256"
+                ],
+                "r3_incident_manifest_size": control_receipt[
+                    "r3_incident_manifest_size"
+                ],
+                "r3_zero_op_restored_validated": control_receipt[
+                    "r3_zero_op_restored_validated"
                 ],
             }
             if control_receipt is not None
