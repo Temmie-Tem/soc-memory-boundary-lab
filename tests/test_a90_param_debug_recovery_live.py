@@ -16,6 +16,10 @@ from tools import a90_param_debug_transition as transition
 from tools.a90_partition_capture import Partition
 
 
+BOOT_ID_PAYLOAD = b"11111111-1111-4111-8111-111111111111\n"
+BOOT_ID_SHA256 = hashlib.sha256(BOOT_ID_PAYLOAD[:-1]).hexdigest()
+
+
 def source_record() -> dict[str, object]:
     target = {
         "model": core.TARGET_MODEL,
@@ -260,6 +264,7 @@ class A90ParamDebugRecoveryLiveTests(unittest.TestCase):
                          },
                          "start_sector": core.PARAM_START_SECTOR,
                      },
+                     BOOT_ID_SHA256,
                  ),
              ), \
              mock.patch.object(live, "create_and_validate_node"), \
@@ -283,6 +288,7 @@ class A90ParamDebugRecoveryLiveTests(unittest.TestCase):
         persist_marker_error: BaseException | None = None,
         target_error: BaseException | None = None,
         live_debug_level: str | None = None,
+        current_boot_id_payload: bytes | None = None,
     ) -> tuple[tuple[Path, Path] | None, list[str], mock.Mock, mock.Mock]:
         """Run the real frozen coordinator with production-bound closures."""
 
@@ -339,8 +345,13 @@ class A90ParamDebugRecoveryLiveTests(unittest.TestCase):
 
         def fake_exchange(host, port, command, timeout, *, allow_error=False):
             del host, port, timeout, allow_error
+            identity_payloads = {
+                "boot_id_before_effect": (
+                    current_boot_id_payload or BOOT_ID_PAYLOAD
+                ),
+            }
             if live_debug_level is not None:
-                identity_payloads = {
+                identity_payloads.update({
                     "version": (
                         b"version: 0.9.285 build=v2321-usb-clean-identity-rodata\n"
                         b"kernel: Linux 4.14.190-25818860-abA908NKSU5EWA3 aarch64\n"
@@ -353,22 +364,22 @@ class A90ParamDebugRecoveryLiveTests(unittest.TestCase):
                         "androidboot.upload_offset=9438196\n"
                     ).encode(),
                     "download_mode": b"1\n",
-                }
-                if command.evidence_id in identity_payloads:
-                    identity_command = (
-                        "version" if command.evidence_id == "version" else "cat"
-                    )
-                    return SimpleNamespace(
-                        begin={"seq": command.evidence_id, "cmd": identity_command},
-                        end={
-                            "seq": command.evidence_id,
-                            "cmd": identity_command,
-                            "rc": "0",
-                            "status": "ok",
-                        },
-                        payload=identity_payloads[command.evidence_id],
-                        transcript=b"",
-                    )
+                })
+            if command.evidence_id in identity_payloads:
+                identity_command = (
+                    "version" if command.evidence_id == "version" else "cat"
+                )
+                return SimpleNamespace(
+                    begin={"seq": command.evidence_id, "cmd": identity_command},
+                    end={
+                        "seq": command.evidence_id,
+                        "cmd": identity_command,
+                        "rc": "0",
+                        "status": "ok",
+                    },
+                    payload=identity_payloads[command.evidence_id],
+                    transcript=b"",
+                )
             events.append("dispatch")
             if dispatch is not None:
                 if isinstance(dispatch, BaseException):
@@ -453,6 +464,7 @@ class A90ParamDebugRecoveryLiveTests(unittest.TestCase):
                         "logical_block_size": core.PARAM_LOGICAL_BLOCK_SIZE,
                         "start_sector": core.PARAM_START_SECTOR,
                     },
+                    BOOT_ID_SHA256,
                 ),
             )
         )
@@ -653,7 +665,7 @@ class A90ParamDebugRecoveryLiveTests(unittest.TestCase):
         self.assertEqual(journal["live_debug_level"], "0x494d")
         self.assertEqual(manifest["source_debug_level"], "0x4f4c")
         self.assertEqual(manifest["live_debug_level"], "0x494d")
-        self.assertEqual(exchange.call_count, 4)
+        self.assertEqual(exchange.call_count, 6)
         self.assertEqual(exchange.call_args_list[-1].args[2].evidence_id, "param_debug_recovery")
         self._discard_run_artifacts(result, "identity-apply-mid-live-mid")
 
@@ -741,7 +753,23 @@ class A90ParamDebugRecoveryLiveTests(unittest.TestCase):
                     manifest["private_journal_sha256"],
                     hashlib.sha256(result[0].read_bytes()).hexdigest(),
                 )
-                self.assertEqual(exchange.call_count, 1)
+                self.assertEqual(journal["boot_id_sha256"], BOOT_ID_SHA256)
+                self.assertEqual(manifest["boot_id_sha256"], BOOT_ID_SHA256)
+                semantic_claim = journal["effect_consumption_claim"]
+                self.assertEqual(
+                    semantic_claim["schema"],
+                    transition.EFFECT_CONSUMPTION_SCHEMA_V2,
+                )
+                self.assertEqual(semantic_claim["boot_id_sha256"], BOOT_ID_SHA256)
+                self.assertEqual(
+                    manifest["effect_consumption_claim"]["boot_id_sha256"],
+                    BOOT_ID_SHA256,
+                )
+                self.assertNotIn(
+                    BOOT_ID_PAYLOAD.decode().strip(),
+                    json.dumps(manifest, sort_keys=True),
+                )
+                self.assertEqual(exchange.call_count, 2)
                 self.assertEqual(exchange.call_args.args[2].argv, core.FIXED_EFFECT_ARGV)
                 self.assertEqual(exchange.call_args.args[2].evidence_id, "param_debug_recovery")
                 self.assertEqual(events.count("dispatch"), 1)
@@ -905,8 +933,9 @@ class A90ParamDebugRecoveryLiveTests(unittest.TestCase):
                 self.assertEqual(manifest["effect"]["write_count"], 1)
                 self.assertNotIn("effect_argv", manifest)
                 # No cleanup or post-hash command follows a dispatch failure;
-                # the dispatch itself is the only exchange after preflight.
-                self.assertEqual(self.last_effect_exchange.call_count, 1)
+                # only the immediate boot re-read and dispatch occur after the
+                # mocked identity preflight.
+                self.assertEqual(self.last_effect_exchange.call_count, 2)
                 self.assertEqual(self.last_effect_cleanup.call_count, 0)
                 if wrong_hash:
                     self.assertEqual(self.last_effect_events.count("post_hash"), 1)
@@ -954,7 +983,7 @@ class A90ParamDebugRecoveryLiveTests(unittest.TestCase):
                     self.assertTrue(journal["cleanup"]["skipped"])
                     self.assertEqual(manifest["write_count"], 1)
                     self.assertTrue(manifest["partition_writes"])
-                    self.assertEqual(self.last_effect_exchange.call_count, 0)
+                    self.assertEqual(self.last_effect_exchange.call_count, 1)
                     self.assertEqual(self.last_effect_cleanup.call_count, 0)
                 else:
                     self.assertEqual(journal["status"], live.PRE_EFFECT_PREFLIGHT_INCOMPLETE)
@@ -993,7 +1022,7 @@ class A90ParamDebugRecoveryLiveTests(unittest.TestCase):
                 self.assertEqual(journal["write_count"], 1)
                 self.assertTrue(journal["cleanup"]["skipped"])
                 self.assertEqual(manifest["status"], core.AMBIGUOUS_STATUS)
-                self.assertEqual(self.last_effect_exchange.call_count, 0)
+                self.assertEqual(self.last_effect_exchange.call_count, 1)
                 self.assertEqual(self.last_effect_cleanup.call_count, 0)
                 claim = live._source_claim_path(
                     core.validate_source_path(
@@ -1039,7 +1068,7 @@ class A90ParamDebugRecoveryLiveTests(unittest.TestCase):
                  mock.patch.object(live, "revalidate_bridge_binding", return_value=self.binding), \
                  mock.patch.object(live, "run_stophud", return_value={"accepted": True}), \
                  mock.patch.object(live, "_validate_live_identity", return_value=(
-                     {}, "1", self.partition, core.PARAM_START_SECTOR, {}
+                     {}, "1", self.partition, core.PARAM_START_SECTOR, {}, BOOT_ID_SHA256
                  )), \
                  mock.patch.object(live, "create_and_validate_node"), \
                  mock.patch.object(live, "_capture_preimage", return_value=self._capture(image)), \
@@ -1061,7 +1090,7 @@ class A90ParamDebugRecoveryLiveTests(unittest.TestCase):
              mock.patch.object(live, "revalidate_bridge_binding", return_value=self.binding), \
              mock.patch.object(live, "run_stophud", return_value={"accepted": True}), \
              mock.patch.object(live, "_validate_live_identity", return_value=(
-                 {}, "1", self.partition, core.PARAM_START_SECTOR, {}
+                 {}, "1", self.partition, core.PARAM_START_SECTOR, {}, BOOT_ID_SHA256
              )), \
              mock.patch.object(live, "create_and_validate_node"), \
              mock.patch.object(live, "_capture_preimage", side_effect=live.CaptureHashMismatch("mismatch")), \
@@ -1181,6 +1210,52 @@ class A90ParamDebugRecoveryLiveTests(unittest.TestCase):
                 "restore-low", before_hash, partition, core.PARAM_START_SECTOR
             ),
         )
+        recovery_v2_path = live._effect_claim_path(
+            live.CANONICAL_EFFECT_ACTION,
+            before_hash,
+            partition,
+            core.PARAM_START_SECTOR,
+            root=self.root,
+            boot_id_sha256=BOOT_ID_SHA256,
+        )
+        transition_v2_path = transition._effect_claim_path(
+            "restore-low",
+            before_hash,
+            partition,
+            core.PARAM_START_SECTOR,
+            root=self.root,
+            boot_id_sha256=BOOT_ID_SHA256,
+        )
+        self.assertEqual(recovery_v2_path, transition_v2_path)
+        self.assertNotEqual(recovery_v2_path, recovery_path)
+
+    def test_boot_epoch_change_is_refused_before_recovery_effect_claim(self) -> None:
+        alternate_boot = b"22222222-2222-4222-8222-222222222222\n"
+        with self.assertRaisesRegex(live.LiveRecoveryError, "boot_id changed"):
+            self._run_effect(
+                self.mid,
+                experiment_id="boot-epoch-changed",
+                current_boot_id_payload=alternate_boot,
+            )
+        journal_path = self.root / "evidence" / "private" / "boot-epoch-changed.journal.json"
+        journal = json.loads(journal_path.read_text())
+        self.assertFalse(journal["effect_dispatched"])
+        self.assertEqual(journal["write_count"], 0)
+        self.assertFalse(
+            any(event == "dispatch" for event in self.last_effect_events)
+        )
+        self.assertFalse(
+            list(
+                (
+                    self.root
+                    / "evidence"
+                    / "private"
+                    / ".param-debug-effect-consumption"
+                ).glob("*.claim.json")
+            )
+        )
+        journal_path.unlink()
+        self._discard_run_artifacts(None, "boot-epoch-changed")
 
     def test_apply_mid_source_canonical_claim_collision_blocks_before_binding(self) -> None:
         source_summary = core.validate_source_path(
@@ -1232,6 +1307,7 @@ class A90ParamDebugRecoveryLiveTests(unittest.TestCase):
                 self.partition,
                 core.PARAM_START_SECTOR,
                 root=self.root,
+                boot_id_sha256=BOOT_ID_SHA256,
             )
             self.assertEqual(claim["filename"], expected_path.name)
             self.assertEqual(journal["source_action"], "apply-mid")

@@ -142,12 +142,18 @@ SHA_LINE_RE = re.compile(rb"(?m)^([0-9a-f]{64})  (/.+?)\r?$")
 PAYLOAD_SHA_LINE_RE = re.compile(
     rb"(?m)^([0-9a-f]{64})  (/tmp/sdm855_mblab_param_debug_payload)\r?$"
 )
+BOOT_ID_PATH = "/proc/sys/kernel/random/boot_id"
+BOOT_ID_RE = re.compile(
+    r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\Z"
+)
 MAX_COMMAND_TIMEOUT = 120.0
 MAX_HASH_TIMEOUT = 180.0
 MAX_CAPTURE_TIMEOUT = 600.0
 MAX_EFFECT_TIMEOUT = 120.0
 EFFECT_CONSUMPTION_DIRNAME = ".param-debug-effect-consumption"
 EFFECT_CONSUMPTION_SCHEMA = "sdm855-a90-param-debug-effect-consumption-v1"
+EFFECT_CONSUMPTION_SCHEMA_V2 = "sdm855-a90-param-debug-effect-consumption-v2"
+EFFECT_CLAIM_CANONICAL_TAG_V2 = "stable-param-mask-v2-boot-epoch"
 EFFECT_CLAIM_SUFFIX = ".claim.json"
 
 
@@ -336,15 +342,61 @@ def _validate_timeout(value: object, label: str, maximum: float) -> float:
     return float(value)
 
 
+def _parse_boot_id_sha256(payload: bytes) -> str:
+    """Validate one exact lowercase boot UUID and retain only its digest."""
+
+    if type(payload) is not bytes:
+        raise ValueError("boot_id payload is not bytes")
+    if payload.endswith(b"\r\n"):
+        value = payload[:-2]
+    elif payload.endswith(b"\n"):
+        value = payload[:-1]
+    else:
+        value = payload
+    try:
+        boot_id = value.decode("ascii")
+    except UnicodeDecodeError as exc:
+        raise ValueError("boot_id payload is not ASCII") from exc
+    if BOOT_ID_RE.fullmatch(boot_id) is None:
+        raise ValueError("boot_id payload is not one exact lowercase UUID")
+    return sha256(value)
+
+
+def _read_boot_id_sha256(host: str, port: int, timeout: float) -> str:
+    """Read and strictly validate one current boot epoch through A90P1."""
+
+    frame = exchange(
+        host,
+        port,
+        Command("boot_id_before_effect", ("cat", BOOT_ID_PATH)),
+        timeout,
+    )
+    return _parse_boot_id_sha256(frame.payload)
+
+
 def _effect_claim_key(
-    action: str, before_hash: str, partition, start_sector: int
+    action: str,
+    before_hash: str,
+    partition,
+    start_sector: int,
+    *,
+    boot_id_sha256: str | None = None,
 ) -> str:
-    """Derive a semantic fixed claim key without caller JSON formatting."""
+    """Derive a semantic fixed claim key without caller JSON formatting.
+
+    Calls without ``boot_id_sha256`` retain the historical V1 key exactly.
+    Active transitions supply the fresh boot epoch and use a distinct V2
+    canonical tag so the same stable preimage on another boot cannot collide.
+    """
 
     if action not in TRANSITIONS:
         raise ValueError("effect claim action is not fixed")
     if not isinstance(before_hash, str) or re.fullmatch(r"[0-9a-f]{64}", before_hash) is None:
         raise ValueError("effect claim preimage hash is not exact")
+    if boot_id_sha256 is not None and re.fullmatch(
+        r"[0-9a-f]{64}", boot_id_sha256
+    ) is None:
+        raise ValueError("effect claim boot ID hash is not exact")
     _require_exact_partition(partition, start_sector)
     # Accept the two historical complete-image pins at this boundary only as
     # compatibility input; canonicalize them to their stable identities so a
@@ -354,7 +406,9 @@ def _effect_claim_key(
         MID_SHA256: MID_STABLE_SHA256,
     }.get(before_hash, before_hash)
     fields = (
-        "stable-param-mask-v1",
+        EFFECT_CLAIM_CANONICAL_TAG_V2
+        if boot_id_sha256 is not None
+        else "stable-param-mask-v1",
         "excluded=0:1",
         f"stable={PARAM_STABLE_OFFSET}:{PARAM_STABLE_END}",
         action,
@@ -369,6 +423,8 @@ def _effect_claim_key(
         PARAM_LOGICAL_BLOCK_SIZE,
         PARAM_START_SECTOR,
     )
+    if boot_id_sha256 is not None:
+        fields += (f"boot_id_sha256={boot_id_sha256}",)
     # These separators/order are fixed code constants; no caller JSON
     # serialization can produce a second semantic key for the same effect.
     canonical = "|".join(str(item) for item in fields).encode("ascii")
@@ -382,8 +438,15 @@ def _effect_claim_path(
     start_sector: int,
     *,
     root: Path | None = None,
+    boot_id_sha256: str | None = None,
 ) -> Path:
-    key = _effect_claim_key(action, before_hash, partition, start_sector)
+    key = _effect_claim_key(
+        action,
+        before_hash,
+        partition,
+        start_sector,
+        boot_id_sha256=boot_id_sha256,
+    )
     directory = (
         Path(REPO_ROOT if root is None else root).resolve()
         / "evidence"
@@ -403,6 +466,7 @@ def _claim_effect_consumption(
     *,
     root: Path | None = None,
     full_preimage_hash: str | None = None,
+    boot_id_sha256: str | None = None,
 ) -> dict[str, object]:
     """O_EXCL-claim one semantic param transition before marker/dispatch."""
 
@@ -412,6 +476,10 @@ def _claim_effect_consumption(
         r"[0-9a-f]{64}", full_preimage_hash
     ) is None:
         raise ValueError("effect claim full preimage hash is not exact")
+    if boot_id_sha256 is not None and re.fullmatch(
+        r"[0-9a-f]{64}", boot_id_sha256
+    ) is None:
+        raise ValueError("effect claim boot ID hash is not exact")
     stable_before_hash = {
         ROLLBACK_SHA256: LOW_STABLE_SHA256,
         MID_SHA256: MID_STABLE_SHA256,
@@ -419,7 +487,13 @@ def _claim_effect_consumption(
     observed_full_hash = full_preimage_hash
     if observed_full_hash is None and before_hash != stable_before_hash:
         observed_full_hash = before_hash
-    key = _effect_claim_key(action, stable_before_hash, partition, start_sector)
+    key = _effect_claim_key(
+        action,
+        stable_before_hash,
+        partition,
+        start_sector,
+        boot_id_sha256=boot_id_sha256,
+    )
     path = (
         Path(REPO_ROOT if root is None else root).resolve()
         / "evidence"
@@ -432,7 +506,11 @@ def _claim_effect_consumption(
     directory.mkdir(parents=True, exist_ok=True, mode=0o700)
     os.chmod(directory, 0o700)
     claim = {
-        "schema": EFFECT_CONSUMPTION_SCHEMA,
+        "schema": (
+            EFFECT_CONSUMPTION_SCHEMA_V2
+            if boot_id_sha256 is not None
+            else EFFECT_CONSUMPTION_SCHEMA
+        ),
         "key": key,
         "action": action,
         "preimage_sha256": stable_before_hash,
@@ -460,6 +538,8 @@ def _claim_effect_consumption(
         .replace(microsecond=0)
         .isoformat(),
     }
+    if boot_id_sha256 is not None:
+        claim["boot_id_sha256"] = boot_id_sha256
     data = json_bytes(claim)
     flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
     flags |= getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_NOFOLLOW", 0)
@@ -530,7 +610,7 @@ def _claim_effect_consumption(
 def _public_effect_claim(value: object) -> dict[str, object] | None:
     if not isinstance(value, Mapping):
         return None
-    return {
+    projection = {
         key: value.get(key)
         for key in (
             "filename",
@@ -546,6 +626,9 @@ def _public_effect_claim(value: object) -> dict[str, object] | None:
             "effect_replayed",
         )
     }
+    if "boot_id_sha256" in value:
+        projection["boot_id_sha256"] = value.get("boot_id_sha256")
+    return projection
 
 
 def _effect_claim_stub(
@@ -556,6 +639,8 @@ def _effect_claim_stub(
     partition,
     start_sector: int,
     experiment_id: str,
+    *,
+    boot_id_sha256: str | None = None,
 ) -> dict[str, object]:
     """Retain a conservative receipt when O_EXCL claim publication fails."""
 
@@ -564,12 +649,16 @@ def _effect_claim_stub(
         MID_SHA256: MID_STABLE_SHA256,
     }.get(before_hash, before_hash)
 
-    return {
+    claim = {
         "filename": path.name,
         "path": str(path),
         "sha256": None,
         "size": None,
-        "schema": EFFECT_CONSUMPTION_SCHEMA,
+        "schema": (
+            EFFECT_CONSUMPTION_SCHEMA_V2
+            if boot_id_sha256 is not None
+            else EFFECT_CONSUMPTION_SCHEMA
+        ),
         "key": key,
         "action": action,
         "preimage_sha256": stable_before_hash,
@@ -587,6 +676,9 @@ def _effect_claim_stub(
         "effect_replayed": False,
         "claim_write_failed": True,
     }
+    if boot_id_sha256 is not None:
+        claim["boot_id_sha256"] = boot_id_sha256
+    return claim
 
 
 def _supports_before_mutation(function: object) -> bool:
@@ -638,6 +730,7 @@ def _publish_incident_manifest(
     target: Mapping[str, object] | None = None,
     effect_dispatched: bool = False,
     effect_consumption_claim: object = None,
+    boot_id_sha256: str | None = None,
 ) -> None:
     manifest = {
         "schema": "sdm855-a90-param-debug-transition-public-v1",
@@ -656,6 +749,7 @@ def _publish_incident_manifest(
             "kernel": TARGET_KERNEL,
         },
         "target": dict(target) if target_verified and target is not None else None,
+        "boot_id_sha256": boot_id_sha256,
         "target_verified": bool(target_verified),
         "journal": journal_path.name,
         "effect_dispatched": bool(effect_dispatched),
@@ -1056,7 +1150,9 @@ def verify_exact_param_target(
     }
 
 
-def _preflight(args: argparse.Namespace) -> tuple[dict[str, str], str, object, int]:
+def _preflight(
+    args: argparse.Namespace,
+) -> tuple[dict[str, str], str, object, int, str]:
     version_frame = exchange(
         args.host, args.port, Command("version", ("version",)), args.command_timeout
     )
@@ -1088,7 +1184,10 @@ def _preflight(args: argparse.Namespace) -> tuple[dict[str, str], str, object, i
         raise ValueError("download_mode is not 1")
     partition, start_sector = discover_param(args.host, args.port, args.command_timeout)
     _require_exact_partition(partition, start_sector)
-    return cmdline, dload, partition, start_sector
+    boot_id_sha256 = _read_boot_id_sha256(
+        args.host, args.port, args.command_timeout
+    )
+    return cmdline, dload, partition, start_sector, boot_id_sha256
 
 
 def _capture_exact_param_image(
@@ -1232,6 +1331,7 @@ def execute(args: argparse.Namespace) -> tuple[Path, Path]:
         },
         "target": None,
         "target_verified": False,
+        "boot_id_sha256": None,
     }
     _write_initial_json(journal_path, journal)
 
@@ -1258,6 +1358,11 @@ def execute(args: argparse.Namespace) -> tuple[Path, Path]:
             target=target if isinstance(target, Mapping) else None,
             effect_dispatched=bool(journal.get("effect_dispatched")),
             effect_consumption_claim=journal.get("effect_consumption_claim"),
+            boot_id_sha256=(
+                journal.get("boot_id_sha256")
+                if isinstance(journal.get("boot_id_sha256"), str)
+                else None
+            ),
         )
         incident_published = True
 
@@ -1300,7 +1405,7 @@ def execute(args: argparse.Namespace) -> tuple[Path, Path]:
             persist=persist_stophud,
         )
         journal["stophud"] = stophud
-        cmdline, dload, partition, start_sector = _preflight(args)
+        cmdline, dload, partition, start_sector, boot_id_sha256 = _preflight(args)
         journal["target"] = {
             "model": TARGET_MODEL,
             "soc": TARGET_SOC,
@@ -1309,6 +1414,7 @@ def execute(args: argparse.Namespace) -> tuple[Path, Path]:
             "kernel": TARGET_KERNEL,
         }
         journal["target_verified"] = True
+        journal["boot_id_sha256"] = boot_id_sha256
         _atomic_replace_json(journal_path, journal)
     except BaseException as exc:
         journal["status"] = "PRE_EFFECT_PREFLIGHT_INCOMPLETE"
@@ -1362,6 +1468,7 @@ def execute(args: argparse.Namespace) -> tuple[Path, Path]:
             "kernel": TARGET_KERNEL,
         },
         "target_verified": True,
+        "boot_id_sha256": boot_id_sha256,
         "partition": {**asdict(partition), "start_sector": start_sector},
         "transition": {
             "partition_offset": f"0x{PARAM_DEBUG_OFFSET:06x}",
@@ -1540,11 +1647,25 @@ def execute(args: argparse.Namespace) -> tuple[Path, Path]:
             evidence_prefix="pre_effect_target",
         )
         dd_args = fixed_dd_args(PAYLOAD_PATH, partition.node_path)
+        # The preflight boot read may become stale while staging/smoke/target
+        # proofs run.  Rebind and read it again directly adjacent to the
+        # semantic O_EXCL claim; a changed epoch fails before claim/marker/dd.
+        fresh_binding("pre_effect_boot_id")
+        current_boot_id_sha256 = _read_boot_id_sha256(
+            args.host, args.port, args.command_timeout
+        )
+        if current_boot_id_sha256 != boot_id_sha256:
+            raise ValueError("boot_id changed before effect claim")
         # Claim the semantic transition immediately before its durable marker.
-        # A second owner with a different experiment ID but the same exact
-        # preimage/action/geometry must stop here and never dispatch dd.
+        # The active claim is scoped to this freshly observed boot epoch, so a
+        # later boot may perform the same transition while same-boot owners
+        # with different experiment IDs still collide and never dispatch dd.
         effect_claim_path = _effect_claim_path(
-            transition.action, before_stable_hash, partition, start_sector
+            transition.action,
+            before_stable_hash,
+            partition,
+            start_sector,
+            boot_id_sha256=boot_id_sha256,
         )
         journal["effect_consumption_claim_path"] = effect_claim_path.name
         try:
@@ -1555,6 +1676,7 @@ def execute(args: argparse.Namespace) -> tuple[Path, Path]:
                 start_sector,
                 args.experiment_id,
                 full_preimage_hash=before_hash,
+                boot_id_sha256=boot_id_sha256,
             )
         except BaseException as claim_exc:
             # An existing or partially-created claim is a no-replay owner
@@ -1565,13 +1687,18 @@ def execute(args: argparse.Namespace) -> tuple[Path, Path]:
                 effect_claim = _effect_claim_stub(
                     effect_claim_path,
                     _effect_claim_key(
-                        transition.action, before_stable_hash, partition, start_sector
+                        transition.action,
+                        before_stable_hash,
+                        partition,
+                        start_sector,
+                        boot_id_sha256=boot_id_sha256,
                     ),
                     transition.action,
                     before_stable_hash,
                     partition,
                     start_sector,
                     args.experiment_id,
+                    boot_id_sha256=boot_id_sha256,
                 )
                 journal["effect_consumption_claim"] = effect_claim
             journal["status"] = "PRE_EFFECT_EFFECT_CLAIM_FAILED"
@@ -1897,6 +2024,7 @@ def execute(args: argparse.Namespace) -> tuple[Path, Path]:
             "sec_debug.dump_sink": cmdline.get("sec_debug.dump_sink"),
         },
         "download_mode_before": dload,
+        "boot_id_sha256": boot_id_sha256,
         "device_rebooted": False,
         "claims": {
             "PROVED": [

@@ -8,10 +8,19 @@ import tempfile
 import unittest
 from argparse import Namespace
 from pathlib import Path
+from types import SimpleNamespace
 from unittest import mock
 
 from tools import a90_param_debug_transition as transition
 from tools.a90_partition_capture import Partition
+
+
+BOOT_ID_PAYLOAD = b"11111111-1111-4111-8111-111111111111\n"
+BOOT_ID_SHA256 = hashlib.sha256(BOOT_ID_PAYLOAD[:-1]).hexdigest()
+
+
+def boot_id_frame(payload: bytes = BOOT_ID_PAYLOAD) -> SimpleNamespace:
+    return SimpleNamespace(payload=payload)
 
 
 class A90ParamDebugTransitionTests(unittest.TestCase):
@@ -169,7 +178,7 @@ class A90ParamDebugTransitionTests(unittest.TestCase):
             ), mock.patch.object(
                 transition,
                 "_preflight",
-                return_value=({"androidboot.debug_level": "0x4f4c"}, "1", partition, 125080),
+                return_value=({"androidboot.debug_level": "0x4f4c"}, "1", partition, 125080, BOOT_ID_SHA256),
             ), mock.patch.object(
                 transition, "create_and_validate_node", side_effect=fake_create
             ), mock.patch.object(
@@ -259,6 +268,214 @@ class A90ParamDebugTransitionTests(unittest.TestCase):
                         "owner-two",
                     )
 
+    def test_v1_effect_claim_key_retains_historical_stability(self) -> None:
+        partition = Partition("param", "sda10", 8, 10, 20480, 0xA00000, 0, 4096)
+        self.assertEqual(
+            transition._effect_claim_key(
+                "apply-mid", transition.ROLLBACK_SHA256, partition, 125080
+            ),
+            "fc446d3a5567520ccfd91906dee28c5cdabff217ba5336acc5547f28e03b7dd4",
+        )
+        self.assertNotEqual(
+            transition._effect_claim_key(
+                "apply-mid",
+                transition.ROLLBACK_SHA256,
+                partition,
+                125080,
+                boot_id_sha256=BOOT_ID_SHA256,
+            ),
+            transition._effect_claim_key(
+                "apply-mid", transition.ROLLBACK_SHA256, partition, 125080
+            ),
+        )
+
+    def test_v2_effect_claim_same_boot_collides_across_experiment_ids(self) -> None:
+        partition = Partition("param", "sda10", 8, 10, 20480, 0xA00000, 0, 4096)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            first = transition._claim_effect_consumption(
+                "apply-mid",
+                transition.ROLLBACK_SHA256,
+                partition,
+                125080,
+                "owner-one",
+                root=root,
+                boot_id_sha256=BOOT_ID_SHA256,
+                full_preimage_hash=transition.ROLLBACK_SHA256,
+            )
+            self.assertEqual(first["schema"], transition.EFFECT_CONSUMPTION_SCHEMA_V2)
+            self.assertEqual(first["boot_id_sha256"], BOOT_ID_SHA256)
+            with self.assertRaisesRegex(RuntimeError, "already exists"):
+                transition._claim_effect_consumption(
+                    "apply-mid",
+                    transition.ROLLBACK_SHA256,
+                    partition,
+                    125080,
+                    "owner-two",
+                    root=root,
+                    boot_id_sha256=BOOT_ID_SHA256,
+                    full_preimage_hash=transition.ROLLBACK_SHA256,
+                )
+
+    def test_v2_effect_claim_different_boots_use_distinct_keys(self) -> None:
+        partition = Partition("param", "sda10", 8, 10, 20480, 0xA00000, 0, 4096)
+        boot_one = transition._parse_boot_id_sha256(
+            b"11111111-1111-4111-8111-111111111111\n"
+        )
+        boot_two = transition._parse_boot_id_sha256(
+            b"22222222-2222-4222-8222-222222222222\n"
+        )
+        self.assertNotEqual(boot_one, boot_two)
+        self.assertNotEqual(
+            transition._effect_claim_key(
+                "restore-low",
+                transition.MID_SHA256,
+                partition,
+                125080,
+                boot_id_sha256=boot_one,
+            ),
+            transition._effect_claim_key(
+                "restore-low",
+                transition.MID_SHA256,
+                partition,
+                125080,
+                boot_id_sha256=boot_two,
+            ),
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            first = transition._claim_effect_consumption(
+                "restore-low",
+                transition.MID_SHA256,
+                partition,
+                125080,
+                "owner-one",
+                root=root,
+                boot_id_sha256=boot_one,
+                full_preimage_hash=transition.MID_SHA256,
+            )
+            second = transition._claim_effect_consumption(
+                "restore-low",
+                transition.MID_SHA256,
+                partition,
+                125080,
+                "owner-two",
+                root=root,
+                boot_id_sha256=boot_two,
+                full_preimage_hash=transition.MID_SHA256,
+            )
+            self.assertNotEqual(first["filename"], second["filename"])
+
+    def test_boot_id_parser_rejects_malformed_or_extra_bytes(self) -> None:
+        valid = b"11111111-1111-4111-8111-111111111111"
+        self.assertEqual(
+            transition._parse_boot_id_sha256(valid + b"\n"), BOOT_ID_SHA256
+        )
+        for payload in (
+            b"11111111-1111-4111-8111-111111111111\n\n",
+            b"11111111-1111-4111-8111-111111111111 extra\n",
+            b"11111111-1111-4111-8111-111111111111\x00\n",
+            b"11111111-1111-4111-8111-111111111111\r",
+            b"11111111-1111-4111-8111-11111111111A\n",
+        ):
+            with self.subTest(payload=payload):
+                with self.assertRaises(ValueError):
+                    transition._parse_boot_id_sha256(payload)
+
+    def test_public_v2_claim_contains_digest_but_not_raw_boot_uuid(self) -> None:
+        partition = Partition("param", "sda10", 8, 10, 20480, 0xA00000, 0, 4096)
+        with tempfile.TemporaryDirectory() as directory:
+            claim = transition._claim_effect_consumption(
+                "apply-mid",
+                transition.ROLLBACK_SHA256,
+                partition,
+                125080,
+                "owner-one",
+                root=Path(directory),
+                boot_id_sha256=BOOT_ID_SHA256,
+            )
+        public = transition._public_effect_claim(claim)
+        self.assertIsNotNone(public)
+        assert public is not None
+        self.assertEqual(public["boot_id_sha256"], BOOT_ID_SHA256)
+        self.assertNotIn("11111111-1111-4111-8111-111111111111", json.dumps(public))
+
+    def test_boot_epoch_change_is_refused_before_transition_effect_claim(self) -> None:
+        original, modified = transition.derive_images()
+        partition = Partition("param", "sda10", 8, 10, 20480, 0xA00000, 0, 4096)
+        binding = {"process_pid": 123, "serial_device": "/dev/ttyACM0"}
+        alternate_boot = b"22222222-2222-4222-8222-222222222222\n"
+        dispatched: list[str] = []
+
+        def fake_exchange(*args, **kwargs):
+            del kwargs
+            command = args[2]
+            if command.evidence_id == "boot_id_before_effect":
+                return boot_id_frame(alternate_boot)
+            dispatched.append(command.evidence_id)
+            raise AssertionError(f"unexpected dispatch: {command.evidence_id}")
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            args = Namespace(
+                execute=True,
+                experiment_id="transition-boot-epoch-changed",
+                action="apply-mid",
+                host="127.0.0.1",
+                port=54321,
+                command_timeout=1.0,
+                hash_timeout=1.0,
+                effect_timeout=1.0,
+            )
+            with mock.patch.object(
+                transition, "derive_images", return_value=(original, modified)
+            ), mock.patch.object(
+                transition, "validate_bridge_binding", return_value=binding
+            ), mock.patch.object(
+                transition, "revalidate_bridge_binding", return_value=binding
+            ), mock.patch.object(
+                transition, "run_stophud", return_value={"accepted": True, "busy_retries": 0}
+            ), mock.patch.object(
+                transition,
+                "_preflight",
+                return_value=(
+                    {"androidboot.debug_level": "0x4f4c"},
+                    "1",
+                    partition,
+                    125080,
+                    BOOT_ID_SHA256,
+                ),
+            ), mock.patch.object(
+                transition, "create_and_validate_node"
+            ), mock.patch.object(
+                transition,
+                "binary_exchange",
+                return_value=({"cmd": "run", "rc": "0", "status": "ok"}, original),
+            ), mock.patch.object(
+                transition, "device_sha256", return_value=transition.ROLLBACK_SHA256
+            ), mock.patch.object(
+                transition, "_write_ascii_payload", return_value={"size": 4, "sha256": "x"}
+            ), mock.patch.object(
+                transition, "verify_regular_file_dd", return_value={"passed": True}
+            ), mock.patch.object(
+                transition, "verify_exact_param_target", return_value={"ok": True}
+            ), mock.patch.object(
+                transition, "exchange", side_effect=fake_exchange
+            ), mock.patch.object(
+                transition, "_remove_temp"
+            ), mock.patch.object(transition, "remove_node"):
+                with self.assertRaisesRegex(ValueError, "boot_id changed before effect claim"):
+                    with mock.patch.object(transition, "REPO_ROOT", root):
+                        transition.execute(args)
+            journal = json.loads(
+                (root / "evidence/private/transition-boot-epoch-changed.journal.json").read_text()
+            )
+            self.assertFalse(journal["effect_dispatched"])
+            self.assertEqual(journal["write_count"], 0)
+            self.assertEqual(dispatched, [])
+            claims_dir = root / "evidence/private/.param-debug-effect-consumption"
+            self.assertFalse(list(claims_dir.glob("*.claim.json")) if claims_dir.exists() else [])
+
     def test_timeout_rejects_nonfinite_nonpositive_and_out_of_range_before_binding(self) -> None:
         original, modified = transition.derive_images()
         for name, value in (
@@ -305,7 +522,7 @@ class A90ParamDebugTransitionTests(unittest.TestCase):
         def fake_preflight(args):
             del args
             events.append("preflight")
-            return ({"androidboot.debug_level": "0x4f4c"}, "1", partition, 125080)
+            return ({"androidboot.debug_level": "0x4f4c"}, "1", partition, 125080, BOOT_ID_SHA256)
 
         def fake_create(*args):
             del args
@@ -563,7 +780,7 @@ class A90ParamDebugTransitionTests(unittest.TestCase):
             ), mock.patch.object(
                 transition,
                 "_preflight",
-                return_value=({"androidboot.debug_level": "0x4f4c"}, "1", partition, 125080),
+                return_value=({"androidboot.debug_level": "0x4f4c"}, "1", partition, 125080, BOOT_ID_SHA256),
             ), mock.patch.object(
                 transition, "create_and_validate_node"
             ), mock.patch.object(
@@ -622,7 +839,7 @@ class A90ParamDebugTransitionTests(unittest.TestCase):
             ), mock.patch.object(
                 transition,
                 "_preflight",
-                return_value=({"androidboot.debug_level": "0x4f4c"}, "1", partition, 125080),
+                return_value=({"androidboot.debug_level": "0x4f4c"}, "1", partition, 125080, BOOT_ID_SHA256),
             ), mock.patch.object(
                 transition, "create_and_validate_node", side_effect=RuntimeError("prepare failed")
             ), mock.patch.object(transition, "_remove_temp") as remove_temp, mock.patch.object(
@@ -683,7 +900,7 @@ class A90ParamDebugTransitionTests(unittest.TestCase):
             ), mock.patch.object(
                 transition,
                 "_preflight",
-                return_value=({"androidboot.debug_level": "0x4f4c"}, "1", partition, 125080),
+                return_value=({"androidboot.debug_level": "0x4f4c"}, "1", partition, 125080, BOOT_ID_SHA256),
             ), mock.patch.object(
                 transition, "create_and_validate_node", side_effect=fail_create
             ), mock.patch.object(
@@ -716,6 +933,8 @@ class A90ParamDebugTransitionTests(unittest.TestCase):
             def effect_exchange(*args, **kwargs):
                 del kwargs
                 command = args[2]
+                if command.evidence_id == "boot_id_before_effect":
+                    return boot_id_frame()
                 if command.evidence_id == "param_debug_transition":
                     raise TimeoutError("effect transport timeout")
                 raise AssertionError(command.evidence_id)
@@ -731,7 +950,7 @@ class A90ParamDebugTransitionTests(unittest.TestCase):
             ), mock.patch.object(
                 transition,
                 "_preflight",
-                return_value=({"androidboot.debug_level": "0x4f4c"}, "1", partition, 125080),
+                return_value=({"androidboot.debug_level": "0x4f4c"}, "1", partition, 125080, BOOT_ID_SHA256),
             ), mock.patch.object(transition, "create_and_validate_node"), mock.patch.object(
                 transition,
                 "binary_exchange",
@@ -795,6 +1014,8 @@ class A90ParamDebugTransitionTests(unittest.TestCase):
             def fake_exchange(*args, **kwargs):
                 del kwargs
                 command = args[2]
+                if command.evidence_id == "boot_id_before_effect":
+                    return boot_id_frame()
                 if command.evidence_id == "param_debug_transition":
                     return ReturnedFrame()
                 raise AssertionError(command.evidence_id)
@@ -810,7 +1031,7 @@ class A90ParamDebugTransitionTests(unittest.TestCase):
             ), mock.patch.object(
                 transition,
                 "_preflight",
-                return_value=({"androidboot.debug_level": "0x4f4c"}, "1", partition, 125080),
+                return_value=({"androidboot.debug_level": "0x4f4c"}, "1", partition, 125080, BOOT_ID_SHA256),
             ), mock.patch.object(transition, "create_and_validate_node"), mock.patch.object(
                 transition,
                 "binary_exchange",
@@ -882,7 +1103,7 @@ class A90ParamDebugTransitionTests(unittest.TestCase):
                     ), mock.patch.object(
                         transition,
                         "_preflight",
-                        return_value=({"androidboot.debug_level": "0x4f4c"}, "1", partition, 125080),
+                        return_value=({"androidboot.debug_level": "0x4f4c"}, "1", partition, 125080, BOOT_ID_SHA256),
                     ), mock.patch.object(
                         transition, "create_and_validate_node"
                     ), mock.patch.object(
@@ -897,7 +1118,9 @@ class A90ParamDebugTransitionTests(unittest.TestCase):
                         transition, "verify_regular_file_dd", return_value={"passed": True}
                     ), mock.patch.object(
                         transition, "verify_exact_param_target", side_effect=target_verify
-                    ), mock.patch.object(transition, "exchange") as exchange, mock.patch.object(
+                    ), mock.patch.object(
+                        transition, "exchange", side_effect=lambda *args, **kwargs: boot_id_frame()
+                    ) as exchange, mock.patch.object(
                         transition, "_remove_temp"
                     ) as remove_temp, mock.patch.object(
                         transition, "remove_node"
@@ -905,7 +1128,10 @@ class A90ParamDebugTransitionTests(unittest.TestCase):
                         with self.assertRaisesRegex(ValueError, "changed after smoke"):
                             with mock.patch.object(transition, "REPO_ROOT", Path(directory)):
                                 transition.execute(args)
-                    exchange.assert_not_called()
+                    exchange.assert_called_once()
+                    self.assertEqual(
+                        exchange.call_args.args[2].evidence_id, "boot_id_before_effect"
+                    )
                     remove_temp.assert_not_called()
                     remove_node.assert_not_called()
                     journal = json.loads(

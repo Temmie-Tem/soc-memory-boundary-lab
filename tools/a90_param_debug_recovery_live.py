@@ -44,10 +44,12 @@ from tools.a90_acm_snapshot import Command, exchange, json_bytes
 from tools.a90_autohud_arbitration import run_stophud
 from tools.a90_pa28_live import revalidate_bridge_binding, validate_bridge_binding
 from tools.a90_param_debug_transition import (
+    BOOT_ID_PATH,
     _claim_effect_consumption,
     _effect_claim_key,
     _effect_claim_path,
     _effect_claim_stub,
+    _parse_boot_id_sha256,
     _write_ascii_payload,
     verify_exact_param_target,
     verify_regular_file_dd,
@@ -398,7 +400,9 @@ def _ensure_source_unclaimed(source_summary: Mapping[str, object]) -> Path:
         raise LiveRecoveryError(f"source-consumption claim check failed: {exc}") from exc
 
 
-def _ensure_effect_unclaimed(source_summary: Mapping[str, object]) -> Path:
+def _ensure_effect_unclaimed(
+    source_summary: Mapping[str, object], *, boot_id_sha256: str | None = None
+) -> Path:
     """Refuse a pre-existing semantic effect claim before bridge contact."""
 
     preimage_hash = source_summary.get("device_stable_sha256_before")
@@ -424,6 +428,7 @@ def _ensure_effect_unclaimed(source_summary: Mapping[str, object]) -> Path:
                 partition,
                 PARAM_START_SECTOR,
                 root=REPO_ROOT,
+                boot_id_sha256=boot_id_sha256,
             )
             if claim_path.is_symlink() or claim_path.exists():
                 raise LiveRecoveryError(
@@ -435,6 +440,7 @@ def _ensure_effect_unclaimed(source_summary: Mapping[str, object]) -> Path:
             partition,
             PARAM_START_SECTOR,
             root=REPO_ROOT,
+            boot_id_sha256=boot_id_sha256,
         )
     except LiveRecoveryError:
         raise
@@ -716,6 +722,22 @@ def _require_frame_ok(frame: object, label: str, expected_command: str | None = 
         )
 
 
+def _read_live_boot_id_sha256(budget: _Budget, timeout: float, label: str) -> str:
+    """Read one exact current boot UUID and retain only its digest."""
+
+    frame = exchange(
+        BRIDGE_HOST,
+        BRIDGE_PORT,
+        Command(label, ("cat", BOOT_ID_PATH)),
+        budget.remaining(timeout, label),
+    )
+    _require_frame_ok(frame, label, "cat")
+    try:
+        return _parse_boot_id_sha256(frame.payload)
+    except BaseException as exc:
+        raise LiveRecoveryError(f"{label} is not one exact lowercase UUID") from exc
+
+
 def parse_cmdline(payload: bytes) -> dict[str, str]:
     """Parse every live cmdline token with the fixed A90 bare-flag grammar."""
     try:
@@ -762,7 +784,7 @@ def _validate_live_identity(
     source_summary: Mapping[str, object],
     budget: _Budget,
     command_timeout: float,
-) -> tuple[dict[str, str], str, Partition, int, dict[str, object]]:
+) -> tuple[dict[str, str], str, Partition, int, dict[str, object], str]:
     version_frame = exchange(
         BRIDGE_HOST,
         BRIDGE_PORT,
@@ -840,6 +862,10 @@ def _validate_live_identity(
     if download_mode != "1":
         raise LiveRecoveryError("live download_mode is not 1")
 
+    boot_id_sha256 = _read_live_boot_id_sha256(
+        budget, command_timeout, "boot_id_before_effect"
+    )
+
     partition, start_sector = discover_param(
         BRIDGE_HOST,
         BRIDGE_PORT,
@@ -860,7 +886,14 @@ def _validate_live_identity(
             f"live GPT/param binding differs from source: "
             f"live={live_partition!r} source={expected_partition!r}"
         )
-    return cmdline, download_mode, partition, int(start_sector), live_partition
+    return (
+        cmdline,
+        download_mode,
+        partition,
+        int(start_sector),
+        live_partition,
+        boot_id_sha256,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -1208,6 +1241,7 @@ def _public_manifest(
                 "partition",
                 "effect_replayed",
                 "claim_write_failed",
+                "boot_id_sha256",
             )
         }
     claim = journal.get("source_consumption_claim")
@@ -1239,6 +1273,7 @@ def _public_manifest(
         "source_action": journal.get("source_action"),
         "started_utc": journal.get("started_utc"),
         "completed_utc": journal.get("completed_utc"),
+        "boot_id_sha256": journal.get("boot_id_sha256"),
         "source_journal": journal.get("source_journal"),
         "status": journal.get("status"),
         "classification": journal.get("classification"),
@@ -1381,6 +1416,9 @@ def _fresh_journal(
         if isinstance(source_summary.get("cmdline_relevant"), Mapping)
         else None,
         "live_debug_level": None,
+        # Retain only the digest in both the private journal and safe public
+        # projection; the raw UUID is never serialized by this owner.
+        "boot_id_sha256": None,
         "source_consumption_claim": None,
         "effect_consumption_claim": None,
         "started_utc": started,
@@ -1463,6 +1501,9 @@ def execute(args: argparse.Namespace) -> tuple[Path, Path]:
     # bridge, or issuing stophud/capture commands.  The source ID is the claim
     # namespace key; a fresh recovery experiment ID cannot bypass it.
     source_claim_path = _ensure_source_unclaimed(source_summary)
+    # Before the live boot epoch is observed, reject any historical V1
+    # semantic claim.  The epoch-scoped V2 check is repeated immediately after
+    # the strict current boot read below, before node/capture/effect work.
     effect_claim_path = _ensure_effect_unclaimed(source_summary)
     paths = _fixed_paths(experiment_id)
     _reserve_paths(paths)
@@ -1493,6 +1534,7 @@ def execute(args: argparse.Namespace) -> tuple[Path, Path]:
     effect_claim: dict[str, object] | None = None
     semantic_effect_claim: dict[str, object] | None = None
     effect_claim_boundary = False
+    boot_id_sha256: str | None = None
 
     try:
         try:
@@ -1535,8 +1577,22 @@ def execute(args: argparse.Namespace) -> tuple[Path, Path]:
         # before the first live identity read that follows it.
         _fresh_binding(bridge_binding, "pre_live_identity", binding_events)
 
-        cmdline, download_mode, partition, start_sector, live_partition = _validate_live_identity(
-            source_summary, budget, command_timeout
+        (
+            cmdline,
+            download_mode,
+            partition,
+            start_sector,
+            live_partition,
+            boot_id_sha256,
+        ) = _validate_live_identity(source_summary, budget, command_timeout)
+        if type(boot_id_sha256) is not str or not SHA256_RE.fullmatch(boot_id_sha256):
+            raise LiveRecoveryError("live boot_id digest is not exact")
+        # The live boot hash is now known and strict.  Re-check the semantic
+        # V2 namespace before creating the device node or capturing bytes so a
+        # transition/recovery owner from this same boot cannot reach the
+        # one-shot marker under a different experiment ID.
+        effect_claim_path = _ensure_effect_unclaimed(
+            source_summary, boot_id_sha256=boot_id_sha256
         )
         journal["target"] = _expected_target()
         journal["partition"] = live_partition
@@ -1550,6 +1606,8 @@ def execute(args: argparse.Namespace) -> tuple[Path, Path]:
         )
         journal["live_debug_level"] = cmdline.get("androidboot.debug_level")
         journal["download_mode"] = download_mode
+        journal["boot_id_sha256"] = boot_id_sha256
+        journal["effect_consumption_claim_path"] = effect_claim_path.name
         journal["target_verified"] = True
         journal["status"] = "PREFLIGHT"
         _persist(paths["journal"], journal)
@@ -1651,12 +1709,23 @@ def execute(args: argparse.Namespace) -> tuple[Path, Path]:
                     source_action = source_summary.get("action")
                     if type(source_action) is not str or source_action not in SOURCE_ACTIONS:
                         raise LiveRecoveryError("effect claim lacks an exact source action")
+                    # The identity read before capture/staging may become
+                    # stale.  Rebind and read the current boot epoch directly
+                    # adjacent to this claim boundary; a changed epoch must
+                    # fail before the O_EXCL claim/marker/dispatch.
+                    fresh("pre_effect_boot_id")
+                    current_boot_id_sha256 = _read_live_boot_id_sha256(
+                        budget, command_timeout, "boot_id_before_effect"
+                    )
+                    if current_boot_id_sha256 != boot_id_sha256:
+                        raise LiveRecoveryError("boot_id changed before effect claim")
                     effect_claim_path = _effect_claim_path(
                         CANONICAL_EFFECT_ACTION,
                         preimage_hash,
                         partition,
                         start_sector,
                         root=REPO_ROOT,
+                        boot_id_sha256=boot_id_sha256,
                     )
                     journal["effect_consumption_claim_path"] = effect_claim_path.name
                     try:
@@ -1668,6 +1737,7 @@ def execute(args: argparse.Namespace) -> tuple[Path, Path]:
                             experiment_id,
                             root=REPO_ROOT,
                             full_preimage_hash=journal.get("device_sha256_before"),
+                            boot_id_sha256=boot_id_sha256,
                         )
                     except BaseException:
                         # An O_EXCL-created partial claim is itself a
@@ -1684,12 +1754,14 @@ def execute(args: argparse.Namespace) -> tuple[Path, Path]:
                                     preimage_hash,
                                     partition,
                                     start_sector,
+                                    boot_id_sha256=boot_id_sha256,
                                 ),
                                 CANONICAL_EFFECT_ACTION,
                                 preimage_hash,
                                 partition,
                                 start_sector,
                                 experiment_id,
+                                boot_id_sha256=boot_id_sha256,
                             )
                             effect_journal["effect_consumption_claim"] = (
                                 semantic_effect_claim
