@@ -2,8 +2,8 @@
 
 ## Current state
 
-**`CONTROL_BOOTED / PARAM_MID_PROVED / CONTROL_FIXED_OP_NOT_DISPATCHED /
-CONTROL_R2_RECONCILIATION_REQUIRED`.**
+**`FINALIZED_REFUSED_AT_MID / EXACT_NONSECURE_WDT_PROVED /
+ROLLBACK_AND_FINAL_HEALTH_COMPLETE`.**
 
 All times below are UTC. Raw A90P1 frames, the complete cmdline, transient boot
 identity and partition journals remain under `evidence/private/`.
@@ -143,21 +143,100 @@ authority model; every later consumer must still revalidate the pinned hashes.
 The exact operator transcript projection and its bounded evidence grade are in
 `docs/VERIFICATION024_REBOOT_PUBLIC_REPAIR_RECEIPT_2026-08-28.md`.
 
-`UNKNOWN`: the remapper read result remains unmeasured. Classification remains
-`CLASS C (TRANSFORM ONLY)` / `NOT_ELIGIBLE`.
+## Read result and reset attribution
 
-## Resume point
+`PROVED`: at `13:01:35–13:01:52` the exact read boot prefix
+`6fe92825702f304a067fc716c3814a63b2f4e76198a054de4c666cad55a462ed`
+was re-attested immediately before the fixed operation. The owner changed
+`panic_on_oops` from `1` to `0`, verified it, and dispatched fixed op 4 exactly
+once. The command emitted its BEGIN frame and did not emit an END frame or an
+`A90R` value before the native USB transport disconnected. The deferred panic
+restore was not replayed after the disconnect.
 
-Do not rerun `verification-024-control`: it is immutable incident evidence.
-Before another device command, implement and review one fixed
-`verification-024-control-r2` owner. It must create its O_EXCL intent before
-validating and hash-binding the exact old triplet, record the historical frame
-as unrecoverable, permit only a new idempotent `stophud` qualification, and
-retain the original `(mode,candidate,boot_id)` semantic-claim key. The old ID
-becomes predecessor-only in the producer, finalizer, READ authorizer and
-last-kmsg source validator; no dual-ID fallback or r3 is permitted.
+`PROVED`: the post-reset device enumerated as Samsung `MSM_UPLOAD`. The pinned
+host upload client sent only its non-dump reboot/power-down transaction; no raw
+dump was requested or retained. The exact A90 native runtime then returned.
 
-The current persistent state is already proven MID. No further `param` write
-or reboot is needed before r2 unless a fresh read-only preflight disproves that
-state. The three refused param IDs and the original control ID remain immutable
-and are never reused.
+`PROVED`: `/proc/last_kmsg` was read exactly once on the first returned native
+boot. The retained 2,097,136-byte binary hashes to
+`ee0d2548e5ca6461a77b5b16287542b7d8112cd574ed0ba046b1011ad16b7c6c`.
+It contains one each of the exact MID debug, watchdog bark, watchdog last-pet,
+upload-cause, collected upload-cause and TZ reset-reason records, in that byte
+order; it contains no `A90R`. Bark time `97.880454` minus last-pet time
+`86.880167` is `11.000287` seconds. The reset is therefore the exact
+`Non Secure Watchdog Bark` / `TZBSP_ERR_FATAL_NON_SECURE_WDT` outcome predicted
+by the contract.
+
+`REFUTED`: the collector's original `INCIDENT` label did not mean those two
+watchdog lines were absent. Its host regexp admitted only the historical
+`swapper/0:0` printk task prefix although the new retained lines use the exact
+`msm_watchdog:78` task prefix. Commit `2ae167d` repaired only that bounded
+grammar. Forty-two focused tests and an independent hostile reparse accepted
+the retained raw as `EXACT_V024_MID_NONSECURE_WDT`; wrong task, PID, priority,
+arbitrary prefix, duplicate, reorder, stale `A90R`, wrong debug and non-finite
+timestamp mutations remained `INCIDENT`.
+
+`UNKNOWN_NOT_OBSERVED`: `selftest_after` was not issued in that boot because
+the pre-fix parser stopped immediately after preserving the one-shot log. It
+must not be synthesized. The independent final rollback-health receipt below
+establishes eventual device health instead.
+
+## Rollback and final state
+
+`PROVED`: the rollback Recovery command was dispatched once at `13:11:57` and
+was not replayed when its bounded observer expired. The exact A90 TWRP endpoint
+appeared later; the subsequent flash owner independently selected
+`SM-A908N/r3q`, verified predecessor `6fe928...`, wrote the boot partition once,
+and read back the complete 60,882,944-byte V2321 prefix as
+`ca978551aabe4b39563abaf529ccf2522054952d8b2ad852e632d26da88168cb`.
+Staging was removed and System boot was dispatched once.
+
+`PROVED`: the first successful post-rollback `param` capture and the fixed
+final `param-low` capture both found stable LOW
+`c0c7147418cf13145a44369a960c81647d347f317cb35baed1d85b286253c68a`,
+the exact `DLOW` word, cmdline `debug_level=0x4f4c`, force-upload `0`, dump-sink
+`0`, and byte-for-byte device-before/host/device-after equality. The boot
+process had already restored LOW, so no restore write and no extra reboot were
+performed.
+
+`PROVED`: final runtime health re-attested boot prefix `ca978...`, exact
+`SM-A908N/SM8150` V2321 identity, `panic_on_oops=1`, self-test `11/1/0/12`, and
+absence of all five fixed temporary paths. It records no partition, MMIO,
+controller, security-state or persistent write.
+
+## Classification and resume point
+
+`PROVED`: DMID does not make the exact `0x09248080` single-load path usable from
+this Normal-World EL1 research kernel. The same-state map/unmap-only control
+returned `0xc071`; the paired read returned no value and caused the exact
+non-secure watchdog/TZ reset. This is a bounded access refusal, not proof of
+the responsible enforcement block or its ordering.
+
+`REFUTED`: Verification 024's hypothesis that DMID alone could expose a usable
+read result at this aperture.
+
+`UNKNOWN`: exact XPU/remapper/controller ownership at the fault point, whether
+a different Normal-World-reachable aperture exists, transform-register
+identity/writability, a complete-coordinate physical-to-DRAM alias, and any
+protected-memory alias remain unresolved.
+
+Classification remains `CLASS C (TRANSFORM ONLY)` / `NOT_ELIGIBLE`: no
+physical-to-DRAM alias or protected-boundary alias was demonstrated, and no
+security-boundary bypass indicator occurred. Resume only with a different
+source-backed discriminator; never replay the V024 read or any consumed
+transition ID.
+
+The host-only reconciliation preserves the pre-fix incident unchanged and
+publishes only a redacted, source-bound reparse. Its public SHA-256 is
+`6ce56b308bd7100a740430384a00f8b2987a6b3a164881f18dfb13f3eb753b50`.
+The production validator reopens the fixed read artifacts, canonical four
+source frames and stop-HUD record, recomputes both boot joins and the raw
+watchdog signature, and rejects raw boot IDs, serials, cmdlines and base64
+payloads in public output. Independent audit found no P0/P1 production defect;
+the retained P2 is that several negative tests do not isolate every later gate
+after an earlier hash/key-shape rejection.
+
+The one-shot finalizer accepted all seven gates with no failure and emitted
+`REFUSED_AT_MID`, `clean_negative=true`, `returned_value_present=false`, exact
+LOW final runtime, and target verified. Its public SHA-256 is
+`fd92c1492f883f7076191d0f9d11c7f69ab68c095ac4c37b8f4d143f4a8882db`.

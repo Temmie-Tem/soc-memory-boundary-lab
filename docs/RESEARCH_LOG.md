@@ -2471,3 +2471,58 @@ contact occurred during either host repair. The original control ID is
 immutable; only a future fixed, predecessor-bound `verification-024-control-r2`
 may continue. The remapper value, transform mutability, alias and protected
 reach remain `UNKNOWN`; classification stays `CLASS C (TRANSFORM ONLY)`.
+
+# 2026-08-28 — Verification 024 exact DMID read and rollback closure
+
+The repaired `verification-024-control-r5` returned the fixed no-load sentinel
+`0xc071` with exact current-boot and final-health evidence. The read chain then
+flashed and completely read back candidate `6fe92825...`, booted it once,
+proved stable MID, re-attested the running boot prefix, verified
+`panic_on_oops: 1 -> 0`, and dispatched fixed op 4 exactly once. It emitted a
+BEGIN frame but no END or `A90R` value before the A90 native USB transport
+disconnected. The effect was not replayed and no device command was sent on the
+lost channel.
+
+The device entered Samsung `MSM_UPLOAD`; the pinned non-dump host command
+returned it to native. `/proc/last_kmsg` was then read exactly once. The private
+2,097,136-byte capture hashes to
+`ee0d2548e5ca6461a77b5b16287542b7d8112cd574ed0ba046b1011ad16b7c6c`.
+It contains exactly one ordered instance of MID debug, watchdog bark
+`97.880454`, last pet `86.880167`, `Non Secure Watchdog Bark`, and
+`TZBSP_ERR_FATAL_NON_SECURE_WDT`; `A90R` count is zero and the time delta is
+`11.000287` seconds.
+
+The collector first labeled the capture `INCIDENT` because its regexp accepted
+only a historical `swapper/0:0` printk task prefix. The retained log uses the
+exact `msm_watchdog:78` task prefix. Commit `2ae167d` fixes that bounded grammar;
+42 focused tests and independent hostile mutation/reparse found no P0/P1/P2.
+The pre-fix stop before `selftest_after` is preserved as
+`UNKNOWN_NOT_OBSERVED`; no same-boot self-test is synthesized.
+
+Rollback Recovery was requested once and not replayed after its observer bound
+expired. The exact A90 TWRP endpoint appeared later. The rollback owner proved
+predecessor `6fe92825...`, wrote once, and read back all 60,882,944 V2321 bytes
+as `ca978551...`; staging was removed and System boot was dispatched once.
+The returned boot was already stable LOW, so no additional `param` write or
+reboot was needed. Final `param-low` and runtime-health receipts prove stable
+`c0c71474...`, exact `DLOW`, force-upload/dump-sink zero, V2321 boot prefix
+`ca978551...`, `panic_on_oops=1`, self-test `11/1/0/12`, and fixed temporary
+path absence.
+
+`PROVED`: the exact DMID Normal-World EL1 load at `0x09248080` returns no usable
+value through this path and produces the predicted non-secure watchdog/TZ reset.
+`REFUTED`: DMID alone unlocks this aperture. `UNKNOWN`: the exact enforcement
+block/order, other apertures, transform-register identity/writability, a
+complete-coordinate alias and any protected-memory alias. With no alias or
+boundary bypass demonstrated, classification remains `CLASS C (TRANSFORM
+ONLY)` / `NOT_ELIGIBLE`; the V024 read and all consumed effect IDs are never
+replayed.
+
+The immutable source reconciliation publishes SHA-256 `6ce56b30...`; a
+production audit found no P0/P1 after read-source, canonical frame/stop-HUD,
+boot-join and public-redaction bindings were repaired. Six reconciliation,
+79 finalizer and eight producer/finalizer compatibility tests pass under the
+4-GiB cap; the remaining P2 is incomplete isolation of several negative-test
+branches. The finalizer then accepted all seven real receipts with zero gate
+failure and emitted public SHA-256 `fd92c149...`, classification
+`REFUSED_AT_MID`, `clean_negative=true`, and no returned value.

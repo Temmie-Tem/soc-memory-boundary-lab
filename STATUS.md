@@ -42,30 +42,45 @@ below `/tmp/a90-native`. The temporary character node and probe were removed;
 the final exact-target receipt reports V2321 `0.9.285`, selftest `fail=0`, and
 battery 100%. No partition or hardware-control register was written.
 
-Verification 024 is `LIVE_CONTROL_BOOTED / PARAM_MID_PROVED /
-CONTROL_FIXED_OP_NOT_DISPATCHED / CONTROL_R2_RECONCILIATION_REQUIRED`. The
-exact control image was written once, read back completely and booted. Three
-`param` owners refused before their effect; the fourth proved stable LOW,
-wrote only `DLOW -> DMID`, proved stable MID and rebooted once into exact
-`debug_level=0x494d` with healthy `11/1/0/12` self-test. `PROVED`: byte 0 is
-boot-volatile and the state predicate is the fixed `[1,0xA00000)` hash; the
-full-image hashes remain exact transfer evidence.
+Verification 024 is `FINALIZED_REFUSED_AT_MID /
+EXACT_NONSECURE_WDT_PROVED / ROLLBACK_AND_FINAL_HEALTH_COMPLETE`. The exact
+control and read boot prefixes were each written once and fully read back. The
+same-state map/unmap-only control returned `0xc071`. On the exact read prefix at
+`debug_level=0x494d`, fixed op 4 emitted BEGIN but no END or `A90R` value before
+USB disconnect. `/proc/last_kmsg` was captured exactly once on the returned
+native boot and records one ordered set of MID debug, watchdog bark/last-pet,
+`Non Secure Watchdog Bark`, and
+`TZBSP_ERR_FATAL_NON_SECURE_WDT` markers. Bark minus last-pet is `11.000287`
+seconds and `A90R` count is zero.
 
-The first fixed control probe then refused before target attestation, panic
-transition and op 4 because the host incorrectly required an empty successful
-`stophud` payload. Exact source and live receipts `REFUTED` that assumption;
-success is `autohud: stopped` or `autohud: not running`, while busy alone is
-empty. The consumed original ID proves zero fixed-op/panic/partition/MMIO
-effect; its lost frame leaves only the idempotent HUD state change
-`UNKNOWN`. Hostile round 26 closed the repaired stop-HUD contract at
-`P0=P1=P2=0` and 319/319 related tests; the complete suite finished 1,916
-tests with 1,915 passed and one skipped, zero process swaps and no OOM. A
-separate host-only repair archived
-the UUID-bearing reboot public v1 privately and emitted the source-bound public
-v2 (`fbe92a29...`, 2,140 bytes) with no raw UUID. The next action is a single
-O_EXCL, exact-predecessor-bound `verification-024-control-r2` implementation;
-the old ID is never reused. The live remapper-page result remains `UNKNOWN`,
-and classification remains `CLASS C (TRANSFORM ONLY)`.
+The collector's first `INCIDENT` label was a host parser false negative: it
+admitted only the historical `swapper/0:0` printk task prefix while the retained
+log uses exact `msm_watchdog:78`. Commit `2ae167d` repairs that bounded grammar;
+42 focused tests and an independent hostile raw reparse accept the signature,
+while task/PID/priority/prefix/duplicate/order/debug/non-finite mutations remain
+incidents. The missing same-boot post-capture self-test is retained as
+`UNKNOWN_NOT_OBSERVED` rather than synthesized.
+
+Rollback then verified predecessor `6fe928...`, wrote V2321 once, read back the
+complete 60,882,944-byte `ca978551...` prefix, removed staging and booted System
+once. The first post-rollback capture was already stable LOW, so no LOW restore
+write or extra reboot was needed. Final `param-low` proves stable
+`c0c71474...`, exact `DLOW`, cmdline `0x4f4c`, force-upload/dump-sink zero and
+10-MiB triple-hash equality. Final health proves the `ca978551...` boot prefix,
+`panic_on_oops=1`, self-test `11/1/0/12` and all fixed temporary paths absent.
+No partition, MMIO, controller, security-state or persistent write remains.
+
+`REFUTED`: DMID alone exposes a usable Normal-World read at `0x09248080`.
+`UNKNOWN`: the exact enforcement block/order and any different reachable
+aperture. Because no physical-to-DRAM alias or protected-boundary alias was
+demonstrated, classification remains `CLASS C (TRANSFORM ONLY)`; the consumed
+V024 read and transition IDs are never replayed.
+
+The immutable-incident reconciliation public hash is `6ce56b30...`; production
+review is `P0=0/P1=0` with only non-isolating negative-test coverage retained
+as P2. The seven-gate finalizer has no failure and publishes
+`REFUSED_AT_MID`, `clean_negative=true`, no returned value, exact LOW final
+runtime, and SHA-256 `fd92c149...`.
 
 Host-only Experiment 017 then cross-referenced the exact XBL MC address table
 and helper read-copy path. It made no device, SMC or MMIO access and does not

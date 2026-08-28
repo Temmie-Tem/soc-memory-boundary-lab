@@ -701,6 +701,21 @@ restored and passed final health. `SUPPORTED`: the load caused a protected
 fabric stall and XPU policy explains it. A decoded XPU syndrome is absent, so
 the causal root remains below `PROVED`.
 
+`PROVED` by Verification 024: DMID does not make the separate exact remapper
+aperture at `0x09248080` usable through the tested Normal-World EL1 path. The
+same-state map/unmap-only control returned `0xc071`; the paired read boot was
+re-attested as `6fe92825…`, dispatched one fixed 32-bit load, emitted no END or
+`A90R`, and disconnected USB. The one-shot retained log contains one ordered
+set of watchdog bark `97.880454`, last pet `86.880167`, MID debug,
+`Non Secure Watchdog Bark`, and `TZBSP_ERR_FATAL_NON_SECURE_WDT`, a
+`11.000287`-second bark interval. The first host `INCIDENT` label was a parser
+false negative for the real `msm_watchdog:78` printk prefix and is reclassified
+from the immutable raw log. `SUPPORTED`: the load, not mapping alone, caused a
+protected-fabric stall. Exact enforcement block/order and other possible
+apertures remain `UNKNOWN`; this is not global writer or reachability closure.
+V2321, stable LOW, `panic_on_oops=1`, temporary-path absence, and self-test
+`11/1/0/12` are subsequently restored and `PROVED`.
+
 `PROVED` by Verification 002: exact XBL independently contains and consumes a
 26-record crash/download raw-dump catalog. Record 19 covers
 `0x09060000..0x0906ffff` as `SHRM_MEM.BIN`, including the entire section-16

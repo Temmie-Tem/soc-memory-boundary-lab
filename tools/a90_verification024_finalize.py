@@ -186,6 +186,19 @@ CONTROL_R4_INCIDENT_MANIFEST_SIZE = r2_incident.R4_INCIDENT_MANIFEST_SIZE
 CONTROL_R4_INCIDENT_VALIDATION_SCHEMA = r2_incident.R4_VALIDATION_SCHEMA
 LAST_KMSG_EXPERIMENT_ID = "last-kmsg-final"
 LAST_KMSG_MANIFEST_NAME = f"{LAST_KMSG_EXPERIMENT_ID}.manifest.json"
+LAST_KMSG_RECONCILED_EXPERIMENT_ID = "last-kmsg-final-reconciled"
+LAST_KMSG_RECONCILED_MANIFEST_NAME = (
+    f"{LAST_KMSG_RECONCILED_EXPERIMENT_ID}.manifest.json"
+)
+LAST_KMSG_RECONCILED_PUBLIC_SCHEMA = (
+    "sdm855-a90-last-kmsg-reconciliation-public-v1"
+)
+LAST_KMSG_RECONCILED_PRIVATE_SCHEMA = (
+    "sdm855-a90-last-kmsg-reconciliation-private-v1"
+)
+LAST_KMSG_RECONCILED_JOURNAL_SCHEMA = (
+    "sdm855-a90-last-kmsg-reconciliation-journal-v1"
+)
 STOPHUD_MAX_ATTEMPTS = 3
 # The System-boot producer has one pre-registered V024 identity.  Keep this
 # longer name fixed so a shorter caller-minted namespace cannot be spliced into
@@ -571,7 +584,10 @@ def _fixed_chain_inputs(args: argparse.Namespace, root: Path) -> dict[str, Path]
         "last_kmsg": _fixed_input_path(
             args,
             "last_kmsg",
-            manifests / LAST_KMSG_MANIFEST_NAME,
+            (
+                manifests / LAST_KMSG_MANIFEST_NAME,
+                manifests / LAST_KMSG_RECONCILED_MANIFEST_NAME,
+            ),
             root=root,
         ),
         "rollback_flash": _fixed_input_path(
@@ -3870,7 +3886,636 @@ def validate_read(path: Path, root: Path, control: Mapping[str, object]) -> dict
     }
 
 
+_RECONCILED_PUBLIC_KEYS = frozenset(
+    {
+        "schema",
+        "experiment_id",
+        "source_experiment_id",
+        "started_utc",
+        "completed_utc",
+        "original_status",
+        "reclassified_status",
+        "parser_false_negative",
+        "device_contact",
+        "device_writes",
+        "selftest_after",
+        "target",
+        "read_source",
+        "stophud",
+        "records",
+        "source_artifacts",
+        "exact_reset_signature",
+        "effect_dispatched",
+        "effect_replayed",
+        "partition_writes",
+        "last_kmsg_read_once",
+        "private_record",
+    }
+)
+_RECONCILED_PRIVATE_KEYS = frozenset(
+    {
+        "schema",
+        "experiment_id",
+        "source_experiment_id",
+        "started_utc",
+        "completed_utc",
+        "original_status",
+        "reclassified_status",
+        "parser_false_negative",
+        "device_contact",
+        "device_writes",
+        "selftest_after",
+        "effect_dispatched",
+        "effect_replayed",
+        "partition_writes",
+        "last_kmsg_read_once",
+        "target",
+        "read_source",
+        "stophud",
+        "records",
+        "source_artifacts",
+        "exact_reset_signature",
+        "captured_raw",
+        "derived_signature",
+    }
+)
+_RECONCILED_JOURNAL_KEYS = frozenset(
+    {
+        "schema",
+        "experiment_id",
+        "source_experiment_id",
+        "started_utc",
+        "completed_utc",
+        "status",
+        "original_status",
+        "reclassified_status",
+        "parser_false_negative",
+        "device_contact",
+        "device_writes",
+        "selftest_after",
+        "effect_dispatched",
+        "effect_replayed",
+        "partition_writes",
+        "last_kmsg_read_once",
+        "target",
+        "read_source",
+        "stophud",
+        "records",
+        "source_artifacts",
+        "exact_reset_signature",
+    }
+)
+_RECONCILED_RECORD_KEYS = frozenset(
+    {
+        "evidence_id",
+        "argv",
+        "payload_sha256",
+        "payload_size",
+        "transcript_sha256",
+        "transcript_size",
+    }
+)
+_RECONCILED_READ_SOURCE_PUBLIC_KEYS = frozenset(
+    {
+        "completed_utc",
+        "experiment_id",
+        "journal_sha256",
+        "journal_size",
+        "manifest_sha256",
+        "manifest_size",
+        "raw_sha256",
+        "raw_size",
+        "source_pre_read_boot_id_sha256",
+    }
+)
+_RECONCILED_READ_SOURCE_PRIVATE_KEYS = frozenset(
+    set(_RECONCILED_READ_SOURCE_PUBLIC_KEYS) | {"source_pre_read_boot_id"}
+)
+
+
+def _reconciled_record_projection(
+    records: object, label: str
+) -> list[dict[str, object]]:
+    """Validate the redacted record summaries without accepting raw evidence."""
+
+    if not isinstance(records, list) or len(records) != 4:
+        raise FinalizeError(f"{label} records are not exactly four summaries")
+    result: list[dict[str, object]] = []
+    for index, record in enumerate(records):
+        if not isinstance(record, Mapping) or set(record) != _RECONCILED_RECORD_KEYS:
+            raise FinalizeError(f"{label}[{index}] record fields are not exact")
+        if (
+            not isinstance(record.get("evidence_id"), str)
+            or not isinstance(record.get("argv"), list)
+            or not all(isinstance(item, str) for item in record["argv"])
+            or not isinstance(record.get("payload_sha256"), str)
+            or SHA256_RE.fullmatch(record["payload_sha256"]) is None
+            or type(record.get("payload_size")) is not int
+            or record["payload_size"] < 0
+            or not isinstance(record.get("transcript_sha256"), str)
+            or SHA256_RE.fullmatch(record["transcript_sha256"]) is None
+            or type(record.get("transcript_size")) is not int
+            or record["transcript_size"] < 0
+        ):
+            raise FinalizeError(f"{label}[{index}] record summary is malformed")
+        result.append(dict(record))
+    return result
+
+
+def _reconciled_source_records(
+    journal: Mapping[str, object], label: str
+) -> tuple[list[bytes], list[dict[str, object]]]:
+    """Parse immutable source frames with the canonical runtime frame parser."""
+
+    expected = [
+        ("version_before", ("version",)),
+        ("cmdline_before", ("cat", "/proc/cmdline")),
+        ("boot_id_after_source", ("cat", "/proc/sys/kernel/random/boot_id")),
+        ("last_kmsg", ("cat", "/proc/last_kmsg")),
+    ]
+    records = journal.get("records")
+    if not isinstance(records, list) or len(records) != len(expected):
+        raise FinalizeError(f"{label} must contain exactly four records")
+    payloads: list[bytes] = []
+    summaries: list[dict[str, object]] = []
+    for index, ((evidence_id, argv), frame) in enumerate(zip(expected, records)):
+        payload, _ = _runtime_frame(
+            frame,
+            evidence_id,
+            argv,
+            f"{label}[{index}]",
+            max_bytes=MAX_RECEIPT_BYTES,
+        )
+        if not isinstance(frame, Mapping):
+            raise FinalizeError(f"{label}[{index}] frame is not an object")
+        payloads.append(payload)
+        summaries.append(
+            {
+                "evidence_id": evidence_id,
+                "argv": list(argv),
+                "payload_sha256": frame["payload_sha256"],
+                "payload_size": frame["payload_size"],
+                "transcript_sha256": frame["transcript_sha256"],
+                "transcript_size": frame["transcript_size"],
+            }
+        )
+    return payloads, summaries
+
+
+def _reconciled_source_stophud(
+    journal: Mapping[str, object], label: str
+) -> dict[str, object]:
+    """Derive the redacted stophud summary from canonical source frames."""
+
+    stophud = journal.get("stophud")
+    attempts = stophud.get("attempts") if isinstance(stophud, Mapping) else None
+    frames = journal.get("stophud_frames")
+    if (
+        not isinstance(stophud, Mapping)
+        or set(stophud) != {"accepted", "attempts", "busy_retries"}
+        or stophud.get("accepted") is not True
+        or not isinstance(attempts, list)
+        or not isinstance(frames, list)
+        or len(attempts) != len(frames)
+        or not attempts
+        or len(attempts) > STOPHUD_MAX_ATTEMPTS
+        or journal.get("stophud_attempts") != attempts
+    ):
+        raise FinalizeError(f"{label} stophud projections are not exact")
+    busy_retries = 0
+    summaries: list[dict[str, object]] = []
+    for index, (attempt, frame) in enumerate(zip(attempts, frames), 1):
+        if not isinstance(attempt, Mapping) or set(attempt) != {
+            "attempt",
+            "evidence_id",
+            "payload_sha256",
+            "payload_size",
+            "rc",
+            "status",
+            "transcript_sha256",
+            "transcript_size",
+        }:
+            raise FinalizeError(f"{label} stophud attempt fields are not exact")
+        if (
+            attempt.get("attempt") != index
+            or attempt.get("evidence_id") != f"stophud_{index}"
+            or type(attempt.get("rc")) is not int
+            or attempt.get("status") not in {"busy", "ok"}
+        ):
+            raise FinalizeError(f"{label} stophud attempt identity is not exact")
+        expected_rc = -16 if index < len(attempts) else 0
+        expected_status = "busy" if index < len(attempts) else "ok"
+        if attempt.get("rc") != expected_rc or attempt.get("status") != expected_status:
+            raise FinalizeError(f"{label} stophud terminal is not exact")
+        payload, _ = _runtime_frame(
+            frame,
+            f"stophud_{index}",
+            ("stophud",),
+            f"{label} frame[{index}]",
+            expected_rc=str(expected_rc),
+            expected_status=expected_status,
+            max_bytes=MAX_RECEIPT_BYTES,
+        )
+        try:
+            validate_stophud_payload(payload, expected_rc, expected_status)
+        except BaseException as exc:
+            raise FinalizeError(f"{label} stophud payload is not canonical") from exc
+        if not isinstance(frame, Mapping):
+            raise FinalizeError(f"{label} stophud frame is not an object")
+        for key in (
+            "payload_sha256",
+            "payload_size",
+            "transcript_sha256",
+            "transcript_size",
+        ):
+            if attempt.get(key) != frame.get(key):
+                raise FinalizeError(f"{label} stophud attempt/frame differs")
+        if expected_status == "busy":
+            busy_retries += 1
+        summaries.append(dict(attempt))
+    if stophud.get("busy_retries") != busy_retries:
+        raise FinalizeError(f"{label} stophud busy retry count is not exact")
+    return {"accepted": True, "attempts": summaries, "busy_retries": busy_retries}
+
+
+def _validate_last_kmsg_reconciled(path: Path, root: Path) -> dict[str, object]:
+    """Validate the fixed host-only reconciliation of the old parser incident."""
+
+    checked = _manifest_path(path, root, "last-kmsg reconciliation")
+    if checked != (root / MANIFEST_ROOT_NAME / LAST_KMSG_RECONCILED_MANIFEST_NAME).resolve(strict=False):
+        raise FinalizeError("last-kmsg reconciliation path is not fixed")
+    value, data, _ = _json(
+        checked, root=root / MANIFEST_ROOT_NAME, label="last-kmsg reconciliation"
+    )
+    if set(value) != _RECONCILED_PUBLIC_KEYS:
+        raise FinalizeError("last-kmsg reconciliation public fields are not exact")
+    for key, expected in {
+        "schema": LAST_KMSG_RECONCILED_PUBLIC_SCHEMA,
+        "experiment_id": LAST_KMSG_RECONCILED_EXPERIMENT_ID,
+        "source_experiment_id": LAST_KMSG_EXPERIMENT_ID,
+        "original_status": "INCIDENT",
+        "reclassified_status": "EXACT_V024_MID_NONSECURE_WDT",
+        "parser_false_negative": True,
+        "device_contact": False,
+        "device_writes": False,
+        "selftest_after": "NOT_OBSERVED_DUE_TO_PRE_FIX_PARSER_STOP",
+        "effect_dispatched": False,
+        "effect_replayed": False,
+        "partition_writes": False,
+        "last_kmsg_read_once": True,
+    }.items():
+        _require(value, key, expected, "last-kmsg reconciliation")
+    completed = _utc(value.get("completed_utc"), "last-kmsg reconciliation")
+    started = _utc(value.get("started_utc"), "last-kmsg reconciliation")
+    if started != completed:
+        raise FinalizeError("last-kmsg reconciliation start/completion differ")
+    target = value.get("target")
+    if not isinstance(target, Mapping) or target != {
+        "bootloader": TARGET_BOOTLOADER,
+        "model": TARGET_MODEL,
+        "runtime": TARGET_RUNTIME,
+        "soc": TARGET_SOC,
+    }:
+        raise FinalizeError("last-kmsg reconciliation target is not exact")
+    source = value.get("read_source")
+    # Re-open and fully validate the fixed read producer.  Hash-shaped values
+    # in a reconciled receipt are not authority on their own: the read
+    # manifest/private/journal contract supplies the immutable source join.
+    fixed_read_source = _validate_fixed_read_source(root, READ_SOURCE_EXPERIMENT_ID)
+    if not isinstance(source, Mapping) or set(source) != _RECONCILED_READ_SOURCE_PUBLIC_KEYS:
+        raise FinalizeError("last-kmsg reconciliation read_source is missing")
+    expected_public_read_source = {
+        key: value
+        for key, value in fixed_read_source.items()
+        if key != "source_pre_read_boot_id"
+    }
+    if dict(source) != expected_public_read_source:
+        raise FinalizeError(
+            "last-kmsg reconciliation read_source differs from fixed read projection"
+        )
+
+    signature = value.get("exact_reset_signature")
+    if not isinstance(signature, Mapping):
+        raise FinalizeError("last-kmsg reconciliation signature is missing")
+    if signature.get("status") != "EXACT_V024_MID_NONSECURE_WDT" or signature.get("a90r_count") != 0:
+        raise FinalizeError("last-kmsg reconciliation signature status/A90R is not exact")
+    uniqueness = signature.get("uniqueness")
+    if not isinstance(uniqueness, Mapping) or uniqueness.get("all_required_unique") is not True:
+        raise FinalizeError("last-kmsg reconciliation marker uniqueness is not exact")
+    for key in ("bark", "last_pet", "debug_level", "upload_cause", "collect_upload", "tz_reason"):
+        if uniqueness.get(key) != 1:
+            raise FinalizeError("last-kmsg reconciliation marker count is not exactly one")
+    if signature.get("ordered_offsets_strict") is not True:
+        raise FinalizeError("last-kmsg reconciliation marker order is not strict")
+    delta = signature.get("bark_last_pet_delta_seconds")
+    try:
+        delta_number = float(delta)
+    except (TypeError, ValueError) as exc:
+        raise FinalizeError("last-kmsg reconciliation delta is malformed") from exc
+    if not math.isfinite(delta_number) or not 10.0 <= delta_number <= 12.0:
+        raise FinalizeError("last-kmsg reconciliation delta is outside the fixed bound")
+
+    def artifact(name: str, path_value: Path, label: str) -> tuple[dict[str, object], bytes]:
+        record = source_artifacts.get(name)
+        if not isinstance(record, Mapping) or set(record) != {"filename", "sha256", "size"}:
+            raise FinalizeError(f"{label} source artifact record is not exact")
+        expected_name = path_value.name
+        _require(record, "filename", expected_name, label)
+        artifact_bytes = _stable_bytes(path_value, root=path_value.parent, label=label, max_bytes=MAX_RECEIPT_BYTES)
+        _require_hash(record.get("sha256"), hashlib.sha256(artifact_bytes).hexdigest(), label)
+        _require_size(record.get("size"), len(artifact_bytes), label)
+        return dict(record), artifact_bytes
+
+    source_artifacts = value.get("source_artifacts")
+    if not isinstance(source_artifacts, Mapping) or set(source_artifacts) != {
+        "public_manifest", "metadata", "journal", "captured_raw", "derived_signature"
+    }:
+        raise FinalizeError("last-kmsg reconciliation source artifacts are not exact")
+    private_dir = root / PRIVATE_ROOT_NAME
+    manifest_dir = root / MANIFEST_ROOT_NAME
+    source_manifest_path = _manifest_path(
+        manifest_dir / LAST_KMSG_MANIFEST_NAME, root, "reconciled source public"
+    )
+    source_metadata_path = _private_path(
+        private_dir / f"{LAST_KMSG_EXPERIMENT_ID}.private.json", root, "reconciled source metadata"
+    )
+    source_journal_path = _private_path(
+        private_dir / f"{LAST_KMSG_EXPERIMENT_ID}.journal.json", root, "reconciled source journal"
+    )
+    source_raw_path = _private_path(
+        private_dir / f"{LAST_KMSG_EXPERIMENT_ID}.last_kmsg.raw.bin", root, "reconciled source raw"
+    )
+    source_signature_path = _private_path(
+        private_dir / f"{LAST_KMSG_EXPERIMENT_ID}.last_kmsg.bin", root, "reconciled source signature"
+    )
+    _, source_manifest_bytes = artifact("public_manifest", source_manifest_path, "reconciled source public")
+    _, source_metadata_bytes = artifact("metadata", source_metadata_path, "reconciled source metadata")
+    _, source_journal_bytes = artifact("journal", source_journal_path, "reconciled source journal")
+    _, captured_bytes = artifact("captured_raw", source_raw_path, "reconciled source raw")
+    _, source_signature_bytes = artifact("derived_signature", source_signature_path, "reconciled source signature")
+
+    source_public, _, _ = _json(source_manifest_path, root=manifest_dir, label="reconciled source public")
+    source_metadata, _, _ = _json(source_metadata_path, root=private_dir, label="reconciled source metadata")
+    source_journal, _, _ = _json(source_journal_path, root=private_dir, label="reconciled source journal")
+    old_signature, _, _ = _json(source_signature_path, root=private_dir, label="reconciled source signature")
+    if set(source_public) != {
+        "classification",
+        "completed_utc",
+        "effect_dispatched",
+        "effect_dispatched_count",
+        "effect_replayed",
+        "error",
+        "expected_target",
+        "experiment_id",
+        "journal_filename",
+        "partition_writes",
+        "private_record",
+        "redaction",
+        "schema",
+        "started_utc",
+        "status",
+        "target",
+        "target_verified",
+    }:
+        raise FinalizeError("reconciled source public fields are not exact")
+    if set(source_metadata) != {
+        "completed_utc",
+        "exact_reset_signature",
+        "experiment_id",
+        "journal_filename",
+        "last_kmsg",
+        "schema",
+        "started_utc",
+    }:
+        raise FinalizeError("reconciled source metadata fields are not exact")
+    if set(source_journal) != {
+        "boot_id_changed",
+        "bridge_binding",
+        "captured_log_filename",
+        "captured_log_sha256",
+        "captured_log_size",
+        "current_boot_id",
+        "current_boot_id_sha256",
+        "effect_dispatched",
+        "effect_replayed",
+        "expected_target",
+        "experiment_id",
+        "last_kmsg_read_once",
+        "live_bridge_binding_before_last_kmsg",
+        "post_stophud_bridge_binding",
+        "private_record",
+        "read_source",
+        "records",
+        "retained_sha256",
+        "retained_size",
+        "schema",
+        "source_pre_read_boot_id",
+        "started_utc",
+        "status",
+        "stophud",
+        "stophud_attempts",
+        "stophud_frames",
+        "target",
+        "target_verified",
+        "transport_module",
+        "transport_source",
+        "raw_filename",
+    }:
+        raise FinalizeError("reconciled source journal fields are not exact")
+    if set(old_signature) != {"exact_reset_signature"}:
+        raise FinalizeError("reconciled source signature fields are not exact")
+    _require(source_public, "schema", "sdm855-a90-last-kmsg-capture-public-v2", "reconciled source public")
+    _require(source_public, "experiment_id", LAST_KMSG_EXPERIMENT_ID, "reconciled source public")
+    _require(source_public, "status", "INCIDENT", "reconciled source public")
+    _require(source_public, "classification", "INCIDENT", "reconciled source public")
+    _require(source_public, "effect_dispatched", False, "reconciled source public")
+    _require(source_public, "effect_replayed", False, "reconciled source public")
+    _require(source_public, "partition_writes", False, "reconciled source public")
+    private_record = source_public.get("private_record")
+    if not isinstance(private_record, Mapping):
+        raise FinalizeError("reconciled source public private_record is missing")
+    _require(private_record, "filename", source_signature_path.name, "reconciled source public private_record")
+    _require(private_record, "journal_filename", source_journal_path.name, "reconciled source public private_record")
+    _require_hash(private_record.get("sha256"), hashlib.sha256(source_signature_bytes).hexdigest(), "reconciled source signature")
+    _require_size(private_record.get("size"), len(source_signature_bytes), "reconciled source signature")
+    captured_record = private_record.get("captured_log")
+    if not isinstance(captured_record, Mapping):
+        raise FinalizeError("reconciled source public captured_log is missing")
+    _require(captured_record, "filename", source_raw_path.name, "reconciled source captured raw")
+    _require_hash(captured_record.get("sha256"), hashlib.sha256(captured_bytes).hexdigest(), "reconciled source captured raw")
+    _require_size(captured_record.get("size"), len(captured_bytes), "reconciled source captured raw")
+    _require(source_metadata, "schema", "sdm855-a90-last-kmsg-capture-private-v2", "reconciled source metadata")
+    _require(source_metadata, "experiment_id", LAST_KMSG_EXPERIMENT_ID, "reconciled source metadata")
+    _require(source_journal, "schema", "sdm855-a90-last-kmsg-capture-private-v2", "reconciled source journal")
+    _require(source_journal, "experiment_id", LAST_KMSG_EXPERIMENT_ID, "reconciled source journal")
+    _require(source_journal, "status", "INCIDENT", "reconciled source journal")
+    for key, expected in {
+        "effect_dispatched": False,
+        "effect_replayed": False,
+        "last_kmsg_read_once": True,
+        "boot_id_changed": True,
+        "target_verified": True,
+        "private_record": source_metadata_path.name,
+        "raw_filename": source_signature_path.name,
+        "captured_log_filename": source_raw_path.name,
+    }.items():
+        _require(source_journal, key, expected, "reconciled source journal")
+    if "selftest_after" in source_journal or "selftest_status" in source_journal:
+        raise FinalizeError("reconciled source journal invents selftest evidence")
+    source_target = source_journal.get("target")
+    if not isinstance(source_target, Mapping) or source_target != dict(target):
+        raise FinalizeError("reconciled source target differs")
+    _require_hash(source_journal.get("captured_log_sha256"), hashlib.sha256(captured_bytes).hexdigest(), "reconciled source journal raw")
+    _require_size(source_journal.get("captured_log_size"), len(captured_bytes), "reconciled source journal raw")
+    _require_hash(source_journal.get("retained_sha256"), hashlib.sha256(source_signature_bytes).hexdigest(), "reconciled source journal signature")
+    _require_size(source_journal.get("retained_size"), len(source_signature_bytes), "reconciled source journal signature")
+    # StopHUD is also a redacted projection.  Derive it from the immutable
+    # source frame and compare every output projection below; a self-consistent
+    # forged summary must not become authority.
+    expected_stophud = _reconciled_source_stophud(
+        source_journal, "reconciled source"
+    )
+    read_source_journal = source_journal.get("read_source")
+    if not isinstance(read_source_journal, Mapping) or set(read_source_journal) != _RECONCILED_READ_SOURCE_PRIVATE_KEYS:
+        raise FinalizeError("reconciled source journal read_source is not fixed")
+    if dict(read_source_journal) != dict(fixed_read_source):
+        raise FinalizeError(
+            "reconciled source journal read_source differs from fixed read source"
+        )
+    record_payloads, expected_records = _reconciled_source_records(
+        source_journal, "reconciled source journal records"
+    )
+    if record_payloads[3] != captured_bytes:
+        raise FinalizeError("reconciled source last_kmsg payload differs from raw")
+    if b"androidboot.debug_level=0x494d" not in record_payloads[1]:
+        raise FinalizeError("reconciled source cmdline is not MID")
+    try:
+        source_boot = record_payloads[2].decode("ascii").rstrip("\r\n")
+    except UnicodeDecodeError as exc:
+        raise FinalizeError("reconciled source boot record is not ASCII") from exc
+    if BOOT_ID_RE.fullmatch(source_boot) is None or source_journal.get("current_boot_id") != source_boot:
+        raise FinalizeError("reconciled source current boot join is not exact")
+    current_boot_hash = hashlib.sha256(source_boot.encode("ascii")).hexdigest()
+    _require_hash(
+        source_journal.get("current_boot_id_sha256"),
+        current_boot_hash,
+        "reconciled source current boot hash",
+    )
+    source_pre_boot = source_journal.get("source_pre_read_boot_id")
+    if (
+        not isinstance(source_pre_boot, str)
+        or BOOT_ID_RE.fullmatch(source_pre_boot) is None
+        or source_pre_boot == source_boot
+        or read_source_journal.get("source_pre_read_boot_id") != source_pre_boot
+        or read_source_journal.get("source_pre_read_boot_id_sha256")
+        != hashlib.sha256(source_pre_boot.encode("ascii")).hexdigest()
+    ):
+        raise FinalizeError("reconciled source pre/current boot join is not exact")
+    old_signature_value = old_signature.get("exact_reset_signature")
+    if not isinstance(old_signature_value, Mapping) or old_signature_value.get("status") != "INCIDENT":
+        raise FinalizeError("reconciled source derived signature is not the original incident")
+    if source_metadata.get("exact_reset_signature") != dict(old_signature_value):
+        raise FinalizeError("reconciled source metadata/signature differs")
+
+    # Recompute the corrected signature directly from the retained raw bytes;
+    # reference offsets are informational because boot logs shift by epoch.
+    try:
+        recomputed = parse_exact_reset_signature(captured_bytes)
+    except BaseException as exc:
+        raise FinalizeError("reconciled source raw cannot be parsed") from exc
+    if not isinstance(recomputed, Mapping) or recomputed.get("status") != "EXACT_V024_MID_NONSECURE_WDT":
+        raise FinalizeError("reconciled source raw did not produce the exact signature")
+    if dict(recomputed) != dict(signature):
+        raise FinalizeError("reconciled public signature differs from raw recomputation")
+
+    private_path = _private_path(
+        private_dir / f"{LAST_KMSG_RECONCILED_EXPERIMENT_ID}.private.json", root, "last-kmsg reconciliation private"
+    )
+    journal_path = _private_path(
+        private_dir / f"{LAST_KMSG_RECONCILED_EXPERIMENT_ID}.journal.json", root, "last-kmsg reconciliation journal"
+    )
+    private_value, private_bytes, _ = _json(private_path, root=private_dir, label="last-kmsg reconciliation private")
+    journal_value, journal_bytes, _ = _json(journal_path, root=private_dir, label="last-kmsg reconciliation journal")
+    if set(private_value) != _RECONCILED_PRIVATE_KEYS:
+        raise FinalizeError("last-kmsg reconciliation private fields are not exact")
+    if set(journal_value) != _RECONCILED_JOURNAL_KEYS:
+        raise FinalizeError("last-kmsg reconciliation journal fields are not exact")
+    for record, schema, label in (
+        (private_value, LAST_KMSG_RECONCILED_PRIVATE_SCHEMA, "last-kmsg reconciliation private"),
+        (journal_value, LAST_KMSG_RECONCILED_JOURNAL_SCHEMA, "last-kmsg reconciliation journal"),
+    ):
+        _require(record, "schema", schema, label)
+        _require(record, "experiment_id", LAST_KMSG_RECONCILED_EXPERIMENT_ID, label)
+        _require(record, "source_experiment_id", LAST_KMSG_EXPERIMENT_ID, label)
+        _require(record, "original_status", "INCIDENT", label)
+        _require(record, "reclassified_status", "EXACT_V024_MID_NONSECURE_WDT", label)
+        _require(record, "parser_false_negative", True, label)
+        _require(record, "device_contact", False, label)
+        _require(record, "device_writes", False, label)
+        _require(record, "selftest_after", "NOT_OBSERVED_DUE_TO_PRE_FIX_PARSER_STOP", label)
+        _require(record, "effect_dispatched", False, label)
+        _require(record, "effect_replayed", False, label)
+        _require(record, "partition_writes", False, label)
+        _require(record, "last_kmsg_read_once", True, label)
+        if record.get("exact_reset_signature") != dict(signature):
+            raise FinalizeError(f"{label} signature projection differs")
+        if "selftest_after" not in record or "selftest_status" in record:
+            raise FinalizeError(f"{label} selftest projection is not exact")
+    if private_value.get("source_artifacts") != dict(source_artifacts) or journal_value.get("source_artifacts") != dict(source_artifacts):
+        raise FinalizeError("last-kmsg reconciliation source artifact projections differ")
+    public_stophud = value.get("stophud")
+    if not isinstance(public_stophud, Mapping) or dict(public_stophud) != expected_stophud:
+        raise FinalizeError("last-kmsg reconciliation public stophud differs from source")
+    if _reconciled_record_projection(value.get("records"), "last-kmsg reconciliation public") != expected_records:
+        raise FinalizeError("last-kmsg reconciliation public records differ from source")
+    for record, label in ((private_value, "last-kmsg reconciliation private"), (journal_value, "last-kmsg reconciliation journal")):
+        if record.get("target") != dict(target) or record.get("stophud") != expected_stophud or record.get("records") != expected_records:
+            raise FinalizeError(f"{label} target/stophud/records projection differs")
+        if set(record.get("read_source", {})) != _RECONCILED_READ_SOURCE_PRIVATE_KEYS:
+            raise FinalizeError(f"{label} read_source fields are not private exact")
+        if record.get("read_source") != dict(fixed_read_source):
+            raise FinalizeError(f"{label} read_source differs from fixed read source")
+        if record.get("started_utc") != value.get("started_utc") or record.get("completed_utc") != value.get("completed_utc"):
+            raise FinalizeError(f"{label} completion projection differs")
+    for key in ("captured_raw", "derived_signature"):
+        artifact_value = private_value.get(key)
+        if not isinstance(artifact_value, Mapping) or set(artifact_value) != {"filename", "sha256", "size"}:
+            raise FinalizeError("last-kmsg reconciliation private artifact fields are not exact")
+    private_record_value = value.get("private_record")
+    if not isinstance(private_record_value, Mapping) or set(private_record_value) != {
+        "metadata_filename", "metadata_sha256", "metadata_size", "journal_filename", "journal_sha256", "journal_size"
+    }:
+        raise FinalizeError("last-kmsg reconciliation private record is not exact")
+    _require(private_record_value, "metadata_filename", private_path.name, "last-kmsg reconciliation private record")
+    _require_hash(private_record_value.get("metadata_sha256"), hashlib.sha256(private_bytes).hexdigest(), "last-kmsg reconciliation metadata")
+    _require_size(private_record_value.get("metadata_size"), len(private_bytes), "last-kmsg reconciliation metadata")
+    _require(private_record_value, "journal_filename", journal_path.name, "last-kmsg reconciliation private record")
+    _require_hash(private_record_value.get("journal_sha256"), hashlib.sha256(journal_bytes).hexdigest(), "last-kmsg reconciliation journal")
+    _require_size(private_record_value.get("journal_size"), len(journal_bytes), "last-kmsg reconciliation journal")
+    return {
+        "kind": "last_kmsg",
+        "experiment_id": LAST_KMSG_RECONCILED_EXPERIMENT_ID,
+        "path": str(checked),
+        **_receipt_hash(data),
+        "delta_seconds": delta_number,
+        "completed_utc": value["completed_utc"],
+        "raw_sha256": hashlib.sha256(captured_bytes).hexdigest(),
+        "raw_size": len(captured_bytes),
+        "signature_sha256": hashlib.sha256(source_signature_bytes).hexdigest(),
+        "signature_size": len(source_signature_bytes),
+        "metadata_sha256": hashlib.sha256(private_bytes).hexdigest(),
+        "journal_sha256": hashlib.sha256(journal_bytes).hexdigest(),
+        "read_source": dict(source),
+        "source_pre_read_boot_id_sha256": source.get("source_pre_read_boot_id_sha256"),
+        "current_boot_id_sha256": source_journal.get("current_boot_id_sha256"),
+    }
+
+
 def validate_last_kmsg(path: Path, root: Path) -> dict[str, object]:
+    reconciled_path = (root / MANIFEST_ROOT_NAME / LAST_KMSG_RECONCILED_MANIFEST_NAME).resolve(strict=False)
+    supplied = path if path.is_absolute() else root / path
+    if supplied.resolve(strict=False) == reconciled_path:
+        return _validate_last_kmsg_reconciled(path, root)
     checked_manifest = _manifest_path(path, root, "last-kmsg signature")
     value, data, checked = _json(checked_manifest, root=root / MANIFEST_ROOT_NAME, label="last-kmsg signature")
     if checked != (root / MANIFEST_ROOT_NAME / LAST_KMSG_MANIFEST_NAME).resolve(strict=False):

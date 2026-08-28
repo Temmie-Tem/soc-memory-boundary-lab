@@ -1,0 +1,202 @@
+{
+  "schema": "sdm855-a90-last-kmsg-reconciliation-public-v1",
+  "experiment_id": "last-kmsg-final-reconciled",
+  "source_experiment_id": "last-kmsg-final",
+  "started_utc": "2026-08-28T13:08:38+00:00",
+  "completed_utc": "2026-08-28T13:08:38+00:00",
+  "original_status": "INCIDENT",
+  "reclassified_status": "EXACT_V024_MID_NONSECURE_WDT",
+  "parser_false_negative": true,
+  "device_contact": false,
+  "device_writes": false,
+  "selftest_after": "NOT_OBSERVED_DUE_TO_PRE_FIX_PARSER_STOP",
+  "target": {
+    "bootloader": "A908NKSU5EWA3",
+    "model": "SM-A908N",
+    "runtime": "0.9.285",
+    "soc": "SM8150"
+  },
+  "read_source": {
+    "completed_utc": "2026-08-28T13:01:52+00:00",
+    "experiment_id": "verification-024-read",
+    "journal_sha256": "70e5f3d03b6e9acec672c859f14a8c9c85e2e104279360404b234e36c93d19e7",
+    "journal_size": 85205,
+    "manifest_sha256": "0b306baff4c01697861ba6706943af4f0f37eec7e3aa6546a86ed5b10e571ede",
+    "manifest_size": 9860,
+    "raw_sha256": "fc2b6b7e44a435fd16836b00425b329e4a39a7aa257d2fc0c7a6588899982c2c",
+    "raw_size": 79634,
+    "source_pre_read_boot_id_sha256": "f548c474ff05ae0df589ffb6509b4d3e4735b14fbdeef1c03c0992319394bef7"
+  },
+  "stophud": {
+    "accepted": true,
+    "busy_retries": 0,
+    "attempts": [
+      {
+        "attempt": 1,
+        "evidence_id": "stophud_1",
+        "payload_sha256": "2ff11ad1db77649ecf6980192befe53fad157a20ff177e9904a6350d4b46e8b5",
+        "payload_size": 16,
+        "rc": 0,
+        "status": "ok",
+        "transcript_sha256": "7cd78fc867f3ac1fba49f6a863619155edfe5f78f0c2c37f997097b9640e2d06",
+        "transcript_size": 199
+      }
+    ]
+  },
+  "records": [
+    {
+      "evidence_id": "version_before",
+      "argv": [
+        "version"
+      ],
+      "payload_sha256": "816e84c0c429cffacc2fd6efbdd166bf53a59c5b5fcf39cc59bd9788eb3b329a",
+      "payload_size": 240,
+      "transcript_sha256": "639fb14321ad86b4235071502b69ed2aace8d48cea0713f38bf93c12ec41406a",
+      "transcript_size": 419
+    },
+    {
+      "evidence_id": "cmdline_before",
+      "argv": [
+        "cat",
+        "/proc/cmdline"
+      ],
+      "payload_sha256": "a4a93666cc27af98816ae846b72b7dcaa7f18821066844c1bcaaef5dc225063b",
+      "payload_size": 2528,
+      "transcript_sha256": "c53f620a5e3ae81265afcb2131f373c4505ea17aae99f6707ee33d08644cf168",
+      "transcript_size": 2705
+    },
+    {
+      "evidence_id": "boot_id_after_source",
+      "argv": [
+        "cat",
+        "/proc/sys/kernel/random/boot_id"
+      ],
+      "payload_sha256": "ce4e074be8bd989819c328ed75b60f75f1ee115f680dcb8316eeab72baac02ad",
+      "payload_size": 37,
+      "transcript_sha256": "59191874494c55e14d265517eca13144ac9d80010aaa02fbf47cce8622aef095",
+      "transcript_size": 232
+    },
+    {
+      "evidence_id": "last_kmsg",
+      "argv": [
+        "cat",
+        "/proc/last_kmsg"
+      ],
+      "payload_sha256": "ee0d2548e5ca6461a77b5b16287542b7d8112cd574ed0ba046b1011ad16b7c6c",
+      "payload_size": 2097136,
+      "transcript_sha256": "4bab3df24f4860639bfb5802c372fbdddb4a1eda8aa4c779a769717e5942f0b6",
+      "transcript_size": 2097317
+    }
+  ],
+  "source_artifacts": {
+    "public_manifest": {
+      "filename": "last-kmsg-final.manifest.json",
+      "sha256": "28e57607c7d43ed675c14f50bb34f35c8862240e6e83f63bbc26505ddb233e8f",
+      "size": 1451
+    },
+    "metadata": {
+      "filename": "last-kmsg-final.private.json",
+      "sha256": "dacaa0c39df1d7ccc6af382b27a0d6ee9c40b0593c7b1151812885ba8811b66b",
+      "size": 5761
+    },
+    "journal": {
+      "filename": "last-kmsg-final.journal.json",
+      "sha256": "9752a3c8398234a885c59a83fb2a1ed52606c6bc7291e7ca08dc9995c3af3e73",
+      "size": 5611917
+    },
+    "captured_raw": {
+      "filename": "last-kmsg-final.last_kmsg.raw.bin",
+      "sha256": "ee0d2548e5ca6461a77b5b16287542b7d8112cd574ed0ba046b1011ad16b7c6c",
+      "size": 2097136
+    },
+    "derived_signature": {
+      "filename": "last-kmsg-final.last_kmsg.bin",
+      "sha256": "742e9a89ec4d93e3d960cb0264fc35f365160cec509daa5e38e1976696f575bf",
+      "size": 2292
+    }
+  },
+  "exact_reset_signature": {
+    "status": "EXACT_V024_MID_NONSECURE_WDT",
+    "debug_level_decimal": 1145654596,
+    "upload_cause": "Non Secure Watchdog Bark",
+    "tz_reset_reason": "TZBSP_ERR_FATAL_NON_SECURE_WDT",
+    "a90r_count": 0,
+    "exact_strings": {
+      "debug_level": "DebugLevel : 1145654596, ForceUploadFlag : 0",
+      "bark": "Watchdog bark! Now = 97.880454",
+      "last_pet": "Watchdog last pet at 86.880167",
+      "upload_cause": "UploadCause[Non Secure Watchdog Bark]",
+      "collect_upload": "collect_rr_data : upload_cause = Non Secure Watchdog Bark",
+      "tz_reason": "collect_rr_data : TZ OEM_RESET_REASON :: TZBSP_ERR_FATAL_NON_SECURE_WDT"
+    },
+    "expected_exact_strings": {
+      "debug_level": "DebugLevel : 1145654596",
+      "bark": "Watchdog bark! Now = <finite>",
+      "last_pet": "Watchdog last pet at <finite>",
+      "upload_cause": "UploadCause[Non Secure Watchdog Bark]",
+      "collect_upload": "collect_rr_data : upload_cause = Non Secure Watchdog Bark",
+      "tz_reason": "collect_rr_data : TZ OEM_RESET_REASON :: TZBSP_ERR_FATAL_NON_SECURE_WDT"
+    },
+    "ordered_offsets": {
+      "bark": 2034927,
+      "last_pet": 2035035,
+      "debug_level": 2039731,
+      "upload_cause": 2055451,
+      "collect_upload": 2055639,
+      "tz_reason": 2055825
+    },
+    "ordered_byte_offsets": {
+      "bark": 2034927,
+      "last_pet": 2035035,
+      "debug_level": 2039731,
+      "upload_cause": 2055451,
+      "collect_upload": 2055639,
+      "tz_reason": 2055825
+    },
+    "uniqueness": {
+      "bark": 1,
+      "last_pet": 1,
+      "debug_level": 1,
+      "upload_cause": 1,
+      "collect_upload": 1,
+      "tz_reason": 1,
+      "all_required_unique": true
+    },
+    "ordered_offsets_strict": true,
+    "reference_offsets": {
+      "bark": 2033780,
+      "last_pet": 2033888,
+      "debug_level": 2038584,
+      "upload_cause": 2054304,
+      "collect_upload": 2054492,
+      "tz_reason": 2054678
+    },
+    "reference_offsets_match": false,
+    "payload_size": 2097136,
+    "reference_size": 2097136,
+    "bark_now_seconds": 97.880454,
+    "last_pet_seconds": 86.880167,
+    "bark_last_pet_delta_seconds": 11.000287,
+    "times": {
+      "bark_now": 97.880454,
+      "last_pet": 86.880167,
+      "delta": 11.000287
+    },
+    "delta_bound_seconds": {
+      "min": 10.0,
+      "max": 12.0
+    }
+  },
+  "effect_dispatched": false,
+  "effect_replayed": false,
+  "partition_writes": false,
+  "last_kmsg_read_once": true,
+  "private_record": {
+    "metadata_filename": "last-kmsg-final-reconciled.private.json",
+    "metadata_sha256": "1eb5be3f26fe133c5560acbddfc1658bad39d4c69ab210fe77c2c6d9e3537536",
+    "metadata_size": 6952,
+    "journal_filename": "last-kmsg-final-reconciled.journal.json",
+    "journal_sha256": "6e6149d0bddffc9b065e09627f363d455b2aabc3598c1ce5d2efaeb46b5516e2",
+    "journal_size": 6620
+  }
+}
