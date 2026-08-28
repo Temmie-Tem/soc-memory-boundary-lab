@@ -27,6 +27,7 @@ from typing import Any, Mapping, Sequence
 
 try:
     from tools import a90_v024_control_retry as control_retry
+    from tools import a90_v024_r2_incident as r2_incident
     from tools import a90_inline_remapper_mid_probe as inline_probe
     from tools.a90_last_kmsg_capture import parse_exact_reset_signature
     from tools.a90_inline_remapper_mid_probe import (
@@ -59,6 +60,7 @@ try:
     )
 except ModuleNotFoundError:  # Direct execution from tools/.
     import a90_v024_control_retry as control_retry  # type: ignore
+    import a90_v024_r2_incident as r2_incident  # type: ignore
     import a90_inline_remapper_mid_probe as inline_probe  # type: ignore
     from a90_last_kmsg_capture import parse_exact_reset_signature  # type: ignore
     from a90_inline_remapper_mid_probe import (  # type: ignore
@@ -141,11 +143,15 @@ READ_SOURCE_JOURNAL_NAME = f"{READ_SOURCE_EXPERIMENT_ID}.journal.json"
 # the fixed final-chain producer slots.  Callers may patch REPO_ROOT for an
 # isolated host fixture, but may not mint another evidence namespace or swap
 # an arbitrary producer path into this chain.
-CONTROL_EXPERIMENT_ID = "verification-024-control-r2"
+# R2 was consumed by a preflight-only device-number mismatch and is retained
+# as a fixed, read-only incident checkpoint.  R3 is the only executable
+# control owner; the original control ID remains the historical predecessor.
+CONTROL_EXPERIMENT_ID = "verification-024-control-r3"
+CONTROL_R2_EXPERIMENT_ID = "verification-024-control-r2"
 CONTROL_PREDECESSOR_EXPERIMENT_ID = "verification-024-control"
 CONTROL_MANIFEST_NAME = f"{CONTROL_EXPERIMENT_ID}.manifest.json"
-CONTROL_R2_PRECLAIM_SCHEMA = "sdm855-a90-inline-remapper-mid-journal-v1"
-CONTROL_R2_PRECLAIM_STATUS = "PREDECESSOR_VALIDATION_PENDING"
+CONTROL_R3_PRECLAIM_SCHEMA = "sdm855-a90-inline-remapper-mid-journal-v1"
+CONTROL_R3_PRECLAIM_STATUS = "PREDECESSOR_VALIDATION_PENDING"
 CONTROL_R2_PREDECESSOR_CAPSULE_SCHEMA = (
     "sdm855-a90-v024-control-predecessor-final-capsule-v1"
 )
@@ -153,6 +159,17 @@ CONTROL_R2_PREDECESSOR_CAPSULE_SHA256 = (
     "56d233030e1c970b486721b21293a91a154bdc5ebe0ae811b36473457648df15"
 )
 CONTROL_R2_PREDECESSOR_CAPSULE_SIZE = 4924
+CONTROL_R3_HISTORICAL_PINS_POLICY = (
+    "historical_predecessor_capsule_bound; current_r3_source_provenance_required_before_live"
+)
+# Compatibility names are kept for host fixtures and historical callers. They
+# alias the active R3 preclaim values and do not make the consumed R2 ID valid.
+CONTROL_R2_PRECLAIM_SCHEMA = CONTROL_R3_PRECLAIM_SCHEMA
+CONTROL_R2_PRECLAIM_STATUS = CONTROL_R3_PRECLAIM_STATUS
+CONTROL_R2_HISTORICAL_PINS_POLICY = CONTROL_R3_HISTORICAL_PINS_POLICY
+CONTROL_R2_INCIDENT_MANIFEST_SHA256 = r2_incident.INCIDENT_MANIFEST_SHA256
+CONTROL_R2_INCIDENT_MANIFEST_SIZE = r2_incident.INCIDENT_MANIFEST_SIZE
+CONTROL_R2_INCIDENT_VALIDATION_SCHEMA = r2_incident.VALIDATION_SCHEMA
 LAST_KMSG_EXPERIMENT_ID = "last-kmsg-final"
 LAST_KMSG_MANIFEST_NAME = f"{LAST_KMSG_EXPERIMENT_ID}.manifest.json"
 STOPHUD_MAX_ATTEMPTS = 3
@@ -2258,16 +2275,19 @@ def _control_raw_journal(manifest: Mapping[str, object], root: Path) -> tuple[di
 
 
 def _validate_control_r2_predecessor(
-    journal: Mapping[str, object], label: str = "control journal"
-) -> tuple[str, int]:
-    """Validate the fixed r2 predecessor capsule and durable preclaim.
+    journal: Mapping[str, object],
+    label: str = "control journal",
+    *,
+    root: Path | None = None,
+) -> tuple[str, int, dict[str, object]]:
+    """Validate the historical R2 capsule and active R3 reconciliation.
 
-    The control producer writes the preclaim before any candidate, transport,
-    flash, or device evidence is read, then atomically upgrades the same
-    journal with this section.  Rebuilding the capsule through the no-argument
-    host-only producer and rebuilding the preclaim through the inline helper
-    prevents a caller from substituting a semantically similar but differently
-    serialized predecessor namespace.
+    R2 is a consumed, zero-effect checkpoint; it is never an executable
+    fallback.  The R3 producer first durably claims the R3 namespace and then
+    records both the legacy ``control_r2_predecessor`` capsule section and the
+    exact redacted R2 incident summary.  Rebuilding the capsule/preclaim and
+    calling the fixed incident validator here prevents a caller from
+    substituting a semantically similar but differently serialized receipt.
     """
 
     section = journal.get("control_r2_predecessor")
@@ -2325,7 +2345,10 @@ def _validate_control_r2_predecessor(
     _require(section, "capsule_size", capsule_size, label)
 
     try:
-        preclaim = inline_probe._control_r2_preclaim()
+        # The compatibility helper currently aliases this function, but use
+        # the explicit producer name so the active-ID transition cannot be
+        # hidden behind an old R2 API name.
+        preclaim = inline_probe._control_r3_preclaim()
         preclaim_bytes = inline_probe.json_bytes(preclaim)
     except BaseException as exc:
         raise FinalizeError("control r2 predecessor preclaim cannot be rebuilt") from exc
@@ -2336,40 +2359,89 @@ def _validate_control_r2_predecessor(
         "status",
         "experiment_id",
         "predecessor_experiment_id",
+        "consumed_r2_experiment_id",
         "mode",
         "replay_safe",
         "predecessor_capsule",
+        "r2_incident",
     }:
-        raise FinalizeError("control r2 predecessor preclaim fields are not exact")
-    if preclaim.get("schema") != CONTROL_R2_PRECLAIM_SCHEMA:
-        raise FinalizeError("control r2 predecessor preclaim schema differs")
-    if preclaim.get("status") != CONTROL_R2_PRECLAIM_STATUS:
-        raise FinalizeError("control r2 predecessor preclaim status differs")
+        raise FinalizeError("control r3 preclaim fields are not exact")
+    if preclaim.get("schema") != CONTROL_R3_PRECLAIM_SCHEMA:
+        raise FinalizeError("control r3 preclaim schema differs")
+    if preclaim.get("status") != CONTROL_R3_PRECLAIM_STATUS:
+        raise FinalizeError("control r3 preclaim status differs")
     if preclaim.get("experiment_id") != CONTROL_EXPERIMENT_ID:
-        raise FinalizeError("control r2 predecessor preclaim active ID differs")
+        raise FinalizeError("control r3 preclaim active ID differs")
     if preclaim.get("predecessor_experiment_id") != CONTROL_PREDECESSOR_EXPERIMENT_ID:
-        raise FinalizeError("control r2 predecessor preclaim old ID differs")
+        raise FinalizeError("control r3 preclaim historical ID differs")
+    if preclaim.get("consumed_r2_experiment_id") != CONTROL_R2_EXPERIMENT_ID:
+        raise FinalizeError("control r3 preclaim consumed R2 ID differs")
     if preclaim.get("mode") != "control" or preclaim.get("replay_safe") is not False:
-        raise FinalizeError("control r2 predecessor preclaim replay policy differs")
+        raise FinalizeError("control r3 preclaim replay policy differs")
     expected_predecessor = {
         "schema": CONTROL_R2_PREDECESSOR_CAPSULE_SCHEMA,
         "sha256": CONTROL_R2_PREDECESSOR_CAPSULE_SHA256,
         "size": CONTROL_R2_PREDECESSOR_CAPSULE_SIZE,
-        "historical_pins_policy": preclaim.get("predecessor_capsule", {}).get(
-            "historical_pins_policy"
-        )
-        if isinstance(preclaim.get("predecessor_capsule"), dict)
-        else None,
+        "historical_pins_policy": CONTROL_R3_HISTORICAL_PINS_POLICY,
     }
     if not isinstance(preclaim.get("predecessor_capsule"), dict):
-        raise FinalizeError("control r2 predecessor preclaim capsule policy is missing")
+        raise FinalizeError("control r3 preclaim capsule policy is missing")
     if set(preclaim["predecessor_capsule"]) != set(expected_predecessor):
-        raise FinalizeError("control r2 predecessor preclaim capsule fields are not exact")
+        raise FinalizeError("control r3 preclaim capsule fields are not exact")
     if preclaim["predecessor_capsule"] != expected_predecessor:
-        raise FinalizeError("control r2 predecessor preclaim capsule policy differs")
+        raise FinalizeError("control r3 preclaim capsule descriptor differs")
+    expected_incident_descriptor = {
+        "schema": CONTROL_R2_INCIDENT_VALIDATION_SCHEMA,
+        "sha256": CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+        "size": CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+    }
+    if not isinstance(preclaim.get("r2_incident"), dict):
+        raise FinalizeError("control r3 preclaim R2 incident descriptor is missing")
+    if set(preclaim["r2_incident"]) != set(expected_incident_descriptor):
+        raise FinalizeError("control r3 preclaim R2 incident fields are not exact")
+    if preclaim["r2_incident"] != expected_incident_descriptor:
+        raise FinalizeError("control r3 preclaim R2 incident descriptor differs")
     _require(section, "preclaim_sha256", hashlib.sha256(preclaim_bytes).hexdigest(), label)
     _require(section, "preclaim_size", len(preclaim_bytes), label)
-    return capsule_sha256, capsule_size
+
+    reconciliation = journal.get("control_r3_reconciliation")
+    if not isinstance(reconciliation, dict):
+        raise FinalizeError(f"{label} r3 reconciliation section is missing")
+    if set(reconciliation) != {
+        "preclaim_sha256",
+        "preclaim_size",
+        "r2_incident",
+    }:
+        raise FinalizeError(f"{label} r3 reconciliation fields are not exact")
+    _require(
+        reconciliation,
+        "preclaim_sha256",
+        hashlib.sha256(preclaim_bytes).hexdigest(),
+        label,
+    )
+    _require(reconciliation, "preclaim_size", len(preclaim_bytes), label)
+    incident_root = REPO_ROOT if root is None else root
+    try:
+        incident_summary = r2_incident.validate_r2_incident(incident_root)
+    except BaseException as exc:
+        raise FinalizeError("control r2 incident checkpoint cannot be validated") from exc
+    if type(incident_summary) is not dict:
+        raise FinalizeError("control r2 incident validator returned a non-object")
+    retained_summary = reconciliation.get("r2_incident")
+    if type(retained_summary) is not dict:
+        raise FinalizeError("control r3 reconciliation R2 summary is missing")
+    # Compare canonical bytes as well as parsed objects.  The JSON reader
+    # already rejects duplicate keys; canonicalization closes key-order and
+    # serialization ambiguities while preserving the producer's redacted
+    # summary as the exact validator output.
+    try:
+        expected_summary_bytes = inline_probe.json_bytes(incident_summary)
+        retained_summary_bytes = inline_probe.json_bytes(retained_summary)
+    except BaseException as exc:
+        raise FinalizeError("control r3 reconciliation summary is not canonical") from exc
+    if retained_summary_bytes != expected_summary_bytes:
+        raise FinalizeError("control r3 reconciliation R2 summary differs")
+    return capsule_sha256, capsule_size, incident_summary
 
 
 def _validate_flash_reference(
@@ -2471,6 +2543,9 @@ def validate_control(path: Path, root: Path) -> dict[str, object]:
         "flash_image_sha256": CONTROL_SHA256,
         "flash_readback_sha256": CONTROL_SHA256,
         "flash_predecessor_sha256": ROLLBACK_SHA256,
+        "r2_incident_manifest_sha256": CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+        "r2_incident_manifest_size": CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+        "r2_zero_effect_validated": True,
     }.items():
         _require(manifest, key, value, "control manifest")
     manifest_attestation = _validate_current_boot_attestation(
@@ -2537,11 +2612,30 @@ def validate_control(path: Path, root: Path) -> dict[str, object]:
         raise FinalizeError("control journal hash/size does not match manifest")
     if type(raw_size) is not int or type(journal_size) is not int:
         raise FinalizeError("control private hash/size binding is malformed")
-    predecessor_capsule_sha256, predecessor_capsule_size = _validate_control_r2_predecessor(
-        journal
-    )
+    (
+        predecessor_capsule_sha256,
+        predecessor_capsule_size,
+        r2_incident_summary,
+    ) = _validate_control_r2_predecessor(journal, root=root)
     _require(raw, "schema", "sdm855-a90-inline-remapper-mid-private-v1", "control raw")
     _require(raw, "mode", "control", "control raw")
+    for owner, owner_label in (
+        (raw, "control raw"),
+        (journal, "control journal"),
+    ):
+        _require(
+            owner,
+            "r2_incident_manifest_sha256",
+            CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+            owner_label,
+        )
+        _require(
+            owner,
+            "r2_incident_manifest_size",
+            CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+            owner_label,
+        )
+        _require(owner, "r2_zero_effect_validated", True, owner_label)
     _require_hash(raw.get("candidate_sha256"), CONTROL_SHA256, "control raw candidate")
     _require_size(raw.get("candidate_size"), BOOT_PREFIX_SIZE, "control raw candidate")
     raw_flash = raw.get("flash_journal")
@@ -2755,6 +2849,9 @@ def validate_control(path: Path, root: Path) -> dict[str, object]:
         "semantic_claim_key_sha256": raw.get("semantic_claim_key_sha256"),
         "predecessor_capsule_sha256": predecessor_capsule_sha256,
         "predecessor_capsule_size": predecessor_capsule_size,
+        "r2_incident_manifest_sha256": CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+        "r2_incident_manifest_size": CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+        "r2_zero_effect_validated": True,
         "raw_path": str(raw_path),
         "journal_path": str(journal_path),
     }
@@ -2849,11 +2946,17 @@ def validate_read(path: Path, root: Path, control: Mapping[str, object]) -> dict
         "target_dmid": TARGET_DMID,
         "predecessor_capsule_sha256": CONTROL_R2_PREDECESSOR_CAPSULE_SHA256,
         "predecessor_capsule_size": CONTROL_R2_PREDECESSOR_CAPSULE_SIZE,
+        "r2_incident_manifest_sha256": CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+        "r2_incident_manifest_size": CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+        "r2_zero_effect_validated": True,
     }.items():
         _require(binding, key, expected, "read control binding")
     for key, expected in {
         "predecessor_capsule_sha256": CONTROL_R2_PREDECESSOR_CAPSULE_SHA256,
         "predecessor_capsule_size": CONTROL_R2_PREDECESSOR_CAPSULE_SIZE,
+        "r2_incident_manifest_sha256": CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+        "r2_incident_manifest_size": CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+        "r2_zero_effect_validated": True,
     }.items():
         _require(control, key, expected, "validated control receipt")
     _validate_current_boot_attestation(
@@ -2867,7 +2970,7 @@ def validate_read(path: Path, root: Path, control: Mapping[str, object]) -> dict
         "0x000000000000c071",
         "read control binding fixed-op",
     )
-    for key in ("candidate_sha256", "candidate_size", "value", "completed_utc", "manifest_sha256", "manifest_size", "raw_sha256", "raw_size", "journal_sha256", "journal_size", "current_boot_attestation", "boot_id_before_read_sha256", "fixed_op_measurement"):
+    for key in ("candidate_sha256", "candidate_size", "value", "completed_utc", "manifest_sha256", "manifest_size", "raw_sha256", "raw_size", "journal_sha256", "journal_size", "current_boot_attestation", "boot_id_before_read_sha256", "fixed_op_measurement", "r2_incident_manifest_sha256", "r2_incident_manifest_size", "r2_zero_effect_validated"):
         if binding.get(key) != control.get(key) and not (key == "candidate_sha256" and binding.get(key) == CONTROL_SHA256):
             raise FinalizeError(f"read control binding field {key!r} differs")
     value_present = manifest.get("returned_value_present") is True
@@ -2951,9 +3054,12 @@ def validate_read(path: Path, root: Path, control: Mapping[str, object]) -> dict
         for key, expected in {
             "predecessor_capsule_sha256": CONTROL_R2_PREDECESSOR_CAPSULE_SHA256,
             "predecessor_capsule_size": CONTROL_R2_PREDECESSOR_CAPSULE_SIZE,
+            "r2_incident_manifest_sha256": CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+            "r2_incident_manifest_size": CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+            "r2_zero_effect_validated": True,
         }.items():
             _require(owner, key, expected, label)
-    for key in ("experiment_id", "manifest_sha256", "manifest_size", "raw_sha256", "raw_size", "journal_sha256", "journal_size", "completed_utc", "candidate_sha256", "candidate_size", "value", "predecessor_capsule_sha256", "predecessor_capsule_size"):
+    for key in ("experiment_id", "manifest_sha256", "manifest_size", "raw_sha256", "raw_size", "journal_sha256", "journal_size", "completed_utc", "candidate_sha256", "candidate_size", "value", "predecessor_capsule_sha256", "predecessor_capsule_size", "r2_incident_manifest_sha256", "r2_incident_manifest_size", "r2_zero_effect_validated"):
         if type(raw_control.get(key)) is not type(control.get(key)) or raw_control.get(key) != control.get(key):
             raise FinalizeError(f"read raw control binding field {key!r} differs")
     _require_hash(raw.get("candidate_sha256"), READ_SHA256, "read raw candidate")
@@ -3666,6 +3772,9 @@ def _validate_fixed_read_source(
         "target_dmid": TARGET_DMID,
         "predecessor_capsule_sha256": CONTROL_R2_PREDECESSOR_CAPSULE_SHA256,
         "predecessor_capsule_size": CONTROL_R2_PREDECESSOR_CAPSULE_SIZE,
+        "r2_incident_manifest_sha256": CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+        "r2_incident_manifest_size": CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+        "r2_zero_effect_validated": True,
     }.items():
         _require(control_binding, key, expected, "read source raw control binding")
     for key in ("experiment_id", "manifest_sha256", "raw_sha256", "journal_sha256", "boot_id_before_read_sha256"):
@@ -3727,6 +3836,9 @@ def _validate_fixed_read_source(
         "boot_id_before_read_sha256",
         "predecessor_capsule_sha256",
         "predecessor_capsule_size",
+        "r2_incident_manifest_sha256",
+        "r2_incident_manifest_size",
+        "r2_zero_effect_validated",
     ):
         if type(control_binding.get(key)) is not type(control_summary.get(key)) or control_binding.get(key) != control_summary.get(key):
             raise FinalizeError(f"read source control binding field {key!r} differs")

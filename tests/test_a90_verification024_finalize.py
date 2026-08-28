@@ -13,6 +13,7 @@ from unittest import mock
 
 from tools import a90_last_kmsg_capture as capture
 from tools import a90_inline_remapper_mid_probe as probe
+from tools import a90_v024_r2_incident as r2_incident
 from tools import a90_verification024_finalize as finalizer
 
 
@@ -90,6 +91,15 @@ class Verification024FinalizerTests(unittest.TestCase):
         self._capsule_builder_patch.start()
         (self.root / "evidence/private").mkdir(parents=True)
         (self.root / "evidence/manifests").mkdir(parents=True)
+        # The fixed incident validator is intentionally exercised against an
+        # isolated evidence root.  Copy only its redacted checkpoint; private
+        # R2 artifacts remain outside this fixture and are never reopened.
+        incident_source = (
+            r2_incident.REPO_ROOT / r2_incident.MANIFEST_RELATIVE_PATH
+        )
+        incident_target = self.root / r2_incident.MANIFEST_RELATIVE_PATH
+        incident_target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(incident_source, incident_target)
         self._make_receipts()
         self._upgrade_receipts_for_v024_contract()
 
@@ -757,6 +767,7 @@ class Verification024FinalizerTests(unittest.TestCase):
             "stat": {"mode": "0600", "uid": "0", "gid": "0", "size": "0", "rdev": "259:8"},
         }
         attestation_private = {**attestation, "attest_node": "/tmp/a90-native/verification-024-sda24", "attest_file": "/tmp/a90-native/verification-024-boot-prefix.bin"}
+        r2_incident_summary = r2_incident.validate_r2_incident(self.root)
 
         def frame(evidence_id: str, argv: tuple[str, ...], payload: bytes) -> dict[str, object]:
             protocol_flags = finalizer.inline_protocol_flags_for_argv(argv)
@@ -977,6 +988,9 @@ class Verification024FinalizerTests(unittest.TestCase):
             return claim_path, finalizer.hashlib.sha256(claim_data).hexdigest(), len(claim_data), key
         control_claim_path, control_claim_hash, control_claim_size, control_claim_key = install_claim("control", finalizer.CONTROL_SHA256, finalizer.CONTROL_EXPERIMENT_ID)
         control_raw.update({
+            "r2_incident_manifest_sha256": finalizer.CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+            "r2_incident_manifest_size": finalizer.CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+            "r2_zero_effect_validated": True,
             "flash_journal": {"path": str(flash_path), "sha256": finalizer.hashlib.sha256(flash_bytes).hexdigest(), "size": len(flash_bytes), "profile": "control", "remote_staging": "/tmp/sdm855-remapper-boot.img", "image_sha256": finalizer.CONTROL_SHA256, "readback_sha256": finalizer.CONTROL_SHA256, "predecessor_sha256": finalizer.ROLLBACK_SHA256},
             "current_boot_attestation": attestation_private,
             "boot_id_before_read": boot_id,
@@ -999,6 +1013,9 @@ class Verification024FinalizerTests(unittest.TestCase):
             "semantic_claimed": True,
         })
         control_journal.update({
+            "r2_incident_manifest_sha256": finalizer.CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+            "r2_incident_manifest_size": finalizer.CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+            "r2_zero_effect_validated": True,
             "candidate_sha256": finalizer.CONTROL_SHA256,
             "candidate_size": finalizer.BOOT_PREFIX_SIZE,
             "op": 4,
@@ -1026,7 +1043,7 @@ class Verification024FinalizerTests(unittest.TestCase):
             "semantic_claim_key_sha256": control_claim_key,
             "semantic_claimed": True,
         })
-        preclaim = probe._control_r2_preclaim()
+        preclaim = probe._control_r3_preclaim()
         preclaim_bytes = probe.json_bytes(preclaim)
         control_journal["control_r2_predecessor"] = {
             "preclaim_sha256": finalizer.hashlib.sha256(preclaim_bytes).hexdigest(),
@@ -1035,10 +1052,18 @@ class Verification024FinalizerTests(unittest.TestCase):
             "capsule_sha256": self.predecessor_capsule_sha256,
             "capsule_size": self.predecessor_capsule_size,
         }
+        control_journal["control_r3_reconciliation"] = {
+            "preclaim_sha256": finalizer.hashlib.sha256(preclaim_bytes).hexdigest(),
+            "preclaim_size": len(preclaim_bytes),
+            "r2_incident": r2_incident_summary,
+        }
         control_raw_bytes = self._write(control_raw_path, control_raw)
         control_journal_bytes = self._write(control_journal_path, control_journal)
         control_manifest = json.loads(self.control_manifest.read_text())
         control_manifest.update({
+            "r2_incident_manifest_sha256": finalizer.CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+            "r2_incident_manifest_size": finalizer.CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+            "r2_zero_effect_validated": True,
             "dispatch_returned": True,
             "dispatch_failed": False,
             "panic_transition": transition,
@@ -1074,6 +1099,9 @@ class Verification024FinalizerTests(unittest.TestCase):
             "fixed_op_measurement": fixed,
             "predecessor_capsule_sha256": self.predecessor_capsule_sha256,
             "predecessor_capsule_size": self.predecessor_capsule_size,
+            "r2_incident_manifest_sha256": finalizer.CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+            "r2_incident_manifest_size": finalizer.CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+            "r2_zero_effect_validated": True,
         }
 
         read_raw_path = self.root / f"evidence/private/{finalizer.READ_SOURCE_EXPERIMENT_ID}.json"
@@ -2479,6 +2507,142 @@ class Verification024FinalizerTests(unittest.TestCase):
                 else:
                     section["preclaim_size"] += 1
                 self._rewrite_control_journal(journal)
+                with self.assertRaises(finalizer.FinalizeError):
+                    finalizer.validate_control(self.control_manifest, self.root)
+
+    def test_control_r2_consumed_id_can_never_become_active(self) -> None:
+        consumed_path = self.root / "evidence/manifests" / (
+            f"{finalizer.CONTROL_R2_EXPERIMENT_ID}.manifest.json"
+        )
+        consumed_path.write_bytes(self.control_manifest.read_bytes())
+        with self.assertRaises(finalizer.FinalizeError):
+            finalizer.validate_control(consumed_path, self.root)
+
+        manifest = json.loads(self.control_manifest.read_text())
+        manifest["experiment_id"] = finalizer.CONTROL_R2_EXPERIMENT_ID
+        self._write(self.control_manifest, manifest)
+        with self.assertRaises(finalizer.FinalizeError):
+            finalizer.validate_control(self.control_manifest, self.root)
+
+    def test_control_r3_preclaim_and_reconciliation_are_exact(self) -> None:
+        baseline_journal = json.loads(
+            (
+                self.root
+                / "evidence/private"
+                / f"{finalizer.CONTROL_EXPERIMENT_ID}.journal.json"
+            ).read_text()
+        )
+        baseline_manifest = json.loads(self.control_manifest.read_text())
+        base_preclaim = probe._control_r3_preclaim()
+
+        def write_journal(journal: dict[str, object]) -> None:
+            journal_bytes = self._write(
+                self.root
+                / "evidence/private"
+                / f"{finalizer.CONTROL_EXPERIMENT_ID}.journal.json",
+                journal,
+            )
+            manifest = json.loads(json.dumps(baseline_manifest))
+            manifest["journal_sha256"] = finalizer.hashlib.sha256(
+                journal_bytes
+            ).hexdigest()
+            manifest["journal_size"] = len(journal_bytes)
+            self._write(self.control_manifest, manifest)
+
+        mutations = (
+            "preclaim_consumed_r2",
+            "preclaim_capsule_missing",
+            "preclaim_incident_extra",
+            "preclaim_incident_hash",
+            "summary_missing",
+            "summary_extra",
+            "summary_mutated",
+        )
+        for mutation in mutations:
+            with self.subTest(mutation=mutation):
+                journal = json.loads(json.dumps(baseline_journal))
+                if mutation.startswith("preclaim_"):
+                    mutated_preclaim = json.loads(json.dumps(base_preclaim))
+                    if mutation == "preclaim_consumed_r2":
+                        mutated_preclaim["consumed_r2_experiment_id"] = (
+                            finalizer.CONTROL_EXPERIMENT_ID
+                        )
+                    elif mutation == "preclaim_capsule_missing":
+                        del mutated_preclaim["predecessor_capsule"]
+                    elif mutation == "preclaim_incident_extra":
+                        mutated_preclaim["r2_incident"]["unexpected"] = False
+                    else:
+                        mutated_preclaim["r2_incident"]["sha256"] = "0" * 64
+                    mutated_preclaim_bytes = probe.json_bytes(mutated_preclaim)
+                    journal["control_r2_predecessor"]["preclaim_sha256"] = (
+                        finalizer.hashlib.sha256(mutated_preclaim_bytes).hexdigest()
+                    )
+                    journal["control_r2_predecessor"]["preclaim_size"] = len(
+                        mutated_preclaim_bytes
+                    )
+                    journal["control_r3_reconciliation"]["preclaim_sha256"] = (
+                        finalizer.hashlib.sha256(mutated_preclaim_bytes).hexdigest()
+                    )
+                    journal["control_r3_reconciliation"]["preclaim_size"] = len(
+                        mutated_preclaim_bytes
+                    )
+                    with mock.patch.object(
+                        probe,
+                        "_control_r3_preclaim",
+                        return_value=mutated_preclaim,
+                    ):
+                        write_journal(journal)
+                        with self.assertRaises(finalizer.FinalizeError):
+                            finalizer.validate_control(self.control_manifest, self.root)
+                else:
+                    summary = journal["control_r3_reconciliation"]["r2_incident"]
+                    assert isinstance(summary, dict)
+                    if mutation == "summary_missing":
+                        del summary["classification"]
+                    elif mutation == "summary_extra":
+                        summary["unexpected"] = False
+                    else:
+                        summary["security_boundary_result"] = "FORGED"
+                    write_journal(journal)
+                    with self.assertRaises(finalizer.FinalizeError):
+                        finalizer.validate_control(self.control_manifest, self.root)
+
+    def test_control_r3_reconciliation_projections_cannot_drift(self) -> None:
+        baseline_manifest = json.loads(self.control_manifest.read_text())
+        baseline_raw_path = (
+            self.root
+            / "evidence/private"
+            / f"{finalizer.CONTROL_EXPERIMENT_ID}.json"
+        )
+        baseline_journal_path = (
+            self.root
+            / "evidence/private"
+            / f"{finalizer.CONTROL_EXPERIMENT_ID}.journal.json"
+        )
+        baseline_raw = json.loads(baseline_raw_path.read_text())
+        baseline_journal = json.loads(baseline_journal_path.read_text())
+        for owner in ("manifest", "raw", "journal"):
+            with self.subTest(owner=owner):
+                manifest = json.loads(json.dumps(baseline_manifest))
+                raw = json.loads(json.dumps(baseline_raw))
+                journal = json.loads(json.dumps(baseline_journal))
+                if owner == "manifest":
+                    manifest["r2_incident_manifest_size"] += 1
+                elif owner == "raw":
+                    raw["r2_zero_effect_validated"] = False
+                else:
+                    journal["r2_incident_manifest_sha256"] = "0" * 64
+                raw_bytes = self._write(baseline_raw_path, raw)
+                journal_bytes = self._write(baseline_journal_path, journal)
+                manifest["raw_snapshot_sha256"] = finalizer.hashlib.sha256(
+                    raw_bytes
+                ).hexdigest()
+                manifest["raw_snapshot_size"] = len(raw_bytes)
+                manifest["journal_sha256"] = finalizer.hashlib.sha256(
+                    journal_bytes
+                ).hexdigest()
+                manifest["journal_size"] = len(journal_bytes)
+                self._write(self.control_manifest, manifest)
                 with self.assertRaises(finalizer.FinalizeError):
                     finalizer.validate_control(self.control_manifest, self.root)
 

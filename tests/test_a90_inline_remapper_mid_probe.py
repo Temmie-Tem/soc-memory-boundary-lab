@@ -354,30 +354,27 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
         }
 
     def _r2_incident_summary_fixture(self) -> dict[str, object]:
-        """Return the stable redacted R2 checkpoint projection for temp roots."""
+        """Return the real redacted projection from the committed checkpoint."""
 
-        return {
-            "schema": probe.CONTROL_R2_INCIDENT_VALIDATION_SCHEMA,
-            "status": "VALIDATED_ZERO_EFFECT",
-            "experiment_id": probe.CONTROL_R2_EXPERIMENT_ID,
-            "next_registered_id": probe.CONTROL_EXPERIMENT_ID,
-            "classification": "CLASS_C_UNCHANGED",
-            "security_boundary_result": "UNKNOWN_NOT_REACHED",
-            "zero_effect_validated": {
-                "dispatch_count": 0,
-                "fixed_op_dispatched": False,
-                "panic_transition_started": False,
-                "partition_writes": False,
-                "memory_or_mmio_writes": False,
-                "controller_writes": False,
-                "device_state_write": False,
-                "semantic_claim_created": False,
-            },
-            "checkpoint": {
-                "sha256": probe.CONTROL_R2_INCIDENT_MANIFEST_SHA256,
-                "size_bytes": probe.CONTROL_R2_INCIDENT_MANIFEST_SIZE,
-            },
-        }
+        summary = probe.r2_incident.validate_r2_incident(
+            probe.r2_incident.REPO_ROOT
+        )
+        self.assertIsInstance(summary, dict)
+        assert isinstance(summary, dict)
+        return summary
+
+    def _install_r2_incident_manifest(self, root: Path) -> Path:
+        """Copy the committed checkpoint into a temp root for real validation."""
+
+        relative = probe.r2_incident.MANIFEST_RELATIVE_PATH
+        source = probe.r2_incident.REPO_ROOT / relative
+        destination = root / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(source.read_bytes())
+        # The validator accepts non-executable, non-world-writable readable
+        # regular files; make the fixture mode explicit and deterministic.
+        os.chmod(destination, 0o644)
+        return destination
 
     def _args(self, root: Path, mode: str, *, read_flash_completed: str | None = None) -> Namespace:
         flash_journal = probe._fixed_flash_journal_path(root, mode)
@@ -1594,6 +1591,14 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             assert result is not None
             raw = json.loads(result[0].read_text())
             public = json.loads(result[1].read_text())
+            incident_manifest = self._install_r2_incident_manifest(root)
+            self.assertEqual(
+                incident_manifest.read_bytes(),
+                (
+                    probe.r2_incident.REPO_ROOT
+                    / probe.r2_incident.MANIFEST_RELATIVE_PATH
+                ).read_bytes(),
+            )
             self.assertEqual(
                 {key: raw[key] for key in ("effect_dispatched", "dispatch_returned", "dispatch_failed")},
                 {"effect_dispatched": True, "dispatch_returned": True, "dispatch_failed": False},
@@ -1732,6 +1737,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                 )
                 self.assertIsNotNone(control_result)
                 assert control_result is not None
+                self._install_r2_incident_manifest(root)
                 result, _session, _exchange_ids = self._run_collect(
                     root, probe.MODE_READ, value=0x1234
                 )
