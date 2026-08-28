@@ -53,16 +53,44 @@ interpretation, execution은 서로 합치지 않는다.
 7. `PRIMARY VERIFY`: exact hashes/mappings, decoder/model, negative controls,
    repetitions, public/private separation, deterministic manifest와 claim
    labels를 검증한다.
-8. `INDEPENDENT HOSTILE REVIEW`: 다른 agent/worktree 또는 독립 재검사로
-   inputs, raw bytes/words, range boundaries, decoder masks, counts, claim
-   levels, safety and non-overlap를 다시 확인한다. 불일치면 fix-and-review를
-   반복하고 PASS 전에는 commit하지 않는다.
+8. `INDEPENDENT HOSTILE REVIEW`: checkpoint에서 다른 agent/worktree 또는
+   독립 재검사로 inputs, raw bytes/words, range boundaries, decoder masks, counts, claim
+   levels, safety and non-overlap를 다시 확인한다. host-only 미세 변경은 위
+   fast path에 따라 checkpoint 전까지 root review와 targeted test로 대체할 수
+   있다. 불일치면 fix-and-review를 반복하고 live effect 전에는 닫는다.
 9. `COMMIT`: PASS 후 public/private artifact contract와 state/log를 하나의
    clean atomic commit으로 기록한다. Commit hash, residual `UNKNOWN`, next
    scored candidates를 보고한다.
 10. `RECLASSIFY`: 결과에 따라 `PROVED/SUPPORTED/HYPOTHESIS/UNKNOWN/REFUTED`
     를 갱신하고 `CLASS C (TRANSFORM ONLY)`를 유지할지 평가한 뒤 loop를
     반복한다.
+
+## Proportional verification and fast path
+
+검증 강도는 action의 위험과 claim의 크기에 비례시킨다. 고정 mock 값, 출력
+형식, decoder 보조 함수처럼 device effect가 없는 host-only 미세 변경은 관련
+targeted test와 root review만 통과하면 여러 개를 하나의 checkpoint로 묶을 수
+있다. 각 미세 변경마다 full suite, 별도 hostile-review 문서, 독립 manifest를
+반복하지 않는다.
+
+다음 checkpoint에서만 combined/full suite와 독립 hostile review를 필수로
+실행한다.
+
+- 새 live device effect 직전;
+- rollback/no-replay/target binding/boot identity 경로 변경 후;
+- 새로운 `PROVED` 또는 `REFUTED` claim을 발행하기 직전;
+- security classification 또는 보호 경계 해석이 바뀔 때;
+- 여러 host-only 변경을 통합해 다음 iteration을 시작할 때.
+
+런타임에서 kernel이 정하는 값은 오래된 mock의 숫자와 동일할 필요가 없다.
+고정 source path에서 엄격히 파싱하고, action 인자와 결과에 동일 값을
+교차바인딩할 수 있으면 그 관계를 검증한다. stale 숫자 자체를 권한 조건으로
+승격하지 않는다. 안전과 무관한 provenance 중복, 동일 필드의 다중 validator,
+미세 변경별 전체 corpus 재실행은 새로운 반례를 구분하지 못하면 생략한다.
+
+항상 유지하는 최소 gate는 exact A90 binding, current boot hash, durable
+no-replay journal, bounded one-shot effect, panic/sysctl 원상복원, artifact hash,
+rollback/recovery path다. 이 최소 gate는 속도를 이유로 생략하지 않는다.
 
 ## Automatic authority (no repeated approval)
 
@@ -164,9 +192,10 @@ Iteration은 다음이 모두 기록되고 검증될 때만 complete다.
   않는다;
 - explicit negative controls와 failure/stop result;
 - deterministic public manifest, private/public separation, no raw bytes/secrets;
-- focused, combined and full tests; public JSON parse; regeneration byte identity;
-  publication mode; diff/format checks;
-- primary verification과 independent hostile review의 PASS 기록;
+- focused tests와 diff/format checks. combined/full suite, public JSON parse,
+  regeneration byte identity, publication mode는 위 checkpoint에 적용;
+- primary verification과, 해당 checkpoint이면 independent hostile review의
+  PASS 기록;
 - clean atomic commit hash와 변경 파일 목록;
 - 결과별 `PROVED/SUPPORTED/HYPOTHESIS/UNKNOWN/REFUTED`, residual unknowns,
   authority boundary와 next discriminator.
