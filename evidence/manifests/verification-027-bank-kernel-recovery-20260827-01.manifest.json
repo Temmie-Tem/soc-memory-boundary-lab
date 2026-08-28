@@ -179,24 +179,6 @@
         "restricted_rank_upper_bound": 3,
         "separation": 381
       },
-      "030-low-bit-selector-20260826-01/phaseA.jsonl": {
-        "conflicts": 1,
-        "contradictions": [],
-        "excluded_sub_page": 0,
-        "global_rank_lower_bound": 1,
-        "kernel_basis": [
-          "0x16200"
-        ],
-        "kernel_dimension_lower_bound": 1,
-        "linearity_consistent": true,
-        "negatives": 14,
-        "observed_dimension": 14,
-        "rank_witness": [
-          "0x16000"
-        ],
-        "restricted_rank_upper_bound": 13,
-        "separation": 187
-      },
       "030-low-bit-selector-20260826-01/phaseB.jsonl": {
         "conflicts": 14,
         "contradictions": [
@@ -221,25 +203,6 @@
         ],
         "restricted_rank_upper_bound": 0,
         "separation": 299
-      },
-      "030-low-bit-selector-20260826-01/phaseC.jsonl": {
-        "conflicts": 2,
-        "contradictions": [],
-        "excluded_sub_page": 13,
-        "global_rank_lower_bound": 1,
-        "kernel_basis": [
-          "0x16200",
-          "0x2200"
-        ],
-        "kernel_dimension_lower_bound": 2,
-        "linearity_consistent": true,
-        "negatives": 26,
-        "observed_dimension": 15,
-        "rank_witness": [
-          "0x2000"
-        ],
-        "restricted_rank_upper_bound": 13,
-        "separation": 158
       },
       "030-low-bit-selector-20260826-01/phaseD.jsonl": {
         "conflicts": 3,
@@ -794,8 +757,8 @@
         "separation": 336
       }
     },
-    "datasets_linearity_consistent": 32,
-    "datasets_reduced": 35,
+    "datasets_linearity_consistent": 30,
+    "datasets_reduced": 33,
     "datasets_with_contradictions": [
       "030-low-bit-selector-20260826-01/phaseB.jsonl",
       "030-low-bit-selector-20260826-01/phaseD.jsonl",
@@ -803,6 +766,8 @@
     ],
     "skipped": {
       "023R-repaired-region-20260826-01/phaseB.jsonl": "4 difference summaries is below the 6 floor",
+      "030-low-bit-selector-20260826-01/phaseA.jsonl": "conflict control 0x16000 (median 558) is not above the threshold 671.5; the cut is misplaced",
+      "030-low-bit-selector-20260826-01/phaseC.jsonl": "conflict control 0x16000 (median 544) is not above the threshold 623.0; the cut is misplaced",
       "verification-018-a90-20260827-02/alias-marker.jsonl": "0 difference summaries is below the 6 floor",
       "verification-019-suspend-permutation-20260827-01/suspend-permutation.jsonl": "0 difference summaries is below the 6 floor",
       "verification-019-suspend-permutation-20260827-02/suspend-permutation-usb-attached-blocked.jsonl": "0 difference summaries is below the 6 floor",
@@ -815,11 +780,7 @@
   "pooled_negative_control": {
     "contradictions": [
       "0x2000",
-      "0x2400",
       "0x8000",
-      "0x16000",
-      "0x16400",
-      "0x16600",
       "0x38000",
       "0x80000",
       "0x100000",
@@ -881,13 +842,13 @@
     ],
     "kernel_dimension_lower_bound": 17,
     "linearity_consistent": false,
-    "observed_dimension": 29,
+    "observed_dimension": 18,
     "pa13_control_wrongly_in_kernel": true,
     "rank_witness": [
       "0x2000",
       "0xc84000"
     ],
-    "restricted_rank_upper_bound": 12
+    "restricted_rank_upper_bound": 1
   },
   "schema": "dram-bank-kernel-recovery-v1"
 }

@@ -146,6 +146,38 @@ class ScopeRules(unittest.TestCase):
             rec.load_dataset(Path(name))
 
 
+class ControlBracket(unittest.TestCase):
+    """The widest gap alone can land above the conflict cluster."""
+
+    def _summaries(self, pairs):
+        return [{"value": hex(v), "median": m} for v, m in pairs]
+
+    def test_a_misplaced_cut_is_refused(self) -> None:
+        # Three clusters: the widest gap sits above the conflict control, so
+        # 0x16000 would be classified as a negative and the run would pass
+        # the linearity test vacuously.
+        summaries = self._summaries(
+            [(0x2000, 165), (0x16000, 558), (0x4000, 170), (0x8000, 560),
+             (0x20000, 1200), (0x40000, 1210)]
+        )
+        with self.assertRaises(rec.RecoveryError) as ctx:
+            rec.check_controls_bracket(summaries, 880.0)
+        self.assertIn("misplaced", str(ctx.exception))
+
+    def test_a_correct_cut_passes(self) -> None:
+        summaries = self._summaries([(0x2000, 165), (0x16000, 541)])
+        rec.check_controls_bracket(summaries, 314.5)
+
+    def test_the_fast_control_is_checked_too(self) -> None:
+        summaries = self._summaries([(0x2000, 600)])
+        with self.assertRaises(rec.RecoveryError):
+            rec.check_controls_bracket(summaries, 300.0)
+
+    def test_a_run_without_controls_is_not_blocked(self) -> None:
+        """Absent controls cannot bracket; that is a separate limitation."""
+        rec.check_controls_bracket(self._summaries([(0x4000, 500)]), 300.0)
+
+
 class LiveCorpus(unittest.TestCase):
     """The real answer, from the retained runs."""
 
@@ -161,6 +193,13 @@ class LiveCorpus(unittest.TestCase):
         self.assertGreaterEqual(
             per["datasets_linearity_consistent"], per["datasets_reduced"] - 4
         )
+
+    def test_vacuous_passes_are_refused_not_counted(self) -> None:
+        """030 phases A and C put the cut above the conflict cluster."""
+        skipped = self.result["per_dataset"]["skipped"]
+        misplaced = [n for n, why in skipped.items() if "misplaced" in why]
+        self.assertIn("030-low-bit-selector-20260826-01/phaseA.jsonl", misplaced)
+        self.assertIn("030-low-bit-selector-20260826-01/phaseC.jsonl", misplaced)
 
     def test_pooling_fails_and_that_is_the_point(self) -> None:
         """If this ever passes, the per-dataset rule is unnecessary."""

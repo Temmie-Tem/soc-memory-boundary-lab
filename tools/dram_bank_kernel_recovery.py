@@ -61,6 +61,16 @@ MIN_SEPARATION = 100
 # differences to mean anything.
 MIN_DIFFERENCES = 6
 
+# The widest gap is only the *candidate* cut.  A run whose medians form three
+# clusters can put that gap above the conflict cluster, which classifies the
+# conflict control as a negative and leaves almost nothing in the conflict set.
+# Such a run then passes the linearity test vacuously -- no conflicts, so no
+# span, so no contradiction possible.  The project's rule has always been
+# widest gap *and* controls bracketing the candidates; these are that second
+# half, and a run that fails it is refused rather than reduced.
+CONFLICT_CONTROL = 0x16000
+FAST_CONTROL = 0x2000
+
 
 class RecoveryError(Exception):
     """A dataset cannot be reduced under the declared rules."""
@@ -106,6 +116,32 @@ def in_span(basis: Sequence[int], value: int) -> bool:
     return reduce_vector(basis, value) == 0
 
 
+def check_controls_bracket(
+    summaries: Sequence[Mapping[str, object]], threshold: float
+) -> None:
+    """Refuse a run whose threshold does not put the controls on both sides.
+
+    ``0x16000`` is the project's canonical conflict control and ``0x2000`` its
+    canonical fast control.  If a run measured either and the threshold puts it
+    on the wrong side, the cut is in the wrong place and every classification
+    derived from it is unusable -- including a vacuous consistency pass.
+    """
+
+    observed = {int(r["value"], 16): r["median"] for r in summaries}
+    conflict = observed.get(CONFLICT_CONTROL)
+    if conflict is not None and conflict <= threshold:
+        raise RecoveryError(
+            f"conflict control 0x{CONFLICT_CONTROL:x} (median {conflict}) is not "
+            f"above the threshold {threshold}; the cut is misplaced"
+        )
+    fast = observed.get(FAST_CONTROL)
+    if fast is not None and fast > threshold:
+        raise RecoveryError(
+            f"fast control 0x{FAST_CONTROL:x} (median {fast}) is not below the "
+            f"threshold {threshold}; the cut is misplaced"
+        )
+
+
 def load_dataset(path: Path) -> dict[str, object]:
     """Read one retained JSONL run into classified difference sets."""
 
@@ -126,6 +162,7 @@ def load_dataset(path: Path) -> dict[str, object]:
         raise RecoveryError(
             f"cluster separation {separation} is below the {MIN_SEPARATION} floor"
         )
+    check_controls_bracket(summaries, threshold)
     conflicts, negatives, excluded = set(), set(), set()
     for record in summaries:
         value = int(record["value"], 16)
