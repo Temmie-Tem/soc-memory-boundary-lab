@@ -184,6 +184,67 @@ class V024AuthorizerFrameContractTests(unittest.TestCase):
             )
             self.assertEqual(authorizer_receipt["value"], "0x000000000000c071")
 
+    def test_safety_effect_projection_rejects_every_field_in_each_receipt_layer(self) -> None:
+        """Raw/journal/public safety facts cannot be forged by rebinding hashes."""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            raw_path, manifest_path, journal_path = self._collect_control(root)
+            baseline_raw = json.loads(raw_path.read_text())
+            baseline_public = json.loads(manifest_path.read_text())
+            baseline_journal = json.loads(journal_path.read_text())
+            baseline_final_receipt = finalizer.validate_control(manifest_path, root)
+
+            for owner in ("raw", "journal", "public"):
+                for field in probe.CONTROL_SAFETY_EFFECT_FIELDS:
+                    with self.subTest(owner=owner, field=field):
+                        mutated_raw = copy.deepcopy(baseline_raw)
+                        mutated_public = copy.deepcopy(baseline_public)
+                        mutated_journal = copy.deepcopy(baseline_journal)
+                        if owner == "raw":
+                            mutated_raw[field] = True
+                            _write_and_rebind(
+                                raw_path,
+                                mutated_raw,
+                                manifest_path,
+                                mutated_public,
+                                binding_key="raw_snapshot_sha256",
+                                size_key="raw_snapshot_size",
+                            )
+                        elif owner == "journal":
+                            mutated_journal[field] = True
+                            _write_and_rebind(
+                                journal_path,
+                                mutated_journal,
+                                manifest_path,
+                                mutated_public,
+                                binding_key="journal_sha256",
+                                size_key="journal_size",
+                            )
+                        else:
+                            mutated_public[field] = True
+                            manifest_path.write_bytes(_json_bytes(mutated_public))
+
+                        with self.assertRaises(finalizer.FinalizeError):
+                            finalizer.validate_control(manifest_path, root)
+                        # Keep this assertion independent of the delegated
+                        # finalizer: the authorizer's own projection gate must
+                        # reject the same mutation when its dependency returns
+                        # the baseline receipt.
+                        with mock.patch.object(
+                            finalizer,
+                            "validate_control",
+                            return_value=baseline_final_receipt,
+                        ):
+                            with self.assertRaises(probe.ProbeError):
+                                probe.verify_control_manifest(
+                                    manifest_path, root=root
+                                )
+
+                        raw_path.write_bytes(_json_bytes(baseline_raw))
+                        journal_path.write_bytes(_json_bytes(baseline_journal))
+                        manifest_path.write_bytes(_json_bytes(baseline_public))
+
     def test_removing_every_raw_frame_position_is_rejected_by_both_consumers(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

@@ -158,6 +158,7 @@ class Verification024FinalizerTests(unittest.TestCase):
             "effect_dispatched": True,
             "effect_ambiguous": False,
             "effect_replayed": False,
+            **finalizer.CONTROL_SAFETY_EFFECT_PROJECTION,
             "health_after": {
                 "ok": True,
                 "target": {
@@ -189,6 +190,7 @@ class Verification024FinalizerTests(unittest.TestCase):
             "effect_dispatched": True,
             "effect_ambiguous": False,
             "effect_replayed": False,
+            **finalizer.CONTROL_SAFETY_EFFECT_PROJECTION,
             "value": "0x000000000000c071",
             "cleanup_ok": True,
             "panic_on_oops_restored": True,
@@ -218,9 +220,7 @@ class Verification024FinalizerTests(unittest.TestCase):
             "panic_on_oops_zero_verified": True,
             "panic_on_oops_restored": True,
             "automatic_retries": False,
-            "reboot_dispatched": False,
-            "memory_or_mmio_writes": False,
-            "partition_writes": False,
+            **finalizer.CONTROL_SAFETY_EFFECT_PROJECTION,
             "flash_journal_bound": True,
             "flash_profile": "control",
             "flash_image_sha256": finalizer.CONTROL_SHA256,

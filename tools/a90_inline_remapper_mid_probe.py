@@ -160,6 +160,21 @@ CONTROL_R2_EXPERIMENT_ID = "verification-024-control-r2"
 CONTROL_R3_EXPERIMENT_ID = "verification-024-control-r3"
 CONTROL_PREDECESSOR_EXPERIMENT_ID = "verification-024-control"
 READ_SOURCE_EXPERIMENT_ID = "verification-024-read"
+# These are safety-effect facts, not outcome or frame-derived summaries.  They
+# are deliberately kept as one compact producer/consumer projection and every
+# accepted control receipt must carry the exact boolean ``False`` value in all
+# three receipt layers.
+CONTROL_SAFETY_EFFECT_FIELDS = (
+    "memory_or_mmio_writes",
+    "controller_writes",
+    "smc",
+    "protected_memory_read",
+    "partition_writes",
+    "reboot_dispatched",
+)
+CONTROL_SAFETY_EFFECT_PROJECTION = {
+    field: False for field in CONTROL_SAFETY_EFFECT_FIELDS
+}
 FLASH_JOURNAL_PREFIX = "verification-024-remapper-boot-flash-"
 MODE_CONTROL = candidate.MODE_CONTROL
 MODE_READ = candidate.MODE_READ
@@ -1301,6 +1316,7 @@ def _control_r4_preclaim() -> dict[str, object]:
         "consumed_r3_experiment_id": CONTROL_R3_EXPERIMENT_ID,
         "mode": MODE_CONTROL,
         "replay_safe": False,
+        **CONTROL_SAFETY_EFFECT_PROJECTION,
         "predecessor_capsule": {
             "schema": CONTROL_R2_PREDECESSOR_CAPSULE_SCHEMA,
             "sha256": CONTROL_R2_PREDECESSOR_CAPSULE_SHA256,
@@ -3133,6 +3149,41 @@ def _parse_completed_utc(value: object, label: str) -> dt.datetime:
     return parsed.replace(tzinfo=dt.timezone.utc)
 
 
+def _validate_control_safety_effect_projection(
+    public: Mapping[str, object],
+    raw: Mapping[str, object],
+    journal: Mapping[str, object],
+) -> dict[str, bool]:
+    """Require and cross-bind the exact non-effect control projection.
+
+    These six fields are an independent safety contract.  Their values are
+    never inferred from an outcome string, dispatch count, or retained frame.
+    """
+
+    projections: list[tuple[str, dict[str, bool]]] = []
+    for label, owner in (
+        ("control manifest", public),
+        ("control raw", raw),
+        ("control journal", journal),
+    ):
+        projection: dict[str, bool] = {}
+        for field in CONTROL_SAFETY_EFFECT_FIELDS:
+            value = owner.get(field)
+            if type(value) is not bool or value is not False:
+                raise ProbeError(
+                    f"{label} safety-effect field {field!r} is not exact False"
+                )
+            projection[field] = value
+        projections.append((label, projection))
+
+    expected = projections[0][1]
+    for label, projection in projections[1:]:
+        for field, value in expected.items():
+            if projection[field] != value:
+                raise ProbeError(f"{label} safety-effect field {field!r} differs")
+    return dict(expected)
+
+
 def verify_control_manifest(path: Path, *, root: Path | None = None) -> dict[str, object]:
     """Authorize the fixed control receipt through the independent finalizer.
 
@@ -3210,6 +3261,9 @@ def verify_control_manifest(path: Path, *, root: Path | None = None) -> dict[str
         actual = manifest.get(key)
         if type(actual) is not type(expected) or actual != expected:
             raise ProbeError(f"control manifest hash/size binding {key!r} differs")
+    safety_effect = _validate_control_safety_effect_projection(
+        manifest, raw, journal
+    )
 
     # The reconciliation identity is part of the control receipt contract,
     # not merely an implementation detail of the preclaim.  Cross-bind the
@@ -3276,6 +3330,7 @@ def verify_control_manifest(path: Path, *, root: Path | None = None) -> dict[str
         "candidate_sha256": CONTROL_SHA256,
         "candidate_size": BOOT_PREFIX_SIZE,
         "value": "0x000000000000c071",
+        **safety_effect,
         "target_model": EXPECTED_MODEL,
         "target_device": "r3q",
         "target_dmid": "SM-A908N/SM8150",
@@ -3328,6 +3383,7 @@ def verify_control_manifest(path: Path, *, root: Path | None = None) -> dict[str
         "journal_size": summary["journal_size"],
         "completed_utc": summary["completed_utc"],
         "value": summary["value"],
+        **safety_effect,
         "candidate_sha256": summary["candidate_sha256"],
         "candidate_size": summary["candidate_size"],
         "target_dmid": summary["target_dmid"],
@@ -3587,8 +3643,7 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
         "effect_dispatched": False,
         "effect_replayed": False,
         "automatic_retries": False,
-        "memory_or_mmio_writes": False,
-        "reboot_dispatched": False,
+        **CONTROL_SAFETY_EFFECT_PROJECTION,
         "flash_journal": {
             "path": flash_journal["path"],
             "sha256": flash_journal["sha256"],
@@ -4300,12 +4355,7 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
         "effect_ambiguous": effect_ambiguous,
         "effect_replayed": False,
         "automatic_retries": False,
-        "memory_or_mmio_writes": False,
-        "controller_writes": False,
-        "smc": False,
-        "protected_memory_read": False,
-        "partition_writes": False,
-        "reboot_dispatched": False,
+        **CONTROL_SAFETY_EFFECT_PROJECTION,
     }
     public = {
         "schema": "sdm855-a90-inline-remapper-mid-public-v1",
@@ -4456,12 +4506,7 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
         "automatic_retries": False,
         "arbitrary_address_input": False,
         "generic_call_target": False,
-        "memory_or_mmio_writes": False,
-        "controller_writes": False,
-        "smc": False,
-        "protected_memory_read": False,
-        "partition_writes": False,
-        "reboot_dispatched": False,
+        **CONTROL_SAFETY_EFFECT_PROJECTION,
         "bridge_bound": bridge_binding is not None,
         "final_bridge_bound": final_bridge_bound,
         "cleanup_ok": cleanup_ok,

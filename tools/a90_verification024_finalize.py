@@ -191,6 +191,20 @@ RUNTIME_HEALTH_EXPERIMENT_ID = "runtime-health"
 RUNTIME_HEALTH_MANIFEST_NAME = f"{RUNTIME_HEALTH_EXPERIMENT_ID}.manifest.json"
 FINAL_EXPERIMENT_ID = "verification-024-final"
 TORN_ROLLBACK_EXPERIMENT_ID = "torn-final"
+# These six facts are an independent exact safety projection for the control
+# receipt.  They are required as strict boolean ``False`` values in public,
+# raw, and journal records and are never inferred from outcomes or frames.
+CONTROL_SAFETY_EFFECT_FIELDS = (
+    "memory_or_mmio_writes",
+    "controller_writes",
+    "smc",
+    "protected_memory_read",
+    "partition_writes",
+    "reboot_dispatched",
+)
+CONTROL_SAFETY_EFFECT_PROJECTION = {
+    field: False for field in CONTROL_SAFETY_EFFECT_FIELDS
+}
 _SYSTEM_PUBLIC_TOP_KEYS = frozenset(
     {
         "schema",
@@ -680,6 +694,37 @@ def _require(obj: Mapping[str, object], key: str, expected: object, label: str) 
     actual = obj.get(key)
     if type(actual) is not type(expected) or actual != expected:
         raise FinalizeError(f"{label} field {key!r} is not exact")
+
+
+def _validate_control_safety_effect_projection(
+    public: Mapping[str, object],
+    raw: Mapping[str, object],
+    journal: Mapping[str, object],
+) -> dict[str, bool]:
+    """Require and cross-bind the exact non-effect control projection."""
+
+    projections: list[tuple[str, dict[str, bool]]] = []
+    for label, owner in (
+        ("control manifest", public),
+        ("control raw", raw),
+        ("control journal", journal),
+    ):
+        projection: dict[str, bool] = {}
+        for field in CONTROL_SAFETY_EFFECT_FIELDS:
+            value = owner.get(field)
+            if type(value) is not bool or value is not False:
+                raise FinalizeError(
+                    f"{label} safety-effect field {field!r} is not exact False"
+                )
+            projection[field] = value
+        projections.append((label, projection))
+
+    expected = projections[0][1]
+    for label, projection in projections[1:]:
+        for field, value in expected.items():
+            if projection[field] != value:
+                raise FinalizeError(f"{label} safety-effect field {field!r} differs")
+    return dict(expected)
 
 
 def _reject_public_raw_boot_ids(value: object, label: str) -> None:
@@ -2455,7 +2500,7 @@ def _validate_control_predecessors(
         "predecessor_capsule",
         "r2_incident",
         "r3_incident",
-    }:
+    } | set(CONTROL_SAFETY_EFFECT_FIELDS):
         raise FinalizeError("control r4 preclaim fields are not exact")
     if preclaim.get("schema") != CONTROL_R4_PRECLAIM_SCHEMA:
         raise FinalizeError("control r4 preclaim schema differs")
@@ -2471,6 +2516,8 @@ def _validate_control_predecessors(
         raise FinalizeError("control r4 preclaim consumed R3 ID differs")
     if preclaim.get("mode") != "control" or preclaim.get("replay_safe") is not False:
         raise FinalizeError("control r4 preclaim replay policy differs")
+    for field in CONTROL_SAFETY_EFFECT_FIELDS:
+        _require(preclaim, field, False, "control r4 preclaim")
     expected_predecessor = {
         "schema": CONTROL_R2_PREDECESSOR_CAPSULE_SCHEMA,
         "sha256": CONTROL_R2_PREDECESSOR_CAPSULE_SHA256,
@@ -2661,9 +2708,7 @@ def validate_control(path: Path, root: Path) -> dict[str, object]:
         "panic_on_oops_zero_verified": True,
         "panic_on_oops_restored": True,
         "automatic_retries": False,
-        "reboot_dispatched": False,
-        "memory_or_mmio_writes": False,
-        "partition_writes": False,
+        **CONTROL_SAFETY_EFFECT_PROJECTION,
         "flash_journal_bound": True,
         "flash_profile": "control",
         "flash_image_sha256": CONTROL_SHA256,
@@ -2741,6 +2786,9 @@ def validate_control(path: Path, root: Path) -> dict[str, object]:
         raise FinalizeError("control journal hash/size does not match manifest")
     if type(raw_size) is not int or type(journal_size) is not int:
         raise FinalizeError("control private hash/size binding is malformed")
+    safety_effect = _validate_control_safety_effect_projection(
+        manifest, raw, journal
+    )
     (
         predecessor_capsule_sha256,
         predecessor_capsule_size,
@@ -2981,6 +3029,7 @@ def validate_control(path: Path, root: Path) -> dict[str, object]:
         "journal_size": len(journal_bytes),
         "completed_utc": manifest["completed_utc"],
         "value": "0x000000000000c071",
+        **safety_effect,
         "candidate_sha256": CONTROL_SHA256,
         "candidate_size": BOOT_PREFIX_SIZE,
         "target_dmid": TARGET_DMID,
