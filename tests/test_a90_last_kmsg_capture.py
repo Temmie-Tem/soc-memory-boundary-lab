@@ -277,6 +277,9 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
             "target_dmid": "SM-A908N/SM8150",
             "predecessor_capsule_sha256": capture.CONTROL_R2_PREDECESSOR_CAPSULE_SHA256,
             "predecessor_capsule_size": capture.CONTROL_R2_PREDECESSOR_CAPSULE_SIZE,
+            "r2_incident_manifest_sha256": capture.CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+            "r2_incident_manifest_size": capture.CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+            "r2_zero_effect_validated": True,
             "current_boot_attestation": {**attestation, "expected_sha256": capture.CONTROL_CANDIDATE_SHA256, "captured_sha256": capture.CONTROL_CANDIDATE_SHA256},
             "boot_id_before_read_sha256": boot_hash,
         "fixed_op_measurement": {"argv": list(probe.fixed_op_argv()), "op": 4, "args": [], "buffer_size": capture.FIXED_OP_BUFFER_SIZE, "buffer_sha256": capture._fixed_op_buffer_hash(), "magic": "0xa90c0de5deadbeef", "rc": 0, "status": "ok", "value": "0x000000000000c071", "a90r_record": "A90Rc071"},
@@ -376,6 +379,9 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
             "target": {"model": "SM-A908N", "soc": "SM8150", "soc_id": "339", "runtime_version": "0.9.285", "runtime_build": "v2321-usb-clean-identity-rodata", "kernel": "Linux 4.14.190-25818860-abA908NKSU5EWA3 aarch64", "bootloader": "A908NKSU5EWA3", "debug_level": "0x494d", "force_upload": "0", "dump_sink": "0", "selftest_before": {"passed": 11, "warn": 1, "fail": 0, "duration": 43, "entries": 12}},
             "flash_journal": flash_binding,
             "control_manifest": control_binding,
+            "r2_incident_manifest_sha256": capture.CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+            "r2_incident_manifest_size": capture.CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+            "r2_zero_effect_validated": True,
             "current_boot_attestation": attestation_private,
             "boot_id_before_read": boot_id,
             "boot_id_before_read_sha256": boot_hash,
@@ -435,6 +441,9 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
             "fixed_op": journal_fixed_op,
             "flash_journal": flash_binding,
             "control_manifest": control_binding,
+            "r2_incident_manifest_sha256": capture.CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+            "r2_incident_manifest_size": capture.CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+            "r2_zero_effect_validated": True,
             "fixed_op_measurement": None,
             "error": error,
             "semantic_claim_path": str(claim_path),
@@ -481,11 +490,15 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
             "flash_image_sha256": capture.READ_CANDIDATE_SHA256,
             "flash_readback_sha256": capture.READ_CANDIDATE_SHA256,
             "flash_predecessor_sha256": "dbbf81f26cd3d9d2d52d2a2dbe84575b759b45cea8946d02646bd4503ad08247",
+            "r2_incident_manifest_sha256": capture.CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+            "r2_incident_manifest_size": capture.CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+            "r2_zero_effect_validated": True,
             "current_boot_attestation": attestation,
             "boot_id_before_read_sha256": boot_hash,
             "panic_transition": transition,
             "semantic_claim": {"filename": claim_path.name, "sha256": claim_hash, "size": claim_size, "key_sha256": claim_key},
             "private_record": {"filename": f"{source_id}.json", "journal_filename": f"{source_id}.journal.json"},
+            "control_manifest": dict(control_binding),
             "raw_snapshot_sha256": capture.sha256(raw_bytes),
             "raw_snapshot_size": len(raw_bytes),
             "journal_sha256": capture.sha256(journal_bytes),
@@ -682,6 +695,13 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
             ("wrong_hash", "predecessor_capsule_sha256", "0" * 64),
             ("float_size", "predecessor_capsule_size", float(capture.CONTROL_R2_PREDECESSOR_CAPSULE_SIZE)),
             ("bool_size", "predecessor_capsule_size", True),
+            ("consumed_r2_id", "experiment_id", capture.CONTROL_R2_EXPERIMENT_ID),
+            ("missing_r2_incident_hash", "r2_incident_manifest_sha256", None),
+            ("mutated_r2_incident_hash", "r2_incident_manifest_sha256", "0" * 64),
+            ("float_r2_incident_size", "r2_incident_manifest_size", float(capture.CONTROL_R2_INCIDENT_MANIFEST_SIZE)),
+            ("missing_r2_incident_size", "r2_incident_manifest_size", None),
+            ("false_r2_zero_effect", "r2_zero_effect_validated", False),
+            ("missing_r2_zero_effect", "r2_zero_effect_validated", None),
         )
         for name, key, replacement in cases:
             with self.subTest(case=name), tempfile.TemporaryDirectory() as directory:
@@ -694,7 +714,8 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
                 manifest_path = manifests / capture.READ_SOURCE_MANIFEST_NAME
                 raw = json.loads(raw_path.read_text())
                 journal = json.loads(journal_path.read_text())
-                for owner in (raw, journal):
+                manifest = json.loads(manifest_path.read_text())
+                for owner in (raw, journal, manifest):
                     binding = owner["control_manifest"]
                     if replacement is None:
                         del binding[key]
@@ -704,7 +725,6 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
                 journal_bytes = json.dumps(journal, sort_keys=True, separators=(",", ":")).encode()
                 raw_path.write_bytes(raw_bytes)
                 journal_path.write_bytes(journal_bytes)
-                manifest = json.loads(manifest_path.read_text())
                 manifest.update(
                     {
                         "raw_snapshot_sha256": capture.sha256(raw_bytes),

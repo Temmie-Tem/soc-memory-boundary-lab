@@ -26,6 +26,7 @@ from pathlib import Path
 from typing import Mapping, Sequence
 
 try:
+    from tools import a90_v024_r2_incident as r2_incident
     from tools.a90_inline_remapper_mid_probe import (
         fixed_op_argv as _fixed_op_argv_full,
         parse_cmdline as _inline_parse_cmdline,
@@ -82,6 +83,7 @@ try:
     )
     from tools.a90_param_capture import parse_cmdline, validate_runtime
 except ModuleNotFoundError:  # Direct execution from tools/.
+    import a90_v024_r2_incident as r2_incident  # type: ignore
     from a90_inline_remapper_mid_probe import (  # type: ignore
         fixed_op_argv as _fixed_op_argv_full,
         parse_cmdline as _inline_parse_cmdline,
@@ -150,11 +152,14 @@ MAX_TIMEOUT_SEC = 120.0
 LAST_KMSG_REFERENCE_SIZE = 2_097_136
 MAX_SOURCE_RECEIPT_BYTES = 512 * 1024
 READ_SOURCE_EXPERIMENT_ID = "verification-024-read"
-CONTROL_EXPERIMENT_ID = "verification-024-control-r2"
+CONTROL_EXPERIMENT_ID = "verification-024-control-r3"
+CONTROL_R2_EXPERIMENT_ID = "verification-024-control-r2"
 CONTROL_R2_PREDECESSOR_CAPSULE_SHA256 = (
     "56d233030e1c970b486721b21293a91a154bdc5ebe0ae811b36473457648df15"
 )
 CONTROL_R2_PREDECESSOR_CAPSULE_SIZE = 4924
+CONTROL_R2_INCIDENT_MANIFEST_SHA256 = r2_incident.INCIDENT_MANIFEST_SHA256
+CONTROL_R2_INCIDENT_MANIFEST_SIZE = r2_incident.INCIDENT_MANIFEST_SIZE
 LAST_KMSG_EXPERIMENT_ID = "last-kmsg-final"
 STOPHUD_MAX_ATTEMPTS = 3
 READ_SOURCE_MANIFEST_NAME = f"{READ_SOURCE_EXPERIMENT_ID}.manifest.json"
@@ -1153,6 +1158,9 @@ def _validate_source_control_binding(value: object, label: str) -> None:
         "target_dmid": "SM-A908N/SM8150",
         "predecessor_capsule_sha256": CONTROL_R2_PREDECESSOR_CAPSULE_SHA256,
         "predecessor_capsule_size": CONTROL_R2_PREDECESSOR_CAPSULE_SIZE,
+        "r2_incident_manifest_sha256": CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+        "r2_incident_manifest_size": CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+        "r2_zero_effect_validated": True,
     }
     for key, expected_value in expected.items():
         if type(value.get(key)) is not type(expected_value) or value.get(key) != expected_value:
@@ -1195,6 +1203,53 @@ def _validate_source_control_binding(value: object, label: str) -> None:
     }.items():
         if measurement.get(key) != expected_value:
             raise ValueError(f"{label} control fixed-op measurement {key!r} is not exact")
+
+
+_SOURCE_CONTROL_BINDING_PROJECTION_KEYS = (
+    "experiment_id",
+    "mode",
+    "manifest_sha256",
+    "manifest_size",
+    "raw_sha256",
+    "raw_size",
+    "journal_sha256",
+    "journal_size",
+    "completed_utc",
+    "candidate_sha256",
+    "candidate_size",
+    "value",
+    "target_dmid",
+    "predecessor_capsule_sha256",
+    "predecessor_capsule_size",
+    "r2_incident_manifest_sha256",
+    "r2_incident_manifest_size",
+    "r2_zero_effect_validated",
+    "current_boot_attestation",
+    "boot_id_before_read_sha256",
+    "fixed_op_measurement",
+)
+
+
+def _validate_source_control_projection(
+    public: object,
+    private: object,
+    label: str,
+) -> None:
+    """Cross-bind public/private control receipt projections.
+
+    The inline producer emits a compact control projection in the public read
+    receipt and a complete summary in each private read record.  Compare the
+    exact fields consumed here, including the R2 reconciliation identity, so a
+    stale or type-confused public projection cannot authorize last-kmsg.
+    """
+
+    if not isinstance(public, Mapping) or not isinstance(private, Mapping):
+        raise ValueError(f"{label} control binding projection is missing")
+    for key in _SOURCE_CONTROL_BINDING_PROJECTION_KEYS:
+        expected = private.get(key)
+        actual = public.get(key)
+        if type(actual) is not type(expected) or actual != expected:
+            raise ValueError(f"{label} control binding projection field {key!r} differs")
 
 
 def _validate_source_partial_begin_binding(
@@ -1396,6 +1451,9 @@ def _validate_source_read(
         "flash_image_sha256": READ_CANDIDATE_SHA256,
         "flash_readback_sha256": READ_CANDIDATE_SHA256,
         "flash_predecessor_sha256": "dbbf81f26cd3d9d2d52d2a2dbe84575b759b45cea8946d02646bd4503ad08247",
+        "r2_incident_manifest_sha256": CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+        "r2_incident_manifest_size": CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+        "r2_zero_effect_validated": True,
         "cleanup_ok": False,
     }.items():
         if type(manifest.get(key)) is not type(expected) or manifest.get(key) != expected:
@@ -1408,6 +1466,9 @@ def _validate_source_read(
     )
     _validate_source_fixed_op(manifest.get("fixed_op"), "read source manifest", terminal=True)
     _validate_source_transition(manifest.get("panic_transition"), "read source manifest")
+    _validate_source_control_binding(
+        manifest.get("control_manifest"), "read source manifest"
+    )
     source_id = manifest.get("experiment_id")
     private_record = manifest.get("private_record")
     if not isinstance(private_record, Mapping) or private_record.get("filename") != source_raw_name or private_record.get("journal_filename") != source_journal_name:
@@ -1418,6 +1479,11 @@ def _validate_source_read(
         raise ValueError("read source raw schema/experiment is not exact")
     _validate_source_target(raw.get("target"), "read source raw")
     _validate_source_control_binding(raw.get("control_manifest"), "read source raw")
+    _validate_source_control_projection(
+        manifest.get("control_manifest"),
+        raw.get("control_manifest"),
+        "read source manifest/raw",
+    )
     _validate_source_flash(raw.get("flash_journal"), "read source raw")
     expected_flash_path = (
         root / "evidence" / "private" /
@@ -1576,8 +1642,28 @@ def _validate_source_read(
         raise ValueError("read source journal current boot attestation differs")
     _validate_source_transition(journal.get("panic_transition"), "read source journal")
     _validate_source_control_binding(journal.get("control_manifest"), "read source journal")
+    _validate_source_control_projection(
+        manifest.get("control_manifest"),
+        journal.get("control_manifest"),
+        "read source manifest/journal",
+    )
     if not isinstance(journal.get("control_manifest"), Mapping) or dict(journal["control_manifest"]) != dict(raw["control_manifest"]):
         raise ValueError("read source journal control binding differs")
+    for owner, owner_label in (
+        (manifest, "read source manifest"),
+        (raw, "read source raw"),
+        (journal, "read source journal"),
+    ):
+        for key, expected in {
+            "r2_incident_manifest_sha256": CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+            "r2_incident_manifest_size": CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+            "r2_zero_effect_validated": True,
+        }.items():
+            actual = owner.get(key)
+            if type(actual) is not type(expected) or actual != expected:
+                raise ValueError(
+                    f"{owner_label} R2 reconciliation projection {key!r} differs"
+                )
     _validate_source_panic_frames(journal.get("frames"), "read source journal")
     raw_boot_id = raw.get("boot_id_before_read")
     if not isinstance(raw_boot_id, str) or BOOT_ID_RE.fullmatch(raw_boot_id) is None:
