@@ -422,13 +422,13 @@ def validate_r3_incident(root: Path | str) -> dict[str, object]:
     assert isinstance(artifacts, dict)  # established by _validate_r3
     return {
         "schema": R3_VALIDATION_SCHEMA,
-        "status": "VALIDATED_CONSUMED_ZERO_EFFECT",
+        "status": "VALIDATED_CONSUMED_ZERO_OP_RESTORED_STATE",
         "experiment_id": R3_ID,
         "next_registered_id": R3_NEXT_ID,
         "classification": "CLASS_C_UNCHANGED",
         "security_boundary_result": "UNKNOWN_NOT_REACHED",
         "consumed_checkpoint": True,
-        "zero_effect_validated": {
+        "incident_facts": {
             "fixed_op_dispatch_count": 0,
             "effect_dispatched": False,
             "effect_ambiguous": False,

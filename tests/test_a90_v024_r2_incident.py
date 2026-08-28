@@ -55,11 +55,15 @@ class R2IncidentTests(unittest.TestCase):
         holder, _ = self._r3_fixture()
         with holder:
             result = checkpoint.validate_r3_incident(Path(holder.name))
-        self.assertEqual(result["status"], "VALIDATED_CONSUMED_ZERO_EFFECT")
+        self.assertEqual(
+            result["status"], "VALIDATED_CONSUMED_ZERO_OP_RESTORED_STATE"
+        )
         self.assertEqual(result["experiment_id"], "verification-024-control-r3")
         self.assertEqual(result["next_registered_id"], "verification-024-control-r4")
         self.assertTrue(result["consumed_checkpoint"])
-        self.assertEqual(result["zero_effect_validated"]["fixed_op_dispatch_count"], 0)
+        self.assertEqual(result["incident_facts"]["fixed_op_dispatch_count"], 0)
+        self.assertTrue(result["reconciliation"]["temporary_sysctl_write"])
+        self.assertTrue(result["reconciliation"]["temporary_sysctl_write_rolled_back"])
         self.assertEqual(
             result["checkpoint"]["sha256"], checkpoint.R3_INCIDENT_MANIFEST_SHA256
         )
