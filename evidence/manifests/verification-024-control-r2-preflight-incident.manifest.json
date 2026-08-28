@@ -1,0 +1,106 @@
+{
+  "artifacts": {
+    "public": {
+      "basename": "verification-024-control-r2.manifest.json",
+      "ctime_ns": 1787905616152583424,
+      "gid": 1000,
+      "inode": 9319490,
+      "mode": "0644",
+      "mtime_ns": 1787905616152583424,
+      "nlink": 1,
+      "sha256": "a4bbdb56a49c483a474b12c17cc0c9433a6bbc546c4fb056063de33f49e9766e",
+      "size_bytes": 4195,
+      "uid": 1000
+    },
+    "raw": {
+      "basename": "verification-024-control-r2.json",
+      "ctime_ns": 1787905616146583484,
+      "gid": 1000,
+      "inode": 9319483,
+      "mode": "0600",
+      "mtime_ns": 1787905616146583484,
+      "nlink": 1,
+      "sha256": "3f60742a07132fd391426153f84f9eba6b32ee0371136da96e581f618ba5bec3",
+      "size_bytes": 50521,
+      "uid": 1000
+    },
+    "journal": {
+      "basename": "verification-024-control-r2.journal.json",
+      "ctime_ns": 1787905616141583534,
+      "gid": 1000,
+      "inode": 9319488,
+      "mode": "0600",
+      "mtime_ns": 1787905616136376975,
+      "nlink": 1,
+      "sha256": "05917be55f4c6baa1a1762fa1d5c860360663d213aab13df4495c4a0292c5b1b",
+      "size_bytes": 57178,
+      "uid": 1000
+    }
+  },
+  "claims": {
+    "classification": "CLASS_C_UNCHANGED",
+    "cleanup": {
+      "node": "ended_absent_and_not_symlink",
+      "file": "ended_absent_and_not_symlink"
+    },
+    "controller_writes": false,
+    "device_state_write": false,
+    "dispatch_count": 0,
+    "effect_ambiguous": false,
+    "effect_dispatched": false,
+    "effect_replayed": false,
+    "memory_or_mmio_writes": false,
+    "panic_before": 1,
+    "panic_zero_set": false,
+    "panic_zero_verified": false,
+    "panic_zero_write_attempted": false,
+    "partition_writes": false,
+    "r2_id_consumed": true,
+    "same_id_reuse": false,
+    "security_boundary_result": "UNKNOWN_NOT_REACHED",
+    "semantic_claim_created": false
+  },
+  "execution": {
+    "head": "cd56e9aaa1c911b884ef2da73db1934c47a3aca0"
+  },
+  "expected_uevent": {
+    "DEVNAME": "sda24",
+    "DEVTYPE": "partition",
+    "MAJOR": "259",
+    "MINOR": "27",
+    "PARTN": "24",
+    "PARTNAME": "boot"
+  },
+  "experiment_id": "verification-024-control-r2-preflight-incident",
+  "host_source_gate": {
+    "basename": "verification-024-control-r2-host-source-gate.manifest.json",
+    "sha256": "412ce4986d73306093c8bba65f4c803d0adfb33bcff11d59f9cf7530564fce45",
+    "size_bytes": 2489
+  },
+  "next_registered_id": "verification-024-control-r3",
+  "post_incident_geometry": {
+    "dev_major": 259,
+    "dev_minor": 8,
+    "read_only": 0,
+    "size": 131072
+  },
+  "rationale": "The dynamic extended device-type minor cannot be fixed from the mock.",
+  "schema": "sdm855-a90-v024-control-r2-preflight-incident-v1",
+  "target": {
+    "model": "SM-A908N",
+    "scope": "A90_ONLY",
+    "soc": "SM8150"
+  },
+  "uevent_error": {
+    "exception_type": "ProbeError",
+    "message": "sda24 uevent fields are not exact",
+    "observed": {
+      "DEVNAME": "sda24",
+      "DEVTYPE": "partition",
+      "MAJOR": "259",
+      "MINOR": "8",
+      "PARTN": "24",
+      "PARTNAME": "boot"
+    }
+  }
+}
