@@ -138,6 +138,15 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
         completed = "2026-08-27T00:00:00+00:00"
         boot_id = "11111111-1111-4111-8111-111111111111"
         boot_hash = capture.sha256(boot_id.encode())
+        uevent = {
+            "MAJOR": "259",
+            "MINOR": "8",
+            "DEVNAME": "sda24",
+            "DEVTYPE": "partition",
+            "PARTN": "24",
+            "PARTNAME": "boot",
+        }
+        expected_stat = capture._source_expected_stat(uevent)
         attestation = {
             "sysfs_root": "/sys/class/block/sda24",
             "block_node": "/dev/block/sda24",
@@ -153,7 +162,8 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
             "size_matches_candidate": True,
             "cleanup_ok": True,
             "cleanup_error": None,
-            "stat": dict(capture.BOOT_ATTEST_STAT),
+            "sysfs_uevent": dict(uevent),
+            "stat": expected_stat,
         }
         attestation_private = {
             **attestation,
@@ -197,10 +207,10 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
             "soc_id_before": b"339\n",
             "selftest_before": b"selftest: pass=11 warn=1 fail=0 duration=43ms entries=12",
             "boot_id_before_read": boot_id.encode("ascii") + b"\n",
-            "boot_sysfs_uevent": b"MAJOR=259\nMINOR=27\nDEVNAME=sda24\nDEVTYPE=partition\nPARTN=24\nPARTNAME=boot",
+            "boot_sysfs_uevent": b"MAJOR=259\nMINOR=8\nDEVNAME=sda24\nDEVTYPE=partition\nPARTN=24\nPARTNAME=boot",
             "boot_sysfs_size": b"131072\n",
             "boot_sysfs_ro": b"0\n",
-            "boot_attest_stat_node": b"mode=0600 uid=0 gid=0 size=0\nrdev=259:27\n",
+            "boot_attest_stat_node": b"mode=0600 uid=0 gid=0 size=0\nrdev=259:8\n",
             "boot_attest_mknod": b"",
         }
         toybox_empty = {
@@ -213,7 +223,7 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
         }
         panic_frames = []
         for evidence_id in capture._source_expected_full_frame_ids(1):
-            argv = capture._source_frame_argv(evidence_id)
+            argv = capture._source_frame_argv(evidence_id, uevent=uevent)
             assert argv is not None
             payload = semantic_payloads.get(evidence_id, panic_payloads.get(evidence_id, b""))
             if evidence_id.startswith("stophud_"):
@@ -1220,12 +1230,12 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
             expected_selftest,
         )
         uevent = (
-            b"MAJOR=259\nMINOR=27\nDEVNAME=sda24\nDEVTYPE=partition\n"
+            b"MAJOR=259\nMINOR=8\nDEVNAME=sda24\nDEVTYPE=partition\n"
             b"PARTN=24\nPARTNAME=boot"
         )
         expected_uevent = {
             "MAJOR": "259",
-            "MINOR": "27",
+            "MINOR": "8",
             "DEVNAME": "sda24",
             "DEVTYPE": "partition",
             "PARTN": "24",
@@ -1244,12 +1254,149 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
             selftest.replace(b"warn=1 ", b"warn=1\n\n"),
             selftest.replace(b"warn=1 ", b"warn=1\r"),
             uevent + b"\n\n",
-            uevent.replace(b"MINOR=27\n", b"MINOR=27\n\n"),
-            uevent.replace(b"MINOR=27\n", b"MINOR=27\r"),
+            uevent.replace(b"MINOR=8\n", b"MINOR=8\n\n"),
+            uevent.replace(b"MINOR=8\n", b"MINOR=8\r"),
         ):
             with self.subTest(malformed=malformed):
                 with self.assertRaises(ValueError):
                     capture._source_semantic_lines(malformed, "hostile multiline payload")
+
+    def test_source_boot_devt_is_dynamic_but_canonically_cross_bound(self) -> None:
+        """Bind uevent, mknod argv, stat rdev, and attestation as one identity."""
+
+        def payload(major: str, minor: str) -> bytes:
+            return (
+                f"MAJOR={major}\nMINOR={minor}\nDEVNAME=sda24\n"
+                "DEVTYPE=partition\nPARTN=24\nPARTNAME=boot"
+            ).encode("ascii")
+
+        for major, minor in (
+            ("259", "8"),
+            ("8", "27"),
+            ("1", "0"),
+            ("4095", "1048575"),
+        ):
+            with self.subTest(major=major, minor=minor):
+                parsed = capture._parse_source_uevent_payload(
+                    payload(major, minor), "dynamic uevent"
+                )
+                self.assertEqual(parsed["MAJOR"], major)
+                self.assertEqual(parsed["MINOR"], minor)
+                argv = capture._source_frame_argv(
+                    "boot_attest_mknod", uevent=parsed
+                )
+                self.assertEqual(
+                    argv,
+                    (
+                        "mknodb",
+                        capture.BOOT_ATTEST_NODE,
+                        major,
+                        minor,
+                    ),
+                )
+                self.assertEqual(
+                    capture._validate_source_mknod_argv(argv, "dynamic mknod"),
+                    argv,
+                )
+                self.assertEqual(
+                    capture._source_expected_stat(parsed)["rdev"],
+                    f"{major}:{minor}",
+                )
+
+        malformed = (
+            b"MINOR=8\nDEVNAME=sda24\nDEVTYPE=partition\nPARTN=24\nPARTNAME=boot",
+            payload("259", "8") + b"\nEXTRA=field",
+            payload("0259", "8"),
+            payload("259", "08"),
+            payload("4096", "8"),
+            payload("259", "1048576"),
+            payload("+259", "8"),
+        )
+        for item in malformed:
+            with self.subTest(malformed=item):
+                with self.assertRaises(ValueError):
+                    capture._parse_source_uevent_payload(item, "malformed uevent")
+
+        invalid_mknod = (
+            ("mknodb", capture.BOOT_ATTEST_NODE, "0259", "8"),
+            ("mknodb", capture.BOOT_ATTEST_NODE, "4096", "8"),
+            ("mknodb", capture.BOOT_ATTEST_NODE, "259", "1048576"),
+            ("mknodb", capture.BOOT_ATTEST_NODE, "259"),
+        )
+        for argv in invalid_mknod:
+            with self.subTest(argv=argv):
+                with self.assertRaises(ValueError):
+                    capture._validate_source_mknod_argv(argv, "malformed mknod")
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self._write_read_source(root)
+            raw = json.loads(
+                (root / "evidence/private" / f"{capture.READ_SOURCE_EXPERIMENT_ID}.json").read_text()
+            )
+            self.assertIsNone(
+                capture._validate_source_frame_payload_semantics(
+                    raw["frames"],
+                    target=raw["target"],
+                    attestation=raw["current_boot_attestation"],
+                    candidate_sha256=capture.READ_CANDIDATE_SHA256,
+                    candidate_size=capture.BOOT_PREFIX_SIZE,
+                    boot_id_before_read=raw["boot_id_before_read"],
+                    label="dynamic source baseline",
+                )
+            )
+
+            wrong_mknod = json.loads(json.dumps(raw["frames"]))
+            mknod = next(
+                item for item in wrong_mknod
+                if item["evidence_id"] == "boot_attest_mknod"
+            )
+            mknod["argv"][-1] = "27"
+            with self.assertRaises(ValueError):
+                capture._validate_source_frame_payload_semantics(
+                    wrong_mknod,
+                    target=raw["target"],
+                    attestation=raw["current_boot_attestation"],
+                    candidate_sha256=capture.READ_CANDIDATE_SHA256,
+                    candidate_size=capture.BOOT_PREFIX_SIZE,
+                    boot_id_before_read=raw["boot_id_before_read"],
+                    label="mismatched mknod",
+                )
+
+            wrong_stat = json.loads(json.dumps(raw["frames"]))
+            stat_frame = next(
+                item for item in wrong_stat
+                if item["evidence_id"] == "boot_attest_stat_node"
+            )
+            stat_payload = b"mode=0600 uid=0 gid=0 size=0\nrdev=259:27\n"
+            stat_frame.update(
+                {
+                    "payload_base64": base64.b64encode(stat_payload).decode("ascii"),
+                    "payload_sha256": capture.sha256(stat_payload),
+                    "payload_size": len(stat_payload),
+                }
+            )
+            with self.assertRaises(ValueError):
+                capture._validate_source_frame_payload_semantics(
+                    wrong_stat,
+                    target=raw["target"],
+                    attestation=raw["current_boot_attestation"],
+                    candidate_sha256=capture.READ_CANDIDATE_SHA256,
+                    candidate_size=capture.BOOT_PREFIX_SIZE,
+                    boot_id_before_read=raw["boot_id_before_read"],
+                    label="mismatched stat",
+                )
+
+            wrong_attestation = json.loads(
+                json.dumps(raw["current_boot_attestation"])
+            )
+            wrong_attestation["sysfs_uevent"]["MINOR"] = "27"
+            with self.assertRaises(ValueError):
+                capture._fixed_attestation(
+                    wrong_attestation,
+                    capture.READ_CANDIDATE_SHA256,
+                    "mismatched attestation",
+                )
 
     def test_source_complete_frame_boundaries_are_closed(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

@@ -33,6 +33,7 @@ try:
         parse_toybox_payload as _inline_parse_toybox_payload,
         parse_toybox_wc_count as _inline_parse_toybox_wc_count,
         _parse_exact_lines as _inline_parse_exact_lines,
+        _parse_boot_sysfs_uevent as _inline_parse_boot_sysfs_uevent,
         _parse_stat_identity as _inline_parse_stat_identity,
         is_transport_no_value_payload as _inline_is_transport_no_value_payload,
         protocol_terminal_and_tail_valid as _inline_protocol_terminal_and_tail_valid,
@@ -88,6 +89,7 @@ except ModuleNotFoundError:  # Direct execution from tools/.
         parse_toybox_payload as _inline_parse_toybox_payload,
         parse_toybox_wc_count as _inline_parse_toybox_wc_count,
         _parse_exact_lines as _inline_parse_exact_lines,
+        _parse_boot_sysfs_uevent as _inline_parse_boot_sysfs_uevent,
         _parse_stat_identity as _inline_parse_stat_identity,
         is_transport_no_value_payload as _inline_is_transport_no_value_payload,
         protocol_terminal_and_tail_valid as _inline_protocol_terminal_and_tail_valid,
@@ -190,13 +192,29 @@ CONTROL_CANDIDATE_SHA256 = "dbbf81f26cd3d9d2d52d2a2dbe84575b759b45cea8946d02646b
 BOOT_PREFIX_SIZE = 60_882_944
 BOOT_ATTEST_NODE = "/tmp/a90-native/verification-024-sda24"
 BOOT_ATTEST_FILE = "/tmp/a90-native/verification-024-boot-prefix.bin"
-BOOT_ATTEST_STAT = {
+# Linux allocates the block dev_t during boot.  The last-kmsg consumer must
+# bind the value emitted by this run's fixed sda24 uevent instead of carrying
+# a remembered major/minor pair across reboots.
+BOOT_MAJOR_MIN = 1
+BOOT_MAJOR_MAX = 4095
+BOOT_MINOR_MIN = 0
+BOOT_MINOR_MAX = 1048575
+BOOT_UEVENT_STATIC_FIELDS = {
+    "DEVNAME": "sda24",
+    "DEVTYPE": "partition",
+    "PARTN": "24",
+    "PARTNAME": "boot",
+}
+BOOT_ATTEST_STAT_BASE = {
     "mode": "0600",
     "uid": "0",
     "gid": "0",
     "size": "0",
-    "rdev": "259:27",
 }
+# Kept as a compatibility name for host fixtures.  It intentionally contains
+# only the dev_t-independent fields; callers must add the rdev obtained from
+# ``sysfs_uevent`` through ``_source_expected_stat``.
+BOOT_ATTEST_STAT = dict(BOOT_ATTEST_STAT_BASE)
 EXACT_DEBUG_LEVEL_DECIMAL = 1_145_654_596
 EXACT_UPLOAD_CAUSE = "Non Secure Watchdog Bark"
 EXACT_TZ_RESET_REASON = "TZBSP_ERR_FATAL_NON_SECURE_WDT"
@@ -907,6 +925,91 @@ def _parse_boot_id(payload: bytes, label: str) -> str:
     return value
 
 
+def _parse_source_canonical_devnum(
+    value: object,
+    label: str,
+    minimum: int,
+    maximum: int,
+) -> str:
+    """Validate one exact unsigned decimal Linux device-number field."""
+
+    if type(value) is not str or re.fullmatch(r"0|[1-9][0-9]*", value) is None:
+        raise ValueError(f"{label} is not canonical unsigned decimal")
+    number = int(value, 10)
+    if not minimum <= number <= maximum:
+        raise ValueError(f"{label} is outside the bounded device-number range")
+    return value
+
+
+def _validate_source_uevent_mapping(value: object, label: str) -> dict[str, str]:
+    """Validate the fixed sda24 identity while keeping its dev_t dynamic."""
+
+    if not isinstance(value, Mapping):
+        raise ValueError(f"{label} uevent mapping is missing")
+    if set(value) != {"MAJOR", "MINOR", *BOOT_UEVENT_STATIC_FIELDS}:
+        raise ValueError(f"{label} uevent fields are not exact")
+    major = _parse_source_canonical_devnum(
+        value.get("MAJOR"),
+        f"{label} MAJOR",
+        BOOT_MAJOR_MIN,
+        BOOT_MAJOR_MAX,
+    )
+    minor = _parse_source_canonical_devnum(
+        value.get("MINOR"),
+        f"{label} MINOR",
+        BOOT_MINOR_MIN,
+        BOOT_MINOR_MAX,
+    )
+    for key, expected in BOOT_UEVENT_STATIC_FIELDS.items():
+        if value.get(key) != expected:
+            raise ValueError(f"{label} {key} is not exact")
+    return {
+        "MAJOR": major,
+        "MINOR": minor,
+        **BOOT_UEVENT_STATIC_FIELDS,
+    }
+
+
+def _parse_source_uevent_payload(payload: bytes, label: str) -> dict[str, str]:
+    """Decode a retained uevent with the producer's strict source grammar."""
+
+    try:
+        parsed = _inline_parse_boot_sysfs_uevent(payload)
+    except BaseException as exc:
+        raise ValueError(f"{label} uevent payload is malformed") from exc
+    try:
+        return _validate_source_uevent_mapping(parsed, label)
+    except BaseException as exc:
+        raise ValueError(f"{label} uevent payload differs from fixed sda24") from exc
+
+
+def _source_expected_stat(uevent: Mapping[str, str]) -> dict[str, str]:
+    """Return the exact stat projection bound to one validated uevent."""
+
+    validated = _validate_source_uevent_mapping(uevent, "source")
+    return {
+        **BOOT_ATTEST_STAT_BASE,
+        "rdev": f"{validated['MAJOR']}:{validated['MINOR']}",
+    }
+
+
+def _validate_source_mknod_argv(value: object, label: str) -> tuple[str, ...]:
+    """Validate mknod syntax; its dev_t is cross-bound to the uevent later."""
+
+    if not isinstance(value, (list, tuple)) or len(value) != 4:
+        raise ValueError(f"{label} mknod argv is not exact")
+    argv = tuple(value)
+    if argv[:2] != ("mknodb", BOOT_ATTEST_NODE):
+        raise ValueError(f"{label} mknod path/command is not exact")
+    _parse_source_canonical_devnum(
+        argv[2], f"{label} mknod major", BOOT_MAJOR_MIN, BOOT_MAJOR_MAX
+    )
+    _parse_source_canonical_devnum(
+        argv[3], f"{label} mknod minor", BOOT_MINOR_MIN, BOOT_MINOR_MAX
+    )
+    return argv
+
+
 def _fixed_attestation(
     value: object,
     expected_hash: str,
@@ -914,8 +1017,13 @@ def _fixed_attestation(
     *,
     require_paths: bool = True,
 ) -> Mapping[str, object]:
+    """Require the complete sda24 prefix proof, including dynamic dev_t."""
+
     if not isinstance(value, Mapping):
         raise ValueError(f"{label} current boot attestation is missing")
+    uevent = _validate_source_uevent_mapping(
+        value.get("sysfs_uevent"), f"{label} current boot"
+    )
     expected = {
         "sysfs_root": "/sys/class/block/sda24",
         "block_node": "/dev/block/sda24",
@@ -930,6 +1038,7 @@ def _fixed_attestation(
         "hash_matches_candidate": True,
         "size_matches_candidate": True,
         "cleanup_ok": True,
+        "sysfs_uevent": uevent,
     }
     if require_paths:
         expected.update(
@@ -941,7 +1050,8 @@ def _fixed_attestation(
     stat_value = value.get("stat")
     if not isinstance(stat_value, Mapping):
         raise ValueError(f"{label} current boot attestation stat is missing")
-    for key, expected_value in BOOT_ATTEST_STAT.items():
+    expected_stat = _source_expected_stat(uevent)
+    for key, expected_value in expected_stat.items():
         if stat_value.get(key) != expected_value:
             raise ValueError(f"{label} current boot attestation stat is not exact")
     if require_paths and ("cleanup_error" not in value or value.get("cleanup_error") is not None):
@@ -1591,9 +1701,6 @@ _SOURCE_FRAME_ARGV: dict[str, tuple[str, ...]] = {
     "boot_attest_mkdir": (
         "run", "/bin/toybox", "mkdir", "-p", "/tmp/a90-native"
     ),
-    "boot_attest_mknod": (
-        "mknodb", "/tmp/a90-native/verification-024-sda24", "259", "27"
-    ),
     "boot_attest_stat_node": (
         "stat", "/tmp/a90-native/verification-024-sda24"
     ),
@@ -1643,13 +1750,27 @@ for _source_id, _source_path in (
         )
 
 
-def _source_frame_argv(evidence_id: object) -> tuple[str, ...] | None:
+def _source_frame_argv(
+    evidence_id: object,
+    *,
+    uevent: Mapping[str, object] | None = None,
+) -> tuple[str, ...] | None:
     if not isinstance(evidence_id, str):
         return None
     if re.fullmatch(r"stophud_[1-3]", evidence_id):
         return ("stophud",)
     if evidence_id == "fixed_op_4":
         return tuple(_fixed_op_argv_full())
+    if evidence_id == "boot_attest_mknod":
+        if uevent is None:
+            return None
+        validated = _validate_source_uevent_mapping(uevent, "source frame")
+        return (
+            "mknodb",
+            BOOT_ATTEST_NODE,
+            validated["MAJOR"],
+            validated["MINOR"],
+        )
     return _SOURCE_FRAME_ARGV.get(evidence_id)
 
 
@@ -1855,7 +1976,12 @@ def _validate_source_frame_list(frames: object, label: str) -> None:
         if not isinstance(frame, Mapping):
             raise ValueError(f"{label}[{index}] frame is not an object")
         evidence_id = frame.get("evidence_id")
-        argv = _source_frame_argv(evidence_id)
+        if evidence_id == "boot_attest_mknod":
+            argv = _validate_source_mknod_argv(
+                frame.get("argv"), f"{label}[{index}]"
+            )
+        else:
+            argv = _source_frame_argv(evidence_id)
         if not isinstance(evidence_id, str) or argv is None:
             raise ValueError(f"{label}[{index}] frame ID is not allowlisted")
         if evidence_id == "fixed_op_4":
@@ -2108,26 +2234,37 @@ def _validate_source_frame_payload_semantics(
     selftest = _source_semantic_selftest(payloads["selftest_before"], f"{label} selftest_before")
     if not isinstance(target.get("selftest_before"), Mapping) or dict(selftest) != dict(target["selftest_before"]):
         raise ValueError(f"{label} selftest_before differs from target summary")
-    lines = _source_semantic_lines(payloads["boot_sysfs_uevent"], f"{label} uevent")
-    uevent: dict[str, str] = {}
-    for line in lines:
-        if "=" not in line:
-            raise ValueError(f"{label} uevent payload is malformed")
-        key, value = line.split("=", 1)
-        if not key or not value or key in uevent:
-            raise ValueError(f"{label} uevent payload has duplicate/malformed fields")
-        uevent[key] = value
-    if uevent != {"MAJOR": "259", "MINOR": "27", "DEVNAME": "sda24", "DEVTYPE": "partition", "PARTN": "24", "PARTNAME": "boot"}:
-        raise ValueError(f"{label} uevent differs from the fixed partition")
+    uevent = _parse_source_uevent_payload(
+        payloads["boot_sysfs_uevent"], f"{label} uevent"
+    )
+    if attestation.get("sysfs_uevent") != uevent:
+        raise ValueError(f"{label} boot sysfs uevent differs from attestation")
     if _source_semantic_single_line(payloads["boot_sysfs_size"], f"{label} boot size") != "131072" or attestation.get("sectors") != 131072:
         raise ValueError(f"{label} boot sysfs size differs from attestation")
     if _source_semantic_single_line(payloads["boot_sysfs_ro"], f"{label} boot ro") != "0" or attestation.get("ro") != 0:
         raise ValueError(f"{label} boot sysfs ro differs from attestation")
+    mknod_frames = [
+        frame
+        for frame in frames
+        if isinstance(frame, Mapping)
+        and frame.get("evidence_id") == "boot_attest_mknod"
+    ]
+    if len(mknod_frames) != 1:
+        raise ValueError(f"{label} boot_attest_mknod frame count is not exact")
+    mknod_argv = _validate_source_mknod_argv(
+        mknod_frames[0].get("argv"), f"{label} boot_attest_mknod"
+    )
+    if mknod_argv[2:] != (uevent["MAJOR"], uevent["MINOR"]):
+        raise ValueError(f"{label} mknod dev_t differs from boot uevent")
     try:
-        stat_value = _inline_parse_stat_identity(payloads["boot_attest_stat_node"])
+        stat_value = _inline_parse_stat_identity(
+            payloads["boot_attest_stat_node"],
+            uevent["MAJOR"],
+            uevent["MINOR"],
+        )
     except BaseException as exc:
         raise ValueError(f"{label} stat payload is malformed") from exc
-    if stat_value != dict(BOOT_ATTEST_STAT) or attestation.get("stat") != stat_value:
+    if stat_value != _source_expected_stat(uevent) or attestation.get("stat") != stat_value:
         raise ValueError(f"{label} stat differs from attestation")
     for evidence_id, payload in ordered_payloads:
         if evidence_id in _SOURCE_SEMANTIC_DUPLICATE_FRAME_IDS:
