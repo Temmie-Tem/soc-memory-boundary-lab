@@ -86,9 +86,14 @@ notes become active.
 
 ## Decision classes
 
-Current class: `CLASS C (TRANSFORM ONLY) — a normal-RAM bank hash is observed;
-known direct EL1 register paths are blocked; mutation, complete-coordinate
-alias and protected-boundary effect remain unproved`.
+Current operational class: `CLASS C (TRANSFORM ONLY)` — retained to preserve
+the exact `GOAL.md` loop/pause/termination gate. Its evidentiary reading is
+`C-MAP only`: a bounded normal-RAM timing-equivalence transform is strongly
+supported; high-bit physical provenance, semantic coordinates, mutation,
+alternate-initiator reach, final policy/path, protection order, and global
+complete-coordinate alias remain unresolved; no protected-boundary or Class
+D/E effect has been observed. Taxonomy replacement requires an operator
+decision and coordinated `GOAL.md` rewrite.
 
 - Class A: structurally blocked.
 - Class B: observable but immutable.

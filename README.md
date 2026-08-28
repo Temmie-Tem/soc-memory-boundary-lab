@@ -36,10 +36,12 @@ coverage, post-boot mutability, an alias, or a bypass.
 
 Host-only Experiment 009 now proves static policy coverage for the tested
 instance-0 page. Both exact TrustZone selector branches place `0x09248080` in
-enabled, TZ-owned `DC_NOC_BROADCAST_MPU` region 11; exact permission conversion
-grants no ordinary HLOS access, and exact devcfg has `disable_xpu_ac=0`.
-`SUPPORTED`, not causally `PROVED`: XPU/fabric denial explains the fixed-load
-watchdog. A decoded syndrome and final runtime policy readback are still absent.
+enabled, TZ-owned `DC_NOC_BROADCAST_MPU` region 11 with exact raw permission
+words and a retained client vector; exact devcfg has `disable_xpu_ac=0`. The
+legacy bit-3 HLOS predicate is non-discriminating. The fixed-load non-return is
+confirmed, but XPU, QHEE/stage-2, fabric/power, and instrumentation remain live
+causal alternatives. Decoded syndrome values and final runtime policy readback
+are absent.
 
 Host-only Experiment 010 now resolves the missing initializer boundary.
 QHEE's exact `hyp_assign` intercept enforces ownership through its local
@@ -47,10 +49,10 @@ stage-2/SMMU access-control path, while a separate same-ID TrustZone fallback
 reaches dynamic `BIMC_MPU0..3` reconfiguration. The HLOS-visible XPU toggle
 cannot disable any XPU because its exact allowed-disable count is zero. Both TZ
 policy branches also cover all four remapper and BIMC configuration apertures
-with broad TZ-owned records containing no HLOS grant. This is strong Class A/B
-candidate evidence for the known controller apertures, not a proof that the
-overall AMD attack class is structurally impossible: the final DRAM transform
-and post-transform protection ordering remain `UNKNOWN`.
+with broad TZ-owned raw records. Effective initiator/client access, overlap
+precedence, live instance selection, the final DRAM transform, and
+post-transform protection ordering remain `UNKNOWN`; this is not Class A/B
+closure of the overall AMD attack class.
 
 Host-only Experiment 011 recovers an exact XBL Quest DDR diagnostic formula.
 For the retained 6-GiB topology its rank boundary is `0x140000000`, exactly
@@ -477,8 +479,10 @@ check** is `REFUTED` as a separator for those projected ranges.  The finite GF(2
 countermodels also prove that the bank projection alone does not determine
 complete-coordinate injectivity.  This does not locate the actual protection
 check, establish a complete DRAM coordinate, or prove a downstream mutable
-transform.  The canonical manifest is
-[verification-017-protection-bank-granularity-20260827-05.manifest.json](evidence/manifests/verification-017-protection-bank-granularity-20260827-05.manifest.json).
+transform. The audit-pin refresh manifest is
+[verification-017-protection-bank-granularity-20260829-06.manifest.json](evidence/manifests/verification-017-protection-bank-granularity-20260829-06.manifest.json);
+it changes only the pinned `MEMORY_MAP.md` revision and retains the bounded
+V017 result.
 Validation is 42 focused and 1,132 full serial tests (`skipped=1`, no swaps),
 with byte-identical regeneration and no device action.
 Verification 018 has now completed one exact, reversible A90 allocation-local
@@ -596,23 +600,26 @@ remain unchanged. See the [022R record](experiments/verification-022R-pa28-live/
 [11,989-byte manifest](evidence/manifests/verification-022r-pa28-live-20260827-01.manifest.json)
 (SHA-256 `f88a81bd3aabbd76cf2bcb8575f45d1cca7c29433a0279403d76d3affbfa2ca2`).
 
-The 1b known-aperture reachability checkpoint is now complete as a bounded
-host-only reconciliation.  Both exact selector branches enumerate the same
-eight known qhs_llcc-remapper/BIMC candidates; every candidate is covered by
-the retained `MEMNOC_MS_MPU` and `CNOC_SNOC_MS_MPU` policies as TZ-owned with
-no HLOS read/write grant.  The tested `0x09248080` narrow region is likewise
-branch-invariant, while the retained fixed EL1 load produced no value and was
-followed by a `Non Secure Watchdog Bark`; the separate control-node route had
-one failed read and zero writes.  This proves only the tested static-policy
-coverage.  Global reachability, alternate apertures, final runtime state,
-watchdog causality, ordering, mutability, aliases and bypass remain `UNKNOWN`.
-The result is `CLASS C (TRANSFORM ONLY)` / `NOT_ELIGIBLE`; the later 020K and
-020L static passes remain host-only.  The 13,885-byte public manifest is
-[verification-1b-known-aperture-reachability-20260827-01.manifest.json](evidence/manifests/verification-1b-known-aperture-reachability-20260827-01.manifest.json),
+The 1b known-aperture reachability checkpoint is a bounded host-only
+reconciliation. Both exact selector branches enumerate the same eight known
+qhs_llcc-remapper/BIMC candidates, and every candidate has retained broad
+TZ-owned raw policy coverage. The legacy bit-3 HLOS marker is false for all of
+them, but that predicate is non-discriminating and is not an effective-access
+verdict. The tested `0x09248080` narrow row is branch-invariant; the retained
+fixed EL1 load produced no value and was followed by a `Non Secure Watchdog
+Bark`, while the separate control-node route had one failed read and zero
+writes. Direct non-return is confirmed; the refusing agent and effective HLOS
+access are `UNDECIDABLE`/`UNKNOWN`. Global reachability, alternate apertures,
+final runtime state, ordering, mutability, aliases and bypass remain `UNKNOWN`.
+The result is operationally `CLASS C (TRANSFORM ONLY)` / `NOT_ELIGIBLE`. The
+audit-corrected 24,690-byte v2 manifest is
+[verification-1b-known-aperture-reachability-20260829-02.manifest.json](evidence/manifests/verification-1b-known-aperture-reachability-20260829-02.manifest.json),
 SHA-256
-`b4135f22bff47df22cda674eeabfff909ef4d3bc2a1843b358be7556b6d5ff02`; focused
-validation is 9/9 PASS and no device action occurred.  See the
-[1b review](docs/VERIFICATION1B_REACHABILITY_REVIEW_2026-08-27.md).
+`da1f03f728435421dc3a33b25914117e8a098f443b599b7f50ccff51154b4fe3`;
+focused validation is 9/9 PASS and no device action occurred. The
+[2026-08-27 review](docs/VERIFICATION1B_REACHABILITY_REVIEW_2026-08-27.md)
+is retained as historical provenance; its HLOS interpretation is superseded by
+the [current report](docs/FINAL_REPORT_2026-08-29.md).
 
 Verification 020A then traced the exact candidate setter's argument origin in
 the retained XBL.  The five static stores contain one `XZR` zero and four
@@ -872,7 +879,7 @@ Experiment 017's exact XBL table/read-copy cross-reference is in
 Verification 017's bank-granularity audit is in
 [experiments/verification-017-protection-bank-granularity/README.md](experiments/verification-017-protection-bank-granularity/README.md),
 with its sanitized result in
-[evidence/manifests/verification-017-protection-bank-granularity-20260827-05.manifest.json](evidence/manifests/verification-017-protection-bank-granularity-20260827-05.manifest.json).
+[evidence/manifests/verification-017-protection-bank-granularity-20260829-06.manifest.json](evidence/manifests/verification-017-protection-bank-granularity-20260829-06.manifest.json).
 The Route-2 writer/rank audit is in
 [experiments/verification-route2-rank-audit/README.md](experiments/verification-route2-rank-audit/README.md),
 with its sanitized result in

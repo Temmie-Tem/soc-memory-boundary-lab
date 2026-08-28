@@ -2,12 +2,25 @@
 
 Current research state: `NO_BOUNDARY_BYPASS_OBSERVED`
 
-Current class: `CLASS C (TRANSFORM ONLY) — live normal-RAM timing proves a
-hidden low-24-bit physical-region XOR bank-selection relation, and retained
-allocation-offset/model evidence extends the same rank-three shape through
-model bit 27; direct EL1 controller/SHRM reads remain blocked; no transform
-write, complete-coordinate alias, protection-order mismatch, or boundary bypass
-has been observed`
+Current report: [FINAL_REPORT_2026-08-29.md](docs/FINAL_REPORT_2026-08-29.md)
+(`DRAFT`, integrated on `main`; pending the Audit A author's adjudication
+before final designation).
+
+Current class: `CLASS C (TRANSFORM ONLY)` retained as the exact operational
+gate. Evidentiary meaning: **bounded low-bit `C-MAP` strongly supported;
+high-bit physical provenance, semantic coordinates, mutation, alternate-
+initiator reach, final XPU/policy path, protection order, and global complete
+alias unresolved; no protected effect or Class D/E evidence observed.**
+
+Audit reconciliation (2026-08-29): route-2 direct non-return is `CONFIRMED`,
+but the refusing agent (XPU, QHEE/stage-2, fabric/power, or instrument) is
+`UNDECIDABLE`; deep suspend closes only its exact state; the on-disk SCM_IO
+allowlist is default-deny while its RW runtime table is `UNKNOWN`; DCC is not a
+read-only observer; and V016's high-bit labels are statistic-sensitive and
+were not preregistered. V030's SG/PFN oracle has passed its host gate: 30
+focused tests, the canonical 2,027-test repository suite, compile/preflight,
+static AArch64 reproducibility, and independent hostile review all pass. It has
+had **no live effect**.
 
 Platform provenance: the A90 runtime, ACM bridge, REPL primitive, TWRP
 code-boot and boot-prefix rollback used throughout are supplied by the upstream
@@ -425,12 +438,13 @@ a separator for those projected ranges.  Finite GF(2) countermodels prove that
 the bank projection alone does not determine complete-coordinate injectivity.
 The actual protection ordering, complete DRAM coordinate, transform mutability,
 and any bypass remain `UNKNOWN`; this is not a physical alias or Class-D/E
-result.  The canonical public manifest is
-`evidence/manifests/verification-017-protection-bank-granularity-20260827-05.manifest.json`,
-18,108 bytes, SHA-256
-`97ff68a2f8ebfb6313f228f2626f12f88260764a993f916ba1f97677d7b99f02`, mode
+result. The current audit-pin refresh manifest is
+`evidence/manifests/verification-017-protection-bank-granularity-20260829-06.manifest.json`,
+18,109 bytes, SHA-256
+`7a4d8c090f1c933abb25c7ffcb3ee45611cb013ede1d1271841ef3b13050b3f9`, mode
 `0644`, with 42 focused / 1,132 full serial tests passing (`skipped=1`, no
-swaps) and no device action.
+swaps) and no device action. It refreshes only the pinned `MEMORY_MAP.md`
+revision; the bounded V017 conclusion is unchanged.
 
 Verification 018's first parser-only attempt stopped before any target-dependent
 mutation: it retained only `version`/`cmdline` frames because the live version
@@ -560,21 +574,24 @@ and `NOT_ELIGIBLE` are unchanged. The public manifest is 11,989 bytes,
 SHA-256 `f88a81bd3aabbd76cf2bcb8575f45d1cca7c29433a0279403d76d3affbfa2ca2`.
 
 The 1b known-aperture reachability checkpoint is now complete as a bounded
-host-only reconciliation.  Both selector branches enumerate the same eight
-known remapper/BIMC candidates, and all eight are covered by the retained
-`MEMNOC_MS_MPU` and `CNOC_SNOC_MS_MPU` policies as TZ-owned with no HLOS
-read/write grant.  The narrow `0x09248080` policy is branch-invariant; the
-fixed EL1 load produced no value before `Non Secure Watchdog Bark`, while the
-separate control-node route recorded one failed read and zero writes.  These
-facts are `PROVED` only for the bounded candidates.  Global reachability,
-alternate apertures, runtime register state, watchdog causality, ordering,
-mutability and bypass remain `UNKNOWN`.  The result remains `CLASS C
-(TRANSFORM ONLY)` / `NOT_ELIGIBLE`; the later 020K/020L static follow-ups
-remain host-only and read-only.
-The 13,885-byte manifest has SHA-256
-`b4135f22bff47df22cda674eeabfff909ef4d3bc2a1843b358be7556b6d5ff02`; focused
-tests are 9/9 PASS and no device action occurred.  See
-`docs/VERIFICATION1B_REACHABILITY_REVIEW_2026-08-27.md`.
+host-only reconciliation. Both selector branches enumerate the same eight
+known remapper/BIMC candidates, and all eight fall inside retained broad
+TZ-owned raw policy rows. The old bit-3 HLOS predicate does not discriminate
+the relevant live-driver pages from the non-return page, so address coverage is
+not an effective HLOS/all-master denial. The narrow `0x09248080` row is branch-
+invariant; the fixed EL1 load produced no value before `Non Secure Watchdog
+Bark`, while the control executed zero MMIO loads. Static coverage and the
+non-return are `PROVED` for the bounded candidates; the refusing agent, global
+reachability, alternate apertures/initiators, runtime register state, ordering,
+mutability and bypass remain `UNKNOWN`. The result remains operationally
+`CLASS C (TRANSFORM ONLY)` / `NOT_ELIGIBLE`; later 020K/020L work is bounded
+host-only evidence. The audit-corrected v2 manifest is
+`evidence/manifests/verification-1b-known-aperture-reachability-20260829-02.manifest.json`,
+24,690 bytes, SHA-256
+`da1f03f728435421dc3a33b25914117e8a098f443b599b7f50ccff51154b4fe3`;
+focused tests are 9/9 PASS and no device action occurred. The historical
+`docs/VERIFICATION1B_REACHABILITY_REVIEW_2026-08-27.md` is retained, but its
+HLOS interpretation is superseded by the current report.
 
 Verification 020A is now complete as a separate host-only static trace.  The
 exact setter `[0x9fc06410,0x9fc0643c)` has five static stores: one `XZR` zero
@@ -643,8 +660,9 @@ the host-only caller-object origin trace (020B), not a device write.
 - Experiment 013 proves both exact TZ selector branches place the complete
   `0x09065100–0x09065fff` snapshot workspace inside three enabled, TZ-owned
   regions. The exact narrow region is `DC_NOC_NON_BROADCAST_MPU` region 5 at
-  `0x09060000–0x0906ffff`; all six branch/region matches exclude ordinary HLOS
-  read and write.
+  `0x09060000–0x0906ffff`; all six branch/region raw rows are retained. Their
+  actor/path meaning and effective live access are not established by the old
+  bit-3 predicate.
 - Experiment 013's fixed no-load control mapped/unmapped snapshot word
   `0x0906566c` and returned `0xc071`. The paired body differs by exactly one
   32-bit instruction (`MOVZ` versus `LDR W`); the one-load path returned no
@@ -666,9 +684,9 @@ the host-only caller-object origin trace (020B), not a device write.
   `0x09248080`. Its raw access words are `0x80000000/0x00000000`, not
   `0x80/0x80`.
 - The pinned exact TZ conversion path produces zero standard VMID permission
-  words and client-permission bytes `0x11/0x08`: TZ-owner read/write plus
-  MSA-class read-only, with no ordinary HLOS VMID grant. Exact devcfg sets
-  `/ac/xpu:disable_xpu_ac = 0`.
+  words and client-permission bytes `0x11/0x08`; those raw outputs and the owner
+  field are exact. The old MSA/HLOS narrative is not a proved actor mapping.
+  Exact devcfg sets `/ac/xpu:disable_xpu_ac = 0`.
 - The exact TZ error router assigns `DC_NOC_BROADCAST_MPU` to global status
   bank 0 bit 29 and also assigns all four BIMC MPUs. `BIMC_MPU0..3` are absent
   from both embedded static policy lists.
@@ -685,7 +703,8 @@ the host-only caller-object origin trace (020B), not a device write.
   so this is not an arbitrary HLOS XPU-write or disable primitive.
 - Both exact TZ selector branches cover every known remapper and BIMC
   configuration aperture with TZ-owned `MEMNOC_MS_MPU` region 0 and
-  `CNOC_SNOC_MS_MPU` region 5; neither record grants ordinary HLOS VMID access.
+  `CNOC_SNOC_MS_MPU` region 5. This is static address coverage; effective
+  initiator/client permission and overlap precedence remain `UNKNOWN`.
 - The boot master-MPU loop initializes `ANOC2_MPU`, `MSS_NAV_MPU`, and
   `CNOC_AOSS_MPU`, not `BIMC_MPU0..3`. XBL's BIMC literals are in a TZ-branded
   XPU diagnostic table and do not prove a main-XBL policy writer.
@@ -712,10 +731,10 @@ the host-only caller-object origin trace (020B), not a device write.
   records a bark at 69.080426 s, last pet at 58.080136 s, bootloader cause
   `Non Secure Watchdog Bark`, and warm reset. `SUPPORTED`: the one fixed load,
   rather than mapping alone, triggered the stall. The result does not identify
-  a firewall, XPU, clock/power, or ownership cause by itself. Combined with
-  Experiment 009, an active `DC_NOC_BROADCAST_MPU` denial is now `SUPPORTED`,
-  not yet causally `PROVED` because no decoded syndrome or runtime register
-  readback exists.
+  a firewall, XPU, QHEE/stage-2, clock/power, or ownership cause by itself.
+  Static Experiment 009 does not promote that cause: the retained EL2 fault
+  structure, missing MMIO positive control, absent decoded syndrome, and absent
+  runtime policy readback leave the refusing agent `UNDECIDABLE`.
 - Verification 001 independently re-derived seven load-bearing static claims
   from the raw bytes without reusing any repository tool, and all seven were
   `CONFIRMED`. The full Experiment 009 chain resolves end to end: registry
@@ -726,11 +745,11 @@ the host-only caller-object origin trace (020B), not a device write.
   `0x0200030f` is a single `RET` (`0xd65f03c0`); the SHRM helper's decisive
   instructions decode byte-exactly as `slli a9, a9, 12` and
   `addx4 a12, a12, a9`.
-- `PROVED` by that audit and previously underweighted: region 11's write access
-  word is `0x00000000`, so **no** client class holds write permission, not
-  merely no ordinary HLOS VMID. `DC_NOC_NON_BROADCAST_MPU` region 5 matches.
-  Sibling regions 12 and 13 carry `0x40000000/0x40000000` and
-  `0xf0000000/0xf0000000`, so the write denial is deliberate, not a default.
+- `PROVED` raw fact: region 11's write access word is `0x00000000`, and
+  `DC_NOC_NON_BROADCAST_MPU` region 5 matches; sibling regions 12 and 13 carry
+  `0x40000000/0x40000000` and `0xf0000000/0xf0000000`. A flat “zero means no
+  client can write” interpretation is refuted by the live CNOC_AOSS watchdog
+  counterexample; client actor, instance and effective path remain `UNKNOWN`.
 - The audit checks static facts only. It does not verify their security
   interpretation, and every `UNKNOWN` in section D stands unchanged.
 - Verification 002 proves exact XBL has a consumed 26-record raw-dump table at
@@ -1024,7 +1043,8 @@ the host-only caller-object origin trace (020B), not a device write.
 - “The critical policy word is `0x80`.” The exact little-endian uint32 field is
   `0x80000000`.
 - “The critical static record grants ordinary HLOS access.” Its exact
-  conversion has no HLOS VMID bit and no standard VMID permission word.
+  conversion has no bit-3 VMID marker and no standard VMID permission word, but
+  that bit-3 predicate is non-discriminating and does not settle HLOS access.
 - “`BIMC_MPU0..3` are unconfigured because they are absent from both static
   policy lists.” Exact TZ memory-lock code configures them dynamically.
 - “Kernel `hyp_assign` directly programs TZ's BIMC XPU.” Exact QHEE intercept
@@ -1044,8 +1064,8 @@ the host-only caller-object origin trace (020B), not a device write.
   write primitive.” The exact SHRM helper proves four-byte scaling and read
   direction for both direct consumers.
 - “The SHRM snapshot workspace is statically unprotected or granted to HLOS.”
-  Both exact policy branches cover it with the same three TZ-owned regions and
-  no comparative HLOS VMID bit.
+  Both exact policy branches cover it with the same three TZ-owned raw rows.
+  This proves static coverage, not effective HLOS denial or grant.
 - “The purpose-built direct EL1 path can observe staged MCCC snapshot word
   `0x0906566c` on this boot.” The only eligible one-load attempt returned no
   value and ended in a non-secure watchdog reset.
@@ -1236,8 +1256,10 @@ source-visible PA inputs. `REFUTED`: current-kernel userland `/dev/mem` access.
 `REFUTED`: the generic REPL call chain as a safe read adapter. `PROVED`: a
 fixed inline map/unmap control can return safely; a paired one-load execution
 returned no value and ended in watchdog reset. `PROVED`: its PA is in a
-TZ-owned static XPU region with no HLOS grant. `SUPPORTED`: XPU/fabric denial;
-final runtime policy remains `UNKNOWN`. Exact XBL's post-reset raw-dump catalog
+TZ-owned static XPU row with raw read word `0x80000000` and write word zero.
+`UNKNOWN`: the raw client actor, effective path, final runtime policy, and
+whether XPU, QHEE/stage-2, fabric/power, or the instrument caused non-return.
+Exact XBL's post-reset raw-dump catalog
 and one real export are `PROVED`, but they are not an EL1/HLOS runtime API.
 `PROVED`: EL1-visible `/proc/kpageflags`, non-secure ION CMA, CNTVCT and normal
 RAM timing expose the low-24 bank equivalence relation without controller MMIO.
@@ -1256,8 +1278,9 @@ runtime R/W, DDR decode ownership and final protection ordering.
 
 `PROVED`: SCM MP is the kernel-facing boundary. Exact TrustZone consumes its
 48-entry XPU registry; both static-policy branches configure
-`DC_NOC_BROADCAST_MPU` region 11 over the tested remapper PA as TZ-owned with no
-HLOS grant, and exact devcfg does not disable XPU access control. Its separate
+`DC_NOC_BROADCAST_MPU` region 11 over the tested remapper PA as TZ-owned with
+the same raw permission words, and exact devcfg does not disable XPU access
+control. The actor naming and effective final path remain `UNKNOWN`. Its separate
 assignment fallback dynamically configures `BIMC_MPU0..3`; the XPU-disable SMC
 has a zero-entry allowlist. `UNKNOWN`: final register readback and whether any
 check is after final DRAM decode.
@@ -1590,11 +1613,11 @@ Evidence against a presently usable bypass:
 - Exact QHEE ownership/stage-2/SMMU enforcement is separate from TZ's dynamic
   BIMC policy, adding a second boundary rather than exposing generic control.
 - Every known remapper/BIMC configuration aperture is covered in both static
-  TZ policy branches, and the only identified HLOS-visible XPU toggle has a
-  zero-entry disable allowlist.
-- The complete SHRM snapshot workspace is independently covered by three
-  enabled TZ-owned regions in both policy branches, with no ordinary HLOS read
-  or write grant.
+  TZ policy branches, and the identified HLOS-visible XPU toggle has a zero-
+  entry disable allowlist. Coverage does not determine effective initiator path.
+- The complete SHRM snapshot workspace is covered by three enabled TZ-owned raw
+  policy regions in both branches. The shipped bit-3 predicate does not prove an
+  ordinary-HLOS denial, and the overlapping rows are not independent live tests.
 - The purpose-built paired test separated mapping from access: map/unmap passed,
   while the sole extra load produced no value and a retained non-secure watchdog
   reset. This is strong evidence against usable direct EL1 visibility.
@@ -1608,21 +1631,22 @@ Evidence against a presently usable bypass:
   independently make the AMD attack class fail.
 - Exact TrustZone firmware names multiple BIMC/MEMNOC/LLCC MPUs, increasing the
   concrete evidence for additional enforcement layers. Experiment 009 proves
-  narrow DC_NOC coverage of the tested remapper PA; Experiment 010 proves
-  broad branch-invariant no-HLOS coverage for all known remapper/BIMC apertures
-  and a separate dynamic BIMC policy path.
+  narrow DC_NOC raw-row coverage of the tested remapper PA; Experiment 010
+  proves broad branch-invariant address coverage and a separate dynamic BIMC
+  policy path, not effective HLOS/all-master denial.
 - Exact devcfg leaves XPU access control enabled (`disable_xpu_ac=0`), and the
   boot path consumes the selected static policy table.
 
 Critical unknowns are exact set-0 register semantics, any normal-HLOS runtime
 export, hash-register identity and encoding, lock/writability state, indirect
-reverse-direction use, physical attribution of the model bit-24 contribution,
-PA25..31 contributions, final XPU/remapper/MCCC/MC readback, dynamic BIMC
-policy inputs, protection ordering, and deterministic complete-coordinate
-alias behavior. Site 35 is closed only inside the bounded static model;
+reverse-direction use, physical attribution of the model bit-24 and high-bit
+contributions, semantic coordinates, final XPU/remapper/MCCC/MC readback,
+effective initiator/path and overlapping-policy selection, dynamic BIMC policy
+inputs, protection ordering, and deterministic complete-coordinate alias
+behavior. Site 35 is closed only inside the bounded static model;
 runtime execution/current destination remain unknown.
 The `DAIFClr` current exception level and `CheckDAIFAccess` result also remain
 unknown. The defensible current conclusion is
-`NORMAL-RAM LOW-24 XOR BANK HASH PROVED / SECURE CONTROLLER APERTURES PROVED /
-TRANSFORM MUTATION AND COMPLETE-COORDINATE ALIAS UNPROVED / NO BOUNDARY BYPASS
-OBSERVED`.
+`BOUNDED LOW-BIT C-MAP STRONGLY SUPPORTED / HIGH-BIT PHYSICAL PROVENANCE,
+MUTATION, REACH, POLICY-PATH, ORDER AND GLOBAL ALIAS UNRESOLVED / NO CLASS D/E
+EFFECT OBSERVED`.

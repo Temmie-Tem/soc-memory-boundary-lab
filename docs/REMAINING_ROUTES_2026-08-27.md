@@ -1,5 +1,12 @@
 # The four remaining routes, and what closes each
 
+> **AUDIT RECONCILIATION — 2026-08-29.** This file remains a route-history
+> document. Its current synthesis is
+> [FINAL_REPORT_2026-08-29.md](FINAL_REPORT_2026-08-29.md). The two-audit verdict
+> reopens route 1 at physical provenance, narrows route 2 to a confirmed
+> instance-0 non-return with unknown cause, retains only the signed replacement
+> closure of route 3, and closes route 4 only for the exact deep-suspend state.
+
 > Integration note (2026-08-27): the external V019 analyzer/manifest is now
 > backed by retained regular-file receipts for the original and an independent
 > second deep suspend (`1bc494e`).  Both runs are `MAP_INVARIANT`; the bounded
@@ -16,12 +23,13 @@ finding as a limit the target enforces.
 
 | Route | Closed by | Kind |
 |---|---|---|
-| PA28 and above | no non-secure contiguous region large enough exists | fact about the device |
-| Enforcement ordering | register unidentified; candidates unreachable from EL1 | **measured access control** |
-| DCB topology tampering | contract, failure position, and image signature | contract **and** cryptography |
-| Other state changes | a stronger perturbation already passed | measurement |
+| PA28 and above | low-bit/model evidence exists; actual high-bit PFN/SG provenance remains open | conditional model evidence; observer gap |
+| Enforcement ordering | one exact instance-0 EL1 load did not return; refusing agent and ordering are unknown | **hardware non-return**, not measured access control |
+| DCB topology tampering | replacement path: contract, failure position, and image signature; global runtime writer remains unknown | contract **and** cryptography, plus bounded static negatives |
+| Other state changes | two exact deep suspends were negative; other handlers are not subsumed | measurement for deep suspend only |
 
-Only one is closed by the contract alone.
+Only route 3's signed replacement path has a contract closure; the route as a
+global writer question is not closed.
 
 ## 1. PA28 and above
 
@@ -94,7 +102,7 @@ improves is measurement efficiency, not allocation size.
 `UNKNOWN`: whether the duplication pattern of PA25..PA27 continues, or whether
 the relation changes character at the rank boundary `0x140000000`.
 
-## 2. Enforcement ordering — the strongest result here
+## 2. Enforcement ordering — non-return measured, cause unresolved
 
 Verification 017 closed half of this by granularity: a check reading only
 post-decode **bank** coordinates could not separate protected from unprotected
@@ -110,23 +118,25 @@ MCCC/MC writes" inside the permitted bound, with `docs/WRITE_GATE_<experiment>.m
 as the recording mechanism. An earlier version of Verification 017 said
 otherwise and was corrected.
 
-What blocks it is measured, and it is the more interesting answer:
+What is measured is narrower than a protection-boundary verdict:
 
 - **The register is not identified.** Experiment 028 found nothing carrying this
   relation among the observed register set, and `docs/PRIOR_ART.md` still lists
   its encoding, writer and lock as unproved.
-- **The candidates are unreachable from EL1.** `docs/MEMORY_MAP.md` records
-  `MEMNOC_MS_MPU` region 0 and `CNOC_SNOC_MS_MPU` region 5 as `PROVED` TZ-owned
-  in both TZ branches, each *independently* covering all eight known
-  remapper/BIMC addresses with no HLOS VMID grant, and `DC_NOC_BROADCAST_MPU`
-  region 11 likewise. One fixed EL1 load at `0x09248080` returned no value and
-  ended in a watchdog reset. `/dev/mem` is absent under `CONFIG_DEVMEM=n`.
+- **The exact instance-0 direct load is non-returning.** One fixed EL1 load at
+  `0x09248080` returned no value and ended in a watchdog reset. `/dev/mem` is
+  absent under `CONFIG_DEVMEM=n`. The paired control executed zero MMIO loads,
+  so neither the successful-read capability nor XPU causality was established.
+- **The static rows are address coverage, not a flat HLOS verdict.** Both TZ
+  branches contain broad records covering the eight known addresses and the
+  instance-0 narrow raw row. The old bit-3 HLOS predicate does not discriminate
+  five HLOS-driver DDRSS pages from the non-return page; client actor, overlap,
+  effective instance/path, and final live policy remain `UNKNOWN`.
 
-**Literature corroborates and adds no way through.** Qualcomm's own
-documentation describes the three-part scheme — VMIDMT applies security
-attributes to transactions, XPU enforces policy per security domain, SMMU
-covers the primary side — and characterises XPU as *target-side*, protecting
-against all initiators equally. No published XPU bypass technique was found.
+Qualcomm's public architecture material supports a transaction attribute,
+target-policy, and SMMU/XPU stack, but it does not prove that all initiators
+take the same exact A90 path or that these static rows equal final live policy.
+No published result supplies the missing exact-target cause or ordering.
 
 A second literature result is worth recording for its own sake: **no published
 DRAM address-mapping function exists for SM8150/SDM855.** DRAMA, Sudoku
@@ -173,8 +183,8 @@ authentication at boot. The container proves the image is signed; it does not by
 itself prove this device's XBL enforces verification of `xbl_config` under an
 unlocked bootloader. Samsung unlock conventionally exempts only
 boot/recovery/vbmeta, and the chain is anchored in fuses, so enforcement is
-likely — but it is not measured here, and would not be worth measuring, because
-routes 1 and 2 close it anyway.
+likely — but it is not measured here. A live authentication test is outside the
+standing recovery boundary and is not made necessary by this report.
 
 ## 4. Other state changes
 
@@ -185,8 +195,7 @@ original run is corroborated by `CLOCK_BOOTTIME` minus `CLOCK_MONOTONIC`,
 `suspend_stats/success`, and RPMh `master_stats` recording APSS `Sleep Count:
 0x1` for 24.96 s.
 
-The rest of the row follows from that, and the reasoning should be stated
-rather than assumed:
+The other candidates must be kept separate by handler and state:
 
 | Candidate | Status |
 |---|---|
@@ -196,11 +205,11 @@ rather than assumed:
 | modem SSR | inferred: the DRAM controller is APSS/AOP territory. **Untested** |
 | AOP-driven retraining | AOP runtime DDR management is `PROVED`, but no Normal-World trigger is known |
 
-Deep suspend is a strictly stronger perturbation than any of the last three —
-DDR self-refresh *plus* an APSS power collapse. A map that survives losing power
-does not plausibly move on a frequency change. The row is therefore closed by
-subsumption, not by having tested each entry; the two retained runs directly
-close the deep-suspend candidate while leaving other mechanisms `UNKNOWN`.
+The two retained runs directly close the exact deep-suspend candidate. They do
+not close the other rows: physical perturbation magnitude does not order the
+set of firmware handlers executed, and OPP/PASR/SSR can follow paths not taken
+by suspend/resume. Those mechanisms remain `UNKNOWN`, not negative by
+subsumption.
 
 ### Post Package Repair — a mechanism this project had not considered
 
@@ -217,8 +226,9 @@ That is the Skitter shape more directly than anything examined here.
 
 It does not open a route:
 
-- PPR is driven by mode-register-set commands from the memory controller, so it
-  needs exactly the controller access route 2 shows to be unreachable from EL1.
+- PPR is driven by mode-register-set commands from the memory controller. The
+  instance-0 APSS non-return does not establish whether an indirect or alternate
+  initiator can issue those commands.
 - Hard PPR is fuse-backed and **irreversible**, placing it outside the standing
   authorization outright, which binds on persistence.
 - Whether SM8150's controller exposes PPR at all, and whether this LPDDR4X part
@@ -226,21 +236,19 @@ It does not open a route:
 
 **No published security research on PPR abuse was found** — the material is
 patents and vendor documentation. It is an unexplored area in the literature,
-and it is behind the same measured wall as route 2.
+and its exact control path remains unresolved with route 2.
 
 ## What this adds up to
 
-Three of the four routes are closed by facts about the target rather than by
-decisions this project made. Route 2 is the substantive one, and it is not an
-absence of results: XPU is target-side and enforces against all initiators, the
-remapper apertures are TZ-owned with no HLOS grant, and the one EL1 attempt
-ended in a watchdog reset. Route 4's newly identified mechanism lands behind the
-same wall, which is corroboration rather than coincidence.
+The audits do not support three route closures. Route 1 retains a strong bounded
+low-bit result but is open at high-bit physical provenance. Route 2 proves one
+non-return, while its refusing agent, other initiators and ordering remain
+unknown. Route 3 strongly closes only the signed replacement path. Route 4 is
+negative only for the two deep-suspend acquisitions.
 
-The honest form of the conclusion is therefore narrower than "SM8150 is not
-affected" and stronger than "we ran out of ideas": **the premise is structurally
-available and the transform is reachable only from behind an access-control
-boundary that held every time it was tested.**
+The current one-line result is therefore: **bounded low-bit `C-MAP` strongly
+supported; high-bit physical provenance, mutation, reach, final policy/path,
+ordering and global alias unresolved; no Class D/E effect observed.**
 
 ## Sources consulted
 

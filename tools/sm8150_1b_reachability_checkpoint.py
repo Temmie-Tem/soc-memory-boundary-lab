@@ -3,10 +3,12 @@
 
 This is a host-only reconciliation of already-public, hash-pinned evidence.
 It verifies that the eight known qhs_llcc-remapper/BIMC candidates are covered
-by both broad TrustZone-owned policy ranges with no HLOS grant, and retains the
-separate fixed-EL1 watchdog and ``/dev`` read-failure observations.  It does
-not claim global Normal-World reachability, final runtime register state, or
-the absence of an alternate aperture.
+by both broad TrustZone-owned raw policy ranges, and retains the separate
+fixed-EL1 watchdog and ``/dev`` read-failure observations.  Legacy bit-3 HLOS
+labels are preserved as source fields but are not treated as a discriminating
+access verdict.  The effective initiator/path, refusing agent, global
+Normal-World reachability, final runtime register state, and alternate
+apertures remain unresolved.
 """
 
 from __future__ import annotations
@@ -24,8 +26,8 @@ from typing import Any, Sequence
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 MEMORY_MAP_NAME = "MEMORY_MAP.md"
-MEMORY_MAP_SIZE = 9_428
-MEMORY_MAP_SHA256 = "34496c0d92736f7df5b9da69f8bcadfe40fb3ee35558c1b10fab7d06dec86950"
+MEMORY_MAP_SIZE = 10_718
+MEMORY_MAP_SHA256 = "af44a5e7cf3afd2fa8bd3b75c9ab9f6c6f5edefdabb47f552eeafc08ffbc0108"
 
 POLICY_009_NAME = "009-xpu-policy-inventory-20260825-01.manifest.json"
 POLICY_009_SIZE = 60_193
@@ -43,7 +45,7 @@ DEVMEM_005_NAME = "005-icb-remapper-control-node-20260825-01.manifest.json"
 DEVMEM_005_SIZE = 1_819
 DEVMEM_005_SHA256 = "35e96ea34bb2d2fea643edcd408710e44c6a936d7ef395859db119d0fa5d31e3"
 
-SCHEMA = "sm8150-1b-known-aperture-reachability-checkpoint-v1"
+SCHEMA = "sm8150-1b-known-aperture-reachability-checkpoint-v2"
 EXPERIMENT_ID = "1b-known-aperture-reachability-checkpoint"
 MODE = "HOST_ONLY_READ_ONLY"
 
@@ -61,17 +63,17 @@ KNOWN_ADDRESSES = frozenset(
 )
 
 _MEMORY_MAP_ROWS = (
-    ("0x00000000–0x0fffffff", "MEMNOC_MS_MPU", "enabled/TZ-owned", "no HLOS VMID grant"),
-    ("0x09000000–0x097fffff", "CNOC_SNOC_MS_MPU", "enabled/TZ-owned", "no HLOS VMID grant"),
-    ("0x09248000–0x09248fff", "DC_NOC_BROADCAST_MPU", "enabled, TZ-owned", "no HLOS grant"),
+    ("0x00000000–0x0fffffff", "MEMNOC_MS_MPU", "enabled/TZ-owned", "Raw client-vector meaning"),
+    ("0x09000000–0x097fffff", "CNOC_SNOC_MS_MPU", "enabled/TZ-owned", "second overlapping record"),
+    ("0x09248000–0x09248fff", "DC_NOC_BROADCAST_MPU", "raw read word", "effective live path"),
     ("0x09248080–0x092480d8", "qhs_llcc remapper instance 0", "PROVED", "watchdog"),
-    ("0x0924e000", "BIMC_MPU0", "PROVED", "broad branch-invariant no-HLOS policies"),
-    ("0x092c8080–0x092c80d8", "qhs_llcc remapper instance 1", "PROVED", "broad branch-invariant TZ-owned/no-HLOS coverage"),
-    ("0x092ce000", "BIMC_MPU1", "PROVED", "broad no-HLOS coverage"),
-    ("0x09348080–0x093480d8", "qhs_llcc remapper instance 2", "PROVED", "broad branch-invariant TZ-owned/no-HLOS coverage"),
-    ("0x0934e000", "BIMC_MPU2", "PROVED", "broad no-HLOS coverage"),
-    ("0x093c8080–0x093c80d8", "qhs_llcc remapper instance 3", "PROVED", "broad branch-invariant TZ-owned/no-HLOS coverage"),
-    ("0x093ce000", "BIMC_MPU3", "PROVED", "broad no-HLOS coverage"),
+    ("0x0924e000", "BIMC_MPU0", "PROVED", "raw policy coverage"),
+    ("0x092c8080–0x092c80d8", "qhs_llcc remapper instance 1", "PROVED", "raw policy coverage"),
+    ("0x092ce000", "BIMC_MPU1", "PROVED", "raw policy coverage"),
+    ("0x09348080–0x093480d8", "qhs_llcc remapper instance 2", "PROVED", "raw policy coverage"),
+    ("0x0934e000", "BIMC_MPU2", "PROVED", "raw policy coverage"),
+    ("0x093c8080–0x093c80d8", "qhs_llcc remapper instance 3", "PROVED", "raw policy coverage"),
+    ("0x093ce000", "BIMC_MPU3", "PROVED", "raw policy coverage"),
 )
 
 
@@ -179,8 +181,11 @@ def _parse_policy_009(manifest: dict[str, Any]) -> dict[str, Any]:
         raise ReachabilityError("009 tested address changed")
     if critical.get("tested_address_covered") is not True or critical.get("selector_branch_invariant") is not True:
         raise ReachabilityError("009 critical coverage invariant changed")
-    if critical.get("hlos_granted_by_static_record") is not False:
-        raise ReachabilityError("009 HLOS grant invariant changed")
+    if (
+        critical.get("hlos_granted_by_static_record") is not False
+        or critical.get("exact_constructed_client_permission_bytes") != ["0x11", "0x08"]
+    ):
+        raise ReachabilityError("009 legacy decode fields changed")
     branch_summary: dict[str, Any] = {}
     for branch in ("selector_result_ge_2", "selector_result_lt_2"):
         table = tables.get(branch)
@@ -205,6 +210,13 @@ def _parse_policy_009(manifest: dict[str, Any]) -> dict[str, Any]:
             or decode.get("hlos_present_in_write_mask") is not False
             or decode.get("standard_vmid_read_bits") != "0x00000000"
             or decode.get("standard_vmid_write_bits") != "0x00000000"
+            or decode.get("client_permission_bytes") != ["0x11", "0x08"]
+            or decode.get("client_permission_fields") != {
+                "nonsecure_client_ro_vector": 2,
+                "nonsecure_client_wo_vector": 0,
+                "secure_client_ro_vector": 1,
+                "secure_client_wo_vector": 1,
+            }
         ):
             raise ReachabilityError(f"009 permission decode changed {branch}")
         branch_summary[branch] = {
@@ -214,21 +226,37 @@ def _parse_policy_009(manifest: dict[str, Any]) -> dict[str, Any]:
                 "index": region["index"],
             },
             "owner": decode["owner"],
-            "hlos_read": decode["hlos_present_in_read_mask"],
-            "hlos_write": decode["hlos_present_in_write_mask"],
-            "static_policy_interpretation": decode.get("static_policy_interpretation", "REDACTED"),
+            "raw_read_vmid": region["read_vmid"],
+            "raw_write_vmid": region["write_vmid"],
+            "legacy_bit3_read_marker": decode["hlos_present_in_read_mask"],
+            "legacy_bit3_write_marker": decode["hlos_present_in_write_mask"],
+            "standard_vmid_read_bits": decode["standard_vmid_read_bits"],
+            "standard_vmid_write_bits": decode["standard_vmid_write_bits"],
+            "client_permission_bytes": decode["client_permission_bytes"],
+            "client_permission_fields": decode["client_permission_fields"],
+            "legacy_formatter_narrative": decode.get("static_policy_interpretation", "REDACTED"),
+            "effective_actor_and_path": "UNKNOWN",
         }
     return {
         "schema": manifest["schema"],
         "tested_address": tested["physical_address"],
         "selector_branch_invariant": True,
         "tested_address_covered": True,
-        "static_hlos_grant": False,
+        "legacy_static_hlos_grant_field": False,
+        "bit3_predicate_discriminating": False,
+        "effective_hlos_access": "UNKNOWN",
         "branches": branch_summary,
     }
 
 
-def _validate_hit(hit: Any, resource: str, start: str, end: str) -> None:
+def _validate_hit(
+    hit: Any,
+    resource: str,
+    start: str,
+    end: str,
+    read_vmid: str,
+    write_vmid: str,
+) -> None:
     if not isinstance(hit, dict):
         raise ReachabilityError("010 policy hit is malformed")
     if (
@@ -238,6 +266,8 @@ def _validate_hit(hit: Any, resource: str, start: str, end: str) -> None:
         or hit.get("owner") != "TZ"
         or hit.get("hlos_read") is not False
         or hit.get("hlos_write") is not False
+        or hit.get("read_vmid") != read_vmid
+        or hit.get("write_vmid") != write_vmid
     ):
         raise ReachabilityError(f"010 policy hit changed for {resource}")
 
@@ -253,7 +283,7 @@ def _parse_initializer_010(manifest: dict[str, Any]) -> dict[str, Any]:
     if policy.get("branch_invariant_broad_coverage") is not True or policy.get("broad_protectors") != list(BROAD_PROTECTORS):
         raise ReachabilityError("010 broad policy invariant changed")
     if policy.get("static_hlos_grant") is not False:
-        raise ReachabilityError("010 static HLOS grant invariant changed")
+        raise ReachabilityError("010 legacy static-HLOS field changed")
     branches = policy.get("selector_branches")
     if not isinstance(branches, dict):
         raise ReachabilityError("010 selector branches are malformed")
@@ -283,19 +313,52 @@ def _parse_initializer_010(manifest: dict[str, Any]) -> dict[str, Any]:
                     broad_hits[hit["resource"]] = hit
             if set(broad_hits) != set(BROAD_PROTECTORS):
                 raise ReachabilityError(f"010 broad protectors missing at {address}")
-            _validate_hit(broad_hits["MEMNOC_MS_MPU"], "MEMNOC_MS_MPU", "0x00000000", "0x10000000")
-            _validate_hit(broad_hits["CNOC_SNOC_MS_MPU"], "CNOC_SNOC_MS_MPU", "0x09000000", "0x09800000")
+            _validate_hit(
+                broad_hits["MEMNOC_MS_MPU"],
+                "MEMNOC_MS_MPU",
+                "0x00000000",
+                "0x10000000",
+                "0x80000000",
+                "0x80000000",
+            )
+            _validate_hit(
+                broad_hits["CNOC_SNOC_MS_MPU"],
+                "CNOC_SNOC_MS_MPU",
+                "0x09000000",
+                "0x09800000",
+                "0xf0000000",
+                "0xf0000000",
+            )
             if address == "0x09248080":
                 dc_hits = [hit for hit in hits if isinstance(hit, dict) and hit.get("resource") == "DC_NOC_BROADCAST_MPU"]
                 if len(dc_hits) != 1:
                     raise ReachabilityError("010 tested DC_NOC region missing or duplicated")
-                _validate_hit(dc_hits[0], "DC_NOC_BROADCAST_MPU", "0x09248000", "0x09249000")
+                _validate_hit(
+                    dc_hits[0],
+                    "DC_NOC_BROADCAST_MPU",
+                    "0x09248000",
+                    "0x09249000",
+                    "0x80000000",
+                    "0x00000000",
+                )
             by_address[address] = {
                 "address": address,
                 "broad_protectors": list(BROAD_PROTECTORS),
                 "tz_owned": True,
-                "hlos_read": False,
-                "hlos_write": False,
+                "legacy_bit3_read_marker": False,
+                "legacy_bit3_write_marker": False,
+                "raw_policy_rows": [
+                    {
+                        "resource": resource,
+                        "start": broad_hits[resource]["start"],
+                        "end_exclusive": broad_hits[resource]["end_exclusive"],
+                        "owner": broad_hits[resource]["owner"],
+                        "read_vmid": broad_hits[resource]["read_vmid"],
+                        "write_vmid": broad_hits[resource]["write_vmid"],
+                    }
+                    for resource in BROAD_PROTECTORS
+                ],
+                "effective_hlos_access": "UNKNOWN",
             }
         branch_summary[branch] = {
             "selector_predicate": record.get("selector_predicate", "REDACTED"),
@@ -438,16 +501,20 @@ def build_manifest(repository_root: Path = REPO_ROOT) -> dict[str, Any]:
             "selector_branches": initializer["selector_branches"],
             "all_branches_cover_all_candidates": True,
             "all_hits_tz_owned": True,
-            "all_hits_no_hlos_read": True,
-            "all_hits_no_hlos_write": True,
+            "all_hits_legacy_bit3_clear_read": True,
+            "all_hits_legacy_bit3_clear_write": True,
+            "bit3_predicate_discriminating": False,
+            "effective_hlos_access": "UNKNOWN",
             "policy_009_tested_dc_noc": policy,
             "memory_map_anchors": memory_map,
         },
         "reachability": {
-            "known_aperture_policy": "PROVED_BROAD_TZ_OWNED_NO_HLOS_STATIC_COVERAGE",
+            "known_aperture_policy": "PROVED_BROAD_TZ_OWNED_RAW_STATIC_COVERAGE",
             "fixed_el1_watchdog": watchdog,
             "devmem_route": devmem,
-            "known_aperture_normal_world_reachability": "SUPPORTED_BLOCKED_FOR_TESTED_STATIC_POLICY",
+            "direct_instance_0_nonreturn": "CONFIRMED",
+            "known_aperture_normal_world_reachability": "UNDECIDABLE_FROM_STATIC_POLICY_AND_NONRETURN",
+            "refusing_agent": "UNDECIDABLE",
             "global_normal_world_reachability": "UNKNOWN",
             "alternate_apertures": "UNKNOWN",
             "final_runtime_register_state": "UNKNOWN",
@@ -458,8 +525,11 @@ def build_manifest(repository_root: Path = REPO_ROOT) -> dict[str, Any]:
             "policy_branches": 2,
             "broad_policy_coverage": True,
             "tz_ownership": True,
-            "hlos_grant": False,
+            "legacy_bit3_marker": False,
+            "bit3_predicate_discriminating": False,
+            "effective_hlos_access": "UNKNOWN",
             "fixed_el1_watchdog_is_causal": "UNKNOWN",
+            "refusing_agent": "UNDECIDABLE",
             "global_reachability": "UNKNOWN",
             "runtime_register_readback": "UNKNOWN",
             "alternate_apertures": "UNKNOWN",
@@ -470,17 +540,17 @@ def build_manifest(repository_root: Path = REPO_ROOT) -> dict[str, Any]:
             "PROVED": [
                 "The five public source artifacts are bound by regular-file, O_NOFOLLOW, size, content-stability, and SHA-256 checks.",
                 "Both exact 010 selector branches enumerate the same eight known qhs_llcc-remapper/BIMC candidate addresses.",
-                "Every known candidate has MEMNOC_MS_MPU and CNOC_SNOC_MS_MPU hits that are TZ-owned with no HLOS read or write grant.",
-                "The exact 009 policy evidence covers the tested 0x09248080 DC_NOC_BROADCAST_MPU region with no HLOS grant in both selector branches.",
+                "Every known candidate has MEMNOC_MS_MPU and CNOC_SNOC_MS_MPU hits whose exact TZ owner fields and raw permission words are retained.",
+                "The exact 009 policy evidence covers the tested 0x09248080 DC_NOC_BROADCAST_MPU region in both selector branches and retains raw words, standard-VMID fields, and the complete client permission vector.",
                 "The retained 007 fixed EL1 read produced no value and is followed by a recorded Non Secure Watchdog Bark, while the 005 control-node route failed before a read and recorded no write.",
             ],
-            "SUPPORTED": [
-                "The tested known-aperture route is strongly constrained from Normal World by the retained static policy and read-failure/watchdog evidence."
-            ],
+            "SUPPORTED": [],
             "HYPOTHESIS": [],
-            "REFUTED": [],
+            "REFUTED": [
+                "A false result from the retained bit-3 HLOS predicate is sufficient to identify an effective HLOS denial."
+            ],
             "UNKNOWN": [
-                "Global Normal-World reachability, alternate apertures, final runtime policy/register values, watchdog causality, enforcement ordering relative to the final DRAM transform, and any alias or bypass."
+                "Effective initiator/client access, overlap and instance selection, the refusing agent, global Normal-World reachability, alternate apertures, final runtime policy/register values, watchdog causality, enforcement ordering relative to the final DRAM transform, and any alias or bypass."
             ],
         },
         "boundary_bypass": {

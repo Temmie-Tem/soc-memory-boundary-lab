@@ -178,14 +178,15 @@ mutation; it narrows one `UNKNOWN` by exclusion.
 
 ```
 python3 tools/a90_protection_bank_granularity.py \
-  --output evidence/manifests/verification-017-protection-bank-granularity-20260827-05.manifest.json
+  --output evidence/manifests/verification-017-protection-bank-granularity-20260829-06.manifest.json
 python3 -m unittest -v tests.test_a90_protection_bank_granularity
 ```
 
 The output is created with `O_EXCL`/`O_NOFOLLOW`, mode `0644`, and no-clobber;
 the existing `...-01` file is the unpinned predecessor from the external branch
 and is retained only for provenance. No private inputs are read and the
-manifest is fully derived; it contains no device data. The fresh publication
-used for this revision is `...-05` (18,108 bytes, SHA-256
-`97ff68a2f8ebfb6313f228f2626f12f88260764a993f916ba1f97677d7b99f02`, mode
-`0644`).
+manifest is fully derived; it contains no device data. The audit-pin refresh
+used after the 2026-08-29 `MEMORY_MAP.md` interpretation correction is `...-06`
+(18,109 bytes, SHA-256
+`7a4d8c090f1c933abb25c7ffcb3ee45611cb013ede1d1271841ef3b13050b3f9`, mode
+`0644`). It changes the pinned source descriptor, not V017's bounded result.

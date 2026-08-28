@@ -1,5 +1,12 @@
 # Does Skitter apply to SM8150? — final report, 2026-08-27
 
+> **SUPERSEDED 2026-08-29.** This historical report is retained unchanged below
+> so both adversarial audits can continue to cite its exact sections and
+> sentences. For the current verdict vector and corrected attribution, use
+> [FINAL_REPORT_2026-08-29.md](FINAL_REPORT_2026-08-29.md). In particular, do
+> not carry forward this version's high-bit physical-measurement, “measured
+> access control,” flat HLOS-grant, or deep-suspend subsumption claims.
+
 **Result: `NO_BOUNDARY_BYPASS_OBSERVED`.
 Class `CLASS C (TRANSFORM ONLY)`, `NOT_ELIGIBLE`.**
 

@@ -1,5 +1,11 @@
 # A90 Memory Map — Static and Live Evidence
 
+> **Interpretation update — 2026-08-29.** Address containment, owner fields, and
+> raw permission words below remain static facts. The prior bit-3 HLOS predicate
+> is non-discriminating on the relevant six-address set, and bit30's actor name,
+> effective instance/path, overlap precedence, and final live policy are
+> `UNKNOWN`. See [FINAL_REPORT_2026-08-29.md](FINAL_REPORT_2026-08-29.md).
+
 Live snapshot: `001-baseline-live-20260825-01`
 
 Raw private SHA-256:
@@ -95,25 +101,25 @@ Experiment 006 adds exact firmware-backed physical landmarks:
 | Range/address | Role | Evidence/status |
 |---|---|---|
 | `0x09050000` | `qhs_shrm_csr` | `PROVED` exact XBL topology. |
-| `0x09060000` | `qhs_shrm_mem` | `PROVED`; DCB section 16 lands at `0x09065100` (`+0x5100`). Both exact TZ branches place its complete `0xf00` workspace in three TZ-owned regions with no HLOS grant. Fixed word `0x0906566c` map/unmap passed; one load returned no value and ended in non-secure watchdog reset. Exact XBL raw-dump record 19 covers `0x09060000..0x0906ffff`; Verification 012 collected the exact 64-KiB file through Samsung Upload. |
+| `0x09060000` | `qhs_shrm_mem` | `PROVED`; DCB section 16 lands at `0x09065100` (`+0x5100`). Both exact TZ branches place its complete `0xf00` workspace in three TZ-owned raw policy regions; translating those rows into effective HLOS denial is not proved. Fixed word `0x0906566c` map/unmap passed; one load returned no value and ended in non-secure watchdog reset, with the refusing agent `UNDECIDABLE`. Exact XBL raw-dump record 19 covers `0x09060000..0x0906ffff`; Verification 012 collected the exact 64-KiB file through Samsung Upload. |
 | `0x090b0000` | `qhs_mccc_master` | `PROVED` exact topology and section-16 base; coherent set 0 has `+0x294 = 0x00001111`; semantic role `UNKNOWN`. |
 | `0x090c0000` | `qhs_ddrss_regs` | `PROVED` exact `qhm_shrm` topology and matching section-16 base token `0x90c0`; token address semantics `SUPPORTED`. |
 | `0x090e0000` | TZ `DC_NOC_BROADCAST_MPU` configuration base | `PROVED` exact consumed registry and both static-policy descriptors. |
 | `0x090b4000` | TZ `DC_NOC_NON_BROADCAST_MPU` configuration base | `PROVED` exact registry, both static lists, and error route. |
 | `0x09102000` | `qhs_shrm_mpu_cfg` / TZ `DC_NOC_SHRM_MPU` | `PROVED` exact XBL topology, registry, both static lists, and error route. |
-| `0x00000000–0x0fffffff` | `MEMNOC_MS_MPU` region 0 | `PROVED` in both TZ branches: enabled/TZ-owned, covers all eight known remapper/BIMC configuration addresses, no HLOS VMID grant. |
-| `0x09000000–0x097fffff` | `CNOC_SNOC_MS_MPU` region 5 | `PROVED` in both TZ branches: enabled/TZ-owned, independently covers all eight known addresses, no HLOS VMID grant. |
-| `0x09248000–0x09248fff` | `DC_NOC_BROADCAST_MPU` region 11 | `PROVED` in both TZ selector branches: enabled, TZ-owned, MSA-class read-only, no HLOS grant. |
+| `0x00000000–0x0fffffff` | `MEMNOC_MS_MPU` region 0 | `PROVED` in both TZ branches: enabled/TZ-owned and statically covers all eight known remapper/BIMC configuration addresses. Raw client-vector meaning, active initiator path, and live enforcement remain `UNKNOWN`. |
+| `0x09000000–0x097fffff` | `CNOC_SNOC_MS_MPU` region 5 | `PROVED` in both TZ branches: enabled/TZ-owned and statically covers all eight known addresses. It is a second overlapping record, not an independent measured denial. |
+| `0x09248000–0x09248fff` | `DC_NOC_BROADCAST_MPU` region 11 | `PROVED` in both TZ selector branches: enabled/TZ-owned, raw read word `0x80000000`, raw write word `0x00000000`, and constructed client bytes retained. The actor names and effective live path are `UNKNOWN`. |
 | `0x09248080–0x092480d8` | qhs_llcc remapper instance 0 | `PROVED` exact XBL ICB writer and inside TZ policy region 11; one fixed EL1 load returned no value and ended in watchdog. |
 | `0x09250000`, `0x092d0000`, `0x09350000`, `0x093d0000` | per-channel `qhs_mccc` | `PROVED` exact SHRM topology; coherent set 0 has all four `+0x118 = 0x00111111`; final-decode semantics `UNKNOWN`. |
 | `0x09260000`, `0x092e0000`, `0x09360000`, `0x093e0000` | per-channel `qhs_mc` roots | `PROVED` exact topology; coherent set 0 exposes 18 common offsets, 17 identical groups and one two-by-two split; exact register semantics `UNKNOWN`. |
-| `0x0924e000` | `BIMC_MPU0` configuration base | `PROVED` exact registry/error route and TZ dynamic topology target; also inside broad branch-invariant no-HLOS policies. Final runtime value `UNKNOWN`. |
-| `0x092c8080–0x092c80d8` | qhs_llcc remapper instance 1 | `PROVED` exact XBL writer and broad branch-invariant TZ-owned/no-HLOS coverage. |
-| `0x092ce000` | `BIMC_MPU1` configuration base | `PROVED` exact registry/error route and TZ dynamic topology target; broad no-HLOS coverage. Final runtime value `UNKNOWN`. |
-| `0x09348080–0x093480d8` | qhs_llcc remapper instance 2 | `PROVED` exact XBL writer and broad branch-invariant TZ-owned/no-HLOS coverage. |
-| `0x0934e000` | `BIMC_MPU2` configuration base | `PROVED` exact registry/error route and TZ dynamic topology target; broad no-HLOS coverage. Final runtime value `UNKNOWN`. |
-| `0x093c8080–0x093c80d8` | qhs_llcc remapper instance 3 | `PROVED` exact XBL writer and broad branch-invariant TZ-owned/no-HLOS coverage. |
-| `0x093ce000` | `BIMC_MPU3` configuration base | `PROVED` exact registry/error route and TZ dynamic topology target; broad no-HLOS coverage. Final runtime value `UNKNOWN`. |
+| `0x0924e000` | `BIMC_MPU0` configuration base | `PROVED` exact registry/error route and TZ dynamic topology target; also inside broad branch-invariant raw policy coverage. Final runtime value and effective actor/path are `UNKNOWN`. |
+| `0x092c8080–0x092c80d8` | qhs_llcc remapper instance 1 | `PROVED` exact XBL writer and broad branch-invariant TZ-owned raw policy coverage; no instance-0-equivalent narrow row or live access result is transferred. |
+| `0x092ce000` | `BIMC_MPU1` configuration base | `PROVED` exact registry/error route and TZ dynamic topology target; broad raw policy coverage. Final runtime value and effective actor/path are `UNKNOWN`. |
+| `0x09348080–0x093480d8` | qhs_llcc remapper instance 2 | `PROVED` exact XBL writer and broad branch-invariant TZ-owned raw policy coverage; effective live access remains `UNKNOWN`. |
+| `0x0934e000` | `BIMC_MPU2` configuration base | `PROVED` exact registry/error route and TZ dynamic topology target; broad raw policy coverage. Final runtime value and effective actor/path are `UNKNOWN`. |
+| `0x093c8080–0x093c80d8` | qhs_llcc remapper instance 3 | `PROVED` exact XBL writer and broad branch-invariant TZ-owned raw policy coverage; effective live access remains `UNKNOWN`. |
+| `0x093ce000` | `BIMC_MPU3` configuration base | `PROVED` exact registry/error route and TZ dynamic topology target; broad raw policy coverage. Final runtime value and effective actor/path are `UNKNOWN`. |
 | `0x0964e000` | `LLCC_BROADCAST_MPU` configuration base | `PROVED` exact registry and both static lists. |
 | `0x096c0000` | `MEMNOC_MS_MPU` configuration base | `PROVED` exact registry, both static lists, and error route. |
 
@@ -121,8 +127,12 @@ The ranges describe 32-bit registers at four-byte offsets, not a license to
 treat intervening or adjacent MMIO as discovered. Instance 0 alone has the
 narrow region-11 proof, but Experiment 010 independently proves that both broad
 policies cover every listed remapper/BIMC address under either selector branch.
-Static HLOS permission is `PROVED` absent and an active denial is `SUPPORTED`;
-final post-boot policy-register readback and lock state remain `UNKNOWN`.
+Static address containment, owner fields, and raw words are `PROVED`; a flat
+HLOS/all-master denial interpretation is not. The same decoder's all-zero
+`CNOC_AOSS_MPU` row covers the live watchdog page where retained source-backed
+logs prove HLOS-issued MMIO reads and writes completed. Active refusal cause,
+overlap/initiator selection, final post-boot policy-register readback, and lock
+state remain `UNKNOWN`.
 
 `PROVED` by Experiment 008: the exact 3072+3072 MiB rank topology selects
 remapper row 7, whose destination bases are `0x80000000` and `0x140000000`.

@@ -76,8 +76,8 @@ SOURCE_PINS = {
     },
     "memory_map": {
         "basename": MEMORY_MAP_SOURCE.name,
-        "size_bytes": 9428,
-        "sha256": "34496c0d92736f7df5b9da69f8bcadfe40fb3ee35558c1b10fab7d06dec86950",
+        "size_bytes": 10718,
+        "sha256": "af44a5e7cf3afd2fa8bd3b75c9ab9f6c6f5edefdabb47f552eeafc08ffbc0108",
     },
 }
 

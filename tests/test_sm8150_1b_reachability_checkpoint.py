@@ -24,7 +24,7 @@ class SourceParserTests(unittest.TestCase):
 
     def test_memory_map_semantic_mutation_fails_closed(self) -> None:
         payload = (checkpoint.REPO_ROOT / "docs" / checkpoint.MEMORY_MAP_NAME).read_bytes()
-        mutated = payload.replace(b"no HLOS VMID grant", b"HLOS VMID grant", 1)
+        mutated = payload.replace(b"Raw client-vector meaning", b"Effective HLOS denial", 1)
         with self.assertRaises(checkpoint.ReachabilityError):
             checkpoint._parse_memory_map(mutated)
 
@@ -38,9 +38,11 @@ class SourceParserTests(unittest.TestCase):
         for branch in initializer_result["selector_branches"].values():
             self.assertEqual(branch["address_count"], 8)
             self.assertTrue(all(item["tz_owned"] for item in branch["addresses"]))
-            self.assertTrue(all(not item["hlos_read"] and not item["hlos_write"] for item in branch["addresses"]))
+            self.assertTrue(all(not item["legacy_bit3_read_marker"] for item in branch["addresses"]))
+            self.assertTrue(all(not item["legacy_bit3_write_marker"] for item in branch["addresses"]))
+            self.assertTrue(all(item["effective_hlos_access"] == "UNKNOWN" for item in branch["addresses"]))
 
-    def test_initializer_address_and_hlos_mutations_fail_closed(self) -> None:
+    def test_initializer_address_and_legacy_marker_mutations_fail_closed(self) -> None:
         manifest = json.loads((checkpoint.REPO_ROOT / "evidence/manifests" / checkpoint.INITIALIZER_010_NAME).read_bytes())
         changed_address = copy.deepcopy(manifest)
         changed_address["controller_aperture_policy"]["selector_branches"]["selector_result_ge_2"]["addresses"][0]["address"] = "0x09248084"
@@ -76,9 +78,14 @@ class CheckpointTests(unittest.TestCase):
         self.assertEqual(len(manifest["known_apertures"]["candidates"]), 8)
         self.assertTrue(manifest["known_apertures"]["all_branches_cover_all_candidates"])
         self.assertTrue(manifest["known_apertures"]["all_hits_tz_owned"])
+        self.assertFalse(manifest["known_apertures"]["bit3_predicate_discriminating"])
+        self.assertEqual(manifest["known_apertures"]["effective_hlos_access"], "UNKNOWN")
+        self.assertEqual(manifest["reachability"]["refusing_agent"], "UNDECIDABLE")
         self.assertEqual(manifest["reachability"]["global_normal_world_reachability"], "UNKNOWN")
         self.assertEqual(manifest["reachability"]["fixed_el1_watchdog"]["fixed_address"], "0x09248080")
         encoded = json.dumps(manifest, sort_keys=True)
+        self.assertNotIn("PROVED_BROAD_TZ_OWNED_NO_HLOS_STATIC_COVERAGE", encoded)
+        self.assertNotIn("SUPPORTED_BLOCKED_FOR_TESTED_STATIC_POLICY", encoded)
         self.assertNotIn("evidence/private", encoded)
         self.assertNotIn(str(checkpoint.REPO_ROOT), encoded)
 
