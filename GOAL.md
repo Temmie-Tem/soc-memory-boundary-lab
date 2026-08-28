@@ -180,6 +180,15 @@ worker 지휘, 구현 검토, 실기기 실행, evidence 판정, 문서 통합�
 재사용하되 target profile, device identity, approval state, rollback identity를
 worktree/experiment 사이에 transfer하지 않는다.
 
+### Main integration ownership
+
+`main`의 유일한 통합 소유자는 Root Codex다. 구현·정적 분석·hostile review
+worker는 각각 격리된 short-lived branch와 worktree만 사용하며, 다른 실행이
+사용 중인 worktree에서 branch를 전환하지 않는다. 한 iteration이 root review,
+필수 test와 commit을 통과하면 Root Codex는 즉시 `--ff-only`로 `main`에
+통합하고 해당 실험 branch/worktree를 닫는다. 장기 integration branch에 완료된
+증거를 쌓아 두지 않으며, 다음 iteration은 갱신된 `main`에서 시작한다.
+
 ## Definition of done
 
 Iteration은 다음이 모두 기록되고 검증될 때만 complete다.
