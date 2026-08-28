@@ -295,10 +295,10 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
     ) -> dict[str, object]:
         """Project the active producer output for read-only collector tests.
 
-        ``verify_control_manifest`` delegates to the old finalizer ID until
-        its follow-up compatibility change.  Read collector tests still need
+        ``verify_control_manifest`` delegates to the downstream finalizer
+        compatibility seam.  Read collector tests still need
         to exercise the producer's chronology and transport paths, so this
-        seam derives the same projection from the just-produced r2 files
+        seam derives the same projection from the just-produced r3 files
         without importing or hand-building a legacy receipt.
         """
 
@@ -348,6 +348,35 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             "semantic_claim_key_sha256": claim.get("key_sha256"),
             "predecessor_capsule_sha256": finalizer.CONTROL_R2_PREDECESSOR_CAPSULE_SHA256,
             "predecessor_capsule_size": finalizer.CONTROL_R2_PREDECESSOR_CAPSULE_SIZE,
+            "r2_incident_manifest_sha256": probe.CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+            "r2_incident_manifest_size": probe.CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+            "r2_zero_effect_validated": True,
+        }
+
+    def _r2_incident_summary_fixture(self) -> dict[str, object]:
+        """Return the stable redacted R2 checkpoint projection for temp roots."""
+
+        return {
+            "schema": probe.CONTROL_R2_INCIDENT_VALIDATION_SCHEMA,
+            "status": "VALIDATED_ZERO_EFFECT",
+            "experiment_id": probe.CONTROL_R2_EXPERIMENT_ID,
+            "next_registered_id": probe.CONTROL_EXPERIMENT_ID,
+            "classification": "CLASS_C_UNCHANGED",
+            "security_boundary_result": "UNKNOWN_NOT_REACHED",
+            "zero_effect_validated": {
+                "dispatch_count": 0,
+                "fixed_op_dispatched": False,
+                "panic_transition_started": False,
+                "partition_writes": False,
+                "memory_or_mmio_writes": False,
+                "controller_writes": False,
+                "device_state_write": False,
+                "semantic_claim_created": False,
+            },
+            "checkpoint": {
+                "sha256": probe.CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+                "size_bytes": probe.CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+            },
         }
 
     def _args(self, root: Path, mode: str, *, read_flash_completed: str | None = None) -> Namespace:
@@ -1056,6 +1085,11 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                             "CONTROL_R2_PREDECESSOR_CAPSULE_SIZE",
                             fixture_size,
                         ),
+                        mock.patch.object(
+                            probe.r2_incident,
+                            "validate_r2_incident",
+                            return_value=self._r2_incident_summary_fixture(),
+                        ),
                     ]
                 )
             else:
@@ -1138,7 +1172,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             output_root=root,
         )
 
-    def test_control_r2_preclaim_is_first_durable_action_and_failure_is_sticky(self) -> None:
+    def test_control_r3_preclaim_is_first_durable_action_and_failure_is_sticky(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             args = self._minimal_control_args(root)
@@ -1181,18 +1215,18 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                 events,
                 [f"exclusive:{journal_path.name}", "capsule"],
             )
-            self.assertEqual(json.loads(journal_path.read_text()), probe._control_r2_preclaim())
+            self.assertEqual(json.loads(journal_path.read_text()), probe._control_r3_preclaim())
             candidate_read.assert_not_called()
             transport_read.assert_not_called()
             flash_read.assert_not_called()
             bridge.assert_not_called()
             exchange.assert_not_called()
 
-    def test_control_r2_existing_preclaim_rejects_replay_before_any_reads(self) -> None:
+    def test_control_r3_existing_preclaim_rejects_replay_before_any_reads(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             journal_path = control_journal_path(root)
-            probe._exclusive_json(journal_path, probe._control_r2_preclaim())
+            probe._exclusive_json(journal_path, probe._control_r3_preclaim())
             args = self._minimal_control_args(root)
             with (
                 mock.patch.object(probe, "REPO_ROOT", root),
@@ -1219,7 +1253,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             ):
                 with self.assertRaisesRegex(probe.ProbeError, "already exists"):
                     probe.collect(args)
-            self.assertEqual(json.loads(journal_path.read_text()), probe._control_r2_preclaim())
+            self.assertEqual(json.loads(journal_path.read_text()), probe._control_r3_preclaim())
             capsule.assert_not_called()
             candidate_read.assert_not_called()
             transport_read.assert_not_called()
@@ -1227,10 +1261,97 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             bridge.assert_not_called()
             exchange.assert_not_called()
 
-    def test_control_r2_rejects_old_r3_and_arbitrary_ids_before_output_checks(self) -> None:
+    def test_control_r3_incident_validation_is_after_preclaim_and_sticky_on_failure(self) -> None:
+        """A failed consumed-R2 validation leaves the R3 owner and no device contact."""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            args = self._minimal_control_args(root)
+            fixture, fixture_sha256, fixture_size = self._predecessor_capsule_fixture()
+            events: list[str] = []
+            original_exclusive = probe._exclusive_json
+
+            def record_exclusive(path: Path, value: object, mode: int = 0o600) -> bytes:
+                events.append(f"exclusive:{Path(path).name}")
+                return original_exclusive(path, value, mode)
+
+            def fail_incident(_root: Path) -> dict[str, object]:
+                events.append("incident")
+                raise ValueError("fixture incident mismatch")
+
+            with (
+                mock.patch.object(probe, "REPO_ROOT", root),
+                mock.patch.object(probe, "_exclusive_json", side_effect=record_exclusive),
+                mock.patch.object(
+                    probe.control_retry,
+                    "build_predecessor_capsule",
+                    return_value=fixture,
+                ),
+                mock.patch.object(
+                    probe, "CONTROL_R2_PREDECESSOR_CAPSULE_SHA256", fixture_sha256
+                ),
+                mock.patch.object(
+                    probe, "CONTROL_R2_PREDECESSOR_CAPSULE_SIZE", fixture_size
+                ),
+                mock.patch.object(
+                    probe.r2_incident,
+                    "validate_r2_incident",
+                    side_effect=fail_incident,
+                ),
+                mock.patch.object(
+                    probe, "_stable_file_digest", side_effect=AssertionError("candidate read")
+                ) as candidate_read,
+                mock.patch.object(
+                    probe, "_validate_local_transport", side_effect=AssertionError("transport read")
+                ) as transport_read,
+                mock.patch.object(
+                    probe, "verify_flash_journal", side_effect=AssertionError("flash read")
+                ) as flash_read,
+                mock.patch.object(
+                    probe, "validate_bridge_binding", side_effect=AssertionError("bridge contact")
+                ) as bridge,
+                mock.patch.object(
+                    probe, "exchange", side_effect=AssertionError("device contact")
+                ) as exchange,
+            ):
+                with self.assertRaisesRegex(probe.ProbeError, "incident checkpoint"):
+                    probe.collect(args)
+
+            journal_path = control_journal_path(root)
+            self.assertEqual(
+                events,
+                [f"exclusive:{journal_path.name}", "incident"],
+            )
+            expected = probe._control_r3_preclaim()
+            predecessor = expected["predecessor_capsule"]
+            self.assertIsInstance(predecessor, dict)
+            assert isinstance(predecessor, dict)
+            predecessor["sha256"] = fixture_sha256
+            predecessor["size"] = fixture_size
+            self.assertEqual(json.loads(journal_path.read_text()), expected)
+            candidate_read.assert_not_called()
+            transport_read.assert_not_called()
+            flash_read.assert_not_called()
+            bridge.assert_not_called()
+            exchange.assert_not_called()
+
+    def test_control_r3_incident_summary_rejects_checkpoint_descriptor_mutation(self) -> None:
+        fixture = self._r2_incident_summary_fixture()
+        fixture["checkpoint"] = {
+            "sha256": "0" * 64,
+            "size_bytes": probe.CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            with mock.patch.object(
+                probe.r2_incident, "validate_r2_incident", return_value=fixture
+            ):
+                with self.assertRaisesRegex(probe.ProbeError, "checkpoint hash"):
+                    probe._validate_control_r2_incident(Path(directory))
+
+    def test_control_r3_rejects_consumed_r2_and_arbitrary_ids_before_output_checks(self) -> None:
         for bad_id in (
             probe.CONTROL_PREDECESSOR_EXPERIMENT_ID,
-            "verification-024-control-r3",
+            probe.CONTROL_R2_EXPERIMENT_ID,
             "verification-024-control-attacker",
         ):
             with self.subTest(bad_id=bad_id), tempfile.TemporaryDirectory() as directory:
@@ -1258,7 +1379,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                 bridge.assert_not_called()
                 exchange.assert_not_called()
 
-    def test_control_r2_mocked_collect_embeds_exact_capsule_and_descriptor(self) -> None:
+    def test_control_r3_mocked_collect_embeds_exact_capsule_and_descriptor(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             result, _session, _exchange_ids = self._run_collect(
@@ -1274,7 +1395,28 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             self.assertEqual(predecessor["capsule"], capsule)
             self.assertEqual(predecessor["capsule_sha256"], capsule_sha256)
             self.assertEqual(predecessor["capsule_size"], capsule_size)
-            preclaim = probe._control_r2_preclaim()
+            reconciliation = journal.get("control_r3_reconciliation")
+            self.assertIsInstance(reconciliation, dict)
+            assert isinstance(reconciliation, dict)
+            self.assertEqual(
+                reconciliation["r2_incident"],
+                self._r2_incident_summary_fixture(),
+            )
+            expected_preclaim = probe._control_r3_preclaim()
+            expected_predecessor = expected_preclaim["predecessor_capsule"]
+            self.assertIsInstance(expected_predecessor, dict)
+            assert isinstance(expected_predecessor, dict)
+            expected_predecessor["sha256"] = capsule_sha256
+            expected_predecessor["size"] = capsule_size
+            self.assertEqual(
+                reconciliation["preclaim_sha256"],
+                probe.sha256_bytes(probe.json_bytes(expected_preclaim)),
+            )
+            self.assertEqual(
+                reconciliation["preclaim_size"],
+                len(probe.json_bytes(expected_preclaim)),
+            )
+            preclaim = probe._control_r3_preclaim()
             predecessor_preclaim = preclaim["predecessor_capsule"]
             self.assertIsInstance(predecessor_preclaim, dict)
             assert isinstance(predecessor_preclaim, dict)
@@ -1440,7 +1582,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                         allow_stophud_busy=True,
                     )
 
-    def test_actual_mocked_producer_output_has_r2_bindings(self) -> None:
+    def test_actual_mocked_producer_output_has_r3_reconciliation_bindings(self) -> None:
         """Use ``collect`` output itself, not a hand-built summary, as input."""
 
         with tempfile.TemporaryDirectory() as directory:
@@ -1462,6 +1604,36 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             )
             self.assertEqual(raw["experiment_id"], probe.CONTROL_EXPERIMENT_ID)
             self.assertEqual(public["experiment_id"], probe.CONTROL_EXPERIMENT_ID)
+            self.assertEqual(
+                {
+                    key: public[key]
+                    for key in (
+                        "r2_incident_manifest_sha256",
+                        "r2_incident_manifest_size",
+                        "r2_zero_effect_validated",
+                    )
+                },
+                {
+                    "r2_incident_manifest_sha256": probe.CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+                    "r2_incident_manifest_size": probe.CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+                    "r2_zero_effect_validated": True,
+                },
+            )
+            self.assertEqual(
+                {
+                    key: raw[key]
+                    for key in (
+                        "r2_incident_manifest_sha256",
+                        "r2_incident_manifest_size",
+                        "r2_zero_effect_validated",
+                    )
+                },
+                {
+                    "r2_incident_manifest_sha256": probe.CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+                    "r2_incident_manifest_size": probe.CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+                    "r2_zero_effect_validated": True,
+                },
+            )
             self.assertEqual(
                 public["current_boot_attestation"]["sysfs_uevent"],
                 {
@@ -1569,6 +1741,21 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                 self.assertEqual(read_public["experiment_id"], probe.READ_SOURCE_EXPERIMENT_ID)
                 self.assertEqual(read_public["mode"], probe.MODE_READ)
                 self.assertEqual(read_public["control_manifest"]["experiment_id"], probe.CONTROL_EXPERIMENT_ID)
+                self.assertEqual(
+                    {
+                        key: read_public["control_manifest"][key]
+                        for key in (
+                            "r2_incident_manifest_sha256",
+                            "r2_incident_manifest_size",
+                            "r2_zero_effect_validated",
+                        )
+                    },
+                    {
+                        "r2_incident_manifest_sha256": probe.CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+                        "r2_incident_manifest_size": probe.CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+                        "r2_zero_effect_validated": True,
+                    },
+                )
                 self.assertEqual(
                     read_public["control_manifest"]["current_boot_attestation"]["sysfs_uevent"],
                     {
@@ -2008,7 +2195,11 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                 probe.native_transport, "__file__", str(root / "tools/a90_pa28_live.py")
             ), mock.patch.object(
                 probe, "validate_bridge_binding", bridge
-            ), mock.patch.object(probe, "exchange"):
+            ), mock.patch.object(probe, "exchange"), mock.patch.object(
+                probe.r2_incident,
+                "validate_r2_incident",
+                return_value=self._r2_incident_summary_fixture(),
+            ):
                 with self.assertRaisesRegex(probe.ProbeError, "source SHA-256"):
                     probe.collect(args)
             bridge.assert_not_called()
