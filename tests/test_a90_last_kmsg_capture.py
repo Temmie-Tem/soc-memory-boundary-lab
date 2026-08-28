@@ -198,7 +198,7 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
 
         panic_payloads = {
             "panic_before": b"1\n",
-            "panic_set_0": b"",
+            "panic_set_0": capture.PANIC_WRITE_SUCCESS_PAYLOAD,
             "panic_zero_verify": b"0\n",
         }
         semantic_payloads = {
@@ -1470,17 +1470,17 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
                 "argv": ["writefile", "/proc/sys/kernel/panic_on_oops", "0"],
                 "begin": {"cmd": "writefile", "seq": "1"},
                 "end": {"cmd": "writefile", "seq": "1", "rc": "0", "status": "ok"},
-                "payload_base64": "",
-                "payload_sha256": capture.sha256(b""),
-                "payload_size": 0,
+                "payload_base64": base64.b64encode(capture.PANIC_WRITE_SUCCESS_PAYLOAD).decode(),
+                "payload_sha256": capture.sha256(capture.PANIC_WRITE_SUCCESS_PAYLOAD),
+                "payload_size": len(capture.PANIC_WRITE_SUCCESS_PAYLOAD),
                 "transcript_base64": base64.b64encode(
-                    b"A90P1 BEGIN seq=1 cmd=writefile argc=3 flags=0x0\n\n[done] writefile (0ms)\nA90P1 END seq=1 cmd=writefile rc=0 errno=0 duration_ms=0 flags=0x0 status=ok\n"
+                    b"A90P1 BEGIN seq=1 cmd=writefile argc=3 flags=0x0\nwritefile: ok\n[done] writefile (0ms)\nA90P1 END seq=1 cmd=writefile rc=0 errno=0 duration_ms=0 flags=0x0 status=ok\n"
                 ).decode(),
                 "transcript_sha256": capture.sha256(
-                    b"A90P1 BEGIN seq=1 cmd=writefile argc=3 flags=0x0\n\n[done] writefile (0ms)\nA90P1 END seq=1 cmd=writefile rc=0 errno=0 duration_ms=0 flags=0x0 status=ok\n"
+                    b"A90P1 BEGIN seq=1 cmd=writefile argc=3 flags=0x0\nwritefile: ok\n[done] writefile (0ms)\nA90P1 END seq=1 cmd=writefile rc=0 errno=0 duration_ms=0 flags=0x0 status=ok\n"
                 ),
                 "transcript_size": len(
-                    b"A90P1 BEGIN seq=1 cmd=writefile argc=3 flags=0x0\n\n[done] writefile (0ms)\nA90P1 END seq=1 cmd=writefile rc=0 errno=0 duration_ms=0 flags=0x0 status=ok\n"
+                    b"A90P1 BEGIN seq=1 cmd=writefile argc=3 flags=0x0\nwritefile: ok\n[done] writefile (0ms)\nA90P1 END seq=1 cmd=writefile rc=0 errno=0 duration_ms=0 flags=0x0 status=ok\n"
                 ),
             },
             {
@@ -1509,6 +1509,89 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
             with self.subTest(frame_ids=[item["evidence_id"] for item in bad]):
                 with self.assertRaises(ValueError):
                     capture._validate_source_panic_frames(bad, "hostile source")
+
+    def test_source_panic_write_payload_is_exact_for_zero_and_restore_ids(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self._write_read_source(root)
+            raw = json.loads(
+                (root / "evidence/private" / f"{capture.READ_SOURCE_EXPERIMENT_ID}.json").read_text()
+            )
+            source = next(
+                frame for frame in raw["frames"] if frame["evidence_id"] == "panic_set_0"
+            )
+
+            def rewrite_payload(frame: dict[str, object], payload: bytes) -> None:
+                begin = dict(frame["begin"])
+                end = dict(frame["end"])
+                argv = tuple(frame["argv"])
+                flags = capture._protocol_flags_for_argv(argv)
+                self.assertIsNotNone(flags)
+                begin["flags"] = flags
+                end["flags"] = flags
+                command = argv[0].encode("ascii")
+                transcript = (
+                    b"A90P1 BEGIN seq=" + str(begin["seq"]).encode("ascii")
+                    + b" cmd=" + command
+                    + b" argc=" + str(len(argv)).encode("ascii")
+                    + b" flags=" + str(flags).encode("ascii") + b"\n"
+                    + payload
+                    + b"\n[done] writefile (0ms)\n"
+                    + b"A90P1 END seq=" + str(end["seq"]).encode("ascii")
+                    + b" cmd=" + command
+                    + b" rc=" + str(end["rc"]).encode("ascii")
+                    + b" errno=" + str(end["errno"]).encode("ascii")
+                    + b" duration_ms=" + str(end["duration_ms"]).encode("ascii")
+                    + b" flags=" + str(flags).encode("ascii")
+                    + b" status=" + str(end["status"]).encode("ascii") + b"\n"
+                )
+                frame.update(
+                    {
+                        "begin": begin,
+                        "end": end,
+                        "payload_base64": base64.b64encode(payload).decode("ascii"),
+                        "payload_sha256": capture.sha256(payload),
+                        "payload_size": len(payload),
+                        "transcript_base64": base64.b64encode(transcript).decode("ascii"),
+                        "transcript_sha256": capture.sha256(transcript),
+                        "transcript_size": len(transcript),
+                    }
+                )
+
+            for evidence_id, value in (
+                ("panic_set_0", "0"),
+                ("panic_set_1", "1"),
+            ):
+                with self.subTest(evidence_id=evidence_id):
+                    frame = json.loads(json.dumps(source))
+                    frame["evidence_id"] = evidence_id
+                    frame["argv"] = ["writefile", "/proc/sys/kernel/panic_on_oops", value]
+                    for payload in (
+                        capture.PANIC_WRITE_SUCCESS_PAYLOAD,
+                        b"",
+                        capture.PANIC_WRITE_SUCCESS_PAYLOAD + b"\n",
+                        b"writefile: failed",
+                    ):
+                        with self.subTest(payload=payload):
+                            candidate = json.loads(json.dumps(frame))
+                            rewrite_payload(candidate, payload)
+                            if payload == capture.PANIC_WRITE_SUCCESS_PAYLOAD:
+                                capture._validate_source_protocol_frame(
+                                    candidate,
+                                    evidence_id,
+                                    tuple(candidate["argv"]),
+                                    f"valid {evidence_id}",
+                                    expected_payload=capture.PANIC_WRITE_SUCCESS_PAYLOAD,
+                                )
+                            else:
+                                with self.assertRaises(ValueError):
+                                    capture._validate_source_protocol_frame(
+                                        candidate,
+                                        evidence_id,
+                                        tuple(candidate["argv"]),
+                                        f"hostile {evidence_id}",
+                                        expected_payload=capture.PANIC_WRITE_SUCCESS_PAYLOAD,
+                                    )
 
     def test_source_rejects_renamed_complete_fixed_op_frame(self) -> None:
         hidden = {

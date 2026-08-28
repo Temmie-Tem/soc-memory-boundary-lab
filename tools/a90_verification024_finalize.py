@@ -942,17 +942,30 @@ def _validate_panic_frame_set(
 ) -> None:
     """Validate actual bounded A90P1 records for the panic transition."""
 
+    # The native ``writefile`` helper emits a result payload even though the
+    # command itself has no value to read back.  This is part of the producer
+    # contract: the successful frame is exactly ``writefile: ok`` (13 bytes),
+    # with no line terminator.  Keeping this separate from the readback lines
+    # below prevents an empty or normalized payload from authorizing a write.
+    panic_writefile_payload = b"writefile: ok"
+
     if not isinstance(frames, list):
         raise FinalizeError(f"{label} frames are missing")
     expected: dict[str, tuple[tuple[str, ...], bytes]] = {
         "panic_before": (("cat", "/proc/sys/kernel/panic_on_oops"), b"1\n"),
-        "panic_set_0": (("writefile", "/proc/sys/kernel/panic_on_oops", "0"), b""),
+        "panic_set_0": (
+            ("writefile", "/proc/sys/kernel/panic_on_oops", "0"),
+            panic_writefile_payload,
+        ),
         "panic_zero_verify": (("cat", "/proc/sys/kernel/panic_on_oops"), b"0\n"),
     }
     if restored:
         expected.update(
             {
-                "panic_set_1": (("writefile", "/proc/sys/kernel/panic_on_oops", "1"), b""),
+                "panic_set_1": (
+                    ("writefile", "/proc/sys/kernel/panic_on_oops", "1"),
+                    panic_writefile_payload,
+                ),
                 "panic_restore_verify": (("cat", "/proc/sys/kernel/panic_on_oops"), b"1\n"),
             }
         )
@@ -984,6 +997,7 @@ def _validate_panic_frame_set(
             argv,
             f"{label} {evidence_id}",
             expected_payload=expected_payload,
+            exact_payload=evidence_id in {"panic_set_0", "panic_set_1"},
         )
 
 
@@ -1284,6 +1298,7 @@ def _validate_protocol_frame(
     label: str,
     *,
     expected_payload: bytes | None = None,
+    exact_payload: bool = False,
     expected_rc: str = "0",
     expected_status: str = "ok",
 ) -> None:
@@ -1337,8 +1352,13 @@ def _validate_protocol_frame(
             raise FinalizeError(
                 f"{label} stophud evidence size is not bounded"
             ) from exc
-    if expected_payload is not None and payload not in _payload_line_variants(expected_payload):
-        raise FinalizeError(f"{label} payload is not exact")
+    if expected_payload is not None:
+        if exact_payload:
+            payload_matches = payload == expected_payload
+        else:
+            payload_matches = payload in _payload_line_variants(expected_payload)
+        if not payload_matches:
+            raise FinalizeError(f"{label} payload is not exact")
     begin_matches = list(BEGIN_RE.finditer(transcript))
     end_matches = list(END_RE.finditer(transcript))
     if (

@@ -796,9 +796,9 @@ class Verification024FinalizerTests(unittest.TestCase):
 
         panic_payloads = {
             "panic_before": b"1\n",
-            "panic_set_0": b"",
+            "panic_set_0": b"writefile: ok",
             "panic_zero_verify": b"0\n",
-            "panic_set_1": b"",
+            "panic_set_1": b"writefile: ok",
             "panic_restore_verify": b"1\n",
         }
         semantic_payloads = {

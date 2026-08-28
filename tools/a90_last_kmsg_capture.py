@@ -1744,6 +1744,12 @@ _SOURCE_FRAME_END_KEYS = frozenset(
 )
 _CANONICAL_DECIMAL_RE = re.compile(r"(?:0|[1-9][0-9]*)\Z")
 _CANONICAL_SIGNED_DECIMAL_RE = re.compile(r"-?(?:0|[1-9][0-9]*)\Z")
+# V2321's native writefile producer returns this exact success body.  It is
+# deliberately not treated as a line payload: an empty body or a trailing
+# line ending would be a different transport result and must not authorize a
+# panic-state transition.
+PANIC_WRITE_SUCCESS_PAYLOAD = b"writefile: ok"
+_PANIC_WRITE_FRAME_IDS = frozenset({"panic_set_0", "panic_set_1"})
 
 
 def _source_payload_line_variants(expected: bytes) -> frozenset[bytes]:
@@ -1978,7 +1984,12 @@ def _validate_source_protocol_frame(
             validate_stophud_evidence_sizes(payload, transcript)
         except BaseException as exc:
             raise ValueError(f"{label} stophud evidence size is not bounded") from exc
-    if expected_payload is not None and payload not in _source_payload_line_variants(expected_payload):
+    if evidence_id in _PANIC_WRITE_FRAME_IDS:
+        if expected_rc != "0" or expected_status != "ok":
+            raise ValueError(f"{label} panic write is not a successful exchange")
+        if payload != PANIC_WRITE_SUCCESS_PAYLOAD:
+            raise ValueError(f"{label} panic write payload is not exact")
+    elif expected_payload is not None and payload not in _source_payload_line_variants(expected_payload):
         raise ValueError(f"{label} payload is not exact")
     begins = list(BEGIN_RE.finditer(transcript))
     ends = list(END_RE.finditer(transcript))
@@ -2385,7 +2396,10 @@ def _validate_source_panic_frames(frames: object, label: str) -> None:
         raise ValueError(f"{label} panic frames are missing")
     expected = {
         "panic_before": (("cat", "/proc/sys/kernel/panic_on_oops"), b"1\n"),
-        "panic_set_0": (("writefile", "/proc/sys/kernel/panic_on_oops", "0"), b""),
+        "panic_set_0": (
+            ("writefile", "/proc/sys/kernel/panic_on_oops", "0"),
+            PANIC_WRITE_SUCCESS_PAYLOAD,
+        ),
         "panic_zero_verify": (("cat", "/proc/sys/kernel/panic_on_oops"), b"0\n"),
     }
     expected_ids = list(expected)

@@ -305,7 +305,7 @@ class ProducerFinalizerCompatibilityTests(unittest.TestCase):
 
         panic_payloads = {
             "panic_before": b"1\n",
-            "panic_set_0": b"",
+            "panic_set_0": b"writefile: ok",
             "panic_zero_verify": b"0\n",
         }
         records: list[dict[str, object]] = []
@@ -372,6 +372,69 @@ class ProducerFinalizerCompatibilityTests(unittest.TestCase):
                     ("stophud",),
                     "exact stophud success",
                 )
+
+    def test_finalizer_requires_exact_writefile_success_payload_for_panic_writes(self) -> None:
+        """Panic writes must retain the native writefile success bytes exactly."""
+
+        panic_specs = [
+            ("panic_before", ("cat", "/proc/sys/kernel/panic_on_oops"), b"1\n"),
+            (
+                "panic_set_0",
+                ("writefile", "/proc/sys/kernel/panic_on_oops", "0"),
+                b"writefile: ok",
+            ),
+            ("panic_zero_verify", ("cat", "/proc/sys/kernel/panic_on_oops"), b"0\n"),
+            (
+                "panic_set_1",
+                ("writefile", "/proc/sys/kernel/panic_on_oops", "1"),
+                b"writefile: ok",
+            ),
+            ("panic_restore_verify", ("cat", "/proc/sys/kernel/panic_on_oops"), b"1\n"),
+        ]
+        records = [
+            self._protocol_frame(
+                evidence_id,
+                argv,
+                rc=0,
+                status="ok",
+                payload=payload,
+            )[0]
+            for evidence_id, argv, payload in panic_specs
+        ]
+        finalizer._validate_panic_frame_set(
+            records, "exact panic write payload", restored=True
+        )
+
+        for evidence_id, argv, _expected in panic_specs:
+            if evidence_id not in {"panic_set_0", "panic_set_1"}:
+                continue
+            for bad_payload in (
+                b"",
+                b"writefile: ok\n",
+                b"writefile: ok\r\n",
+                b"writefile: OK",
+                b"writefile: ok ",
+            ):
+                hostile = list(records)
+                index = next(
+                    index
+                    for index, frame in enumerate(hostile)
+                    if frame["evidence_id"] == evidence_id
+                )
+                hostile[index] = self._protocol_frame(
+                    evidence_id,
+                    argv,
+                    rc=0,
+                    status="ok",
+                    payload=bad_payload,
+                )[0]
+                with self.subTest(evidence_id=evidence_id, bad_payload=bad_payload):
+                    with self.assertRaises(finalizer.FinalizeError):
+                        finalizer._validate_panic_frame_set(
+                            hostile,
+                            f"hostile {evidence_id} payload",
+                            restored=True,
+                        )
 
     @staticmethod
     def _profiles(image: Path) -> dict[str, dict[str, object]]:
