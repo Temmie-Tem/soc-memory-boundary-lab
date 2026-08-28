@@ -128,6 +128,33 @@ normal-RAM timing에서 숨은 same-selection 관계 관측
 
 `CURRENT CONFIDENCE ->` **instance0 narrow raw-policy fact는 높음; HLOS 명명, all-master denial, 네 instance의 effective policy는 낮음/UNKNOWN**. 기존 branch 감사가 bit30을 곧바로 HLOS라고 확정한 것도 retained firmware만으로는 과한 이름 붙이기다.
 
+### 1.4.1 Audit A가 제기한 XPU 반증과 retained EL2 fault의 후속 판정
+
+이 subsection은 최초 세 독립 감사자의 hostile review가 끝난 뒤, Audit A `4ba9400:docs/ADVERSARIAL_AUDIT_2026-08-28.md` §2.2–2.3이 제기했으나 위 본문이 명시적으로 채점하지 않은 두 묶음을 Audit B의 주 작성자가 host-only로 다시 판정한 기록이다. 최초 reviewer 세 명의 판정으로 소급 귀속하지 않는다.
+
+**A1 — `CONFIRMED`, 단 제시된 APSS/DDRSS 검증 집합에 한정.** Exact TZ `a5e6c574e18e2e576a25df6274b20bdb142386811dfda6383f86d7b1b3c102ab`의 두 selector branch를 직접 다시 풀면 nearest-target record는 다음과 같다.
+
+| live DT가 HLOS driver에 넘기는 page 또는 probe | nearest-target MPU raw `read_vmid` | raw `write_vmid` | VMID bit 3 술어 |
+|---|---:|---:|---|
+| `syscon@90b0000` | `0x40000000` | `0x00000000` | read/write 모두 `False` |
+| `cpu-cpu-llcc-bwmon@90b6400` | `0x40000000` | `0x40000000` | read/write 모두 `False` |
+| `llcc-pmu@90cc000` | `0x40000000` | `0x40000000` | read/write 모두 `False` |
+| `cpu-llcc-ddr-bwmon@90cd000` | `0x40000000` | `0x40000000` | read/write 모두 `False` |
+| `llcc@9200000` | `0xc0000000` | `0xc0000000` | read/write 모두 `False` |
+| non-return probe `0x09248080` | `0x80000000` | `0x00000000` | read/write 모두 `False` |
+
+[Exact probe boot](../evidence/private/007-inline-remapper-read-20260825-01/boot_linux_inline_remapper_read_v1.img) `6fe92825702f304a067fc716c3814a63b2f4e76198a054de4c666cad55a462ed` 안의 두 DTB에는 다섯 node가 모두 있고 disabled 표기가 없다. [V023 retained log](../evidence/private/verification-023-last-kmsg-at-mid-20260827-01.last_kmsg.bin)에는 두 bwmon과 LLCC PMU가 등록된 사실도 남는다. 따라서 `hlos_present_in_read_mask`/`hlos_present_in_write_mask`, 즉 raw bit 3 존재 여부는 이 다섯 positive/reference page와 non-return page를 구별하지 못한다. 이 판정은 bit 30을 누구라고 이름 붙이는 주장과 독립적이다. 다만 전체 109 region에서 bit-3 함수가 상수라는 뜻은 아니며, 여기서 `판별력 없음`은 이 관련 접근 집합의 effective HLOS reach를 예측하는 용도에 한정한다.
+
+**A2 — `CONFIRMED`.** 같은 exact TZ의 두 branch에서 `CNOC_AOSS_MPU` table ordinal 5는 `0x17c00000..0x18200000`, `read_vmid=write_vmid=0x00000000`이다. Raw record의 별도 `index` 필드는 6이므로 여기서 “region 5”는 table ordinal을 뜻한다. 그런데 V023 retained log에는 `msm_watchdog 17c10000.qcom,wdt: [pet_watchdog]`가 9.952084초부터 85.728094초까지 9회, 평균 약 9.472초 간격으로 기록된다. 대응 [watchdog source](/home/temmie/dev/android-native-init-lab/workspace/private/work/public_a90_r3q/kernel_samsung_r3q-e1d271581eff/drivers/soc/qcom/watchdog_v2.c)는 각 로그 전에 `WDT0_STS`를 read하고 `WDT0_RST`에 write한 뒤 `WDT0_BARK_TIME`과 `WDT0_BITE_TIME`을 read한다. 따라서 HLOS가 발행한 MMIO read/write가 이 정적 all-zero region 안에서 실제 완료되었다. 이는 static address containment를 모든 initiator에 적용되는 평면적 deny로 해석하는 것을 반증하며, XPU instance/path 또는 final runtime policy가 필수 변수임을 보인다. XPU 전체 부재를 증명하지는 않는다.
+
+**B1 — `CONFIRMED`, 구조 인식까지.** V023 retained log에는 `log_addr:858df200 log_size:1e00 offset:6b4 wrap:0` 뒤 Samsung Upload parser가 `Data abort`, `Faulting Address`, `Instruction Executed`, `ESR_EL2`, `FAR_EL2`, `ELR_EL2`를 모두 `Found`한 기록이 있다. 같은 dump에서 `print_noc_info`, `print_xpu_info`, `print_smmu_info`는 모두 `tz log is encrypted or not parsed yet!`로 끝난다. `0x858df200`은 live DT의 `hyp_mem` `0x85700000..0x85d00000` 안이며, [exact HYP ELF](../evidence/private/004-live-firmware-readonly-20260825-01/hyp--sdd33.bin) `646f8fca08b0eff56b1d8415d81c3041a775c1871400dc57448cb5103405a8e1`의 file-backed string 영역이 아니라 RW load segment의 BSS 범위에 있다. 따라서 네 reporter 중 HYP fault-record 구조만 인식됐다는 사실은 확인된다. 그러나 `Found[...]`는 필드 위치 발견이지 값 해독이 아니며, ESR/FAR/ELR의 값과 fault timestamp는 이 retained file에 출력되지 않았다.
+
+**B2 — `UNDECIDABLE`.** 이 레코드는 Route-2 거부 주체가 XPU가 아니라 QHEE stage-2일 수 있다는 직접 관련 증거이지만 어느 쪽인지 결정하지 않는다. XPU/fabric denial이 external abort로 EL2에 보고된 경우, stage-2 permission fault가 XPU보다 먼저 차단한 경우, probe와 무관하거나 부차적인 HYP abort가 ring에 남은 경우가 모두 현재 관측과 양립한다. ESR의 EC/ISS/DFSC, FAR/HPFAR/ELR 값과 exact probe address/instruction/time 결박이 없기 때문이다.
+
+Provenance도 분리한다. `fdceab48dc267dd74ec6c70edbec6b51ee13dcd8532cf8b121c4fe93b425c66e`인 V023 dump의 실행 대상은 `6fe92825…` remapper가 아니라 `7ee6a41f3f55f6eea768a7fd7b66bf011b84e63fa523ee8a0430a50091b02116` SHRM read `0x0906566c`였다. 별도 V024에서는 `6fe92825…` remapper boot가 live attestation되었고, 그 [retained dump](../evidence/private/last-kmsg-final.last_kmsg.raw.bin) `ee0d2548e5ca6461a77b5b16287542b7d8112cd574ed0ba046b1011ad16b7c6c`에도 같은 HYP markers가 반복된다. 이는 remapper incident와의 관련성을 지지하지만 B2의 인과 판정을 올리지는 않는다.
+
+따라서 Route-2의 현재 문장은 **“direct load non-return은 `CONFIRMED`; XPU 대 stage-2/QHEE 거부 주체는 `UNDECIDABLE`”**이다.
+
 ### 1.5 알려진 aperture 집합의 대표성
 
 `CLAIM ->` 네 `qhs_llcc + 0x8080` remapper window와 기존 MC/MCCC 후보가 relevant aperture 집합을 충분히 대표한다.
