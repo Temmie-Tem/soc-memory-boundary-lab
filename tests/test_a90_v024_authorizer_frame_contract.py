@@ -86,6 +86,20 @@ class V024AuthorizerFrameContractTests(unittest.TestCase):
         probe.CONTROL_R2_PREDECESSOR_CAPSULE_SHA256 = self._original_probe_capsule_sha256
         probe.CONTROL_R2_PREDECESSOR_CAPSULE_SIZE = self._original_probe_capsule_size
 
+    @staticmethod
+    def _install_r2_incident_manifest(root: Path) -> Path:
+        """Install exact committed R2 checkpoint bytes in an isolated root."""
+
+        relative = probe.r2_incident.MANIFEST_RELATIVE_PATH
+        source = probe.r2_incident.REPO_ROOT / relative
+        destination = root / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(source.read_bytes())
+        # The real validator accepts readable, non-executable, non-world-
+        # writable regular files.  Pin a deterministic accepted mode.
+        destination.chmod(0o644)
+        return destination
+
     def _collect_control(self, root: Path) -> tuple[Path, Path, Path]:
         # Reuse the existing actual mocked collect path.  Calling the helper
         # on a fixture instance keeps all device-facing work replaced by its
@@ -109,6 +123,7 @@ class V024AuthorizerFrameContractTests(unittest.TestCase):
         self.assertTrue(raw_path.is_file())
         self.assertTrue(manifest_path.is_file())
         self.assertTrue(journal_path.is_file())
+        self._install_r2_incident_manifest(root)
         return raw_path, manifest_path, journal_path
 
     @staticmethod
