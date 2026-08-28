@@ -91,6 +91,65 @@ reads, no write of any kind: no MMIO, no controller, no SMC, no partition, no
 `param`, no reboot. This bears on the completeness of the DRAM coordinate
 model, not on P1 or P2, and it is not a boundary-bypass probe.
 
-## Result
+## Result — `rank f >= 3`, and the prediction held
 
-Not run yet at the time of this commit.
+Run 2026-08-28 on the exact target: `A90 Linux init 0.9.285`
+(`v2321-usb-clean-identity-rodata`), kernel
+`4.14.190-25818860-abA908NKSU5EWA3`, `SM-A908N`, `debug_level=0x4f4c`,
+self-test `pass=11 warn=1 fail=0 entries=12` before **and** after.
+
+Separation 345, threshold 342.5. The controls bracket at both ends of the run:
+
+| | leading | trailing |
+|---|---:|---:|
+| `0x16000` conflict control | 515 | 534 |
+| `0x2000` fast control | 136 | 149 |
+
+| difference | median | class | role |
+|---|---:|---|---|
+| `0x2000` | 136 | negative | d1, both triples |
+| `0x4000` | 149 | negative | A d2 |
+| `0x8000` | 139 | negative | B d2 |
+| **`0x6000`** | **155** | **negative** | **A d1^d2 — never measured before** |
+| **`0xa000`** | **167** | **negative** | **B d1^d2 — never measured before** |
+| `0x1000000` | 152 | negative | d3, both triples |
+| `0x1002000` | 108 | negative | d1^d3 |
+| `0x1004000` | 142 | negative | A d2^d3 |
+| `0x1006000` | 161 | negative | A d1^d2^d3 |
+| `0x1008000` | 164 | negative | B d2^d3 |
+| `0x100a000` | 170 | negative | B d1^d2^d3 |
+
+Both triples closed: all seven nonempty XOR combinations of A and of B measured
+as negatives **in this single allocation**, so their images are linearly
+independent and `rank f >= 3` follows without the mask-by-mask argument.
+`image_rank_lower_bound` returns 3 with witness
+`0x2000, 0x4000, 0x1000000`. Linearity consistent, zero contradictions.
+
+The registered prediction was `f(0x6000) = 011` and `f(0xa000) = 101`, both
+non-zero, both therefore negative. Both held. The refuting outcome — a conflict
+at either — did not occur, so the rank-3 basis survives a test it could have
+failed.
+
+This does not raise the floor past 3, and it does not bear on P1 or P2. It
+closes the gap Verification 027 left open, by the independent polynomial route
+rather than by agreement with the earlier result.
+
+## Provenance
+
+- probe `tools/a90_region_probe_r.c`
+  `2dbc81ef7595d30f627df8d28d24e21603d8c1c174074e85593b9fe8df5569e9`
+  (the Verification 016 pin), built to
+  `bd41bb9c8a5f7dfe1ddcec8f069382df6e0ad85d8712da31a9823243c124d204`,
+  776,312 bytes, byte-identical on rebuild; remote hash equal before and after
+  execution
+- manifest
+  `evidence/manifests/verification-028-bank-rank-triple-20260828-01.manifest.json`,
+  3,529 bytes,
+  `e75bd791e7a71d55bb1c1299f4d34354601272791cc47203d34aeb2054adfaad`
+- the only device mutation was a temporary `/dev/ion` character node
+  (`c 10 94`, after verifying `/sys/class/misc/ion/dev` = `10:94`), removed
+  with absence proven; upload envelope and binary removed, `/tmp/a90-native`
+  left holding only the runtime's own log
+- one bounded `stophud` was needed after boot, cleared on the first attempt —
+  the device-side `busy` condition reported in
+  `docs/CODEX_HANDOFF_V024_BUSY_CHANNEL_2026-08-27.md`, observed live again

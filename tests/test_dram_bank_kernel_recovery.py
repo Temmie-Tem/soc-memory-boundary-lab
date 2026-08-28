@@ -213,14 +213,17 @@ class LiveCorpus(unittest.TestCase):
             "the pooled control no longer misplaces PA13; re-derive the scope rule",
         )
 
-    def test_corpus_floor_is_two_and_is_reported_as_a_floor(self) -> None:
-        """The retained runs reach rank >= 2.  Reaching 3 needs a measurement
-        the corpus does not contain: an XOR-closed triple of negatives."""
-        floors = [
-            r["global_rank_lower_bound"]
-            for r in self.result["per_dataset"]["datasets"].values()
-        ]
-        self.assertEqual(2, max(floors))
+    def test_corpus_floor_is_three_since_verification_028(self) -> None:
+        """Until V028 the corpus reached only 2, because no run contained an
+        XOR-closed triple of negatives.  V028 measured two such triples to
+        closure in one allocation, so the floor is now 3 and this test is the
+        record of that change."""
+        datasets = self.result["per_dataset"]["datasets"]
+        floors = [r["global_rank_lower_bound"] for r in datasets.values()]
+        self.assertEqual(3, max(floors))
+        v028 = [n for n in datasets if "verification-028" in n]
+        self.assertEqual(1, len(v028), "the V028 run is missing from the corpus")
+        self.assertEqual(3, datasets[v028[0]]["global_rank_lower_bound"])
 
     def test_v016_heldout_is_predicted_without_falsification(self) -> None:
         conflicts, negatives = set(), set()

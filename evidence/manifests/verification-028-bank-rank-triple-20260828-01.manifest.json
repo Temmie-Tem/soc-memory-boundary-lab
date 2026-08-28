@@ -1,0 +1,145 @@
+{
+  "class": "CLASS C (TRANSFORM ONLY)",
+  "device_writes": {
+    "controller": false,
+    "mmio": false,
+    "param": false,
+    "partition": false,
+    "reboot": false,
+    "smc": false,
+    "temporary_char_device": "/dev/ion (c 10:94), created and removed"
+  },
+  "experiment": "verification-028-bank-rank-triple",
+  "prediction_registered_before_run": {
+    "commit": "3799238",
+    "f_0x6000": "011 != 0 -> must be negative",
+    "f_0xa000": "101 != 0 -> must be negative",
+    "held": true
+  },
+  "private_evidence": {
+    "bank-triple.jsonl": {
+      "bytes": 26737,
+      "sha256": "1fc0a8478048777177341b49d8bb57bbaa1ceb5ace1a8545e989a6b8f720ee36"
+    },
+    "frames.json": {
+      "bytes": 1117650,
+      "sha256": "bb09d4f32df0a98091c38b78b84c7fe6f9c752e27c4335f8dbaf341fbee0d70d"
+    },
+    "probe-output.bin": {
+      "bytes": 24526,
+      "sha256": "47fd521e6fd97882768291337d118cac9234ff90e216efb9a364cf15dacc78b3"
+    }
+  },
+  "probe": {
+    "argv": [
+      "qsecom",
+      "32",
+      "201",
+      "16",
+      "7",
+      "spread",
+      "0x16000",
+      "0x2000",
+      "0x4000",
+      "0x8000",
+      "0x6000",
+      "0xa000",
+      "0x1000000",
+      "0x1002000",
+      "0x1004000",
+      "0x1006000",
+      "0x1008000",
+      "0x100a000",
+      "0x16000",
+      "0x2000"
+    ],
+    "binary_sha256": "bd41bb9c8a5f7dfe1ddcec8f069382df6e0ad85d8712da31a9823243c124d204",
+    "binary_size": 776312,
+    "compiler": "aarch64-linux-gnu-gcc 15.2.0 -O2 -static -Wall -Wextra -Werror",
+    "remote_hash_equal_before_and_after": true,
+    "reproducible_byte_identical": true,
+    "source": "tools/a90_region_probe_r.c",
+    "source_sha256": "2dbc81ef7595d30f627df8d28d24e21603d8c1c174074e85593b9fe8df5569e9"
+  },
+  "reduction": {
+    "conflict_control": "0x16000",
+    "conflicts": [
+      "0x16000"
+    ],
+    "controls_bracket": true,
+    "fast_control": "0x2000",
+    "negatives": [
+      "0x1000000",
+      "0x1002000",
+      "0x1004000",
+      "0x1006000",
+      "0x1008000",
+      "0x100a000",
+      "0x2000",
+      "0x4000",
+      "0x6000",
+      "0x8000",
+      "0xa000"
+    ],
+    "rule": "widest gap between sorted medians, with controls bracketing",
+    "separation": 345,
+    "threshold": 342.5
+  },
+  "result": {
+    "contradictions": [],
+    "global_rank_lower_bound": 3,
+    "kernel_dimension_lower_bound": 1,
+    "linearity_consistent": true,
+    "rank_witness": [
+      "0x2000",
+      "0x4000",
+      "0x1000000"
+    ],
+    "triples": {
+      "A": {
+        "all_negative": true,
+        "combinations": [
+          "0x2000",
+          "0x4000",
+          "0x1000000",
+          "0x6000",
+          "0x1002000",
+          "0x1004000",
+          "0x1006000"
+        ],
+        "generators": [
+          "0x2000",
+          "0x4000",
+          "0x1000000"
+        ]
+      },
+      "B": {
+        "all_negative": true,
+        "combinations": [
+          "0x2000",
+          "0x8000",
+          "0x1000000",
+          "0xa000",
+          "0x1002000",
+          "0x1008000",
+          "0x100a000"
+        ],
+        "generators": [
+          "0x2000",
+          "0x8000",
+          "0x1000000"
+        ]
+      }
+    }
+  },
+  "schema": "a90-bank-rank-triple-v1",
+  "target": {
+    "build": "v2321-usb-clean-identity-rodata",
+    "debug_level": "0x4f4c",
+    "kernel": "Linux 4.14.190-25818860-abA908NKSU5EWA3 aarch64",
+    "model": "SM-A908N",
+    "runtime": "A90 Linux init 0.9.285",
+    "selftest_after": "pass=11 warn=1 fail=0 entries=12",
+    "selftest_before": "pass=11 warn=1 fail=0 entries=12"
+  }
+}

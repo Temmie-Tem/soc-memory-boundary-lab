@@ -78,6 +78,10 @@ without falsification.
 differences whose every nonempty XOR combination was measured as a negative;
 `0x2000` and `0x1000000` with their XOR `0x1002000` supply one in nine runs.
 
+`CLOSED BY VERIFICATION 028`: rank 3. The run below was made and both triples
+came back closed; see `experiments/verification-028-bank-rank-triple/`.
+As of this document alone, however:
+
 `NOT ESTABLISHED HERE`: rank 3. No retained run contains an XOR-closed *triple*
 of negatives, because the experiments were designed to test named candidate
 masks rather than to cover such triples. This does not contradict the project's
