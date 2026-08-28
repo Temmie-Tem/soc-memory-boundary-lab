@@ -753,7 +753,8 @@ class Verification024FinalizerTests(unittest.TestCase):
             "size_matches_candidate": True,
             "cleanup_ok": True,
             "cleanup_error": None,
-            "stat": {"mode": "0600", "uid": "0", "gid": "0", "size": "0", "rdev": "259:27"},
+            "sysfs_uevent": {"MAJOR": "259", "MINOR": "8", "DEVNAME": "sda24", "DEVTYPE": "partition", "PARTN": "24", "PARTNAME": "boot"},
+            "stat": {"mode": "0600", "uid": "0", "gid": "0", "size": "0", "rdev": "259:8"},
         }
         attestation_private = {**attestation, "attest_node": "/tmp/a90-native/verification-024-sda24", "attest_file": "/tmp/a90-native/verification-024-boot-prefix.bin"}
 
@@ -804,10 +805,10 @@ class Verification024FinalizerTests(unittest.TestCase):
             "soc_id_before": b"339\n",
             "selftest_before": b"selftest: pass=11 warn=1 fail=0 duration=43ms entries=12",
             "boot_id_before_read": boot_id.encode("ascii") + b"\n",
-            "boot_sysfs_uevent": b"MAJOR=259\nMINOR=27\nDEVNAME=sda24\nDEVTYPE=partition\nPARTN=24\nPARTNAME=boot\n",
+            "boot_sysfs_uevent": b"MAJOR=259\nMINOR=8\nDEVNAME=sda24\nDEVTYPE=partition\nPARTN=24\nPARTNAME=boot\n",
             "boot_sysfs_size": b"131072\n",
             "boot_sysfs_ro": b"0\n",
-            "boot_attest_stat_node": b"mode=0600 uid=0 gid=0 size=0\r\nrdev=259:27",
+            "boot_attest_stat_node": b"mode=0600 uid=0 gid=0 size=0\r\nrdev=259:8",
             "boot_attest_mknod": b"",
         }
         transition = {
@@ -874,6 +875,8 @@ class Verification024FinalizerTests(unittest.TestCase):
                 include_health=include_health,
             ):
                 argv = finalizer._frame_expected_argv(evidence_id)
+                if evidence_id == "boot_attest_mknod":
+                    argv = ("mknodb", "/tmp/a90-native/verification-024-sda24", "259", "8")
                 assert argv is not None
                 if evidence_id == "fixed_op_4":
                     records.append(fixed_frame(fixed["value"]))
@@ -1483,10 +1486,10 @@ class Verification024FinalizerTests(unittest.TestCase):
             ),
             "soc_id": b"339\n",
             "panic_on_oops": b"1\n",
-            "boot_sysfs_uevent": b"MAJOR=259\nMINOR=27\nDEVNAME=sda24\nDEVTYPE=partition\nPARTN=24\nPARTNAME=boot\n",
+            "boot_sysfs_uevent": b"MAJOR=259\nMINOR=8\nDEVNAME=sda24\nDEVTYPE=partition\nPARTN=24\nPARTNAME=boot\n",
             "boot_sysfs_size": b"131072\n",
             "boot_sysfs_ro": b"0\n",
-            "boot_attest_stat_node": b"mode=0600 uid=0 gid=0 size=0\r\nrdev=259:27",
+            "boot_attest_stat_node": b"mode=0600 uid=0 gid=0 size=0\r\nrdev=259:8",
             "boot_attest_hash": (wrapper_prefix + f"{finalizer.ROLLBACK_SHA256}  /tmp/a90-native/verification-024-boot-prefix.bin\n[exit 0]".encode()),
             "boot_attest_size": (wrapper_prefix + b"60882944 /tmp/a90-native/verification-024-boot-prefix.bin\n[exit 0]"),
             "boot_attest_mknod": b"",
@@ -1495,6 +1498,9 @@ class Verification024FinalizerTests(unittest.TestCase):
         }
         runtime_records: list[dict[str, object]] = []
         for evidence_id, argv in finalizer._RUNTIME_EXPECTED_COMMANDS:
+            if evidence_id == "boot_attest_mknod":
+                argv = ("mknodb", "/tmp/a90-native/verification-024-sda24", "259", "8")
+            assert argv is not None
             payload = payload_by_id.get(evidence_id, wrapper)
             runtime_records.append(runtime_frame(evidence_id, argv, payload))
         runtime_raw["target"].update({
@@ -1542,8 +1548,8 @@ class Verification024FinalizerTests(unittest.TestCase):
             "expected_sha256": finalizer.ROLLBACK_SHA256, "captured_sha256": finalizer.ROLLBACK_SHA256, "sectors": 131072, "ro": 0,
             "hash_matches_candidate": True, "size_matches_candidate": True, "cleanup_ok": True, "cleanup_error": None,
             "binding_failure": False, "pre_cleanup_error": None,
-            "sysfs_uevent": {"MAJOR": "259", "MINOR": "27", "DEVNAME": "sda24", "DEVTYPE": "partition", "PARTN": "24", "PARTNAME": "boot"},
-            "stat": {"mode": "0600", "uid": "0", "gid": "0", "size": "0", "rdev": "259:27"},
+            "sysfs_uevent": {"MAJOR": "259", "MINOR": "8", "DEVNAME": "sda24", "DEVTYPE": "partition", "PARTN": "24", "PARTNAME": "boot"},
+            "stat": {"mode": "0600", "uid": "0", "gid": "0", "size": "0", "rdev": "259:8"},
             "binding_events": [
                 {"stage": stage, "bridge_binding": dict(runtime_bridge_binding)}
                 for stage in finalizer._RUNTIME_BOOT_BINDING_STAGES
@@ -2173,12 +2179,12 @@ class Verification024FinalizerTests(unittest.TestCase):
             expected_selftest,
         )
         uevent = (
-            b"MAJOR=259\nMINOR=27\nDEVNAME=sda24\nDEVTYPE=partition\n"
+            b"MAJOR=259\nMINOR=8\nDEVNAME=sda24\nDEVTYPE=partition\n"
             b"PARTN=24\nPARTNAME=boot"
         )
         expected_uevent = {
             "MAJOR": "259",
-            "MINOR": "27",
+            "MINOR": "8",
             "DEVNAME": "sda24",
             "DEVTYPE": "partition",
             "PARTN": "24",
@@ -2197,12 +2203,82 @@ class Verification024FinalizerTests(unittest.TestCase):
             selftest.replace(b"warn=1 ", b"warn=1\n\n"),
             selftest.replace(b"warn=1 ", b"warn=1\r"),
             uevent + b"\n\n",
-            uevent.replace(b"MINOR=27\n", b"MINOR=27\n\n"),
-            uevent.replace(b"MINOR=27\n", b"MINOR=27\r"),
+            uevent.replace(b"MINOR=8\n", b"MINOR=8\n\n"),
+            uevent.replace(b"MINOR=8\n", b"MINOR=8\r"),
         ):
             with self.subTest(malformed=malformed):
                 with self.assertRaises(finalizer.FinalizeError):
                     finalizer._semantic_lines(malformed, "hostile multiline payload")
+
+    def test_boot_devt_is_dynamic_but_canonically_cross_bound(self) -> None:
+        """Accept valid kernel dev_t values and reject grammar/identity drift."""
+
+        def payload(major: str, minor: str) -> bytes:
+            return (
+                f"MAJOR={major}\nMINOR={minor}\nDEVNAME=sda24\n"
+                "DEVTYPE=partition\nPARTN=24\nPARTNAME=boot"
+            ).encode("ascii")
+
+        for major, minor in (("259", "8"), ("8", "27"), ("1", "0"), ("4095", "1048575")):
+            with self.subTest(major=major, minor=minor):
+                parsed = finalizer._semantic_uevent_payload(
+                    payload(major, minor), "dynamic uevent"
+                )
+                self.assertEqual(parsed["MAJOR"], major)
+                self.assertEqual(parsed["MINOR"], minor)
+                self.assertEqual(
+                    finalizer._validate_dynamic_mknod_argv(
+                        ("mknodb", "/tmp/a90-native/verification-024-sda24", major, minor),
+                        "dynamic mknod",
+                    )[2:],
+                    (major, minor),
+                )
+
+        malformed = (
+            b"MAJOR=259\nDEVNAME=sda24\nDEVTYPE=partition\nPARTN=24\nPARTNAME=boot",
+            payload("259", "8") + b"\nEXTRA=field",
+            payload("0259", "8"),
+            payload("4096", "8"),
+            payload("259", "1048576"),
+            payload("+259", "8"),
+        )
+        for item in malformed:
+            with self.subTest(malformed=item):
+                with self.assertRaises(finalizer.FinalizeError):
+                    finalizer._semantic_uevent_payload(item, "malformed uevent")
+
+        raw = json.loads(
+            (self.root / "evidence/private" / f"{finalizer.CONTROL_EXPERIMENT_ID}.json").read_text()
+        )
+        for field in ("argv", "stat"):
+            frames = json.loads(json.dumps(raw["frames"]))
+            if field == "argv":
+                frame = next(item for item in frames if item["evidence_id"] == "boot_attest_mknod")
+                frame["argv"][-1] = "9"
+            else:
+                frame = next(item for item in frames if item["evidence_id"] == "boot_attest_stat_node")
+                forged = b"mode=0600 uid=0 gid=0 size=0\nrdev=259:9"
+                frame.update(
+                    {
+                        "payload_base64": base64.b64encode(forged).decode("ascii"),
+                        "payload_sha256": finalizer.hashlib.sha256(forged).hexdigest(),
+                        "payload_size": len(forged),
+                    }
+                )
+            with self.subTest(cross_binding=field):
+                with self.assertRaises(finalizer.FinalizeError):
+                    finalizer._validate_inline_frame_payload_semantics(
+                        frames,
+                        target=raw["target"],
+                        attestation=raw["current_boot_attestation"],
+                        candidate_sha256=finalizer.CONTROL_SHA256,
+                        candidate_size=finalizer.BOOT_PREFIX_SIZE,
+                        boot_id_before_read=raw["boot_id_before_read"],
+                        label=f"mismatched {field}",
+                        include_health=True,
+                        health_target=raw["health_after"]["target"],
+                        health_selftest=raw["health_after"]["selftest"],
+                    )
 
     def test_complete_frame_boundaries_have_no_optional_fields(self) -> None:
         raw = json.loads(
@@ -2899,7 +2975,7 @@ class Verification024FinalizerTests(unittest.TestCase):
         cmdline_frame = next(item for item in records if item["evidence_id"] == "cmdline")
         self.assertEqual(
             base64.b64decode(stat_frame["payload_base64"]),
-            b"mode=0600 uid=0 gid=0 size=0\r\nrdev=259:27",
+            b"mode=0600 uid=0 gid=0 size=0\r\nrdev=259:8",
         )
         self.assertIn(
             b"  rootwait   ",
@@ -2909,9 +2985,9 @@ class Verification024FinalizerTests(unittest.TestCase):
         self.assertEqual(result["kind"], "runtime_health")
 
     def test_runtime_health_rejects_forged_stat_spacing_after_full_rebinding(self) -> None:
-        forged = b"mode=0600  uid=0 gid=0 size=0\r\nrdev=259:27"
+        forged = b"mode=0600  uid=0 gid=0 size=0\r\nrdev=259:8"
         with self.assertRaises(probe.ProbeError):
-            probe._parse_stat_identity(forged)
+            probe._parse_stat_identity(forged, "259", "8")
 
         raw_path = self.root / "evidence/private/runtime-health.json"
         journal_path = self.root / "evidence/private/runtime-health.journal.json"

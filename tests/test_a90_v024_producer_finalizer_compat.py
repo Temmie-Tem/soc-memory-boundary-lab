@@ -313,6 +313,8 @@ class ProducerFinalizerCompatibilityTests(unittest.TestCase):
             1, allow_fixed=False, restored=False
         ):
             argv = finalizer._frame_expected_argv(evidence_id)
+            if evidence_id == "boot_attest_mknod":
+                argv = ("mknodb", "/tmp/a90-native/verification-024-sda24", "259", "8")
             assert argv is not None
             protocol_flags = finalizer.inline_protocol_flags_for_argv(argv)
             assert protocol_flags is not None

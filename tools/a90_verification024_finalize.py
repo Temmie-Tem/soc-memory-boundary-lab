@@ -97,6 +97,21 @@ MANIFEST_ROOT_NAME = "evidence/manifests"
 MAX_RECEIPT_BYTES = 8 * 1024 * 1024
 MAX_OUTPUT_BYTES = 512 * 1024
 BOOT_PREFIX_SIZE = 60_882_944
+# Linux assigns the block device number at boot. The finalizer must bind the
+# value emitted by the fixed sda24 uevent to the temporary node it validates;
+# a remembered major/minor pair is not an identity check. Keep only the
+# bounded canonical-decimal grammar here and leave the actual value dynamic.
+BOOT_MAJOR_MIN = 1
+BOOT_MAJOR_MAX = 4095
+BOOT_MINOR_MIN = 0
+BOOT_MINOR_MAX = 1048575
+_BOOT_UEVENT_STATIC_FIELDS = {
+    "DEVNAME": "sda24",
+    "DEVTYPE": "partition",
+    "PARTN": "24",
+    "PARTNAME": "boot",
+}
+_BOOT_ATTEST_NODE = "/tmp/a90-native/verification-024-sda24"
 PARAM_CAPTURE_SIZE = 10 * 1024 * 1024
 PARAM_PARTITION_SECTORS = 20_480
 PARAM_PARTITION_BYTES = 10 * 1024 * 1024
@@ -784,6 +799,70 @@ def _receipt_hash(data: bytes) -> dict[str, object]:
     return {"sha256": hashlib.sha256(data).hexdigest(), "size": len(data)}
 
 
+def _parse_canonical_devnum(
+    value: object,
+    label: str,
+    minimum: int,
+    maximum: int,
+) -> str:
+    """Validate one exact unsigned decimal Linux device-number field."""
+
+    if type(value) is not str or re.fullmatch(r"0|[1-9][0-9]*", value) is None:
+        raise FinalizeError(f"{label} is not canonical unsigned decimal")
+    number = int(value, 10)
+    if not minimum <= number <= maximum:
+        raise FinalizeError(f"{label} is outside the bounded device-number range")
+    return value
+
+
+def _validate_boot_uevent_mapping(
+    value: object, label: str
+) -> dict[str, str]:
+    """Validate the fixed sda24 identity while keeping dev_t boot-dynamic."""
+
+    if not isinstance(value, Mapping):
+        raise FinalizeError(f"{label} uevent mapping is missing")
+    if set(value) != {"MAJOR", "MINOR", *_BOOT_UEVENT_STATIC_FIELDS}:
+        raise FinalizeError(f"{label} uevent fields are not exact")
+    major = _parse_canonical_devnum(
+        value.get("MAJOR"),
+        f"{label} MAJOR",
+        BOOT_MAJOR_MIN,
+        BOOT_MAJOR_MAX,
+    )
+    minor = _parse_canonical_devnum(
+        value.get("MINOR"),
+        f"{label} MINOR",
+        BOOT_MINOR_MIN,
+        BOOT_MINOR_MAX,
+    )
+    for key, expected in _BOOT_UEVENT_STATIC_FIELDS.items():
+        if value.get(key) != expected:
+            raise FinalizeError(f"{label} {key} is not exact")
+    return {
+        "MAJOR": major,
+        "MINOR": minor,
+        **_BOOT_UEVENT_STATIC_FIELDS,
+    }
+
+
+def _validate_dynamic_mknod_argv(value: object, label: str) -> tuple[str, ...]:
+    """Validate mknod syntax; its numbers are bound to the decoded uevent later."""
+
+    if not isinstance(value, (list, tuple)) or len(value) != 4:
+        raise FinalizeError(f"{label} mknod argv is not exact")
+    argv = tuple(value)
+    if argv[:2] != ("mknodb", _BOOT_ATTEST_NODE):
+        raise FinalizeError(f"{label} mknod path/command is not exact")
+    _parse_canonical_devnum(
+        argv[2], f"{label} mknod major", BOOT_MAJOR_MIN, BOOT_MAJOR_MAX
+    )
+    _parse_canonical_devnum(
+        argv[3], f"{label} mknod minor", BOOT_MINOR_MIN, BOOT_MINOR_MAX
+    )
+    return argv
+
+
 def _validate_current_boot_attestation(
     value: object,
     expected_hash: str,
@@ -791,10 +870,13 @@ def _validate_current_boot_attestation(
     *,
     require_paths: bool = True,
 ) -> Mapping[str, object]:
-    """Require the complete fixed sda24 prefix proof, including cleanup."""
+    """Require the complete sda24 prefix proof, including dynamic dev_t."""
 
     if not isinstance(value, Mapping):
         raise FinalizeError(f"{label} current_boot_attestation is missing")
+    uevent = _validate_boot_uevent_mapping(
+        value.get("sysfs_uevent"), f"{label} current boot"
+    )
     expected: dict[str, object] = {
         "sysfs_root": "/sys/class/block/sda24",
         "block_node": "/dev/block/sda24",
@@ -809,6 +891,7 @@ def _validate_current_boot_attestation(
         "hash_matches_candidate": True,
         "size_matches_candidate": True,
         "cleanup_ok": True,
+        "sysfs_uevent": uevent,
     }
     if require_paths:
         expected.update(
@@ -827,7 +910,7 @@ def _validate_current_boot_attestation(
         "uid": "0",
         "gid": "0",
         "size": "0",
-        "rdev": "259:27",
+        "rdev": f"{uevent['MAJOR']}:{uevent['MINOR']}",
     }.items():
         _require(stat_value, key, expected_value, f"{label} current boot stat")
     if require_paths and ("cleanup_error" not in value or value.get("cleanup_error") is not None):
@@ -1029,12 +1112,6 @@ _NEGATIVE_FRAME_ARGV: dict[str, tuple[str, ...]] = {
         "mkdir",
         "-p",
         "/tmp/a90-native",
-    ),
-    "boot_attest_mknod": (
-        "mknodb",
-        "/tmp/a90-native/verification-024-sda24",
-        "259",
-        "27",
     ),
     "boot_attest_stat_node": (
         "stat",
@@ -1341,7 +1418,16 @@ def _validate_frame_list(
         evidence_id = frame.get("evidence_id")
         if evidence_id == "fixed_op_4" and not allow_fixed:
             raise FinalizeError(f"{label} no-value frames contain fixed_op_4")
-        argv = _frame_expected_argv(evidence_id)
+        # The kernel may allocate a different block minor after a reboot.  The
+        # mknod frame is therefore syntax-checked here and its exact numbers
+        # are cross-bound to the preceding uevent payload by the semantic
+        # validator below.  Every other frame retains the closed argv map.
+        if evidence_id == "boot_attest_mknod":
+            argv = _validate_dynamic_mknod_argv(
+                frame.get("argv"), f"{label}[{index}]"
+            )
+        else:
+            argv = _frame_expected_argv(evidence_id)
         if argv is None:
             raise FinalizeError(f"{label}[{index}] frame ID is not allowlisted")
         if not isinstance(evidence_id, str):
@@ -1585,17 +1671,7 @@ def _semantic_uevent_payload(payload: bytes, label: str) -> dict[str, str]:
         if not key or not value or key in parsed:
             raise FinalizeError(f"{label} uevent payload has duplicate/malformed fields")
         parsed[key] = value
-    expected = {
-        "MAJOR": "259",
-        "MINOR": "27",
-        "DEVNAME": "sda24",
-        "DEVTYPE": "partition",
-        "PARTN": "24",
-        "PARTNAME": "boot",
-    }
-    if parsed != expected:
-        raise FinalizeError(f"{label} uevent payload differs from the fixed partition")
-    return parsed
+    return _validate_boot_uevent_mapping(parsed, label)
 
 
 def _semantic_toybox_body(payload: bytes, label: str) -> bytes:
@@ -1685,16 +1761,37 @@ def _validate_inline_frame_payload_semantics(
         raise FinalizeError(f"{label} boot sysfs ro differs from attestation")
     if attestation.get("sectors") != 131072 or attestation.get("ro") != 0:
         raise FinalizeError(f"{label} attestation partition geometry is not exact")
-    if uevent != {
-        "MAJOR": "259", "MINOR": "27", "DEVNAME": "sda24",
-        "DEVTYPE": "partition", "PARTN": "24", "PARTNAME": "boot",
-    }:
-        raise FinalizeError(f"{label} boot sysfs uevent differs")
+    if attestation.get("sysfs_uevent") != uevent:
+        raise FinalizeError(f"{label} boot sysfs uevent differs from attestation")
+    mknod_frames = [
+        frame
+        for frame in frames
+        if isinstance(frame, Mapping)
+        and frame.get("evidence_id") == "boot_attest_mknod"
+    ]
+    if len(mknod_frames) != 1:
+        raise FinalizeError(f"{label} boot_attest_mknod frame count is not exact")
+    mknod_argv = _validate_dynamic_mknod_argv(
+        mknod_frames[0].get("argv"), f"{label} boot_attest_mknod"
+    )
+    if mknod_argv[2:] != (uevent["MAJOR"], uevent["MINOR"]):
+        raise FinalizeError(f"{label} mknod dev_t differs from boot uevent")
     try:
-        stat_value = inline_parse_stat_identity(payloads["boot_attest_stat_node"])
+        stat_value = inline_parse_stat_identity(
+            payloads["boot_attest_stat_node"],
+            uevent["MAJOR"],
+            uevent["MINOR"],
+        )
     except BaseException as exc:
         raise FinalizeError(f"{label} boot_attest_stat_node payload is malformed") from exc
-    if stat_value != {"mode": "0600", "uid": "0", "gid": "0", "size": "0", "rdev": "259:27"}:
+    expected_stat = {
+        "mode": "0600",
+        "uid": "0",
+        "gid": "0",
+        "size": "0",
+        "rdev": f"{uevent['MAJOR']}:{uevent['MINOR']}",
+    }
+    if stat_value != expected_stat:
         raise FinalizeError(f"{label} boot_attest_stat_node differs from attestation")
     if attestation.get("stat") != stat_value:
         raise FinalizeError(f"{label} boot stat differs from attestation")
@@ -2496,6 +2593,8 @@ def validate_control(path: Path, root: Path) -> dict[str, object]:
         "expected_sha256",
         "expected_size",
         "cleanup_ok",
+        "sysfs_uevent",
+        "stat",
     ):
         if manifest_attestation.get(key) != raw_attestation.get(key) or raw_attestation.get(key) != journal_attestation.get(key):
             raise FinalizeError(f"control current boot attestation {key!r} is not cross-bound")
@@ -2873,6 +2972,8 @@ def validate_read(path: Path, root: Path, control: Mapping[str, object]) -> dict
         "expected_sha256",
         "expected_size",
         "cleanup_ok",
+        "sysfs_uevent",
+        "stat",
     ):
         if read_attestation.get(key) != raw_attestation.get(key) or raw_attestation.get(key) != journal_attestation.get(key):
             raise FinalizeError(f"read current boot attestation {key!r} is not cross-bound")
@@ -3604,6 +3705,12 @@ def _validate_fixed_read_source(
         )
     except BaseException as exc:
         raise FinalizeError("read source control/flash chronology cannot be validated") from exc
+    if control_binding.get("current_boot_attestation") != control_summary.get(
+        "current_boot_attestation"
+    ):
+        raise FinalizeError(
+            "read source control attestation projection differs from validated control"
+        )
     for key in (
         "experiment_id",
         "manifest_sha256",
@@ -3635,8 +3742,19 @@ def _validate_fixed_read_source(
     raw_attestation = _validate_current_boot_attestation(
         raw.get("current_boot_attestation"), READ_SHA256, "read source raw"
     )
-    if raw_attestation.get("captured_sha256") != manifest_attestation.get("captured_sha256"):
-        raise FinalizeError("read source current-boot attestation differs")
+    for key in (
+        "captured_sha256",
+        "captured_size",
+        "expected_sha256",
+        "expected_size",
+        "cleanup_ok",
+        "sysfs_uevent",
+        "stat",
+    ):
+        if raw_attestation.get(key) != manifest_attestation.get(key):
+            raise FinalizeError(
+                f"read source current-boot attestation {key!r} differs"
+            )
     source_boot_id = _validate_boot_id_binding(manifest, raw, journal, "read source")
     _validate_semantic_claim(
         manifest,
@@ -3722,8 +3840,19 @@ def _validate_fixed_read_source(
     journal_attestation = _validate_current_boot_attestation(
         journal.get("current_boot_attestation"), READ_SHA256, "read source journal"
     )
-    if journal_attestation.get("captured_sha256") != raw_attestation.get("captured_sha256"):
-        raise FinalizeError("read source journal current-boot attestation differs")
+    for key in (
+        "captured_sha256",
+        "captured_size",
+        "expected_sha256",
+        "expected_size",
+        "cleanup_ok",
+        "sysfs_uevent",
+        "stat",
+    ):
+        if journal_attestation.get(key) != raw_attestation.get(key):
+            raise FinalizeError(
+                f"read source journal current-boot attestation {key!r} differs"
+            )
     source_journal_target = journal.get("target")
     if not isinstance(source_journal_target, Mapping):
         raise FinalizeError("read source journal target is missing")
@@ -5240,12 +5369,11 @@ _RUNTIME_BOOT_UEVENT = _RUNTIME_BOOT_SYSFS_ROOT + "/uevent"
 _RUNTIME_BOOT_SIZE = _RUNTIME_BOOT_SYSFS_ROOT + "/size"
 _RUNTIME_BOOT_RO = _RUNTIME_BOOT_SYSFS_ROOT + "/ro"
 _RUNTIME_BOOT_DIR = "/tmp/a90-native"
-_RUNTIME_BOOT_EXPECTED_STAT = {
+_RUNTIME_BOOT_EXPECTED_STAT_BASE = {
     "mode": "0600",
     "uid": "0",
     "gid": "0",
     "size": "0",
-    "rdev": "259:27",
 }
 _RUNTIME_BOOT_BINDING_STAGES = (
     "pre-attestation cleanup",
@@ -5298,8 +5426,8 @@ def _runtime_absence_commands(prefix: str, path: str) -> list[tuple[str, tuple[s
     ]
 
 
-def _runtime_expected_commands() -> list[tuple[str, tuple[str, ...]]]:
-    commands: list[tuple[str, tuple[str, ...]]] = [
+def _runtime_expected_commands() -> list[tuple[str, tuple[str, ...] | None]]:
+    commands: list[tuple[str, tuple[str, ...] | None]] = [
         ("version", ("version",)),
         ("cmdline", ("cat", "/proc/cmdline")),
         ("soc_id", ("cat", "/sys/devices/soc0/soc_id")),
@@ -5321,7 +5449,9 @@ def _runtime_expected_commands() -> list[tuple[str, tuple[str, ...]]]:
             ("boot_sysfs_size", ("cat", _RUNTIME_BOOT_SIZE)),
             ("boot_sysfs_ro", ("cat", _RUNTIME_BOOT_RO)),
             ("boot_attest_mkdir", ("run", "/bin/toybox", "mkdir", "-p", _RUNTIME_BOOT_DIR)),
-            ("boot_attest_mknod", ("mknodb", _RUNTIME_BOOT_NODE, "259", "27")),
+            # The block dev_t is allocated by the running kernel and is bound
+            # from this run's uevent frame during validation.
+            ("boot_attest_mknod", None),
             ("boot_attest_stat_node", ("stat", _RUNTIME_BOOT_NODE)),
             (
                 "boot_attest_capture",
@@ -5357,6 +5487,25 @@ def _runtime_expected_commands() -> list[tuple[str, tuple[str, ...]]]:
 
 
 _RUNTIME_EXPECTED_COMMANDS = _runtime_expected_commands()
+
+
+def _runtime_expected_argv(
+    evidence_id: str,
+    expected_argv: tuple[str, ...] | None,
+    record: object,
+    label: str,
+) -> tuple[str, ...]:
+    """Resolve one runtime argv, binding mknod's dev_t to its frame."""
+
+    if evidence_id == "boot_attest_mknod":
+        if expected_argv is not None:
+            raise FinalizeError(f"{label} dynamic mknod entry has a fixed argv")
+        if not isinstance(record, Mapping):
+            raise FinalizeError(f"{label} mknod frame is not an object")
+        return _validate_dynamic_mknod_argv(record.get("argv"), label)
+    if expected_argv is None:
+        raise FinalizeError(f"{label} non-mknod entry has no argv")
+    return expected_argv
 
 
 def _runtime_decode_b64(
@@ -5598,13 +5747,16 @@ def _runtime_toybox_body(payload: bytes, label: str) -> bytes:
 
 def _runtime_validate_frame_set(
     frames: object,
-    expected: list[tuple[str, tuple[str, ...]]],
+    expected: list[tuple[str, tuple[str, ...] | None]],
     label: str,
 ) -> list[bytes]:
     if not isinstance(frames, list) or len(frames) != len(expected):
         raise FinalizeError(f"{label} frame sequence is incomplete or duplicated")
     payloads: list[bytes] = []
-    for index, ((evidence_id, argv), frame) in enumerate(zip(expected, frames)):
+    for index, ((evidence_id, expected_argv), frame) in enumerate(zip(expected, frames)):
+        argv = _runtime_expected_argv(
+            evidence_id, expected_argv, frame, f"{label}[{index}]"
+        )
         payload, _ = _runtime_frame(frame, evidence_id, argv, f"{label}[{index}]")
         payloads.append(payload)
     return payloads
@@ -5898,7 +6050,10 @@ def validate_runtime_health(path: Path, root: Path) -> dict[str, object]:
     if not isinstance(public_records, list) or len(public_records) != len(raw_records):
         raise FinalizeError("runtime health public records are missing or incomplete")
     payloads: list[bytes] = []
-    for index, ((evidence_id, argv), record) in enumerate(zip(_RUNTIME_EXPECTED_COMMANDS, raw_records)):
+    for index, ((evidence_id, expected_argv), record) in enumerate(zip(_RUNTIME_EXPECTED_COMMANDS, raw_records)):
+        argv = _runtime_expected_argv(
+            evidence_id, expected_argv, record, f"runtime record[{index}]"
+        )
         payload, _ = _runtime_frame(record, evidence_id, argv, f"runtime record[{index}]")
         payloads.append(payload)
         if public_records[index] != _runtime_public_record(record):
@@ -5935,6 +6090,13 @@ def validate_runtime_health(path: Path, root: Path) -> dict[str, object]:
     boot = raw.get("boot_attestation")
     if not isinstance(boot, Mapping):
         raise FinalizeError("runtime boot attestation summary is missing")
+    runtime_boot_uevent = _semantic_uevent_payload(
+        boot_payloads[10], "runtime boot uevent"
+    )
+    runtime_boot_stat = {
+        **_RUNTIME_BOOT_EXPECTED_STAT_BASE,
+        "rdev": f"{runtime_boot_uevent['MAJOR']}:{runtime_boot_uevent['MINOR']}",
+    }
     for key, expected in {
         "sysfs_root": _RUNTIME_BOOT_SYSFS_ROOT,
         "block_node": "/dev/block/sda24",
@@ -5954,8 +6116,8 @@ def validate_runtime_health(path: Path, root: Path) -> dict[str, object]:
         "cleanup_error": None,
         "binding_failure": False,
         "pre_cleanup_error": None,
-        "sysfs_uevent": {"MAJOR": "259", "MINOR": "27", "DEVNAME": "sda24", "DEVTYPE": "partition", "PARTN": "24", "PARTNAME": "boot"},
-        "stat": _RUNTIME_BOOT_EXPECTED_STAT,
+        "sysfs_uevent": runtime_boot_uevent,
+        "stat": runtime_boot_stat,
     }.items():
         _require(boot, key, expected, "runtime boot attestation")
     events = boot.get("binding_events")
@@ -5974,15 +6136,30 @@ def validate_runtime_health(path: Path, root: Path) -> dict[str, object]:
             raise FinalizeError("runtime boot-attestation bridge binding event is malformed")
         if not _runtime_binding_equal(bridge_binding, item["bridge_binding"]):
             raise FinalizeError("runtime boot-attestation bridge binding drifted")
-    # Bind fixed frame payloads to the attestation summaries.
-    _runtime_line(boot_payloads[10], b"MAJOR=259\nMINOR=27\nDEVNAME=sda24\nDEVTYPE=partition\nPARTN=24\nPARTNAME=boot\n", "runtime boot uevent")
+    # Bind frame payloads to the attestation summaries.  The exact dynamic
+    # dev_t must agree across the uevent, mknod argv, stat rdev, and summary.
+    runtime_mknod_argv = _runtime_expected_argv(
+        "boot_attest_mknod",
+        None,
+        boot_frames[14],
+        "runtime boot mknod",
+    )
+    if runtime_mknod_argv[2:] != (
+        runtime_boot_uevent["MAJOR"],
+        runtime_boot_uevent["MINOR"],
+    ):
+        raise FinalizeError("runtime boot mknod dev_t differs from uevent")
     _runtime_line(boot_payloads[11], b"131072", "runtime boot sector count")
     _runtime_line(boot_payloads[12], b"0", "runtime boot read-only flag")
     try:
-        stat_value = inline_parse_stat_identity(boot_payloads[15])
+        stat_value = inline_parse_stat_identity(
+            boot_payloads[15],
+            runtime_boot_uevent["MAJOR"],
+            runtime_boot_uevent["MINOR"],
+        )
     except BaseException as exc:
         raise FinalizeError("runtime boot stat payload is malformed") from exc
-    if stat_value != _RUNTIME_BOOT_EXPECTED_STAT:
+    if stat_value != runtime_boot_stat:
         raise FinalizeError("runtime boot stat differs from the fixed partition")
     if boot_payloads[14] != b"":
         raise FinalizeError("runtime boot mknod returned unexpected payload")
