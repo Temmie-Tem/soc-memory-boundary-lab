@@ -1,12 +1,12 @@
 # Does Skitter apply to SM8150? — final report v2, 2026-08-29
 
-Status: **DRAFT — current successor synthesis on `main`; awaiting the Audit A
-author's adjudication pass before final designation.**
+Status: **FINAL — authoritative successor synthesis on `main`.**
 
 Author: **the Audit B author**, Codex Desktop session
 `01a048c9-9f97-7f22-b319-46a0d38130d4`; requested model ID
-`gpt-daybreak-blue-latest`; reasoning effort `max`. Reviewer: **PENDING**,
-Audit A author using `claude-opus-5`, effort `xhigh`.
+`gpt-daybreak-blue-latest`; reasoning effort `max`. Reviewer: **Audit A author,
+Claude Opus 5 (`claude-opus-5`), effort `xhigh` — conditional F1/F2/F3 pass at
+`2b1d1bc`, resolved with no axis-verdict change.**
 
 **Current result: `NO_BOUNDARY_BYPASS_OBSERVED`. The operational label remains
 `CLASS C (TRANSFORM ONLY)` / `NOT_ELIGIBLE`, but its precise meaning is
@@ -62,7 +62,7 @@ grades of evidence without converting `UNKNOWN` into agreement.
 | `MUTABILITY` | **UNKNOWN** | No transform register before/after or controlled transform mutation exists. V015 has four invariant comparisons but retains `v2321-L762 REPEAT_REQUIRED`; V019 closes only its exact deep-suspend state. |
 | `APSS-DIRECT-REACH` | **INSTANCE 0 NONRETURNING / CAUSE UNKNOWN** | The exact `0x09248080` load returned no value and the run ended in watchdog/reset. The paired control executed zero MMIO loads, so it is not a positive read control. |
 | `OTHER-INITIATOR/PROXY-REACH` | **OPEN** | AOP, DMA, remote processors, and other master/path combinations remain unclosed. SCM_IO is default-denied only in the on-disk table; its runtime RW table is unknown. DCC is not a read-only observer. |
-| `FINAL-XPU/POLICY-PATH` | **UNKNOWN** | Raw static policy rows are real, but the existing bit-3 HLOS predicate is non-discriminating on the relevant six-address set, client vectors were discarded, and instance/path/overlap/final-live policy were not established. |
+| `FINAL-XPU/POLICY-PATH` | **UNKNOWN** | Raw static policy rows are real, but the existing bit-3 HLOS predicate is non-discriminating on the relevant six-address set, and instance/path/overlap/final-live policy were not established. |
 | `PROTECTION-ORDER` | **UNKNOWN** | Check-before, check-after, stage-2-first, and injective complete-map explanations remain compatible with the evidence. The retained EL2 record is relevant but lacks decoded values and incident binding. |
 | `PROTECTED-EFFECT/BYPASS` | **NOT OBSERVED** | No transformed transaction has been shown to reach a protected boundary, and no unauthorized protected read/write or isolation bypass exists in the retained evidence. |
 | `FAULT-ENABLER` | **STATE/EXPERIMENT NOT CREATED** | Exact PPR/ECC/TRR/Rowhammer identity, observer, activation, and syndrome experiments do not exist. Absence is not claimed. |
@@ -94,7 +94,7 @@ Each row keeps origin and correction flow instead of flattening the result into
 |---|---|---|---|---|
 | **V016 high-bit result** | **Originated in Audit B alone; Audit A had not examined V016.** Audit A's ledger later independently re-derived and confirmed it. From 288 per-pair deltas, the two decisive differences are exact 16/32 mixtures: lower/upper medians `226/475` and `223/437`. Lower median moves the threshold `299 -> 356` and agreement `7/7 -> 5/7`; no preregistration was retained. | [A: not examined; correction context](ADVERSARIAL_AUDIT_2026-08-28.md) | [B §1.1, §2, §9.3, §12](INDEPENDENT_ADVERSARIAL_RESEARCH_AUDIT_2026-08-28.md) | [Ledger §1.1 and §5](AUDIT_RECONCILIATION_LEDGER_2026-08-29.md) |
 | **Route 2** | **Narrowed first by Audit A; Audit B accepted the missing-positive-control limitation after reading A, then separately adjudicated the live counterexample/fault items.** Non-return is confirmed; “measured access control,” XPU causality, and the refusing agent are not. The retained EL2 record makes stage-2/QHEE a live alternative, not a verdict. | [A §2.1, §2.3, §12](ADVERSARIAL_AUDIT_2026-08-28.md) | [B §1.3–1.4.1, §9.3, §12](INDEPENDENT_ADVERSARIAL_RESEARCH_AUDIT_2026-08-28.md) | [Ledger §3 and §6](AUDIT_RECONCILIATION_LEDGER_2026-08-29.md) |
-| **XPU policy narrative** | **Strong convergence from different evidence.** Audit B found a fixed formatter narrative and discarded client vector; Audit A found that the bit-3 predicate fails to distinguish five live-driver pages from the non-return page. Audit A's later bit30=HLOS naming was withdrawn; the actor remains unknown. | [A §2.2 and Correction C1](ADVERSARIAL_AUDIT_2026-08-28.md) | [B §1.4–1.4.1 and §11](INDEPENDENT_ADVERSARIAL_RESEARCH_AUDIT_2026-08-28.md) | [Ledger §1.2, §2, and §3](AUDIT_RECONCILIATION_LEDGER_2026-08-29.md) |
+| **XPU policy narrative** | **Strong convergence from different evidence.** Audit B found a fixed formatter narrative. Audit A found that the bit-3 predicate fails to distinguish five live-driver pages from the non-return page, and later narrowed B's discarded-vector claim: the vector is derived entirely from retained raw fields, so discarding it loses no information. Audit A's later bit30=HLOS naming was withdrawn; the actor remains unknown. | [A §2.2 and Correction C1](ADVERSARIAL_AUDIT_2026-08-28.md) | [B §1.4–1.4.1 and §11](INDEPENDENT_ADVERSARIAL_RESEARCH_AUDIT_2026-08-28.md) | [Ledger §1.2, §2, §3, and §8.1](AUDIT_RECONCILIATION_LEDGER_2026-08-29.md) |
 | **Deep-suspend subsumption** | **Rejected for other code paths.** The two V019 acquisitions remain strong for deep suspend only. Audit B reached this after reading Audit A, so agreement is inherited/shared and weak as replication. | [A §2.4 and §12](ADVERSARIAL_AUDIT_2026-08-28.md) | [B §1.8, H7, §9.3, §12](INDEPENDENT_ADVERSARIAL_RESEARCH_AUDIT_2026-08-28.md) | [Ledger §5–§6](AUDIT_RECONCILIATION_LEDGER_2026-08-29.md) |
 | **SCM_IO closure** | **Corrected by Audit B; confirmed by Audit A/ledger.** The 81-entry on-disk table default-denies the known DDRSS band, but the table and 152-record dispatch table occupy an RW segment. Runtime contents and writer are unknown. | [A §6.1 and Correction C3](ADVERSARIAL_AUDIT_2026-08-28.md) | [B §1.10, §9.3, §12](INDEPENDENT_ADVERSARIAL_RESEARCH_AUDIT_2026-08-28.md) | [Ledger §1.4 and §2](AUDIT_RECONCILIATION_LEDGER_2026-08-29.md) |
 | **DCC observer** | **Corrected by Audit B; confirmed by Audit A/ledger.** DCC is not read-only: list construction writes MMIO and `dcc_enable()` resets the existing production configuration. It is withdrawn as a live read-only candidate. | [A §6.2, §11, and Correction C2](ADVERSARIAL_AUDIT_2026-08-28.md) | [B H5, §10.1, §11.1, §12](INDEPENDENT_ADVERSARIAL_RESEARCH_AUDIT_2026-08-28.md) | [Ledger §1.3 and §2](AUDIT_RECONCILIATION_LEDGER_2026-08-29.md) |
@@ -122,7 +122,7 @@ not see Audit B. Audit B later read Audit A, while refusing to inherit it as
 authority. Agreement therefore has different weights:
 
 - **Strong, different-evidence convergence:** the XPU narrative defect. Audit B
-  found the formatter/client-vector loss; Audit A found the predicate/live
+  found the hardcoded formatter narrative; Audit A found the predicate/live
   counterexamples.
 - **Weak, shared or inherited convergence:** the missing MMIO positive control,
   152-record SMC surface, deep-suspend non-subsumption, and the unsearched
@@ -130,9 +130,11 @@ authority. Agreement therefore has different weights:
 - **One-sided original findings:** V016 was Audit B only. The live XPU
   falsification and retained EL2 fault record were Audit A only; Audit B later
   adjudicated A1/A2/B1 as confirmed and B2 causality as undecidable.
-- **Correction direction:** `Audit A -> Audit B: 0`; `Audit B -> Audit A: 4`.
-  Audit A recorded C1 bit30 naming, C2 DCC, C3 SCM_IO, and C4 V023 provenance as
-  corrections. “Mutual improvement” would erase this measured asymmetry.
+- **Correction direction:** `Audit A -> Audit B: 1 (narrowing)`;
+  `Audit B -> Audit A: 4`. A narrowed B's discarded-vector claim because the
+  vector is fully derived from retained raw fields (Ledger §8.1). A recorded
+  C1 bit30 naming, C2 DCC, C3 SCM_IO, and C4 V023 provenance as corrections
+  prompted by B. “Mutual improvement” would erase this measured asymmetry.
 
 The ledger reports no remaining factual disagreement. Three interpretive
 questions remain: route-2 cause, whether raw XPU rows describe effective live
@@ -144,7 +146,7 @@ policy, and whether the high-bit model has physical provenance.
 |---|---|---|
 | Are V016/V022R high bits physical? | Exact allocation-local SG/PFN oracle, then preregistered blinded high-bit OOS | [V030](VERIFICATION030_RBIN_PHYSICAL_ORACLE_DESIGN_2026-08-28.md) host gate passed: 30 focused tests, the canonical 2,027-test repository suite, compile/preflight, two byte-identical static AArch64 builds, and independent hostile review pass. **No live effect yet.** |
 | Why did route 2 not return? | A successful same-harness MMIO positive control, then raw-set/raw-clear DC_NOC ladder; decode retained ESR/FAR/ELR | [V031](VERIFICATION031_DC_NOC_READ_LADDER_DESIGN_2026-08-28.md) designed and deferred. Its bit30 actor is explicitly `UNKNOWN`. |
-| What policy is actually enforced? | Lossless full client-vector/overlap/all-instance decoder plus live path/readback evidence | Not implemented in this revision. |
+| What policy is actually enforced? | Raw-record-preserving overlap/all-instance decoder plus live path/readback evidence | Not implemented in this revision. |
 | Can another master reach the surface? | Complete AOP computed-dataflow and proxy/initiator-specific harmless controls | Static candidates only; no accepted dispatch/effect. |
 | Do other transitions change the map? | Separate target-bound receipts for OPP/PASR/SSR/etc. using the same observed physical pairs | Not created; deep suspend is not transferred. |
 
@@ -158,10 +160,10 @@ issued in its implementation pass.
 |---|---|---|---|
 | Final report v1, 2026-08-27 | **Model and reasoning strength unrecorded** | Evolved from `d373cd2`; pre-banner body at integration has SHA-256 `74d24229b4d5dbc980262d819ffef3172bb322c5f8ddfee3e5352615392a0502` | Historical synthesis. Retained verbatim below its supersede banner so audit citations remain checkable. |
 | Audit A | Claude Opus 5 (`claude-opus-5`), effort **`xhigh`**, no subagents | Audited tree `3715135`; original audit `4ba9400`; provenance/corrections through `2055f7f`; current file SHA-256 `5aa0b6fef9972a380b14282348b996b242b3d4184d0584c3e8ea94006745ec22` | Wrote first and did not see Audit B. Its eight roles were one sequential model context, not independent agents. |
-| Audit B | `gpt-daybreak-blue-latest`, effort **`max`**, primary author plus three role-separated auditor agents | Evidence tree `4ea9680` (audit-line tip `c45d863`); report `79d5889` plus A1/A2/B1/B2 adjudication `f9ec259`; SHA-256 `de11cf1e79bb142586bd01eef0d2a124e3e99f975256b5055046db5509a5cffc` | Read Audit A. Its agents were separate tasks but shared the same model/effort; B is not an independent replication of A. |
-| Reconciliation ledger | Claude Opus 5 (`claude-opus-5`), effort **`xhigh`**, no subagents | Commit `2055f7f`; SHA-256 `ce9d556a3f3d1f38eae04f7098a0e0e0b6802f99877c1959dd63f94173a49fb5` | Audit A graded all four load-bearing Audit B claims against pinned artifacts and confirmed all four. It also records Audit A's four corrections. |
+| Audit B | `gpt-daybreak-blue-latest`, effort **`max`**, primary author plus three role-separated auditor agents | Evidence tree `4ea9680` (audit-line tip `c45d863`); report `79d5889` plus A1/A2/B1/B2 adjudication `f9ec259`; public-path redaction in this document's containing commit; current SHA-256 `d0b57b0300c4f4449c21c6d2b4da1113b58538d81f4c8576fcdc4102c58e11d8` | Read Audit A. Its agents were separate tasks but shared the same model/effort; B is not an independent replication of A. |
+| Reconciliation ledger | Claude Opus 5 (`claude-opus-5`), effort **`xhigh`**, no subagents | Original reconciliation `2055f7f`; verdict-pass correction `2b1d1bc`; current SHA-256 `3a74e5952f02fb0e6a8e368d92abbf2a30c83db71bbfb0a21ff8832725a96521` | Audit A independently re-derived the four load-bearing B claims, then §8.1 narrowed B's discarded-vector statement. It records `A -> B: 1 (narrowing)` and `B -> A: 4`. |
 | Final report v2, this document | **Written by the Audit B author:** Codex Desktop session `01a048c9-9f97-7f22-b319-46a0d38130d4`, requested model ID `gpt-daybreak-blue-latest`, reasoning effort **`max`; no new subagents for this synthesis** | Drafted from integrated main tree `2092645`, containing immutable `2055f7f`, `f9ec259`, and V030 `d8286ba`; preserved at `a24d870` and final-draft archive `5b1c4a0`; integrated over V030 host-gate base `434f3f6` | This is an attributed synthesis by B's author, not a neutral third audit and not a claim of two-audit independence. The model ID/effort are recorded task metadata, not cryptographic backend/checkpoint attestation. |
-| Reviewed by | **PENDING — Audit A author, Claude Opus 5 (`claude-opus-5`), effort `xhigh`** | No pass has been delivered yet | The draft must not be promoted to `main` as final until this adjudication is supplied and recorded here. |
+| Reviewed by | **Audit A author, Claude Opus 5 (`claude-opus-5`), effort `xhigh`** | Conditional F1/F2/F3 pass at `2b1d1bc` against `791cf5f`; conditions resolved in this document's containing commit | F1 derived-vector provenance, F2 `ARCHITECTURE_MAP.md`, and F3 public absolute paths were corrected. **No 13-axis verdict changed.** |
 
 Primary audit links: [Audit A](ADVERSARIAL_AUDIT_2026-08-28.md),
 [Audit B](INDEPENDENT_ADVERSARIAL_RESEARCH_AUDIT_2026-08-28.md), and the
@@ -179,9 +181,11 @@ Integration refreshed two dependent, host-only derived artifacts after the
 `MEMORY_MAP.md` interpretation changed. V017's `...20260829-06` manifest only
 updates that source pin and leaves its bounded bank-granularity result intact.
 The 1b `...20260829-02` manifest uses an audit-corrected v2 schema: it preserves
-the exact owner, raw permission words, client vector, and legacy bit-3 result,
-but no longer converts the non-discriminating predicate into an HLOS-denial or
-refusing-agent claim. Neither refresh adds a device observation.
+the exact owner, raw permission words, and legacy bit-3 result; separately
+labelled `derived_*` fields carry the reproducible client-permission values. It
+does not convert either the derived vector or the non-discriminating predicate
+into an HLOS-denial or refusing-agent claim. Neither refresh adds a device
+observation.
 
 ## 9. Final bounded conclusion
 

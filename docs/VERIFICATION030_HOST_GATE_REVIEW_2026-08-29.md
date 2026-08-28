@@ -63,8 +63,8 @@ private fixtures were absent.  After copying those fixtures and normalizing
 their local modes, a 2,007-test run had one remaining error because the V024
 flash journal is deliberately pinned to the canonical repository path.
 
-The valid repository-wide run was then made serially from
-`/home/temmie/dev/soc-memory-boundary-lab` under `ulimit -v 4194304`:
+The valid repository-wide run was then made serially from the repository root
+under `ulimit -v 4194304`:
 
 - `Ran 2027 tests in 220.219s`
 - `OK (skipped=1)`

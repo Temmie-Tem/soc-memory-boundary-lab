@@ -3,8 +3,8 @@
 Current research state: `NO_BOUNDARY_BYPASS_OBSERVED`
 
 Current report: [FINAL_REPORT_2026-08-29.md](docs/FINAL_REPORT_2026-08-29.md)
-(`DRAFT`, integrated on `main`; pending the Audit A author's adjudication
-before final designation).
+(`FINAL`; Audit A's conditional F1/F2/F3 pass at `2b1d1bc` is resolved with no
+axis-verdict change).
 
 Current class: `CLASS C (TRANSFORM ONLY)` retained as the exact operational
 gate. Evidentiary meaning: **bounded low-bit `C-MAP` strongly supported;
@@ -587,8 +587,8 @@ mutability and bypass remain `UNKNOWN`. The result remains operationally
 `CLASS C (TRANSFORM ONLY)` / `NOT_ELIGIBLE`; later 020K/020L work is bounded
 host-only evidence. The audit-corrected v2 manifest is
 `evidence/manifests/verification-1b-known-aperture-reachability-20260829-02.manifest.json`,
-24,690 bytes, SHA-256
-`da1f03f728435421dc3a33b25914117e8a098f443b599b7f50ccff51154b4fe3`;
+24,739 bytes, SHA-256
+`123d44a4f044656b7e9b95dbb832b60cb4ee47aa483500d03fd6eeb6cb90a1ac`;
 focused tests are 9/9 PASS and no device action occurred. The historical
 `docs/VERIFICATION1B_REACHABILITY_REVIEW_2026-08-27.md` is retained, but its
 HLOS interpretation is superseded by the current report.

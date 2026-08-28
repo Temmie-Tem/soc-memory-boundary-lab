@@ -1344,8 +1344,8 @@ neither result proves the refusing agent. Global reachability, alternate
 apertures/initiators, final runtime policy, ordering, mutability, and bypass
 remain `UNKNOWN`; Class C and `NOT_ELIGIBLE` are unchanged.
 
-The audit-corrected v2 manifest is 24,690 bytes, mode `0644`, SHA-256
-`da1f03f728435421dc3a33b25914117e8a098f443b599b7f50ccff51154b4fe3`.
+The audit-corrected v2 manifest is 24,739 bytes, mode `0644`, SHA-256
+`123d44a4f044656b7e9b95dbb832b60cb4ee47aa483500d03fd6eeb6cb90a1ac`.
 Focused validation is 9/9 and the checkpoint is host-only with no device
 action. The 2026-08-27 review is retained as historical provenance; its HLOS
 interpretation is superseded by `docs/FINAL_REPORT_2026-08-29.md`.

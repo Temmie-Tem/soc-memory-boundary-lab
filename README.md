@@ -37,7 +37,7 @@ coverage, post-boot mutability, an alias, or a bypass.
 Host-only Experiment 009 now proves static policy coverage for the tested
 instance-0 page. Both exact TrustZone selector branches place `0x09248080` in
 enabled, TZ-owned `DC_NOC_BROADCAST_MPU` region 11 with exact raw permission
-words and a retained client vector; exact devcfg has `disable_xpu_ac=0`. The
+words and decoder-derived client values; exact devcfg has `disable_xpu_ac=0`. The
 legacy bit-3 HLOS predicate is non-discriminating. The fixed-load non-return is
 confirmed, but XPU, QHEE/stage-2, fabric/power, and instrumentation remain live
 causal alternatives. Decoded syndrome values and final runtime policy readback
@@ -612,10 +612,10 @@ writes. Direct non-return is confirmed; the refusing agent and effective HLOS
 access are `UNDECIDABLE`/`UNKNOWN`. Global reachability, alternate apertures,
 final runtime state, ordering, mutability, aliases and bypass remain `UNKNOWN`.
 The result is operationally `CLASS C (TRANSFORM ONLY)` / `NOT_ELIGIBLE`. The
-audit-corrected 24,690-byte v2 manifest is
+audit-corrected 24,739-byte v2 manifest is
 [verification-1b-known-aperture-reachability-20260829-02.manifest.json](evidence/manifests/verification-1b-known-aperture-reachability-20260829-02.manifest.json),
 SHA-256
-`da1f03f728435421dc3a33b25914117e8a098f443b599b7f50ccff51154b4fe3`;
+`123d44a4f044656b7e9b95dbb832b60cb4ee47aa483500d03fd6eeb6cb90a1ac`;
 focused validation is 9/9 PASS and no device action occurred. The
 [2026-08-27 review](docs/VERIFICATION1B_REACHABILITY_REVIEW_2026-08-27.md)
 is retained as historical provenance; its HLOS interpretation is superseded by

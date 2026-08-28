@@ -476,18 +476,17 @@ it does not change Class C or authorize protected-memory access.
 The 1b known-aperture checkpoint then reconciles the retained access-control
 evidence without changing device state.  Both selector branches enumerate the
 same eight known qhs_llcc-remapper/BIMC addresses, and the exact 010 policy
-hits for every candidate are TZ-owned with no HLOS read/write grant under both
-`MEMNOC_MS_MPU` and `CNOC_SNOC_MS_MPU`.  The exact 009 narrow region covering
-`0x09248080` is also branch-invariant.  The retained fixed EL1 load produced
-no value and a `Non Secure Watchdog Bark`, while the control-node route failed
-before a read; these observations do not prove the watchdog's precise cause.
-This is `PROVED` only for the eight known static-policy candidates and
-`SUPPORTED` as a constraint on their tested Normal-World route.  Global
-reachability, alternate apertures, final runtime policy, ordering, mutability,
-and bypass remain `UNKNOWN`; Class C and `NOT_ELIGIBLE` are unchanged.  See
-`docs/VERIFICATION1B_REACHABILITY_REVIEW_2026-08-27.md` and the public
-manifest with SHA-256
-`b4135f22bff47df22cda674eeabfff909ef4d3bc2a1843b358be7556b6d5ff02`.
+hits for every candidate are TZ-owned raw records under both `MEMNOC_MS_MPU`
+and `CNOC_SNOC_MS_MPU`. The legacy bit-3 predicate is non-discriminating, so
+those hits do not prove effective HLOS denial. The exact 009 narrow region
+covering `0x09248080` is also branch-invariant. The retained fixed EL1 load
+produced no value and a `Non Secure Watchdog Bark`, while the control-node route
+failed before a read; these observations prove non-return, not the refusing
+agent. Static coverage and non-return are `PROVED` in their bounded scopes;
+effective access, global reachability, alternate apertures/initiators, final
+runtime policy, ordering, mutability, and bypass remain `UNKNOWN`. Class C and
+`NOT_ELIGIBLE` are unchanged. See the audit-corrected v2 public manifest,
+`evidence/manifests/verification-1b-known-aperture-reachability-20260829-02.manifest.json`.
 
 The Route-2 audit then revalidated the exact 027/029/030/031/032/033/034 public
 manifests.  `SUPPORTED` bounded closure: no promoted DCB-consumer or MC/SHRM
@@ -789,15 +788,16 @@ read_vmid  = 0x80000000
 write_vmid = 0x00000000
 ```
 
-This includes the failed EL1 load at `0x09248080`. The exact MPU conversion
-routine produces zero standard VMID permission words and client-permission
-bytes `0x11/0x08`: TZ-owner read/write plus MSA-class read-only, with no HLOS
-VMID grant. Exact devcfg sets `/ac/xpu:disable_xpu_ac = 0`.
+This includes the failed EL1 load at `0x09248080`. The MPU record itself is
+`<IIIIQQ>` (`index`, `flags`, `read_vmid`, `write_vmid`, `start`, `end`) and
+contains no client-permission field. The decoder derives bytes `0x11/0x08`
+from `read_vmid` bit 31 plus the TZ-owner branch; they are not an independent
+firmware-retained grant. The legacy bit-3 HLOS predicate returns false but is
+non-discriminating. Exact devcfg sets `/ac/xpu:disable_xpu_ac = 0`.
 
-`SUPPORTED`: the load was blocked by `DC_NOC_BROADCAST_MPU` or its downstream
-fabric response. `UNKNOWN`: final runtime XPU register readback and a decoded
-syndrome. The retained collector's encrypted/unparsed TZ payload prevents a
-causal `PROVED` label.
+`CONFIRMED`: the exact load did not return. `UNDECIDABLE`: whether XPU,
+QHEE/stage-2, fabric/power, or the instrument caused it. Final runtime XPU
+readback and decoded EL2 syndrome values remain `UNKNOWN`.
 
 `PROVED`: TZ's global XPU error map routes `DC_NOC_BROADCAST_MPU` to bank 0 bit
 29 and routes `BIMC_MPU0..3` to bits 25..28. `PROVED`: neither embedded static
@@ -891,7 +891,8 @@ hypervisor, ownership and kernel-protection paths.
 
 `PROVED`: The live TrustZone image consumes a registry binding BIMC, MEMNOC,
 LLCC-broadcast, DC_NOC and SHRM MPUs to exact configuration bases. Its static
-DC_NOC policy covers the tested PA and grants no HLOS access; its dynamic
+DC_NOC policy covers the tested PA with exact raw permission words; effective
+HLOS access and the refusing agent remain `UNKNOWN`/`UNDECIDABLE`. Its dynamic
 memory-lock path reconfigures BIMC_MPU0..3. BIMC-MPU final runtime values and
 all protection ordering relative to DRAM decode remain `UNKNOWN`.
 

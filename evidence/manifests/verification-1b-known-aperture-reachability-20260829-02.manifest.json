@@ -13,7 +13,7 @@
    "The five public source artifacts are bound by regular-file, O_NOFOLLOW, size, content-stability, and SHA-256 checks.",
    "Both exact 010 selector branches enumerate the same eight known qhs_llcc-remapper/BIMC candidate addresses.",
    "Every known candidate has MEMNOC_MS_MPU and CNOC_SNOC_MS_MPU hits whose exact TZ owner fields and raw permission words are retained.",
-   "The exact 009 policy evidence covers the tested 0x09248080 DC_NOC_BROADCAST_MPU region in both selector branches and retains raw words, standard-VMID fields, and the complete client permission vector.",
+   "The exact 009 policy evidence covers the tested 0x09248080 DC_NOC_BROADCAST_MPU region in both selector branches, retains raw words and standard-VMID fields, and labels the client-permission values as decoder-derived.",
    "The retained 007 fixed EL1 read produced no value and is followed by a recorded Non Secure Watchdog Bark, while the 005 control-node route failed before a read and recorded no write."
   ],
   "REFUTED": [
@@ -243,20 +243,20 @@
    "bit3_predicate_discriminating": false,
    "branches": {
     "selector_result_ge_2": {
-     "client_permission_bytes": [
-      "0x11",
-      "0x08"
-     ],
-     "client_permission_fields": {
-      "nonsecure_client_ro_vector": 2,
-      "nonsecure_client_wo_vector": 0,
-      "secure_client_ro_vector": 1,
-      "secure_client_wo_vector": 1
-     },
      "critical_region": {
       "end_exclusive": "0x09249000",
       "index": 11,
       "start": "0x09248000"
+     },
+     "derived_client_permission_bytes": [
+      "0x11",
+      "0x08"
+     ],
+     "derived_client_permission_fields": {
+      "nonsecure_client_ro_vector": 2,
+      "nonsecure_client_wo_vector": 0,
+      "secure_client_ro_vector": 1,
+      "secure_client_wo_vector": 1
      },
      "effective_actor_and_path": "UNKNOWN",
      "legacy_bit3_read_marker": false,
@@ -269,20 +269,20 @@
      "standard_vmid_write_bits": "0x00000000"
     },
     "selector_result_lt_2": {
-     "client_permission_bytes": [
-      "0x11",
-      "0x08"
-     ],
-     "client_permission_fields": {
-      "nonsecure_client_ro_vector": 2,
-      "nonsecure_client_wo_vector": 0,
-      "secure_client_ro_vector": 1,
-      "secure_client_wo_vector": 1
-     },
      "critical_region": {
       "end_exclusive": "0x09249000",
       "index": 11,
       "start": "0x09248000"
+     },
+     "derived_client_permission_bytes": [
+      "0x11",
+      "0x08"
+     ],
+     "derived_client_permission_fields": {
+      "nonsecure_client_ro_vector": 2,
+      "nonsecure_client_wo_vector": 0,
+      "secure_client_ro_vector": 1,
+      "secure_client_wo_vector": 1
      },
      "effective_actor_and_path": "UNKNOWN",
      "legacy_bit3_read_marker": false,

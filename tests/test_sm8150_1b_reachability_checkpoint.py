@@ -83,6 +83,11 @@ class CheckpointTests(unittest.TestCase):
         self.assertEqual(manifest["reachability"]["refusing_agent"], "UNDECIDABLE")
         self.assertEqual(manifest["reachability"]["global_normal_world_reachability"], "UNKNOWN")
         self.assertEqual(manifest["reachability"]["fixed_el1_watchdog"]["fixed_address"], "0x09248080")
+        for branch in manifest["known_apertures"]["policy_009_tested_dc_noc"]["branches"].values():
+            self.assertEqual(branch["derived_client_permission_bytes"], ["0x11", "0x08"])
+            self.assertEqual(branch["derived_client_permission_fields"]["nonsecure_client_ro_vector"], 2)
+            self.assertNotIn("client_permission_bytes", branch)
+            self.assertNotIn("client_permission_fields", branch)
         encoded = json.dumps(manifest, sort_keys=True)
         self.assertNotIn("PROVED_BROAD_TZ_OWNED_NO_HLOS_STATIC_COVERAGE", encoded)
         self.assertNotIn("SUPPORTED_BLOCKED_FOR_TESTED_STATIC_POLICY", encoded)
