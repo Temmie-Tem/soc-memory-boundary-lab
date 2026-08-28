@@ -1,0 +1,95 @@
+{
+  "classification": "NEW_BOOT_SUPPORTED_OBSERVATION_INCOMPLETE_RECONCILED",
+  "claims": {
+    "PROVED": [
+      "The exact A90P1 reboot command was dispatched once after the durable physical-effect claim was acquired.",
+      "The reboot command was not replayed after the post-effect observer became incomplete.",
+      "One complete post-boot stophud frame returned rc=0 and status=ok before a second stophud attempt timed out."
+    ],
+    "SUPPORTED": [
+      "A fresh exact-target read-only reconciliation observed a different boot ID, the MID debug profile, panic_on_oops=1, and the expected 11-pass/1-warn/0-fail/12-entry self-test state.",
+      "The device is suitable for a fresh V024 control-r5 preflight; the producer must independently revalidate every live prerequisite."
+    ],
+    "UNKNOWN": [
+      "Why the reboot observer issued or waited for the incomplete second post-boot stophud frame after one complete successful frame."
+    ]
+  },
+  "effect": {
+    "command": "cmdv1 reboot",
+    "dispatch_count": 1,
+    "effect_dispatched": true,
+    "effect_replayed": false,
+    "physical_claim_acquired": true
+  },
+  "experiment_id": "verification-024-control-r5-fresh-boot",
+  "failure": {
+    "category": "POST_BOOT_OBSERVER_INCOMPLETE_AFTER_EFFECT",
+    "detail": "A second post-boot stophud attempt timed out after the first post-boot stophud frame had completed successfully.",
+    "original_status": "EFFECT_DISPATCHED_OBSERVATION_INCOMPLETE"
+  },
+  "independent_readonly_reconciliation": {
+    "boot_id_changed": true,
+    "boot_id_sha256_after": "f81294792c8d6c0fd5ba3692b8b9c569773f6516368e7210c29c3b57d44b5a81",
+    "boot_id_sha256_before": "8953331fec3a0c638cb06e4f77fa1b6127e75f5e30d55f7e638ec5703a185dc9",
+    "debug_level": "0x494d",
+    "dump_sink": "0x0",
+    "evidence_grade": "SUPPORTED_EXEC_TRANSCRIPT_NOT_RAW_PRESERVED",
+    "force_upload": "0x0",
+    "kernel": "Linux 4.14.190-25818860-abA908NKSU5EWA3 aarch64",
+    "panic_on_oops": "1",
+    "runtime": "v2321-usb-clean-identity-rodata",
+    "selftest": {
+      "entries": 12,
+      "fail": 0,
+      "passed": 11,
+      "warn": 1
+    },
+    "soc": "SM8150",
+    "target_model": "SM-A908N"
+  },
+  "next_action": {
+    "experiment_id": "verification-024-control-r5",
+    "mode": "control",
+    "reboot_again": false,
+    "replay_previous_reboot": false
+  },
+  "physical_effect_claim": {
+    "attempted": true,
+    "claim_sha256": "d002eb434cbad3dbe2ce6af71f37c3b9949b4a6cb42b7c59d190228f5f2b9d5a",
+    "claim_size": 666,
+    "claimed": true,
+    "key_sha256": "368d27f7d6aa4e02674bcfadf356a4ae9482260a1f8b2f63d0cdb46f4bb2a83c"
+  },
+  "post_boot_stophud": {
+    "complete_frames": [
+      {
+        "evidence_id": "stophud_1",
+        "payload_sha256": "2ff11ad1db77649ecf6980192befe53fad157a20ff177e9904a6350d4b46e8b5",
+        "payload_size": 16,
+        "rc": 0,
+        "status": "ok",
+        "transcript_sha256": "69905ee3fc0be08fd8bf6e22aa0f33895ad172ab292bb1bc093d56a0b5cd40ea",
+        "transcript_size": 199
+      }
+    ],
+    "incomplete_attempts": [
+      {
+        "attempt": 1,
+        "evidence_id": "stophud_1",
+        "transport_error_type": "TimeoutError"
+      }
+    ]
+  },
+  "private_journal": {
+    "filename": "verification-024-control-r5-fresh-boot.journal.json",
+    "git_ignored": true,
+    "mode": "0600",
+    "sha256": "484e799158e0349617d5b6c9600866d864ca705f48e0d8ce546ffd0ad24a102b",
+    "size": 13097
+  },
+  "reconciled_utc": "2026-08-28T11:20:34Z",
+  "schema": "sdm855-a90-v024-control-r5-reboot-observer-reconciliation-v1",
+  "started_utc": "2026-08-28T11:17:51+00:00",
+  "status": "EFFECT_DISPATCHED_OBSERVATION_INCOMPLETE_RECONCILED_NEW_BOOT",
+  "target_scope": "A90_ONLY"
+}
