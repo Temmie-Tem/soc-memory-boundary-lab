@@ -283,6 +283,7 @@ grade or model resolution.
 | `0x17c00000` `apcs_glb` aperture | ~~No address inside the range appears in any retained XPU inventory.~~ Closed by Verification 025: it is covered by `CNOC_AOSS_MPU` `0x17c00000..0x18200000`, TZ-owned, no HLOS grant. The absence was extraction scope — 5 of 1,726 regions decoded. | **done** |
 | Knock-Knock kernel recovery port | Polynomial-time kernel from retained timing, plus a linearity falsification test | done, Verification 027 |
 | Independent rank floor | Both triples closed in one allocation; `rank f >= 3` without the mask-by-mask argument | **done, Verification 028** |
+| Assembled bit-to-image map, out of sample | 8 of 8 never-measured combinations predicted correctly; the standing `0xc84000` residual re-measured and resolved in the model's favour | **done, Verification 029** |
 | Sudoku component split | Would separate bank from rank from channel | not started |
 | Scorecard `LATER` rows | E — capture feasibility; B — base currentness | deferred |
 

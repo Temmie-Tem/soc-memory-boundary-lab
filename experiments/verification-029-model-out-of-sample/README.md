@@ -91,6 +91,52 @@ and timing reads. No MMIO, controller, SMC, partition, `param` or reboot. The
 only device mutation is a temporary `/dev/ion` node, created after verifying
 the misc identity `10:94` and removed with absence proven.
 
-## Result
+## Result — 8 of 8, and the anomaly resolves against the older run
 
-Not run yet at the time of this commit.
+Run 2026-08-28. Separation 301, threshold 370.5, controls bracketing at both
+ends (`0x16000` 546 / 531, `0x2000` 130 / 145). Self-test
+`pass=11 warn=1 fail=0 entries=12` before and after.
+
+| difference | median | measured | predicted | |
+|---|---:|---|---|---|
+| `0x784000` | 549 | CONFLICT | CONFLICT | hit |
+| `0x8b6000` | 540 | CONFLICT | CONFLICT | hit |
+| `0xaea000` | 537 | CONFLICT | CONFLICT | hit |
+| `0xb74000` | 521 | CONFLICT | CONFLICT | hit |
+| `0x40a000` | 161 | negative | negative | hit |
+| `0x518000` | 220 | negative | negative | hit |
+| `0x6ce000` | 180 | negative | negative | hit |
+| `0x91a000` | 195 | negative | negative | hit |
+| **`0xc84000`** | **549** | **CONFLICT** | **CONFLICT** | anomaly resolved |
+
+**8 of 8 out of sample.** The map was assembled from three separate
+experiments and had never been exercised as one object; it now predicts
+combinations of three to seven bits that it was never fitted to, in both
+directions, across four distinct non-zero images.
+
+`0xc84000` came back a conflict at 549 — sitting with the conflict controls at
+546 and 531, not near the fast controls at 130 and 145. The model is upheld and
+the single prior observation is the outlier. That prior run measured it at
+median −35 under the signed-difference `a90_region_probe_v1` schema, in a
+different allocation; it is exactly the cross-run incomparability Verification
+027 established, showing up as a concrete wrong reading rather than as a
+statistic.
+
+Corpus accuracy is now **771 of 774**. Both remaining residuals — `0x100e000`
+and `0x1012000` — are in `v2321-L762-pass0`, the one run V027's control-bracket
+and span checks independently flagged. **No residual now survives in a run that
+survives scrutiny.**
+
+This strengthens the coordinate model; it does not touch P1 or P2, and it makes
+no claim about physical mapping, mutability, or protected reach.
+
+## Provenance
+
+- probe and binary identical to Verification 028; remote hash equal before and
+  after execution
+- manifest
+  `evidence/manifests/verification-029-model-out-of-sample-20260828-01.manifest.json`,
+  4,978 bytes,
+  `4d65f2c759869345e52d617374f13ea65f48e682b439853300dde38b2490aa15`
+- temporary `/dev/ion` node removed with absence proven; `/tmp/a90-native` left
+  holding only the runtime's own log
