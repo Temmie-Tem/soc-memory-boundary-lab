@@ -11,6 +11,7 @@ from unittest import mock
 from tools import a90_param_capture as capture
 from tools import a90_param_debug_transition as transition
 from tools.a90_partition_capture import Partition
+from tests._a90_param_test_helpers import BOOT_ID_SHA256, make_preflight_exchange
 
 
 class A90ParamCaptureTests(unittest.TestCase):
@@ -242,16 +243,12 @@ class A90ParamCaptureTests(unittest.TestCase):
             b"androidboot.upload_offset=9438196\n"
         )
 
-        def fake_exchange(host, port, command, timeout):
-            del host, port, timeout
-            calls.append(command.evidence_id)
-            if command.evidence_id == "version":
-                return Frame(version, "version")
-            if command.evidence_id == "proc_cmdline":
-                return Frame(cmdline, "cat")
-            if command.evidence_id == "download_mode":
-                return Frame(b"1\n", "cat")
-            raise AssertionError(command.evidence_id)
+        fake_exchange = make_preflight_exchange(
+            calls,
+            Frame,
+            version_payload=version,
+            cmdline_payload=cmdline,
+        )
 
         def fake_stophud(host, port, timeout, exchange, *, frame_records, persist):
             del host, port, timeout, exchange, persist
@@ -314,16 +311,12 @@ class A90ParamCaptureTests(unittest.TestCase):
         partition = Partition("param", "sda10", 8, 10, 20480, 0xA00000, 0, 4096)
         calls: list[str] = []
 
-        def fake_exchange(host, port, command, timeout):
-            del host, port, timeout
-            calls.append(command.evidence_id)
-            if command.evidence_id == "version":
-                return Frame(version)
-            if command.evidence_id == "proc_cmdline":
-                return Frame(cmdline)
-            if command.evidence_id == "download_mode":
-                return Frame(b"1\n")
-            raise AssertionError(command.evidence_id)
+        fake_exchange = make_preflight_exchange(
+            calls,
+            lambda payload, _command_name: Frame(payload),
+            version_payload=version,
+            cmdline_payload=cmdline,
+        )
 
         args = Namespace(
             host="127.0.0.1",
@@ -338,8 +331,12 @@ class A90ParamCaptureTests(unittest.TestCase):
             result = transition._preflight(args)
         self.assertEqual(result[0]["androidboot.em.model"], "SM-A908N")
         self.assertEqual(result[1], "1")
+        self.assertEqual(result[4], BOOT_ID_SHA256)
         discover.assert_called_once_with("127.0.0.1", 54321, 1.0)
-        self.assertEqual(calls, ["version", "proc_cmdline", "download_mode"])
+        self.assertEqual(
+            calls,
+            ["version", "proc_cmdline", "download_mode", "boot_id_before_effect"],
+        )
 
     def test_bridge_binding_failure_precedes_stophud_and_exchange(self) -> None:
         calls: list[str] = []
@@ -557,15 +554,12 @@ class A90ParamCaptureTests(unittest.TestCase):
                     "status": "ok",
                 }
 
-        def fake_exchange(host, port, command, timeout):
-            del host, port, timeout
-            if command.evidence_id == "version":
-                return Frame(version, "version")
-            if command.evidence_id == "proc_cmdline":
-                return Frame(cmdline, "cat")
-            if command.evidence_id == "download_mode":
-                return Frame(b"1\n", "cat")
-            raise AssertionError(command.evidence_id)
+        fake_exchange = make_preflight_exchange(
+            [],
+            Frame,
+            version_payload=version,
+            cmdline_payload=cmdline,
+        )
 
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

@@ -8,19 +8,15 @@ import tempfile
 import unittest
 from argparse import Namespace
 from pathlib import Path
-from types import SimpleNamespace
 from unittest import mock
 
 from tools import a90_param_debug_transition as transition
 from tools.a90_partition_capture import Partition
-
-
-BOOT_ID_PAYLOAD = b"11111111-1111-4111-8111-111111111111\n"
-BOOT_ID_SHA256 = hashlib.sha256(BOOT_ID_PAYLOAD[:-1]).hexdigest()
-
-
-def boot_id_frame(payload: bytes = BOOT_ID_PAYLOAD) -> SimpleNamespace:
-    return SimpleNamespace(payload=payload)
+from tests._a90_param_test_helpers import (
+    BOOT_ID_PAYLOAD,
+    BOOT_ID_SHA256,
+    boot_id_frame,
+)
 
 
 class A90ParamDebugTransitionTests(unittest.TestCase):
