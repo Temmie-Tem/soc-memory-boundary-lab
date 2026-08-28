@@ -1,0 +1,136 @@
+{
+ "canonical_raw_pin": {
+  "basename": "carveout-exhaustion.jsonl",
+  "sha256": "cb16a3c1ba64f6050a52edd2e2fefe9a405d96fde86928cfe344b74764d28694",
+  "size_bytes": 2368
+ },
+ "claim_disposition": {
+  "bridge_binding": "UNKNOWN_UNRETAINED",
+  "classification": "CLASS C (TRANSFORM ONLY)",
+  "eligibility": "NOT_ELIGIBLE",
+  "executed_commands": "UNKNOWN_UNRETAINED",
+  "physical_span": "SUPPORTED_CONDITIONAL_ON_020M_CHAIN",
+  "receipt_result": "SUPPORTED_WITHIN_RETAINED_RECEIPT",
+  "target_identity": "UNKNOWN_UNRETAINED"
+ },
+ "control_after_ok": 5,
+ "control_before_ok": 5,
+ "controls_fired": true,
+ "device_tree_region": {
+  "base": "0xc2000000",
+  "heap_id": 30,
+  "heap_name": "camera_preview",
+  "memory_region_phandle": "0x67a",
+  "node": "camera_mem_region",
+  "size": "0x14000000"
+ },
+ "heap": {
+  "heap_id": 30,
+  "heap_type": 10,
+  "name": "camera_preview"
+ },
+ "hold_bytes": 335544320,
+ "hold_equals_declared_region_size": true,
+ "implied_physical_span": [
+  "0xc2000000",
+  "0xd6000000"
+ ],
+ "implied_physical_span_status": "SUPPORTED_CONDITIONAL_ON_020M_CHAIN",
+ "implied_pool_bytes": 335544320,
+ "input": {
+  "basename": "carveout-exhaustion.jsonl",
+  "sha256": "cb16a3c1ba64f6050a52edd2e2fefe9a405d96fde86928cfe344b74764d28694",
+  "size_bytes": 2368,
+  "status": "RETAINED_PRIVATE_RECEIPT"
+ },
+ "instrument_ok": true,
+ "not_claimed": "No physical page identity, no complete DRAM coordinate, no value of f(PA28), no transform mutability and no access-control implication. This decides allocation extent only.",
+ "pool_exhausted": true,
+ "probe_count": 5,
+ "probe_sizes_bytes": [
+  16777216,
+  4194304,
+  1048576,
+  65536,
+  4096
+ ],
+ "provenance": {
+  "attestation_status": "INCOMPLETE_SAME_RUN_ATTESTATION",
+  "bridge": {
+   "reason": "021 raw receipt has no bridge binding record",
+   "same_run_attested": false,
+   "serial_device": "UNKNOWN_UNRETAINED",
+   "serial_id": "UNKNOWN_UNRETAINED",
+   "status": "UNKNOWN_UNRETAINED"
+  },
+  "commands": {
+   "argv_recorded": false,
+   "executed_receipt": "NOT_RETAINED",
+   "same_run_attested": false,
+   "status": "UNKNOWN_UNRETAINED",
+   "template": "aarch64-linux-gnu-gcc -O2 -static -Wall -Wextra -Werror -o a90_heap_exhaustion_probe tools/a90_heap_exhaustion_probe.c; ./a90_heap_exhaustion_probe <ion-node> camera_preview 320"
+  },
+  "dependency_020m": {
+   "basename": "verification-020m-pa28-dt-20260827-03.manifest.json",
+   "semantic_attestation": {
+    "bridge": {
+     "serial_device": "/dev/ttyACM0",
+     "serial_realpath": "/dev/ttyACM0",
+     "strict_device_glob_option": true,
+     "strict_expect_realpath_option": true
+    },
+    "experiment_id": "verification-020m-pa28-dt-20260827-03",
+    "schema": "a90-pa28-dt-snapshot-v1",
+    "semantic": {
+     "camera_base": "0xc2000000",
+     "camera_end_exclusive": "0xd6000000",
+     "camera_phandle": "0x67a",
+     "camera_size": "0x14000000",
+     "heap30_memory_region_phandle": "0x67a",
+     "heap30_reg": "0x1e"
+    },
+    "target": {
+     "model": "SM-A908N",
+     "soc": "SM8150",
+     "version": "A90 Linux init 0.9.285"
+    }
+   },
+   "sha256": "69b087bd5a6aa279fff9c943405b46491381f3461c5ea1ac57f4d2f287d8ad9a",
+   "size_bytes": 8246,
+   "status": "RETAINED_PUBLIC_DEPENDENCY"
+  },
+  "probe_binary": {
+   "basename": "a90_heap_exhaustion_probe",
+   "sha256": "9361018ea2e9f9169ed8e204c259a243647700448aa31f5515f2e599a4815303",
+   "size_bytes": null,
+   "status": "NOT_RETAINED"
+  },
+  "probe_source": {
+   "basename": "a90_heap_exhaustion_probe.c",
+   "sha256": "02dc73f8731bcdfb6e82d8fb29df2ca73e57a51003435506a29cdd10798126f8",
+   "size_bytes": 6491,
+   "status": "RETAINED_SOURCE"
+  },
+  "raw_receipt": {
+   "basename": "carveout-exhaustion.jsonl",
+   "sha256": "cb16a3c1ba64f6050a52edd2e2fefe9a405d96fde86928cfe344b74764d28694",
+   "size_bytes": 2368,
+   "status": "RETAINED_PRIVATE_RECEIPT"
+  },
+  "target": {
+   "intended_model": "SM-A908N",
+   "intended_soc": "SM8150",
+   "reason": "021 raw receipt has no target identity or preflight record; 020M is a separate collection",
+   "same_run_attested": false,
+   "status": "UNKNOWN_UNRETAINED"
+  },
+  "timestamp": {
+   "status": "UNKNOWN_UNRETAINED"
+  }
+ },
+ "residual_assumption": "The receipt supports no residual allocation at the tested 4 KiB floor after a 320 MiB hold. Physical pool identity and exact span remain conditional on the separate 020M heap-30/camera_mem_region phandle chain; this receipt does not independently re-derive it or attest the same target.",
+ "schema": "a90_carveout_exhaustion_v2",
+ "smallest_probe_bytes": 4096,
+ "under_hold_ok": 0,
+ "verdict": "HOLD_CONSUMES_POOL"
+}

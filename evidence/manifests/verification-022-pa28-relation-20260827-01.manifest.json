@@ -1,0 +1,274 @@
+{
+ "candidates_measured": {
+  "0x10000000": {
+   "median": 218.5,
+   "vector": "000"
+  },
+  "0x10002000": {
+   "median": 167,
+   "vector": "001"
+  },
+  "0x10004000": {
+   "median": 540,
+   "vector": "010"
+  },
+  "0x10006000": {
+   "median": 136,
+   "vector": "011"
+  },
+  "0x10008000": {
+   "median": 214,
+   "vector": "100"
+  },
+  "0x1000a000": {
+   "median": 186,
+   "vector": "101"
+  },
+  "0x1000c000": {
+   "median": 198,
+   "vector": "110"
+  },
+  "0x1000e000": {
+   "median": 189,
+   "vector": "111"
+  }
+ },
+ "claim_disposition": {
+  "alias": "UNKNOWN_NOT_TESTED",
+  "bypass": "NOT_AUTHORIZED",
+  "classification": "CLASS C (TRANSFORM ONLY)",
+  "eligibility": "NOT_ELIGIBLE",
+  "model_extension": "SUPPORTED",
+  "physical_mapping": "UNKNOWN"
+ },
+ "conflicting_candidates": [
+  "0x10004000"
+ ],
+ "context": {
+  "barrier": "dsb_ld",
+  "cpu": 7,
+  "declared_base": "0xc2000000",
+  "divisor": "kept_times_two",
+  "heap": "camera_preview",
+  "mib": 320,
+  "offset_mode": "spread",
+  "order": "alternating",
+  "pairs": 256,
+  "repetitions": 201,
+  "warmups": 17
+ },
+ "controls": {
+  "conflict_difference": "0x16000",
+  "controls_fired": true,
+  "controls_present": true,
+  "negative_difference": "0x2000"
+ },
+ "dependencies": {
+  "verification_020m": {
+   "basename": "verification-020m-pa28-dt-20260827-03.manifest.json",
+   "bytes": 8246,
+   "semantic_attestation": {
+    "bridge": {
+     "serial_device": "/dev/ttyACM0",
+     "serial_realpath": "/dev/ttyACM0",
+     "strict_device_glob_option": true,
+     "strict_expect_realpath_option": true
+    },
+    "experiment_id": "verification-020m-pa28-dt-20260827-03",
+    "schema": "a90-pa28-dt-snapshot-v1",
+    "semantic": {
+     "camera_base": "0xc2000000",
+     "camera_end_exclusive": "0xd6000000",
+     "camera_phandle": "0x67a",
+     "camera_size": "0x14000000",
+     "heap30_memory_region_phandle": "0x67a",
+     "heap30_reg": "0x1e"
+    },
+    "target": {
+     "model": "SM-A908N",
+     "soc": "SM8150",
+     "version": "A90 Linux init 0.9.285"
+    }
+   },
+   "sha256": "69b087bd5a6aa279fff9c943405b46491381f3461c5ea1ac57f4d2f287d8ad9a",
+   "size_bytes": 8246
+  },
+  "verification_021": {
+   "basename": "verification-021-carveout-exhaustion-20260827-01.manifest.json",
+   "bytes": 4586,
+   "semantic_attestation": {
+    "heap": {
+     "heap_id": 30,
+     "heap_type": 10,
+     "name": "camera_preview"
+    },
+    "hold_bytes": 335544320,
+    "region": {
+     "base": "0xc2000000",
+     "heap_id": 30,
+     "heap_name": "camera_preview",
+     "memory_region_phandle": "0x67a",
+     "node": "camera_mem_region",
+     "size": "0x14000000"
+    }
+   },
+   "sha256": "82471b458f87e1ed86596ab08c97bab743ee868edf98d7d272c1d131046c168b",
+   "size_bytes": 4586
+  }
+ },
+ "f_pa28": "010",
+ "f_pa28_equals": "f(PA14)",
+ "inputs": {
+  "dependency_020m": {
+   "basename": "verification-020m-pa28-dt-20260827-03.manifest.json",
+   "bytes": 8246,
+   "sha256": "69b087bd5a6aa279fff9c943405b46491381f3461c5ea1ac57f4d2f287d8ad9a",
+   "size_bytes": 8246
+  },
+  "dependency_021": {
+   "basename": "verification-021-carveout-exhaustion-20260827-01.manifest.json",
+   "bytes": 4586,
+   "sha256": "82471b458f87e1ed86596ab08c97bab743ee868edf98d7d272c1d131046c168b",
+   "size_bytes": 4586
+  },
+  "probe_binary": {
+   "basename": "a90_pa28_probe",
+   "sha256": "9959674add623891a80be57d1f139d6af1cc622359e4972a08b61133500afa51",
+   "size_bytes": 776256,
+   "status": "NOT_RETAINED"
+  },
+  "probe_source": {
+   "basename": "a90_pa28_probe.c",
+   "bytes": 25030,
+   "sha256": "b324c1c3332c61b00f6d6e5c75891721be4a5fb2a998c7f0222900d4eba5e199",
+   "size_bytes": 25030,
+   "status": "RETAINED_REPAIRED_SOURCE_NOT_EXECUTED"
+  },
+  "raw": [
+   {
+    "basename": "pa28-existence.jsonl",
+    "bytes": 194481,
+    "phase": "existence",
+    "sha256": "d0136222fe6b9d211c6f073fec6844b3817c92e25b6e5a00d15cb9b3787ec49b",
+    "size_bytes": 194481,
+    "status": "RETAINED_PRIVATE_RECEIPT"
+   },
+   {
+    "basename": "pa28-identification.jsonl",
+    "bytes": 283197,
+    "phase": "identification",
+    "sha256": "12cd383679524978b4beff7801816e5a4dc8fa9852972701c1395b50f205fa79",
+    "size_bytes": 283197,
+    "status": "RETAINED_PRIVATE_RECEIPT"
+   }
+  ]
+ },
+ "medians": {
+  "0x10000000": 218.5,
+  "0x10002000": 167,
+  "0x10004000": 540,
+  "0x10006000": 136,
+  "0x10008000": 214,
+  "0x1000a000": 186,
+  "0x1000c000": 198,
+  "0x1000e000": 189,
+  "0x16000": 543.0,
+  "0x2000": 145.0
+ },
+ "not_claimed": "The timing classification is a supported model extension only. A negative or resolved selection result does not establish a complete DRAM coordinate, physical alias, transform mutability, or access-control implication.",
+ "pagemap_status": "BLIND",
+ "pair_verification": {
+  "all_pairs_isolate_their_difference": true,
+  "mismatched": [],
+  "pairs_checked": 3029
+ },
+ "phase_controls": {
+  "existence": {
+   "controls_fired": true,
+   "controls_present": true,
+   "differences": [
+    "0x10000000",
+    "0x16000",
+    "0x2000"
+   ],
+   "threshold": 381.5
+  },
+  "identification": {
+   "controls_fired": true,
+   "controls_present": true,
+   "differences": [
+    "0x10002000",
+    "0x10004000",
+    "0x10006000",
+    "0x10008000",
+    "0x1000a000",
+    "0x1000c000",
+    "0x1000e000",
+    "0x16000",
+    "0x2000"
+   ],
+   "threshold": 377.0
+  }
+ },
+ "phase_split": {
+  "conflict": {
+   "0x10004000": 540,
+   "0x16000": 543.0
+  },
+  "gap": 321.5,
+  "negative": {
+   "0x10000000": 218.5,
+   "0x10002000": 167,
+   "0x10006000": 136,
+   "0x10008000": 214,
+   "0x1000a000": 186,
+   "0x1000c000": 198,
+   "0x1000e000": 189,
+   "0x2000": 145.0
+  },
+  "runner_up_gap": 22.0,
+  "threshold": 379.25
+ },
+ "provenance": {
+  "bridge": {
+   "reason": "022 raw receipts have no same-run bridge binding",
+   "same_run_attested": false,
+   "serial_device": "UNKNOWN_UNRETAINED",
+   "serial_id": "UNKNOWN_UNRETAINED",
+   "status": "UNKNOWN_UNRETAINED"
+  },
+  "commands": {
+   "argv_recorded": false,
+   "reason": "022 raw receipts have no same-run command receipt",
+   "same_run_attested": false,
+   "status": "UNKNOWN_UNRETAINED"
+  },
+  "same_run_attested": false,
+  "status": "UNKNOWN_UNRETAINED",
+  "target": {
+   "intended_model": "SM-A908N",
+   "intended_soc": "SM8150",
+   "reason": "022 raw receipts have no same-run target preflight",
+   "same_run_attested": false,
+   "status": "UNKNOWN_UNRETAINED"
+  },
+  "timestamp": {
+   "status": "UNKNOWN_UNRETAINED"
+  }
+ },
+ "repeats_per_difference": {
+  "0x10000000": 2,
+  "0x10002000": 1,
+  "0x10004000": 1,
+  "0x10006000": 1,
+  "0x10008000": 1,
+  "0x1000a000": 1,
+  "0x1000c000": 1,
+  "0x1000e000": 1,
+  "0x16000": 4,
+  "0x2000": 4
+ },
+ "result_disposition": "SUPPORTED_MODEL_EXTENSION",
+ "schema": "a90_pa28_relation_v2",
+ "verdict": "RESOLVED"
+}

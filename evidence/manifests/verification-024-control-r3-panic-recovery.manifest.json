@@ -1,0 +1,61 @@
+{
+  "action": {
+    "if_current_is_0": "write exact 1 then read back exact 1",
+    "if_current_is_1": "record already restored and perform no write",
+    "path": "/proc/sys/kernel/panic_on_oops",
+    "replay_policy": "do not repeat a successful restore"
+  },
+  "completed_utc": "2026-08-28T09:14:45Z",
+  "generated_utc": "2026-08-28T09:14:20Z",
+  "incident": {
+    "dispatch_count": 0,
+    "effect_dispatched": false,
+    "failed_stage": "preflight",
+    "panic_set_0_frame": {
+      "errno": 0,
+      "payload_sha256": "e71253fbda8d47143381003ab14d4887d8f214858728278267bf5daa9907e42b",
+      "payload_size": 13,
+      "rc": 0,
+      "status": "ok"
+    }
+  },
+  "schema": "sdm855-a90-v024-control-r3-panic-recovery-v1",
+  "recovery_result": {
+    "bridge_stable": true,
+    "panic_after": 1,
+    "panic_before": 0,
+    "readback_payload_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "readback_payload_size": 2,
+    "restore_write": {
+      "errno": 0,
+      "payload_sha256": "e71253fbda8d47143381003ab14d4887d8f214858728278267bf5daa9907e42b",
+      "payload_size": 13,
+      "rc": 0,
+      "status": "ok",
+      "transcript_sha256": "ccc09b86d06dfc29703175bdcf6cbf257131d425f9a837b4ca3584fe0dd69cf8",
+      "transcript_size": 237
+    },
+    "restore_write_attempted": true,
+    "restored_and_verified": true
+  },
+  "source_artifacts": {
+    "journal": {
+      "sha256": "3e55bb1b85b4ab3a7c63a682a05a58220d4c26a7dfb7fbd08e2d1df8f181378e",
+      "size": 79467
+    },
+    "public": {
+      "sha256": "551465718605e47db02ca8b4e469ae8be2def65b79f7e8aeb5c5b7648a0606bc",
+      "size": 5099
+    },
+    "raw": {
+      "sha256": "f0cefe3490f325761208514a665e5be506c87b9c36e01157513019b1d654dd05",
+      "size": 68518
+    }
+  },
+  "status": "RECOVERY_COMPLETE",
+  "target": {
+    "model": "SM-A908N",
+    "scope": "A90_ONLY",
+    "soc": "SM8150"
+  }
+}

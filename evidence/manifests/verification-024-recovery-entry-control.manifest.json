@@ -1,0 +1,109 @@
+{
+  "bridge": {
+    "bound": true,
+    "host": "127.0.0.1",
+    "port": 54321,
+    "serial_identity_omitted": true
+  },
+  "completed_utc": "2026-08-28T03:39:28.943200+00:00",
+  "dispatch_count": 1,
+  "effect": {
+    "argv": [
+      "recovery"
+    ],
+    "command": "cmdv1 recovery",
+    "dispatch_count": 1,
+    "effect_dispatched": true,
+    "effect_dispatched_count": 1,
+    "effect_replayed": false,
+    "protocol": "A90P1 CMD_NO_DONE",
+    "receipt": {
+      "a90p1_begin_observed": true,
+      "marker_observed": true,
+      "recovery_marker_observed": true,
+      "socket_disconnect_observed": true,
+      "transcript_sha256": "c8aee9d8843805f35918ace69f2923d90de3ef683a5fcc96b1137a0448fb49be",
+      "transcript_size": 122
+    }
+  },
+  "effect_replayed": false,
+  "experiment_id": "verification-024-recovery-entry-control",
+  "journal_sha256": "d76e9611a693020ca5877228d7f9d0fca58576cd257a98b6b518e45ea8719833",
+  "journal_size": 22508,
+  "other_endpoints_untouched": true,
+  "partition_write": false,
+  "partition_writes": false,
+  "phase": "control",
+  "physical_effect_claim": {
+    "attempted": true,
+    "boot_id_sha256": "19d1b5b595ed2c822d975191ddbc4919a815b9edc81401df5802d664b833c0eb",
+    "claim_sha256": "4ea6399cdb0837e0028867c934d27009805fd4b7bf71456c1da77babfc5eb35c",
+    "claim_size": 662,
+    "claimed": true,
+    "key_sha256": "c02d508d850044c3a3864333b08d7d92c9969f5b615eb3d407396d8b1e8bdbc2"
+  },
+  "raw_cmdline_omitted": true,
+  "raw_transcript_omitted": true,
+  "recovery": {
+    "device": "r3q",
+    "model": "SM-A908N",
+    "other_endpoints_untouched": true,
+    "poll_attempts": 15,
+    "serial_sha256": "7f6dd1b66bdac00e950f3ddb207b7d8b2fca6859c7cdff99a3b96607d111fe46",
+    "state": "recovery",
+    "twrp_help_sha256": "b76e602b08568830eb4a4a326fa0f7ad53d9caa2686c7f86ccaa3921b88c7830",
+    "twrp_help_size": 595,
+    "twrp_version": "3.7.0_12-0"
+  },
+  "schema": "sdm855-a90-recovery-entry-public-v1",
+  "serial_omitted": true,
+  "started_utc": "2026-08-28T03:39:00.502775+00:00",
+  "status": "RECOVERY_OBSERVED",
+  "stophud": {
+    "accepted": true,
+    "busy_retries": 0
+  },
+  "target": {
+    "boot_id": {
+      "sha256": "927aefb14c7b08a2723ff96993b5beb818a343b0eb1e867a80fa628999de2f6a",
+      "size": 37
+    },
+    "bootloader": "A908NKSU5EWA3",
+    "cmdline": {
+      "sha256": "e326100bfec8cb595a413c968dc565bbab47327324423ba5420b3a75b41fbf23",
+      "size": 2513
+    },
+    "debug_level": "0x4f4c",
+    "dump_sink": "0x0",
+    "force_upload": "0x0",
+    "kernel": "Linux 4.14.190-25818860-abA908NKSU5EWA3 aarch64",
+    "model": "SM-A908N",
+    "panic": {
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "size": 2
+    },
+    "panic_on_oops": 1,
+    "runtime": "0.9.285",
+    "runtime_build": "v2321-usb-clean-identity-rodata",
+    "selftest": {
+      "duration": 50,
+      "entries": 12,
+      "fail": 0,
+      "passed": 11,
+      "warn": 1
+    },
+    "selftest_evidence": {
+      "sha256": "048e58d5214ec7d0d313377fb4e0b9000710c53b30cbd6ec2cdcf9bee2af1065",
+      "size": 56
+    },
+    "soc": "SM8150",
+    "soc_id": {
+      "sha256": "80a8dad7e09fb6db82c36af9459415aa65b441e60cff539456268a2a1f9b0beb",
+      "size": 4
+    },
+    "version": {
+      "sha256": "816e84c0c429cffacc2fd6efbdd166bf53a59c5b5fcf39cc59bd9788eb3b329a",
+      "size": 240
+    }
+  }
+}

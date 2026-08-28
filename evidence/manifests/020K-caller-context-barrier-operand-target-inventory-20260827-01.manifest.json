@@ -1,0 +1,348 @@
+{
+ "boundary_bypass": {
+  "device": "none",
+  "mmio": "none",
+  "protected_memory": "none",
+  "reason": "Host-only one-word operand inventory; no activation or live state was accessed.",
+  "smc": "none",
+  "status": "NOT_AUTHORIZED"
+ },
+ "census": {
+  "family_counts": {
+   "BITFIELD": 1,
+   "B_COND": 5,
+   "CBZ_CBNZ": 2,
+   "LDP_STP_PAIR": 2,
+   "LOGICAL_OR_BITMASK_IMMEDIATE": 2
+  },
+  "status": "SUPPORTED_BOUNDED_STOP_OPERAND_TARGET_INVENTORY",
+  "stop_count": 12,
+  "stops": [
+   {
+    "family": "B_COND",
+    "operands": {
+     "condition": 1,
+     "family": "B_COND",
+     "imm19": 58,
+     "imm19_raw": 58,
+     "target_in_same_executable_segment": true,
+     "target_va": "0x9fc264d0"
+    },
+    "source_va": "0x9fc263ec",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc263e8",
+    "target_va": "0x9fc26ee4",
+    "word_sha256": "f8abca8e691c38c583cef2c39c929f43f061ec158c0456ee3c772d4d1a8ac8f0"
+   },
+   {
+    "family": "B_COND",
+    "operands": {
+     "condition": 0,
+     "family": "B_COND",
+     "imm19": 29,
+     "imm19_raw": 29,
+     "target_in_same_executable_segment": true,
+     "target_va": "0x9fc26594"
+    },
+    "source_va": "0x9fc26524",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc26520",
+    "target_va": "0x9fc26ee4",
+    "word_sha256": "d48b9c6adfbaa93bffec2a185dde12cdcadf0cc1aa58e3cfac499a7b4d7b546c"
+   },
+   {
+    "family": "LDP_STP_PAIR",
+    "operands": {
+     "L": 0,
+     "S": 0,
+     "V": 0,
+     "addressing_mode": "OFFSET",
+     "family": "LDP_STP_PAIR",
+     "imm7": 8,
+     "imm7_raw": 8,
+     "index": 1,
+     "offset_bytes": 64,
+     "opc": 2,
+     "operation": "STP",
+     "rn": 31,
+     "rt": 29,
+     "rt2": 30,
+     "width_bits": 64
+    },
+    "source_va": "0x9fc265fc",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc265e4",
+    "target_va": "0x9fc26e84",
+    "word_sha256": "500a78ad10b44cb8445edc95b5d7721f4aab70c598a0930158ac8fef7bae6f43"
+   },
+   {
+    "family": "CBZ_CBNZ",
+    "operands": {
+     "family": "CBZ_CBNZ",
+     "imm19": 11,
+     "imm19_raw": 11,
+     "op": 0,
+     "operation": "CBZ",
+     "rt": 23,
+     "sf": 1,
+     "target_in_same_executable_segment": true,
+     "target_va": "0x9fc26b64",
+     "width_bits": 64
+    },
+    "source_va": "0x9fc26b3c",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc26b38",
+    "target_va": "0x9fc26ec0",
+    "word_sha256": "9fca51f54ab119c1708f465d249ce95ade60e7e1ef79b75fc0597ec8ad89f039"
+   },
+   {
+    "family": "CBZ_CBNZ",
+    "operands": {
+     "family": "CBZ_CBNZ",
+     "imm19": 12,
+     "imm19_raw": 12,
+     "op": 0,
+     "operation": "CBZ",
+     "rt": 22,
+     "sf": 1,
+     "target_in_same_executable_segment": true,
+     "target_va": "0x9fc26ca4",
+     "width_bits": 64
+    },
+    "source_va": "0x9fc26c78",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc26c74",
+    "target_va": "0x9fc26ec0",
+    "word_sha256": "6f726895ab25a2481776ee9bd260b8fa8eaa027c936260864c6273bfac702e01"
+   },
+   {
+    "family": "LDP_STP_PAIR",
+    "operands": {
+     "L": 0,
+     "S": 1,
+     "V": 0,
+     "addressing_mode": "PRE_INDEX",
+     "family": "LDP_STP_PAIR",
+     "imm7": -2,
+     "imm7_raw": 126,
+     "index": 1,
+     "offset_bytes": -16,
+     "opc": 2,
+     "operation": "STP",
+     "rn": 31,
+     "rt": 29,
+     "rt2": 30,
+     "width_bits": 64
+    },
+    "source_va": "0x9fc26f78",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc26f60",
+    "target_va": "0x9fc26f50",
+    "word_sha256": "f29fb5887e2eb991d4e7be54d62d078b4c5d6a88d6e6e9463b5dabe5eb3b4ae5"
+   },
+   {
+    "family": "LOGICAL_OR_BITMASK_IMMEDIATE",
+    "operands": {
+     "N": 0,
+     "S": 1,
+     "family": "LOGICAL_OR_BITMASK_IMMEDIATE",
+     "immr": 31,
+     "imms": 0,
+     "op": 0,
+     "rd": 0,
+     "rn": 31,
+     "sf": 0,
+     "width_bits": 32
+    },
+    "source_va": "0x9fc26fb0",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc26fac",
+    "target_va": "0x9fc26f30",
+    "word_sha256": "af63c85b85683556cb7f3636cf056c83608038ba33e5e8656029f7cbae8b5b93"
+   },
+   {
+    "family": "LOGICAL_OR_BITMASK_IMMEDIATE",
+    "operands": {
+     "N": 0,
+     "S": 1,
+     "family": "LOGICAL_OR_BITMASK_IMMEDIATE",
+     "immr": 31,
+     "imms": 0,
+     "op": 0,
+     "rd": 0,
+     "rn": 31,
+     "sf": 0,
+     "width_bits": 32
+    },
+    "source_va": "0x9fc26ff0",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc26fec",
+    "target_va": "0x9fc26f30",
+    "word_sha256": "af63c85b85683556cb7f3636cf056c83608038ba33e5e8656029f7cbae8b5b93"
+   },
+   {
+    "family": "B_COND",
+    "operands": {
+     "condition": 1,
+     "family": "B_COND",
+     "imm19": 69,
+     "imm19_raw": 69,
+     "target_in_same_executable_segment": true,
+     "target_va": "0x9fc280e4"
+    },
+    "source_va": "0x9fc27fd4",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc27fd0",
+    "target_va": "0x9fc26ec0",
+    "word_sha256": "e8f4379a05dd7fe7ca6404e85a99dc5f4b9ee52b4ae627cd7126bfaf7e88ca4a"
+   },
+   {
+    "family": "B_COND",
+    "operands": {
+     "condition": 1,
+     "family": "B_COND",
+     "imm19": 75,
+     "imm19_raw": 75,
+     "target_in_same_executable_segment": true,
+     "target_va": "0x9fc282b4"
+    },
+    "source_va": "0x9fc281a0",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc28188",
+    "target_va": "0x9fc26ec0",
+    "word_sha256": "2e88d4a8c850ce230db594daf0cd56bb0e7700c71008791b720f4561b95466b4"
+   },
+   {
+    "family": "BITFIELD",
+    "operands": {
+     "N": 0,
+     "alias": "BFXIL",
+     "family": "BITFIELD",
+     "immr": 0,
+     "imms": 23,
+     "opc": 1,
+     "operation": "BFM",
+     "rd": 2,
+     "rn": 17,
+     "sf": 0,
+     "width_bits": 32
+    },
+    "source_va": "0x9fc28218",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc28210",
+    "target_va": "0x9fc26ec0",
+    "word_sha256": "a4758037c9cfc46adec682f2392f3f029941bb26fc9dc512d80a711cf6cb0e9f"
+   },
+   {
+    "family": "B_COND",
+    "operands": {
+     "condition": 1,
+     "family": "B_COND",
+     "imm19": 33,
+     "imm19_raw": 33,
+     "target_in_same_executable_segment": true,
+     "target_va": "0x9fc2c3bc"
+    },
+    "source_va": "0x9fc2c340",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc2c338",
+    "target_va": "0x9fc26ec0",
+    "word_sha256": "19a8813834e10a1cada14a387cb97cdc870836a73501a887f110e5d005db2db0"
+   }
+  ],
+  "unique_stop_va_count": 12
+ },
+ "claims": {
+  "HYPOTHESIS": [],
+  "PROVED": [
+   "The exact XBL, 020J producer source, and public 020J stop manifest are bound by size and SHA-256 before decoding.",
+   "Only the first stop word for each of the 12 exact 020J unsupported rows is decoded; branch targets are checked to remain in the same executable file-backed segment.",
+   "The exact family split is B_COND=5, CBZ_CBNZ=2, LDP_STP_PAIR=2, LOGICAL_OR_BITMASK_IMMEDIATE=2, and BITFIELD=1."
+  ],
+  "REFUTED": [],
+  "SUPPORTED": [
+   "The bounded operands and local branch-target arithmetic distinguish control/prologue and bitfield/logical shapes without extending the caller trace."
+  ],
+  "UNKNOWN": [
+   "Instruction effects beyond decoded fields, branch execution/order, true function boundaries, runtime values/currentness, indirect paths, physical/MMIO/DRAM identity, mutability, protected reach, aliasing, and bypass."
+  ]
+ },
+ "classification": "CLASS C (TRANSFORM ONLY)",
+ "definition_of_done": {
+  "build": {
+   "reason": "Interpreted host Python; no device/kernel build.",
+   "status": "NOT_APPLICABLE"
+  },
+  "commands": {
+   "command": "python3 tools/sm8150_xbl_caller_context_barrier_operand_target_inventory_020k.py --output <public-manifest-path>",
+   "reason": "Private input paths are redacted; exact hashes are pinned.",
+   "status": "REDACTED_REPRODUCTION_TEMPLATE"
+  },
+  "device_binding": {
+   "reason": "No device contact.",
+   "status": "NOT_APPLICABLE"
+  },
+  "recovery": {
+   "reason": "Host-only static inventory; no device state.",
+   "status": "NOT_APPLICABLE"
+  },
+  "repetitions": {
+   "reason": "Host-only static inventory; no runtime repetitions.",
+   "status": "NOT_APPLICABLE"
+  },
+  "rollback": {
+   "reason": "Host-only static inventory; no device state.",
+   "status": "NOT_APPLICABLE"
+  },
+  "target": {
+   "binding": "PROVED_EXACT_XBL_INPUT_HASH",
+   "marketing_name": "A90 5G",
+   "model": "SM-A908N",
+   "soc": "SM8150",
+   "soc_name": "Snapdragon 855"
+  },
+  "timestamp": {
+   "reason": "Deterministic publication does not embed a wall-clock timestamp.",
+   "status": "NOT_APPLICABLE"
+  },
+  "tool_and_build": {
+   "build": "NOT_APPLICABLE",
+   "tool": "sm8150_xbl_caller_context_barrier_operand_target_inventory_020k.py schema sm8150-xbl-caller-context-barrier-operand-target-inventory-v1"
+  }
+ },
+ "device_access": "none",
+ "eligibility": "NOT_ELIGIBLE",
+ "experiment_id": "020K-caller-context-barrier-operand-target-inventory",
+ "inputs": {
+  "dependency_020j_manifest": {
+   "experiment_id": "020J-caller-context-barrier-opcode-inventory",
+   "filename": "020J-caller-context-barrier-opcode-inventory-20260827-01.manifest.json",
+   "sha256": "1fdb1f4ade702fdb2d6ffdc68669a9710c8152e225f89f02fb65c0d10f4c3d55",
+   "size": 7657
+  },
+  "dependency_020j_tool": {
+   "filename": "sm8150_xbl_caller_context_barrier_opcode_inventory_020j.py",
+   "sha256": "4ab87464f17bc8887e62c5bb4eba7c693b2ec299575fc38f8bd9f7847c50dc1b",
+   "size": 13337
+  },
+  "firmware": {
+   "filename": "xbl--sdb1.bin",
+   "sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+   "size": 4194304
+  }
+ },
+ "mode": "HOST_ONLY_READ_ONLY",
+ "schema": "sm8150-xbl-caller-context-barrier-operand-target-inventory-v1",
+ "scope": {
+  "branch_target_scope": "SAME_EXECUTABLE_FILE_BACKED_SEGMENT",
+  "decode_one_word_per_stop": true,
+  "mmio_or_dram_identity": "UNKNOWN",
+  "model": "EXACT_020J_STOP_WORD_OPERANDS_AND_LOCAL_BRANCH_TARGETS_ONLY",
+  "never_scan_arbitrary_ranges": true,
+  "no_trace_past_barrier": true,
+  "raw_word_values": "REDACTED_HASH_ONLY",
+  "runtime_execution": "UNKNOWN",
+  "runtime_pointer_or_pa": "UNKNOWN",
+  "true_function_boundaries": "UNKNOWN"
+ }
+}

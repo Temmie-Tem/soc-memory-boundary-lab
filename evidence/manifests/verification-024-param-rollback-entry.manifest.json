@@ -1,0 +1,27 @@
+{
+  "classification": "PRE_EFFECT_PREFLIGHT_INCOMPLETE",
+  "completed_utc": "2026-08-28T13:22:24+00:00",
+  "effect_dispatched": false,
+  "effect_replayed": false,
+  "error": "timed out waiting for a complete A90P1 frame and prompt",
+  "expected_target": {
+    "bootloader": "A908NKSU5EWA3",
+    "kernel": "Linux 4.14.190-25818860-abA908NKSU5EWA3 aarch64",
+    "model": "SM-A908N",
+    "runtime": "v2321-usb-clean-identity-rodata",
+    "soc": "SM8150"
+  },
+  "experiment_id": "verification-024-param-rollback-entry",
+  "journal": "capture-journal.json",
+  "partition_writes": false,
+  "redaction": {
+    "raw_cmdline": "omitted",
+    "raw_transcript": "omitted",
+    "serial_identity": "omitted"
+  },
+  "schema": "sdm855-a90-param-capture-public-v1",
+  "started_utc": "2026-08-28T13:21:39+00:00",
+  "status": "PRE_EFFECT_PREFLIGHT_INCOMPLETE",
+  "target": null,
+  "target_verified": false
+}

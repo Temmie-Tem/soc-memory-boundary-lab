@@ -1,0 +1,318 @@
+{
+ "boundary_bypass": {
+  "device": "none",
+  "mmio": "none",
+  "protected_memory": "none",
+  "reason": "Host-only static symbolic trace; no activation or live state was accessed.",
+  "smc": "none",
+  "status": "NOT_AUTHORIZED"
+ },
+ "caller_trace": {
+  "argument_origins": {
+   "W3": {
+    "origin": "MEMORY[incoming X0+0x10]",
+    "register": "W3",
+    "width_bits": 32
+   },
+   "X0": {
+    "origin": "MEMORY[incoming X0+0x18]",
+    "register": "X0",
+    "width_bits": 64
+   },
+   "X1": {
+    "origin": "MEMORY[incoming X0+0x20]",
+    "register": "X1",
+    "width_bits": 64
+   },
+   "X2": {
+    "origin": "MEMORY[incoming X0+0x28]",
+    "register": "X2",
+    "width_bits": 64
+   }
+  },
+  "call_site": {
+   "kind": "BL",
+   "target": "0x9fc06410",
+   "va": "0x9fc023f0"
+  },
+  "context_range": {
+   "end_exclusive": "0x9fc02430",
+   "file_offset": "0x000893a4",
+   "sha256": "c7c47500cd7d252f3e6aa310e19c6b908c11910effe0121e50f9edbff430fa18",
+   "size": 92,
+   "start": "0x9fc023d4"
+  },
+  "current_values": "UNKNOWN",
+  "entry": "incoming X0 is an opaque runtime object pointer",
+  "observations": [
+   {
+    "destination": "X19",
+    "form": "MOV",
+    "source": "incoming X0",
+    "va": "0x9fc023e0"
+   },
+   {
+    "base": "X0",
+    "byte_offset": "0x00000010",
+    "form": "LDR_UNSIGNED",
+    "origin": "MEMORY[incoming X0+0x10]",
+    "target": "W3",
+    "va": "0x9fc023e4",
+    "width_bits": 32
+   },
+   {
+    "base": "X0",
+    "byte_offset": "0x00000018",
+    "form": "LDP_UNSIGNED",
+    "origins": [
+     "MEMORY[incoming X0+0x18]",
+     "MEMORY[incoming X0+0x20]"
+    ],
+    "targets": [
+     "X0",
+     "X1"
+    ],
+    "va": "0x9fc023e8",
+    "width_bits": 64
+   },
+   {
+    "base": "X19",
+    "byte_offset": "0x00000028",
+    "form": "LDR_UNSIGNED",
+    "origin": "MEMORY[incoming X0+0x28]",
+    "target": "X2",
+    "va": "0x9fc023ec",
+    "width_bits": 64
+   },
+   {
+    "callee": "candidate setter",
+    "form": "BL",
+    "target": "0x9fc06410",
+    "va": "0x9fc023f0"
+   }
+  ],
+  "status": "SUPPORTED_BOUNDED_SYMBOLIC_ARGUMENT_TRACE",
+  "trace_range": {
+   "end_exclusive": "0x9fc023f4",
+   "file_offset": "0x000893b0",
+   "sha256": "2c33e795998978ddc8ddd01c1b168abb24033aa78f168ea73ef73ac4c335bef5",
+   "size": 20,
+   "start": "0x9fc023e0"
+  }
+ },
+ "claims": {
+  "HYPOTHESIS": [
+   "The incoming X0 object may be a runtime configuration object carrying controller-base-like fields; this tool does not establish its type or role."
+  ],
+  "PROVED": [
+   "The exact retained A90 XBL is bound by its expected size and SHA-256 before analysis.",
+   "The exact setter range [0x9fc06410,0x9fc0643c) has five static global stores: one XZR zero and four values sourced from X0, X1, X2 and W3.",
+   "The exact XBL contains exactly one direct BL caller of the pinned setter, at 0x9fc023f0.",
+   "Within the five-instruction pre-call block, the four setter argument registers resolve to incoming X0 fields: W3=[X0+0x10] (32-bit), X0=[X0+0x18] (64-bit), X1=[X0+0x20] (64-bit), and X2=[X0+0x28] (64-bit).",
+   "The bounded result is symbolic and does not assign a current physical, DRAM, or MMIO destination to any field."
+  ],
+  "REFUTED": [],
+  "SUPPORTED": [
+   "The five static global destinations are compatible with the prior bounded candidate-segment DDR-driver interpretation; that segment identity remains an inference, not a symbol proof.",
+   "The setter-to-caller data-flow edge is reproducible under the stated exact linear-block model."
+  ],
+  "UNKNOWN": [
+   "Runtime origin and values of the incoming X0 object fields, boot execution, and currentness of the resulting globals.",
+   "Whether any field is a DDR/MC/SHRM address, the final physical-to-DRAM mapping, and the identity or semantics of the static global slots.",
+   "Indirect callers, BLR/BR reachability, alternate setter paths, writer identity outside the singleton direct caller, post-boot mutability or locking.",
+   "Normal-World observability or modification, protected-memory reach, aliasing, and boundary bypass."
+  ]
+ },
+ "classification": "CLASS C (TRANSFORM ONLY)",
+ "definition_of_done": {
+  "build": {
+   "reason": "NOT_APPLICABLE: host-only static analysis; no device or runtime state was touched",
+   "status": "NOT_APPLICABLE"
+  },
+  "commands": {
+   "command": "python3 tools/sm8150_xbl_setter_base_trace_020a.py --output <public-manifest-path>",
+   "reason": "Private input and output paths are redacted; pinned artifact hashes are retained.",
+   "status": "REDACTED_REPRODUCTION_TEMPLATE"
+  },
+  "device_binding": {
+   "reason": "NOT_APPLICABLE: host-only static analysis; no device or runtime state was touched",
+   "status": "NOT_APPLICABLE"
+  },
+  "recovery": {
+   "reason": "NOT_APPLICABLE: host-only static analysis; no device or runtime state was touched",
+   "status": "NOT_APPLICABLE"
+  },
+  "repetitions": {
+   "reason": "NOT_APPLICABLE: host-only static analysis; no device or runtime state was touched",
+   "status": "NOT_APPLICABLE"
+  },
+  "rollback": {
+   "reason": "NOT_APPLICABLE: host-only static analysis; no device or runtime state was touched",
+   "status": "NOT_APPLICABLE"
+  },
+  "target": {
+   "binding": "PROVED_EXACT_XBL_INPUT_HASH",
+   "marketing_name": "A90 5G",
+   "model": "SM-A908N",
+   "soc": "SM8150",
+   "soc_name": "Snapdragon 855"
+  },
+  "timestamp": {
+   "reason": "Deterministic host-only publication does not embed a wall-clock timestamp.",
+   "status": "NOT_APPLICABLE"
+  },
+  "tool_and_build": {
+   "build": "NOT_APPLICABLE",
+   "build_reason": "The analyzer is interpreted host Python; no firmware or kernel is built.",
+   "tool": "sm8150_xbl_setter_base_trace_020a.py schema sm8150-xbl-setter-base-trace-v1"
+  }
+ },
+ "device_access": "none",
+ "direct_callers": {
+  "callers": [
+   {
+    "kind": "BL",
+    "target": "0x9fc06410",
+    "va": "0x9fc023f0"
+   }
+  ],
+  "count": 1
+ },
+ "eligibility": "NOT_ELIGIBLE",
+ "experiment_id": "020A-setter-base-trace",
+ "inputs": {
+  "caller_context": {
+   "end_exclusive": "0x9fc02430",
+   "sha256": "c7c47500cd7d252f3e6aa310e19c6b908c11910effe0121e50f9edbff430fa18",
+   "size": 92,
+   "start": "0x9fc023d4"
+  },
+  "caller_trace": {
+   "end_exclusive": "0x9fc023f4",
+   "sha256": "2c33e795998978ddc8ddd01c1b168abb24033aa78f168ea73ef73ac4c335bef5",
+   "size": 20,
+   "start": "0x9fc023e0"
+  },
+  "exact_setter": {
+   "end_exclusive": "0x9fc0643c",
+   "sha256": "4f90392f2e5c34415ad0bb4709227445f3cad1d2444b57a90fa645f1488e063a",
+   "size": 44,
+   "start": "0x9fc06410"
+  },
+  "firmware": {
+   "filename": "xbl--sdb1.bin",
+   "sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+   "size": 4194304
+  }
+ },
+ "mode": "HOST_ONLY_READ_ONLY",
+ "schema": "sm8150-xbl-setter-base-trace-v1",
+ "scope": {
+  "fail_closed_on": [
+   "UNSUPPORTED_INSTRUCTION",
+   "INDIRECT_BRANCH_OR_CALL",
+   "UNRESOLVED_BASE_ORIGIN",
+   "EXACT_RANGE_HASH_MISMATCH",
+   "DIRECT_CALLER_CARDINALITY_CHANGE"
+  ],
+  "instruction_count": 5,
+  "never_scan_arbitrary_ranges": true,
+  "recognized_forms": [
+   "MOV_REGISTER_COPY",
+   "LDR_UNSIGNED",
+   "LDP_UNSIGNED",
+   "BL_DIRECT"
+  ],
+  "static_model": "SINGLE_DIRECT_CALL_PRECALL_LINEAR_BLOCK"
+ },
+ "setter": {
+  "candidate_segment_identity": "SUPPORTED_PRIOR_BOUNDED_INFERENCE",
+  "range": {
+   "end_exclusive": "0x9fc0643c",
+   "file_offset": "0x0008d3e0",
+   "sha256": "4f90392f2e5c34415ad0bb4709227445f3cad1d2444b57a90fa645f1488e063a",
+   "size": 44,
+   "start": "0x9fc06410"
+  },
+  "store_count": 5,
+  "stores": [
+   {
+    "global": "0x9fc38368",
+    "source": "XZR",
+    "source_register": "XZR",
+    "store_va": "0x9fc06424",
+    "width_bits": 64
+   },
+   {
+    "global": "0x9fc38360",
+    "source": "X0",
+    "source_register": "X0",
+    "store_va": "0x9fc06428",
+    "width_bits": 64
+   },
+   {
+    "global": "0x9fc38370",
+    "source": "X1",
+    "source_register": "X1",
+    "store_va": "0x9fc0642c",
+    "width_bits": 64
+   },
+   {
+    "global": "0x9fc38378",
+    "source": "X2",
+    "source_register": "X2",
+    "store_va": "0x9fc06430",
+    "width_bits": 64
+   },
+   {
+    "global": "0x9fc38350",
+    "source": "W3",
+    "source_register": "W3",
+    "store_va": "0x9fc06434",
+    "width_bits": 32
+   }
+  ]
+ },
+ "setter_argument_bindings": [
+  {
+   "caller_field_width_bits": null,
+   "caller_origin": "NOT_APPLICABLE_ZERO",
+   "global": "0x9fc38368",
+   "setter_source": "XZR",
+   "setter_store_va": "0x9fc06424",
+   "width_bits": 64
+  },
+  {
+   "caller_field_width_bits": 64,
+   "caller_origin": "MEMORY[incoming X0+0x18]",
+   "global": "0x9fc38360",
+   "setter_source": "X0",
+   "setter_store_va": "0x9fc06428",
+   "width_bits": 64
+  },
+  {
+   "caller_field_width_bits": 64,
+   "caller_origin": "MEMORY[incoming X0+0x20]",
+   "global": "0x9fc38370",
+   "setter_source": "X1",
+   "setter_store_va": "0x9fc0642c",
+   "width_bits": 64
+  },
+  {
+   "caller_field_width_bits": 64,
+   "caller_origin": "MEMORY[incoming X0+0x28]",
+   "global": "0x9fc38378",
+   "setter_source": "X2",
+   "setter_store_va": "0x9fc06430",
+   "width_bits": 64
+  },
+  {
+   "caller_field_width_bits": 32,
+   "caller_origin": "MEMORY[incoming X0+0x10]",
+   "global": "0x9fc38350",
+   "setter_source": "W3",
+   "setter_store_va": "0x9fc06434",
+   "width_bits": 32
+  }
+ ]
+}

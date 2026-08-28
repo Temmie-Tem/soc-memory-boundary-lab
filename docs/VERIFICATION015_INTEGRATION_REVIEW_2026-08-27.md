@@ -67,6 +67,13 @@ repetitions, not eleven levels. It is `RETRACTED_AND_EXCLUDED` from DDR-frequenc
 or transform-transition inference: the reported higher-voter observation has
 no retained transcript. The sweep is measurement-stability evidence only.
 
+A separate additive amendment now binds two retained `msm-bus-dbg` excerpts.
+It confirms the `disp_rsc_ebi` client and records one initial 12.8 GB/s vote,
+two transient 400 MB/s IB rows and three restored 12.8 GB/s rows.  This
+supplement does not change the V015 classification or promote a DDR clock
+transition; its parser and manifest are reviewed in
+`docs/VERIFICATION015_BUS_VOTE_AMENDMENT_2026-08-27.md`.
+
 `SUPPORTED`, not proved by the raw condition files: their TWRP/V2321, reboot,
 kernel/userspace and coldboot identities. These come from unretained operator
 report and retained project context. Exact acquisition timestamps, probe build
@@ -81,7 +88,7 @@ is `BLIND`; effective physical contiguity and physical-page provenance remain
 |---|---:|---|
 | Analyzer | 97,572 | `6fae489d27d03f94e9dcd89086027a4209988a67020620e54f1df7e22ca99e03` |
 | Focused tests | 28,904 | `ccd6604febeb3c16e40c253a51f5a3fe35c3c61dcd77f6757daa2a9b8ca23ceb` |
-| Experiment README | 11,820 | `0c2166e25707ea1381850a64c3089afefccf4ec6f7102f7d1253addbc2461c2d` |
+| Experiment README | 12,610 | `de81a4598f203609543dbf1d1f9cfd40b5f30fe9d7412fdc535f8bc40f23f769` |
 | Public manifest | 112,840 | `fab880dc50f8e66e74828a0276f8e5ab5ef9b1f2b2f2f9f032dcef03b6b98592` |
 
 - Focused suite: **44/44 PASS**, maximum RSS **31,576 KiB**, swap **0**.

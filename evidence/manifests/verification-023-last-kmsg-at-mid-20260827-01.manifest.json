@@ -1,0 +1,36 @@
+{
+  "commands": [
+    "version",
+    "cat /proc/last_kmsg",
+    "selftest status"
+  ],
+  "completed_utc": "2026-08-27T09:32:49+00:00",
+  "device_write": false,
+  "experiment_id": "verification-023-last-kmsg-at-mid-20260827-01",
+  "markers": {
+    "a90r_result_present": false,
+    "counts": {
+      "A90R": 0,
+      "Last pet": 0,
+      "Non Secure Watchdog Bark": 2,
+      "Watchdog": 27,
+      "last pet": 2,
+      "watchdog": 311
+    },
+    "non_secure_watchdog_bark_present": true
+  },
+  "private_record": {
+    "filename": "verification-023-last-kmsg-at-mid-20260827-01.last_kmsg.bin",
+    "git_ignored": true,
+    "sha256": "fdceab48dc267dd74ec6c70edbec6b51ee13dcd8532cf8b121c4fe93b425c66e",
+    "size": 2097136
+  },
+  "retained_sha256": "fdceab48dc267dd74ec6c70edbec6b51ee13dcd8532cf8b121c4fe93b425c66e",
+  "retained_size": 2097136,
+  "schema": "sdm855-a90-last-kmsg-capture-public-v1",
+  "selftest_status": "ok",
+  "soc": "SM8150",
+  "started_utc": "2026-08-27T09:32:49+00:00",
+  "target_model": "SM-A908N",
+  "version_status": "ok"
+}

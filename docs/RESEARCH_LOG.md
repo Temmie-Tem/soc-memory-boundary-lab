@@ -1767,3 +1767,762 @@ ordering relative to the final DRAM transform remains `UNKNOWN`.
     storage-identity oracle. The historical Verification-018 public result has
     no retained raw transcript/provenance in this tree and will be reacquired
     only after host hardening and hostile review.
+
+# 2026-08-27 — Verification 018 bounded allocation-local marker baseline
+
+This entry records one completed autonomous iteration after the repaired V015
+and V016 integrations.  It is a Verification record, not the numbered
+Experiment 018 XBL writer line.
+
+## Host construction and hostile review
+
+The new probe (`tools/a90_alias_marker_probe.c`) is a static AArch64 C probe
+with a strict `a90_alias_marker_v1` JSONL contract: one context, exact
+`camera_preview` type 10/id 30 heap, pagemap observation, two controls, four
+page-aligned anchors, two trials over bits 6..27, and one summary (190 records;
+176 candidates).  It performs only allocation-local write-combine accesses and
+never opens MMIO, SMC, secure/protected memory, a partition or a controller
+register.  The host analyzer recomputes all markers, sentinels, candidate
+verdicts, control gates and summary counts; malformed, duplicate, reordered,
+foreign, nonfinite, incomplete or inconsistent records fail closed.  Synthetic
+tests identify dropped bits 6/12/13/19/27, retain an injective negative and
+keep an injective cross-state permutation outside this single-state oracle.
+
+The first independent hostile review rejected live promotion until the runner
+added predeclared source/binary pins and a reproducible build receipt, exact
+bridge serial identity (`usb-A90-LNX...` -> `/dev/ttyACM0`), strict version and
+command framing, sidecar/raw/receipt binding, bounded frame sizes, child
+completion evidence and a total deadline.  A second review is retained as the
+required challenge input; its residual objection is accepted as scope: this is
+not a PFN/PTE/SG physical-alias proof or a cacheable-vs-noncacheable full
+normal-RAM alias experiment.
+
+## Live actions and receipts
+
+The first live invocation stopped after read-only `version`/`cmdline` because
+the actual version frame includes a parenthesized build and separate
+`version:`/`kernel:` lines.  It retained an `INCIDENT` receipt with zero
+preclean/upload/ION/probe/write actions.  No replay of an effect occurred.
+
+After the parser was corrected from that retained frame, one fresh run used the
+exact bridge and fixed command:
+
+```text
+run /tmp/a90-native/v018-alias-probe --ion-node /tmp/a90-native/v018-ion --seed 0x5da9f0e3c17b2846
+```
+
+The run bound `SM-A908N` / `SM8150`, V2321 `0.9.285`, kernel
+`4.14.190-25818860-abA908N...`, debug level `0x4f4c`, force-upload `0`, and
+dump sink `0`; the ION character identity was `10:94`.  The 256-MiB allocation
+was prefaulted for pagemap observation, both mappings were distinct virtual
+addresses, the same-storage control returned `ALIAS`, and the distinct-offset
+control returned `DISTINCT`.  All 176 candidates were `DISTINCT` in both
+trials.  The probe summary was `aliases=0 disturbed=0 clobbered_anchors=0
+trial_disagreements=0 verdict=NO_ALIAS`.
+
+The runner retained raw JSONL, framed probe output, the full bridge transcript
+and a PASS receipt.  The temporary node, upload envelope and remote binary were
+removed and absence-proved; remote binary hashes were identical before/after
+the run; final V2321 selftest was `pass=11 warn=1 fail=0`.  Private hashes are:
+
+| Artifact | Bytes | SHA-256 |
+|---|---:|---|
+| build receipt | 773 | `40a338c2c96bc214ff89543cd9946e2243499e1f72f7b5819f0c748118c43872` |
+| probe source | 22,191 | `cdc6f985fb8e2f37a3964a25f8d575ec1b3fe48eab71d084a30537c6fbe6f3bb` |
+| probe binary | 710,408 | `33ef21a13ef79f6888b5a466644660ace3c6950664b1e2b497aad474f1487d56` |
+| raw JSONL | 37,456 | `22bb53723a0e1305cdb1c8f4e169ef01e4d2605d1453685ac69faa0bee2a4751` |
+| framed probe output | 37,497 | `f0f4af75e1525b23a4ff16cae202dab9cfef805844d57fc5aee766afe62aa8b7` |
+| bridge transcript | 1,071,529 | `b8535e555fab04adf083a94de56e93526da7038ea8917648012fa38957672c52` |
+| PASS receipt | 1,135,686 | `3d8bbba997045f2e53e4ea2ed5fa560ee7c3efad1971ff1991ee2465ba960352` |
+
+The retained run did not exercise a transport timeout.  If the bridge times out
+before returning a frame that contains the remote child PID, the current runner
+records an incident but cannot independently prove that the remote child stopped
+before cleanup; this recovery path is `UNKNOWN` and is not used to support the
+`PASS` result above.
+
+The sanitized public manifest is
+`evidence/manifests/verification-018-a90-20260827-03.manifest.json`, 47,715
+bytes, SHA-256
+`4747a45c20b038b511c3310ebbdd4ac67f9885f29dfe2e3155882a3cf7eb0371`, mode
+`0644`.  It reports `DEVICE_ACQUISITION_VALIDATED` and
+`PROVED_NO_ALIAS_IN_EXACT_TESTED_OFFSET_PAIRS`; no raw bytes, private paths or
+device secrets are published.
+
+## Reclassification and next discriminator
+
+`PROVED`: the exact one-state allocation-offset observations and all live
+cleanup/health/build/target receipts.  `SUPPORTED`: this negative is useful as
+a non-secure allocation-local storage-identity baseline.  `UNKNOWN`: PFNs/physical mapping,
+effective contiguity, final DRAM coordinate, injective cross-state permutation,
+transform-state mutability, protection ordering and any protected-boundary
+reach.  `REFUTED` only: an alias in the tested candidate pairs for this run.
+
+Class C (`TRANSFORM ONLY`) is unchanged; numbered Experiments 015/016 remain
+`NOT_ELIGIBLE`.  The route-2 falsification challenge selected next is now
+audited in `docs/ROUTE2_RANK_AUDIT_INTEGRATION_REVIEW_2026-08-27.md`; its Q1
+bounded result is `SUPPORTED` and Q4 remains `UNKNOWN`.
+
+# 2026-08-27 — Verification 017 post-decode bank-granularity audit
+
+This is the host-only audit that V016's dependency gate made eligible.  It uses
+no device, SMC, MMIO, protected-memory or controller action.  Claude's bounded
+implementation was independently rechecked and then hardened here with exact
+source pins, semantic manifest cross-checks, no-clobber `O_EXCL` publication,
+page-aligned range validation, and explicit subtraction of reserved ranges
+nested inside the broad `System RAM` resource.
+
+## Inputs and computation
+
+The pinned 023R relation manifest is 18,040 bytes / SHA-256
+`5c3e14ff898c109de740d98260d974bca10751000f85977775cd467ac74aac2e`; the
+pinned V016 high-bit manifest is 59,504 bytes / SHA-256
+`72525cf994e52bbee1c3ed685c49a6ace4049cd7b279cb97811f6a0d3f4f773f`; and the
+pinned `docs/MEMORY_MAP.md` is 9,428 bytes / SHA-256
+`34496c0d92736f7df5b9da69f8bcadfe40fb3ee35558c1b10fab7d06dec86950`.  The
+tool also checks that 023R retains a resolved unique rank-3 result and that
+V016 retains exactly the equalities `{25:[14,21], 26:[19], 27:[13,20]}` before
+running the model.
+
+The recovered relation has rank three.  Its first nonzero contribution is bit
+13, so the minimum class-change span is 8 KiB; the first three independent
+contributions appear by bit 15, so a 64-KiB-aligned 64-KiB span covers all eight
+model bank classes.  For an arbitrary base, 128 KiB is the conservative
+guarantee.  Five protected carveouts (`hyp_mem`, `tima_region`, `rkp_region`,
+`uh_heap_region`, `qseecom_region`) and nine explicitly unprotected System RAM
+fragments meet that aligned-or-128-KiB bound under the
+allocation-offset/model-coordinate projection.  The isolated 4-KiB System RAM fragment at
+`0x80000000-0x80000fff` is retained as an explicit exclusion rather than
+silently generalized.  The tool parses and cross-checks the fixed-range table
+and `/proc/iomem` block against its calculation inputs.  It also constructs
+injective and non-injective finite GF(2) completions with the same bank
+projection, proving that the observed bank relation alone does not determine
+complete-coordinate injectivity.
+
+## Result
+
+The canonical public manifest is
+`evidence/manifests/verification-017-protection-bank-granularity-20260827-05.manifest.json`,
+18,108 bytes, mode `0644`, SHA-256
+`97ff68a2f8ebfb6313f228f2626f12f88260764a993f916ba1f97677d7b99f02`.  The
+focused suite is 42/42 PASS; a fresh host publication is byte-identical to the
+canonical manifest.  The full serial repository suite is 1,132/1,132 PASS
+(`skipped=1`) in 113.958 seconds, maximum RSS 278,532 KiB, with zero swap.
+
+`PROVED`: the model-coordinate rank/granularity, source semantic agreement, the
+alignment-sensitive 64/128-KiB covering bounds, the model-projected per-range class histograms,
+and the finite countermodel underdetermination.  `REFUTED` only within those
+declared ranges: a check that observes only post-decode bank class cannot
+separate protected from the explicitly unprotected comparison ranges.
+`SUPPORTED`: the narrow bank-only shape does not explain protection separation,
+leaving checks that retain additional address information as the remaining
+structural possibility.
+`UNKNOWN`: actual enforcement ordering, complete DRAM coordinates, physical
+mapping, PA28+, transform mutability, global writer/register absence, and any
+protected-memory reach or bypass.  Class C remains unchanged.
+
+# 2026-08-27 — Route-2 writer/rank manifest audit
+
+This host-only iteration pins the exact 027/029/030/031/032/033/034 public
+manifests plus 023R and V016.  It verifies the bounded no-promoted-path result,
+all 71 site identities, every transition identity/count balance, 032–034
+quadrant counts, 030's inherited rank-3 dependency, and the distinction between
+029 decoder ranking metadata and a relation row.  No device or controller action
+was performed.
+
+`SUPPORTED_BOUNDED_CLOSURE_UNKNOWN_GLOBAL`: Q1 has no promoted DCB-consumer or
+MC/SHRM symbolic target path inside the declared models, but global writer,
+runtime and indirect state remain `UNKNOWN`.  Q4 is
+`UNKNOWN_NO_COMPLETE_029_034_RELATION_ROW_SET`: no explicit relation rows occur
+in the named public fields, but unretained raw rows were not reconstructed.
+
+The canonical public manifest is
+`evidence/manifests/route2-rank-audit-20260827-01.manifest.json`, 9,607 bytes,
+mode `0644`, SHA-256
+`ec3ec693768bf1294366c5650ab9c5e76b27f9bdce049c7a6f2b205a00a72fb8`.  The
+focused suite is 19/19 PASS; the full serial repository suite is 1,151/1,151
+PASS (`skipped=1`) in 113.671 seconds, maximum RSS 290,844 KiB, with zero swap.
+The hostile-review result is recorded in the integration review.
+
+# 2026-08-27 — Verification 020A setter/base argument trace
+
+This host-only iteration pins the exact XBL and the candidate setter range
+`[0x9fc06410,0x9fc0643c)`.  It independently decodes the five static stores and
+the singleton direct caller at `0x9fc023f0`, then traces only the 20-byte linear
+pre-call block.  The setter contains one `XZR` zero and four argument-sourced
+stores; the caller sources them from an opaque incoming object as
+`W3=[X0+0x10]`, `X0=[X0+0x18]`, `X1=[X0+0x20]`, and `X2=[X0+0x28]`.
+
+`PROVED`: exact input/range hashes, store shape, direct-caller singleton and
+symbolic field origins.  `SUPPORTED`: the setter/caller edge is reproducible in
+the bounded model and compatible with the prior candidate DDR-segment
+inference.  `HYPOTHESIS`: the object may carry controller-base-like fields.
+`UNKNOWN`: runtime object origin/value/type, boot execution/currentness, alternate
+or indirect callers, mutability/locks, physical-to-DRAM mapping, protected reach
+and alias/bypass.  `CLASS C (TRANSFORM ONLY)` and numbered 015/016 eligibility
+are unchanged; no device action occurred.
+
+The sanitized manifest is
+`evidence/manifests/020A-setter-base-trace-20260827-01.manifest.json`, 9,171
+bytes, mode `0644`, SHA-256
+`edf62eb6c1d97a8113f5ba0894548e9d5fafc83eeefbc7976c808b0f7886c051`.  Focused
+validation is 9/9; full serial validation and the final hostile review are in
+`docs/VERIFICATION020A_INTEGRATION_REVIEW_2026-08-27.md`.
+
+# 2026-08-27 — Verification 020B caller-object origin trace
+
+This host-only iteration follows the exact sole direct caller of the 020A
+consumer at `0x9fc023c8`.  The caller obtains an opaque `X0` token from
+`BL 0x9fc160b8`, constructs a stack object at `SP+0x20` (including the exact
+`STR X8`/`LDR Q0`/`STR Q0`/`LDP X11,X10` sequence), and passes that object to the
+consumer.  The bounded stack model resolves the 020A setter arguments to
+return-object offsets `0x0c` (W3), `0x18` (X0), `0x20` (X1), and `0x28` (X2).
+
+`PROVED`: exact XBL/range/call-word/consumer-entry pins, singleton direct
+caller, instruction forms and stack overwrite ordering.  `SUPPORTED`: the
+caller/object edge is reproducible under the finite symbolic model.
+`HYPOTHESIS`: the helper return may be a runtime configuration carrier.
+`UNKNOWN`: runtime values, object type/currentness/static-object semantics,
+indirect callers and writers, physical-to-DRAM mapping, mutability/locking,
+protected reach, aliasing and bypass.  `CLASS C (TRANSFORM ONLY)` and
+`NOT_ELIGIBLE` remain unchanged; no device action occurred.
+
+The sanitized manifest is
+`evidence/manifests/020B-caller-object-origin-20260827-01.manifest.json`,
+18,518 bytes, mode `0644`, SHA-256
+`61e5961620d78e766d3fbc586847f76feb0f07991e41326c4b971110cb2a082a`.
+Validation is 7/7 focused and 1,167/1,167 full serial tests (`skipped=1`) in
+116.419 seconds, maximum RSS 296,676 KiB, zero swap; deterministic
+regeneration, public JSON/redaction, no-clobber and decoder-negative checks
+pass.  Independent hostile review is `PASS` in
+`docs/VERIFICATION020B_INTEGRATION_REVIEW_2026-08-27.md`.  The next scored
+candidate is a separate bounded trace of the `0x9fc160b8` return helper.
+
+# 2026-08-27 — Verification 020C return-helper origin trace
+
+This host-only iteration follows the opaque return used by 020B.  The exact
+helper `[0x9fc160b8,0x9fc160c4)` is `ADRP X0,0x9fc36000; ADD X0,#0x2c0; RET`,
+yielding static ELF VADDR `0x9fc362c0`.  An executable PT_LOAD scan finds two
+direct callers, `0x9fc22cc0` and `0x9fc26e2c`.  The 48-byte object-field source
+range `[0x9fc362c0,0x9fc362f0)` is pinned by hash only; raw bytes and values are
+not published.
+
+`PROVED`: exact input/helper/object hashes, static return construction and
+two-caller census.  `SUPPORTED`: this identifies the bounded source used by
+020B and a second XBL path.  `HYPOTHESIS`: the static object may be shared
+configuration data.  `UNKNOWN`: runtime contents/type/currentness, writer and
+mutability/locking, indirect paths, physical-to-DRAM mapping, protected reach,
+aliasing and bypass.  `CLASS C (TRANSFORM ONLY)` and `NOT_ELIGIBLE` remain
+unchanged; no device action occurred.
+
+The sanitized manifest is
+`evidence/manifests/020C-return-helper-origin-20260827-01.manifest.json`, 5,498
+bytes, mode `0644`, SHA-256
+`ef89ae91fd7277454422fe9717aad762259645991b41797f8011b8dc5b43fdb2`.
+Validation is 6/6 focused and 1,173/1,173 full serial tests (`skipped=1`) in
+117.851 seconds, maximum RSS 297,324 KiB, zero swap; deterministic
+regeneration, public JSON/redaction, no-clobber and decoder/cardinality
+negative checks pass.  Independent hostile review is `PASS` in
+`docs/VERIFICATION020C_INTEGRATION_REVIEW_2026-08-27.md`.  The next scored
+candidate is a bounded trace of the second helper caller at `0x9fc26e2c`.
+
+# 2026-08-27 — Verification 020D second-caller field-use trace
+
+This host-only iteration traces the second direct caller at `0x9fc26e2c` of
+the 020C helper.  The exact function loads object fields `+0x28`, `+0x30`,
+`+0x38`, `+0x0c`, `+0x18`, and `+0x20`; six symbolic origins are stored to
+static ELF VAs `0x9fc3e138`, `0x9fc3e140`, `0x9fc3e148`, `0x9fc3e150`,
+`0x9fc3e158`, and `0x9fc3e160`.
+
+`PROVED`: exact XBL/helper/caller/object hashes, decoder pins and the six
+field-to-slot edges.  `SUPPORTED`: this is a second static consumer of the
+shared 020C object.  `HYPOTHESIS`: the object/slots may be configuration state.
+`UNKNOWN`: field values/type/currentness, slot semantics, writer timing,
+mutability/locking, indirect paths, physical-to-DRAM mapping, protected reach,
+aliasing and bypass.  `CLASS C (TRANSFORM ONLY)` and `NOT_ELIGIBLE` remain
+unchanged; no device action occurred.
+
+The sanitized manifest is
+`evidence/manifests/020D-second-caller-field-use-20260827-01.manifest.json`,
+10,181 bytes, mode `0644`, SHA-256
+`9aa50ba0d1389584bb6b32435ff68b176d60aad9e822aabd6c503be21741b223`.
+Validation is 6/6 focused and 1,179/1,179 full serial tests (`skipped=1`) in
+117.908 seconds, maximum RSS 297,080 KiB, zero swap; deterministic
+regeneration, public JSON/redaction, no-clobber and decoder/cardinality
+negative checks pass.  Independent hostile review is `PASS` in
+`docs/VERIFICATION020D_INTEGRATION_REVIEW_2026-08-27.md`.  The next scored
+candidate is a bounded static-slot consumer census (020E).
+
+# 2026-08-27 — Verification 020E bounded static-slot consumer census
+
+This host-only, read-only iteration follows the six static ELF slots populated
+by 020D.  An exact-XBL executable census recognizes only an `ADRP` to page
+`0x9fc3e000` followed within eight instructions by an unsigned scalar
+`LDR`/`STR` to one of the six pinned offsets.  Caller-saved direct `BL` is a
+barrier; continuation across X19–X29 is explicitly conditional on AAPCS64
+callee preservation.  Unknown instructions and indirect paths remain outside
+the model.
+
+`PROVED`: exact input/helper/caller/object hashes and 18 unique direct accesses
+(6 stores, 12 loads), with 95 retained barriers (8 caller-saved calls and 87
+unknown-instruction barriers).  `SUPPORTED`: the six slots have additional
+static uses.  `HYPOTHESIS`: they may be shared configuration state.
+`UNKNOWN`: global writer/consumer absence, ABI compliance/callee side effects,
+runtime values/currentness/execution, slot semantics, MMIO/physical/DRAM
+identity, mutability/locking, protected reach, aliasing and bypass.  `CLASS C
+(TRANSFORM ONLY)` and `NOT_ELIGIBLE` remain unchanged; no device action
+occurred.
+
+The sanitized manifest is
+`evidence/manifests/020E-static-slot-census-20260827-01.manifest.json`, 29,826
+bytes, mode `0644`, SHA-256
+`4c28b0cc0a113e099fe3b0ce2bd16a77ce0c9d9bfc799ca9494c52eed9c349ad`.
+Validation is 7/7 focused and 1,186/1,186 full serial tests (`skipped=1`) in
+119.090 seconds, maximum RSS 343,404 KiB, zero swap; deterministic
+regeneration, public JSON/redaction, mode/no-clobber checks and independent
+hostile review `PASS`.  The next scored candidate is a bounded load-use trace
+over the twelve recognized loads (020F).
+
+# 2026-08-27 — Verification 020F bounded static-slot load-use trace
+
+This host-only, read-only iteration follows the twelve direct scalar loads
+identified by 020E.  Each seed is traced for at most 16 instructions in the
+same executable segment.  Caller-saved X0–X18/X30 calls and unsupported forms
+stop fail-closed; continuation across X19–X29 is explicitly conditional on
+AAPCS64.  MOVK on tainted registers stops without silently dropping residual
+bits, and both CBNZ/TBNZ forms are decoded.
+
+`PROVED`: exact XBL and mechanically hash-pinned 020E manifest dependency,
+seed set, and bounded event set.  The model reports 16 use events (10
+address-base, 2 arithmetic, 2 register-offset, 1 register-copy, 1 return)
+and 11 barriers (4 caller-saved `BL`, 5 recognized control, 2 unknown), with
+no tainted direct store in the supported windows.  `SUPPORTED`: several slot
+values feed local address formation/arithmetic.  `HYPOTHESIS`: some may be
+object pointers or local configuration fields rather than controller state.
+`UNKNOWN`: global writer/consumer absence, ABI compliance/callee effects,
+runtime execution/currentness/values, slot semantics, MMIO/physical/DRAM
+identity, mutability/locking, protected reach, aliasing and bypass.  `CLASS C
+(TRANSFORM ONLY)` and `NOT_ELIGIBLE` remain unchanged; no device action
+occurred.
+
+The sanitized manifest is
+`evidence/manifests/020F-static-slot-load-use-20260827-01.manifest.json`,
+13,069 bytes, mode `0644`, SHA-256
+`d19687581d046c7b05841aef6340e9a1e3664c69e19903689d1c583aee5b9764`.
+Validation is 9/9 focused and 1,195/1,195 full serial tests (`skipped=1`) in
+123.910 seconds, maximum RSS 342,272 KiB, zero swap; deterministic
+regeneration, public JSON/redaction, mode/no-clobber checks and independent
+hostile review `PASS`.  The next scored candidate is bounded pointer/object
+resolution for the address-use events (020G).
+
+# 2026-08-27 — Verification 020G bounded static-slot pointer/object census
+
+This host-only, read-only iteration re-decodes exactly the 020F address-use
+events.  The bounded census contains 12 witnesses: 10 immediate
+object-field-shaped accesses (7 `LDR`, 3 `STR`) and 2 `UXTX` register-offset
+array-element-shaped loads.  The witnesses occupy 11 unique access VAs, with
+one duplicate witness.  These are instruction-shape results only; runtime
+base values/currentness, object semantics, global writer/consumer absence,
+MMIO/physical/DRAM identity, mutability, protected reach and alias/bypass
+remain `UNKNOWN`.  `CLASS C (TRANSFORM ONLY)` and `NOT_ELIGIBLE` remain
+unchanged, and no device action occurred.
+
+The sanitized manifest is
+`evidence/manifests/020G-static-slot-pointer-object-census-20260827-01.manifest.json`,
+7,218 bytes, mode `0644`, SHA-256
+`f534efeee1e12f18d3af40c107dbc6fbe938eae16d9013aa088d22d7c880af3e`.
+Focused tests are 10/10 and the full serial suite is 1,205/1,205 PASS
+(`skipped=1`) in 134.596 seconds, maximum RSS 347,740 KiB, zero swap.  The
+next scored candidate is a bounded static-slot function-role/base-origin
+trace (020H).
+
+# 2026-08-27 — Verification 020H static-slot function-role/base-origin trace
+
+This host-only, read-only iteration re-decodes the exact 020G witnesses and
+analyzes only the pinned 220-byte XBL region `[0x9fc26e84,0x9fc26f60)`.  Strict
+RET X30/direct-B partitioning yields 7 bounded local blocks; BL is not treated
+as a branch terminator.  True function boundaries are not inferred.  Direct
+BL sources to each block entry and a backward trace of at most 16 instructions
+classify each unique access base; a preceding STR never defines a base.
+
+`PROVED`: 12 witness rows group into 11 unique access VAs and 7 bounded
+blocks.  Nine blocks contain unsupported forms and two are
+`LOCAL_READ_SHAPED_BLOCK`.  Ten unique bases are `STATIC_SLOT_SEED`; indexed
+access `0x9fc26ea0` is `ARITHMETIC_DERIVED` from a bounded `MADD`.
+`SUPPORTED`: local helper/object role consistency.  `HYPOTHESIS`: the family
+may be local configuration/helper state.  `UNKNOWN`: true function
+boundaries, runtime execution/currentness/values, indirect callers/callee
+effects, object semantics, global writer/consumer absence, ABI effects,
+MMIO/physical/DRAM identity, mutability/locking, protected reach, aliasing
+and bypass.  `CLASS C (TRANSFORM ONLY)` and `NOT_ELIGIBLE` remain unchanged;
+no device action occurred.
+
+The sanitized manifest is
+`evidence/manifests/020H-static-slot-function-role-base-origin-20260827-01.manifest.json`,
+19,314 bytes, mode `0644`, SHA-256
+`b306ca67675430314289fd79faa2e53b2d67994807d0b08bd91ced9b625faba2`.
+Focused tests are 11/11 and the full serial suite is 1,216/1,216 PASS
+(`skipped=1`) in 140.860 seconds, maximum RSS 349,728 KiB, zero swap.  The
+next scored candidate is a bounded caller-context/entry-role trace (020I).
+
+# 2026-08-27 — Verification 020I caller-context/entry-role trace
+
+This host-only, read-only iteration re-derived the exact 020H role rows and
+checked 20 unique block-entry direct-BL source/target edges.  A strict
+backward window of at most 16 instructions yielded 12
+`CALLER_CONTEXT_UNSUPPORTED`, 6 `ARGUMENT_OR_UNKNOWN`, and 2
+`ARGUMENT_COPY_OR_CONSTANT` rows; no static-slot-origin caller was reached.
+This is bounded negative/unknown evidence, not a global writer/consumer or
+function-boundary proof.  Runtime values/currentness, indirect effects,
+MMIO/physical/DRAM identity, mutability, protected reach and alias/bypass
+remain `UNKNOWN`; `CLASS C (TRANSFORM ONLY)` and `NOT_ELIGIBLE` remain
+unchanged.
+
+The sanitized manifest is
+`evidence/manifests/020I-static-slot-caller-context-entry-role-20260827-01.manifest.json`,
+12,472 bytes, mode `0644`, SHA-256
+`03c463f667142a21641264ec2e4080d9d5f963c67776037ca9d6194a8a621608`.
+Focused tests are 11/11 and the full serial suite is 1,227/1,227 PASS
+(`skipped=1`) in 151.571 seconds, maximum RSS 356,228 KiB, zero swap.
+
+# 2026-08-27 — Verification 020J caller-context barrier/opcode inventory
+
+This host-only, read-only iteration re-derived the exact 020I caller-context
+set and inspected only the first unsupported instruction at each of its 12
+bounded stop windows.  All 12 stop VAs are unique.  Strict ARM64 family masks
+classify five `B_COND`, two `CBZ_CBNZ`, two scalar `LDP_STP_PAIR` (offset and
+pre-index), two logical-immediate forms, and one 32-bit `BITFIELD` (`BFXIL`).
+The `UNKNOWN_OPCODE` fallback is unused for this exact set.  No trace continues
+past a barrier and no word is promoted to a pointer, PA, MMIO, controller,
+DRAM, ownership or bypass claim.  `CLASS C (TRANSFORM ONLY)` and
+`NOT_ELIGIBLE` remain unchanged; no device action occurred.
+
+The sanitized manifest is
+`evidence/manifests/020J-caller-context-barrier-opcode-inventory-20260827-01.manifest.json`,
+7,657 bytes, mode `0644`, SHA-256
+`1fdb1f4ade702fdb2d6ffdc68669a9710c8152e225f89f02fb65c0d10f4c3d55`.
+Focused tests are 7/7 and the full serial suite is 1,234/1,234 PASS
+(`skipped=1`) in 164.114 seconds, maximum RSS 355,764 KiB, zero swap.
+Deterministic regeneration, redaction, no-clobber, dependency/cardinality/
+family mutation negatives and independent hostile review all pass.  The next
+scored candidate is a bounded barrier operand/target metadata inventory
+(020K).
+
+# 2026-08-27 — External line integration and 1b checkpoint
+
+The external `research/xbl-config-cdt@99eb1dc` ref was audited without
+fast-forwarding or resetting the current branch.  Additive commits
+`db22fb1`, `96f8d4c` and `865593b` are integrated as commits `eb2f44d`,
+`8c3d1c5` and `0e6bfd5`; the repaired 015/016/017/018 implementations remain
+authoritative where the external add/add versions are weaker or semantically
+different.  The complete 14-commit disposition is in
+`docs/EXTERNAL_LINE_INTEGRATION_2026-08-27.md`.
+
+The imported V019 public manifest reports zero moved tags across a reported
+25.09-second deep suspend and its initial 23-test synthetic detector suite
+passes.  At this first integration point the private raw receipt was absent,
+so the result was recorded as `SUPPORTED_EXTERNAL_MANIFEST_ONLY`, not a fresh
+live proof.  A later retention/repetition pass supersedes that status within a
+bounded scope; see the dated update below.  The known-aperture 1b checkpoint
+remains `PROVED` only for the tested TZ-owned/no-HLOS-grant candidates and the
+fixed EL1 failure; global reachability is `UNKNOWN`.
+
+# 2026-08-27 — Verification 019 raw retention and independent repetition
+
+Follow-up commit `1bc494e` replaced the dangling private-receipt link with a
+real `0600` regular file, retained the original receipt, and acquired an
+independent second deep suspend on the same uninterrupted A90 boot.  The two
+receipts regenerate public manifests byte-for-byte and report 0 of 4,194,304
+tags moved over 25.090 s and 25.151 s, respectively.  The cable-attached
+negative control is retained as `SUSPEND_NOT_REACHED`, not as a third
+invariance result.  The analyzer is now 24/24 and the private-tree guard is
+5/5; `O_NOFOLLOW`/stable-descriptor checks prevent a symlinked raw path from
+being consumed.  This is `PROVED`/`REFUTED` only for the tested deep-suspend
+transition and offset domain; contiguity, complete coordinates, other state
+transitions, global mutability and protected reach remain `UNKNOWN`.  Class C
+and `NOT_ELIGIBLE` are unchanged.
+
+# 2026-08-27 — Verification 015 bus-vote amendment
+
+Two retained `msm-bus-dbg` excerpts were parsed in a separate host-only
+amendment.  The client excerpt declares 66 clients and includes `disp_rsc_ebi`;
+the EBI excerpt contains one initial 12.8 GB/s AB/IB row, two transient
+zero-AB/400 MB/s IB rows and three restored 12.8 GB/s rows.  The strict
+parser, exact input hashes, redaction/no-follow checks and deterministic
+manifest pass.  This supports excluding the V015 bandwidth axis from DDR
+frequency/transform-transition inference but does not establish a DDR clock
+change.  Manifest SHA-256 is
+`066d8fc708c5652cb53abfc78e4286b06ea9ec100cffeef5a10240420fb8582b`.
+
+# 2026-08-27 — 1b known-aperture reachability checkpoint
+
+The host-only 1b checkpoint reconciled exact public hashes for `MEMORY_MAP.md`
+and the 009/010/007/005 manifests.  Both selector branches enumerate the same
+eight qhs_llcc-remapper/BIMC candidates, and every candidate is covered by
+TZ-owned `MEMNOC_MS_MPU` and `CNOC_SNOC_MS_MPU` hits with no HLOS read/write
+grant.  The 009 narrow region for `0x09248080` is branch-invariant.  The fixed
+EL1 load and the separate failed control-node read remain bounded observations;
+watchdog causality is not promoted.
+
+`PROVED` is limited to the eight static-policy candidates; `SUPPORTED` covers
+the constraint on their tested route.  Global reachability, alternate
+apertures, final runtime policy/register state, ordering, mutability, physical
+mapping and bypass remain `UNKNOWN`.  Classification is still `CLASS C
+(TRANSFORM ONLY)` and eligibility `NOT_ELIGIBLE`.  The public manifest is
+13,885 bytes, mode `0644`, SHA-256
+`b4135f22bff47df22cda674eeabfff909ef4d3bc2a1843b358be7556b6d5ff02`; focused
+tests are 9/9 PASS.  No device action occurred.  The next scored candidate is
+020K, still host-only and read-only.
+
+# 2026-08-27 — Verification 020K caller-context barrier operands/targets
+
+The exact 020J unsupported-stop set was re-derived from the pinned A90 XBL and
+020J producer/manifest.  One word at each of 12 stops was decoded without
+continuing the trace: `B_COND` 5, `CBZ_CBNZ` 2, scalar 64-bit `STP` pairs 2
+(offset `+64` and pre-index `-16`), logical-immediate 2, and 32-bit `BFXIL` 1.
+All conditional targets are aligned and remain in the same executable
+file-backed segment.  A local 020K firmware loader independently enforces the
+XBL size/hash; raw words are hash-only.
+
+`PROVED` is limited to these operand fields and local target checks.
+Instruction effects, true-function/runtime semantics, physical/DRAM identity,
+mutability, protected reach and alias/bypass remain `UNKNOWN`; Class C and
+`NOT_ELIGIBLE` are unchanged.  The public manifest is 9,961 bytes, mode
+`0644`, SHA-256
+`90a0cf4d264c64d0d2836b567a2dc8ac5abff7809be839e5131fc7e91e32975a`.
+Focused tests are 13/13 and the full serial suite is 1,288/1,288 PASS
+(`skipped=1`) in 180.173 seconds, maximum RSS 363,772 KiB, zero swap.  The
+initial hostile review found the inherited-loader provenance defect; after the
+local-loader repair the independent review returned `PASS`.  No device action
+occurred.  The next discriminator is 020L, a one-word census of the unique
+conditional branch landing VAs, still host-only/read-only and without path
+continuation.
+
+# 2026-08-27 — Verification 020L branch-target landing-word inventory
+
+Verification 020L re-derived the exact 020K target set and inspected one word
+at each of seven unique conditional landing VAs.  The family split is ADRP x2,
+LDR_UNSIGNED x1, logical-immediate x2, MOV_REGISTER x1 and scalar LDP x1.  A
+pre-read `va % 4 == 0` gate and executable file-backed segment check are now
+explicit; the first hostile review's unaligned-VA finding was repaired by the
+Luna Max implementation pass and covered by two negatives.  Raw words remain
+hash-only and no target block is followed.  `PROVED` is limited to this finite
+static census; execution, runtime values, PA/DRAM identity, mutability,
+protected reach and bypass remain `UNKNOWN`.  Class C and `NOT_ELIGIBLE` are
+unchanged.  The public manifest is 5,109 bytes, SHA-256
+`cdb0db05596ad06ae179861a4083e08b116ce283f683dd5fae44efde020f85dc`;
+focused tests are 7/7 PASS and hostile review is `PASS`.  No device action
+occurred.
+
+# 2026-08-27 — Verification 020 heap-capacity measurement
+
+The retained coarse/fine ION ladders correct two previously unbacked numbers.
+Attempted non-secure heaps are monotone at 320 MiB (`camera_preview`, 320/352),
+32 MiB (`qsecom`, 32/64) and 16 MiB (`user_contig`, 16/32).  No attempted heap
+reaches the 512-MiB reopen threshold, so condition 2 is `NOT_MET` as measured.
+The old 256-MiB ceiling and old 512-MiB PA28 span requirement are `REFUTED`;
+320 MiB makes PA28 arithmetically testable, but dma-buf pagemap leaves the
+physical base `UNKNOWN`.  `system` is page-based; secure/remote heaps were
+enumerated but withheld, so their capacities remain `UNKNOWN`.  The separate
+heap integration review records the 21-test reduction, exact raw receipt pins
+and explicit non-retained executed-binary attestations.  Class C and
+`NOT_ELIGIBLE` are unchanged; no boundary-bypass indicator appeared.
+
+# 2026-08-27 — Verification 020M PA28 DT precondition snapshot
+
+The live read-only snapshot validated the exact A90/SM8150 identity before
+touching any allocation.  Heap 30 reports `reg=0x1e` and `memory-region=0x67a`;
+`camera_mem_region` reports the same phandle and `reg=<0,c2000000,0,14000000>`.
+The `no-map` and `reusable` properties return expected `ENOENT`, while
+`ion,recyclable` is present.  The 15,271-byte private receipt hashes to
+`ef641e38ba9e05cee1d4875851fcded7ee481c7401c40d432570a426b9b7db99`; the
+8,248-byte public manifest hashes to
+`ac6e11b6cedc2a49482e091a594897b3ffea82632600b412380aad2ac1a16c64`.
+This proves the advertised DT chain and makes the next full-320-MiB PA28
+normal-RAM timing test feasible, but does not prove allocation placement,
+`f(PA28)`, complete coordinates, mutability or bypass.  Class C and
+`NOT_ELIGIBLE` remain unchanged; no ION allocation or controller action
+occurred.
+
+# 2026-08-27 — Verification 020M strict canonical rerun
+
+The DT precondition was reacquired after restarting the bridge with explicit
+`--expect-realpath` and `--device-glob` binding.  The canonical public manifest
+is 8,246 bytes with SHA-256
+`69b087bd5a6aa279fff9c943405b46491381f3461c5ea1ac57f4d2f287d8ad9a`; its
+private receipt is 15,435 bytes with SHA-256
+`40a3207d3f822775c4506415a579e993c07a6a7f9ff998e41a6f76cb6216a2ec`.
+The heap-30/phandle/reg result is unchanged and remains a DT advertisement,
+not an allocation-placement or physical-identity proof.  The strict run was
+read-only and leaves Class C unchanged.
+
+# 2026-08-27 — Verification 021 carveout-exhaustion receipt
+
+The retained receipt reports a 320 MiB `camera_preview` hold, five successful
+control allocations before and after release, and zero residual allocations
+from 16 MiB down to 4 KiB while the hold is live.  The v2 reducer preserves
+this as `SUPPORTED_WITHIN_RETAINED_RECEIPT`; same-run target, bridge, argv,
+timestamp and final health are `UNKNOWN_UNRETAINED`.  The conditional span is
+`SUPPORTED_CONDITIONAL_ON_020M_CHAIN`, not a direct physical-page claim.  The
+receipt is 2,368 bytes, SHA-256
+`cb16a3c1ba64f6050a52edd2e2fefe9a405d96fde86928cfe344b74764d28694`; the
+public manifest is 4,586 bytes, SHA-256
+`82471b458f87e1ed86596ab08c97bab743ee868edf98d7d272c1d131046c168b`.
+No controller, protected-memory or partition action occurred.
+
+# 2026-08-27 — Verification 020N host-only PA28 timing design
+
+Luna Max completed the fixed no-argument normal-RAM probe and host reducer.
+The probe allocates 320 MiB from heap 30, measures the `0x10000000` candidate,
+same-offset control, two bank-bit negatives and a cache-maintenance control;
+it does not use pagemap or touch MMIO/SMC/protected memory.  The reducer pins
+the strict 020M and 021 manifests and emits `PA28_TIMING_CANDIDATE` only as a
+bounded timing label.  No live 020N receipt exists yet, so the design remains
+`HOST_ONLY_DESIGN`, `CLASS C` and `NOT_ELIGIBLE`; the next live step must retain
+same-run target/bridge/cleanup evidence.
+
+# 2026-08-27 — Verification 022 retained PA28 reduction and next repeat
+
+The retained Verification 022 existence and identification receipts were
+reduced through the repaired strict host path.  The reducer pins the canonical
+raw files, the strict 020M DT manifest, the repaired 021 extent manifest and
+the repaired bounded probe source.  It validates one context/heap/pagemap
+record per phase, exact difference and repeat cardinalities, same-phase
+controls, summary accounting, and recomputes every `pa_a`, `pa_b` and physical
+XOR from the declared base and offset rather than trusting the emitted field.
+
+The two phases contain 3,029 pair rows and zero arithmetic mismatches.  Both
+controls fire in both phases, and exactly one of the seven rank-3 candidates
+conflicts.  The retained-receipt model result is
+`f(PA28) = 010 = f(PA14)`, classified as
+`SUPPORTED_WITHIN_RETAINED_RECEIPT` / `SUPPORTED_MODEL_EXTENSION`.  The public
+manifest is 6,698 bytes, SHA-256
+`f583bd4f4fe30ad4822832e708edd87e2e049333f2a6c0cf014467b5a33bc2d2`.
+
+This does not promote the historical acquisition to an exact-device claim:
+same-run target, bridge, command-line, timestamp, final health and the
+historical binary/build receipt are not retained.  The repaired source is
+fixed to the reviewed camera-preview/type-10/id-30, 320 MiB, CPU-7, spread
+surface and safe ION-path allowlist, but was not run in this hardening pass.
+No protected-memory, controller, MMIO, SMC, partition or firmware write was
+performed.  Physical coordinates, transform mutability, protection ordering,
+alias and bypass remain `UNKNOWN`; Class C and `NOT_ELIGIBLE` are unchanged.
+
+The highest-value next step is a fresh provenance-complete repeat of the same
+normal-RAM probe, retaining exact target/bridge/argv/binary/cleanup/final-health
+records.  It must not be interpreted as permission to enter the protected
+boundary or mutate controller/security state.
+
+# 2026-08-27 — Verification 022R provenance-complete PA28 acquisition
+
+The fixed 022R implementation was built reproducibly as a static AArch64
+binary, reviewed independently, and dispatched exactly once on the exact
+`SM-A908N`/`SM8150` V2321 runtime. The private receipt records 317 framed
+commands, child exit zero, 1,802 probe records, a terminal cleanup record,
+remote cleanup and strict absence checks, and final native health
+`pass=11 warn=1 fail=0 entries=12`. No MMIO, controller, SMC, protected-memory,
+partition, firmware, reboot, or reset action occurred.
+
+The reducer independently rechecked all 1,787 accepted pair rows, 11 ordered
+difference summaries, address/XOR arithmetic, percentiles, frame hashes and
+control brackets. Both brackets produced threshold `369`, widest gap `336`,
+runner-up gap `34`, and the unique candidate `0x10004000`. The same-run result
+therefore supports `f(PA28)=010=f(PA14)`. The 11,989-byte public manifest is
+SHA-256 `f88a81bd3aabbd76cf2bcb8575f45d1cca7c29433a0279403d76d3affbfa2ca2`
+and regenerates byte-identically; hostile review is `PASS`.
+
+`PROVED`: exact-target lifecycle, one-dispatch execution, arithmetic integrity,
+cleanup and final health. `SUPPORTED`: the bounded normal-RAM timing/model
+extension. `UNKNOWN`: physical-page identity, physical alias, complete DRAM
+coordinates, transform mutability, protected reach and bypass. Classification
+remains `CLASS C (TRANSFORM ONLY)` and eligibility remains `NOT_ELIGIBLE`.
+
+# 2026-08-28 — Verification 024 MID transition and control pre-dispatch repair
+
+The exact control candidate was flashed with full 60,882,944-byte readback and
+booted once. After three pre-effect parser refusals, a fresh owner proved
+stable LOW `c0c71474...`, dispatched one four-byte `DLOW -> DMID` write,
+proved stable MID `9b85da06...`, and rebooted once into an exact V2321 MID
+cmdline with force-upload/dump-sink zero and self-test `11/1/0/12`.
+
+The first control probe did not reach its measurement. It stopped before
+target attestation, panic sysctl transition, semantic claim or fixed op 4
+because the old wrapper rejected the source-defined non-empty `stophud`
+success text. The public/raw/journal incident hashes are respectively
+`fcdeaf36...`/`4adbdfcc...`/`e6d4589b...`; they prove zero fixed-op,
+panic, partition and MMIO effect. The discarded complete frame cannot be
+reconstructed, so the possible HUD stop is `UNKNOWN_IDEMPOTENT`, not a
+no-state-change claim.
+
+Luna Max repaired the shared contract to accept only exact
+`autohud: stopped` or `autohud: not running` success and empty `-16/busy`,
+with canonical A90P1 transcript semantics, 20/4,096-byte bounds, single
+validation provenance and callback-mutation detection. Hostile round 26 is
+`P0=P1=P2=0`; 319 related tests passed with 349,056 KiB maximum RSS and zero
+process swaps. The final complete suite finished 1,916 tests with 1,915 passed
+and one skipped in 198.868 seconds, maximum RSS 893,116 KiB, zero process swaps
+and no kernel OOM event.
+
+A second P1 exposed a raw transient boot UUID in the derived reboot public
+manifest. A host-only exact-pin repair archived v1 (`3a91e6ea...`, 1,884
+bytes) privately and emitted v2 (`fbe92a29...`, 2,140 bytes), binding the
+unchanged private journal `8760aa1f...` and claim `03d1f63e...`. No device
+contact occurred during either host repair. The original control ID is
+immutable; only a future fixed, predecessor-bound `verification-024-control-r2`
+may continue. The remapper value, transform mutability, alias and protected
+reach remain `UNKNOWN`; classification stays `CLASS C (TRANSFORM ONLY)`.
+
+# 2026-08-28 — Verification 024 exact DMID read and rollback closure
+
+The repaired `verification-024-control-r5` returned the fixed no-load sentinel
+`0xc071` with exact current-boot and final-health evidence. The read chain then
+flashed and completely read back candidate `6fe92825...`, booted it once,
+proved stable MID, re-attested the running boot prefix, verified
+`panic_on_oops: 1 -> 0`, and dispatched fixed op 4 exactly once. It emitted a
+BEGIN frame but no END or `A90R` value before the A90 native USB transport
+disconnected. The effect was not replayed and no device command was sent on the
+lost channel.
+
+The device entered Samsung `MSM_UPLOAD`; the pinned non-dump host command
+returned it to native. `/proc/last_kmsg` was then read exactly once. The private
+2,097,136-byte capture hashes to
+`ee0d2548e5ca6461a77b5b16287542b7d8112cd574ed0ba046b1011ad16b7c6c`.
+It contains exactly one ordered instance of MID debug, watchdog bark
+`97.880454`, last pet `86.880167`, `Non Secure Watchdog Bark`, and
+`TZBSP_ERR_FATAL_NON_SECURE_WDT`; `A90R` count is zero and the time delta is
+`11.000287` seconds.
+
+The collector first labeled the capture `INCIDENT` because its regexp accepted
+only a historical `swapper/0:0` printk task prefix. The retained log uses the
+exact `msm_watchdog:78` task prefix. Commit `2ae167d` fixes that bounded grammar;
+42 focused tests and independent hostile mutation/reparse found no P0/P1/P2.
+The pre-fix stop before `selftest_after` is preserved as
+`UNKNOWN_NOT_OBSERVED`; no same-boot self-test is synthesized.
+
+Rollback Recovery was requested once and not replayed after its observer bound
+expired. The exact A90 TWRP endpoint appeared later. The rollback owner proved
+predecessor `6fe92825...`, wrote once, and read back all 60,882,944 V2321 bytes
+as `ca978551...`; staging was removed and System boot was dispatched once.
+The returned boot was already stable LOW, so no additional `param` write or
+reboot was needed. Final `param-low` and runtime-health receipts prove stable
+`c0c71474...`, exact `DLOW`, force-upload/dump-sink zero, V2321 boot prefix
+`ca978551...`, `panic_on_oops=1`, self-test `11/1/0/12`, and fixed temporary
+path absence.
+
+`PROVED`: the exact DMID Normal-World EL1 load at `0x09248080` returns no usable
+value through this path and produces the predicted non-secure watchdog/TZ reset.
+`REFUTED`: DMID alone unlocks this aperture. `UNKNOWN`: the exact enforcement
+block/order, other apertures, transform-register identity/writability, a
+complete-coordinate alias and any protected-memory alias. With no alias or
+boundary bypass demonstrated, classification remains `CLASS C (TRANSFORM
+ONLY)` / `NOT_ELIGIBLE`; the V024 read and all consumed effect IDs are never
+replayed.
+
+The immutable source reconciliation publishes SHA-256 `6ce56b30...`; a
+production audit found no P0/P1 after read-source, canonical frame/stop-HUD,
+boot-join and public-redaction bindings were repaired. Six reconciliation,
+79 finalizer and eight producer/finalizer compatibility tests pass under the
+4-GiB cap; the remaining P2 is incomplete isolation of several negative-test
+branches. The finalizer then accepted all seven real receipts with zero gate
+failure and emitted public SHA-256 `fd92c149...`, classification
+`REFUSED_AT_MID`, `clean_negative=true`, and no returned value.

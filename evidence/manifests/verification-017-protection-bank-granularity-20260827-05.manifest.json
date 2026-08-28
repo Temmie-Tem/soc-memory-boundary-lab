@@ -1,0 +1,707 @@
+{
+  "all_protected_cover_every_class": true,
+  "all_unprotected_cover_every_class": true,
+  "bank_granular_check_can_separate": false,
+  "bank_granular_check_scope": "MODEL_PROJECTED_ONLY",
+  "claims": {
+    "HYPOTHESIS": [],
+    "PROVED": [
+      "rank_3_relation_in_declared_model_coordinates",
+      "minimum_8KiB_class_change_span_in_declared_model",
+      "64KiB_aligned_model_projection_covers_all_8_bank_classes",
+      "128KiB_unaligned_model_projection_covers_all_8_bank_classes",
+      "listed_ranges_cover_all_8_model_projected_classes",
+      "memory_map_ranges_match_pinned_source",
+      "023R_kernel_basis_matches_candidate_relation_kernel",
+      "V016_high_bit_equalities_match_023R_relation",
+      "same_bank_projection_has_both_injective_and_noninjective_abstract_completions",
+      "bank_relation_alone_does_not_determine_complete_coordinate_injectivity"
+    ],
+    "REFUTED": [
+      "bank_only_post_decode_check_separates_listed_ranges_in_model_projection",
+      "rank_3_bank_relation_alone_proves_complete_coordinate_alias",
+      "rank_3_bank_relation_alone_proves_complete_coordinate_injectivity"
+    ],
+    "SUPPORTED": [
+      "narrow_bank_only_post_decode_check_is_not_a_separator_for_listed_ranges_in_model_projection"
+    ],
+    "UNKNOWN": [
+      "actual_enforcement_ordering",
+      "complete_dram_coordinate_and_physical_mapping",
+      "transform_state_mutability",
+      "global_writer_or_register_absence",
+      "protected_memory_reach_or_bypass",
+      "PA28_AND_ABOVE",
+      "actual_complete_coordinate_injectivity",
+      "actual_protection_ordering"
+    ]
+  },
+  "class_change_granularity_bytes": 8192,
+  "classification": "CLASS C (TRANSFORM ONLY)",
+  "countermodels": {
+    "bank_output_width": 3,
+    "bank_projection_rows": [
+      "0x64e9",
+      "0x1d3a",
+      "0x2a74"
+    ],
+    "complete_coordinate_injectivity": "UNKNOWN_FOR_SILICON",
+    "model_bits": [
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27
+    ],
+    "model_width": 15,
+    "models": [
+      {
+        "bank_output_rows": [
+          "0x64e9",
+          "0x1d3a",
+          "0x2a74"
+        ],
+        "bank_projection_preserved": true,
+        "collision_pair_count": 0,
+        "coordinate_domain": "ALLOCATION_OFFSET_MODEL_COORDINATES",
+        "distinct_complete_coordinates": 32768,
+        "extra_coordinate_bits": [
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "fiber_size": 1,
+        "first_nonzero_null_address": null,
+        "first_nonzero_null_point": null,
+        "injective_over_model_domain": true,
+        "interpretation": "bank projection plus every retained high model bit; injective abstract completion",
+        "kind": "ABSTRACT_GF2_COMPLETION",
+        "matrix_rank": 15,
+        "model_domain_size": 32768,
+        "model_input_width": 15,
+        "name": "injective_complete_surrogate",
+        "row_count": 15
+      },
+      {
+        "bank_output_rows": [
+          "0x64e9",
+          "0x1d3a",
+          "0x2a74"
+        ],
+        "bank_projection_preserved": true,
+        "collision_pair_count": 16384,
+        "coordinate_domain": "ALLOCATION_OFFSET_MODEL_COORDINATES",
+        "distinct_complete_coordinates": 16384,
+        "extra_coordinate_bits": [
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26
+        ],
+        "fiber_size": 2,
+        "first_nonzero_null_address": "0x8002000",
+        "first_nonzero_null_point": "0x4001",
+        "injective_over_model_domain": false,
+        "interpretation": "bank projection plus one fewer high model bit; deliberately non-injective completion",
+        "kind": "ABSTRACT_GF2_COMPLETION",
+        "matrix_rank": 14,
+        "model_domain_size": 32768,
+        "model_input_width": 15,
+        "name": "folded_complete_surrogate",
+        "row_count": 14
+      },
+      {
+        "bank_output_rows": [
+          "0x64e9",
+          "0x1d3a",
+          "0x2a74"
+        ],
+        "bank_projection_preserved": true,
+        "collision_pair_count": 67092480,
+        "coordinate_domain": "ALLOCATION_OFFSET_MODEL_COORDINATES",
+        "distinct_complete_coordinates": 8,
+        "extra_coordinate_bits": [],
+        "fiber_size": 4096,
+        "first_nonzero_null_address": "0x16000",
+        "first_nonzero_null_point": "0xb",
+        "injective_over_model_domain": false,
+        "interpretation": "bank projection only; not a proposed DRAM coordinate",
+        "kind": "ABSTRACT_GF2_COMPLETION",
+        "matrix_rank": 3,
+        "model_domain_size": 32768,
+        "model_input_width": 15,
+        "name": "bank_only_projection",
+        "row_count": 3
+      }
+    ],
+    "physical_alias": "UNKNOWN_NOT_TESTED",
+    "same_bank_projection_different_completions": true,
+    "status": "PROVED_ABSTRACT_UNDERDETERMINATION"
+  },
+  "inputs": {
+    "high_bit_manifest": {
+      "basename": "verification-016-high-bit-relation-20260827-01.manifest.json",
+      "sha256": "72525cf994e52bbee1c3ed685c49a6ace4049cd7b279cb97811f6a0d3f4f773f",
+      "size_bytes": 59504
+    },
+    "memory_map": {
+      "basename": "MEMORY_MAP.md",
+      "sha256": "34496c0d92736f7df5b9da69f8bcadfe40fb3ee35558c1b10fab7d06dec86950",
+      "size_bytes": 9428
+    },
+    "relation_manifest": {
+      "basename": "023R-repaired-region-bank-relation-20260826-01.manifest.json",
+      "sha256": "5c3e14ff898c109de740d98260d974bca10751000f85977775cd467ac74aac2e",
+      "size_bytes": 18040
+    }
+  },
+  "protected_regions": [
+    {
+      "base": "0x85700000",
+      "classes_covered": 8,
+      "coordinate_scope": "ALLOCATION_OFFSET_MODEL_COORDINATES",
+      "histogram": {
+        "0": 192,
+        "1": 192,
+        "2": 192,
+        "3": 192,
+        "4": 192,
+        "5": 192,
+        "6": 192,
+        "7": 192
+      },
+      "name": "hyp_mem",
+      "pages": 1536,
+      "pages_counted": 1536,
+      "range_projection_scope": "MODEL_PROJECTED_ONLY",
+      "size": 6291456,
+      "truncated": false
+    },
+    {
+      "base": "0xb0000000",
+      "classes_covered": 8,
+      "coordinate_scope": "ALLOCATION_OFFSET_MODEL_COORDINATES",
+      "histogram": {
+        "0": 64,
+        "1": 64,
+        "2": 64,
+        "3": 64,
+        "4": 64,
+        "5": 64,
+        "6": 64,
+        "7": 64
+      },
+      "name": "tima_region",
+      "pages": 512,
+      "pages_counted": 512,
+      "range_projection_scope": "MODEL_PROJECTED_ONLY",
+      "size": 2097152,
+      "truncated": false
+    },
+    {
+      "base": "0xb0200000",
+      "classes_covered": 8,
+      "coordinate_scope": "ALLOCATION_OFFSET_MODEL_COORDINATES",
+      "histogram": {
+        "0": 64,
+        "1": 64,
+        "2": 64,
+        "3": 64,
+        "4": 64,
+        "5": 64,
+        "6": 64,
+        "7": 64
+      },
+      "name": "rkp_region",
+      "pages": 512,
+      "pages_counted": 512,
+      "range_projection_scope": "MODEL_PROJECTED_ONLY",
+      "size": 2097152,
+      "truncated": false
+    },
+    {
+      "base": "0xb0400000",
+      "classes_covered": 8,
+      "coordinate_scope": "ALLOCATION_OFFSET_MODEL_COORDINATES",
+      "histogram": {
+        "0": 640,
+        "1": 640,
+        "2": 640,
+        "3": 640,
+        "4": 640,
+        "5": 640,
+        "6": 640,
+        "7": 640
+      },
+      "name": "uh_heap_region",
+      "pages": 5120,
+      "pages_counted": 5120,
+      "range_projection_scope": "MODEL_PROJECTED_ONLY",
+      "size": 20971520,
+      "truncated": false
+    },
+    {
+      "base": "0xa6000000",
+      "classes_covered": 8,
+      "coordinate_scope": "ALLOCATION_OFFSET_MODEL_COORDINATES",
+      "histogram": {
+        "0": 1152,
+        "1": 1152,
+        "2": 1152,
+        "3": 1152,
+        "4": 1152,
+        "5": 1152,
+        "6": 1152,
+        "7": 1152
+      },
+      "name": "qseecom_region",
+      "pages": 9216,
+      "pages_counted": 9216,
+      "range_projection_scope": "MODEL_PROJECTED_ONLY",
+      "size": 37748736,
+      "truncated": false
+    }
+  ],
+  "protection_ordering_countermodels": {
+    "hardware_bypass": "UNKNOWN_NOT_TESTED",
+    "hardware_ordering": "UNKNOWN",
+    "models": [
+      {
+        "map": "noninjective_complete_coordinate",
+        "name": "pre_transform_check_then_noninjective_map",
+        "result": "BYPASS_POSSIBLE_IN_ABSTRACT_MODEL",
+        "security_decision": "input_address_or_pre_transform"
+      },
+      {
+        "map": "same_noninjective_complete_coordinate",
+        "name": "post_transform_complete_check",
+        "result": "BYPASS_BLOCKED_IN_ABSTRACT_MODEL",
+        "security_decision": "complete_post_transform_coordinate"
+      },
+      {
+        "map": "same_bank_projection",
+        "name": "post_transform_bank_only_check",
+        "result": "CANNOT_SEPARATE_LISTED_WIDE_RANGES",
+        "security_decision": "bank_projection_only"
+      }
+    ],
+    "status": "UNKNOWN_FOR_SILICON"
+  },
+  "range_histogram_scope": "ALLOCATION_OFFSET_MODEL_COORDINATES",
+  "rank": 3,
+  "relation": {
+    "13": 1,
+    "14": 2,
+    "15": 4,
+    "16": 3,
+    "17": 6,
+    "18": 7,
+    "19": 5,
+    "20": 1,
+    "21": 2,
+    "22": 4,
+    "23": 3,
+    "24": 6,
+    "25": 2,
+    "26": 5,
+    "27": 1
+  },
+  "reserved_subtractions": [
+    {
+      "base": "0xb0200000",
+      "name": "rkp_region",
+      "size": 2097152
+    },
+    {
+      "base": "0xb0400000",
+      "name": "uh_heap_region",
+      "size": 20971520
+    }
+  ],
+  "schema": "a90-protection-bank-granularity-v1",
+  "scope": {
+    "complete_coordinate": "UNKNOWN",
+    "coordinate_domain": "ALLOCATION_OFFSET_MODEL_COORDINATES",
+    "enforcement_claim": "BANK_ONLY_POST_DECODE_SHAPE_ONLY",
+    "physical_mapping": "UNKNOWN_PAGEMAP_BLIND",
+    "protected_regions": "EXACT_LISTED_DEVICE_TREE_REGIONS_AS_MODEL_PROJECTION_INPUTS",
+    "protection_ordering": "UNKNOWN",
+    "range_projection_scope": "MODEL_PROJECTED_ONLY",
+    "transform_mutability": "UNKNOWN"
+  },
+  "source_cross_check": {
+    "memory_map": {
+      "derived_system_ram_match": true,
+      "protected_region_count": 5,
+      "protected_regions": [
+        {
+          "base": "0x85700000",
+          "name": "hyp_mem",
+          "size": 6291456
+        },
+        {
+          "base": "0xb0000000",
+          "name": "tima_region",
+          "size": 2097152
+        },
+        {
+          "base": "0xb0200000",
+          "name": "rkp_region",
+          "size": 2097152
+        },
+        {
+          "base": "0xb0400000",
+          "name": "uh_heap_region",
+          "size": 20971520
+        },
+        {
+          "base": "0xa6000000",
+          "name": "qseecom_region",
+          "size": 37748736
+        }
+      ],
+      "protected_regions_match": true,
+      "raw_system_ram": [
+        {
+          "end": "0x80000fff",
+          "start": "0x80000000"
+        },
+        {
+          "end": "0x856fffff",
+          "start": "0x80002000"
+        },
+        {
+          "end": "0x85dfffff",
+          "start": "0x85d00000"
+        },
+        {
+          "end": "0x85ffffff",
+          "start": "0x85f40000"
+        },
+        {
+          "end": "0x9fffffff",
+          "start": "0x9c400000"
+        },
+        {
+          "end": "0xafffffff",
+          "start": "0xa8400000"
+        },
+        {
+          "end": "0xbcbfffff",
+          "start": "0xb0200000"
+        },
+        {
+          "end": "0xc10fffff",
+          "start": "0xc0000000"
+        },
+        {
+          "end": "0xc13fffff",
+          "start": "0xc1300000"
+        },
+        {
+          "end": "0x1ffffffff",
+          "start": "0xc1c01000"
+        }
+      ],
+      "raw_system_ram_count": 10,
+      "raw_system_ram_match": true
+    },
+    "relation_kernel_basis": [
+      "0x100c000",
+      "0x806000",
+      "0x408000",
+      "0x204000",
+      "0x102000",
+      "0x8a000",
+      "0x4e000",
+      "0x2c000",
+      "0x16000"
+    ],
+    "relation_kernel_basis_matches_source": true,
+    "relation_kernel_basis_rank": 9,
+    "relation_kernel_basis_scope": "ALLOCATION_OFFSET_MODEL_COORDINATES_BITS_13_24",
+    "relation_rank": 3,
+    "relation_unique": true,
+    "v016_class": "TRANSFORM ONLY",
+    "v016_matches": {
+      "PA25": [
+        14,
+        21
+      ],
+      "PA26": [
+        19
+      ],
+      "PA27": [
+        13,
+        20
+      ]
+    }
+  },
+  "span_covering_all_classes_bytes": 65536,
+  "span_covering_all_classes_unaligned_bytes": 131072,
+  "unprotected_exclusions": [
+    {
+      "base": "0x80000000",
+      "end": "0x80000fff",
+      "reason": "below_the_64KiB_covering_span"
+    }
+  ],
+  "unprotected_ranges": [
+    {
+      "base": "0x80002000",
+      "classes_covered": 8,
+      "coordinate_scope": "ALLOCATION_OFFSET_MODEL_COORDINATES",
+      "histogram": {
+        "0": 2782,
+        "1": 2784,
+        "2": 2784,
+        "3": 2784,
+        "4": 2784,
+        "5": 2784,
+        "6": 2784,
+        "7": 2784
+      },
+      "name": "System RAM 0x80002000-0x856fffff",
+      "pages": 22270,
+      "pages_counted": 22270,
+      "range_projection_scope": "MODEL_PROJECTED_ONLY",
+      "size": 91217920,
+      "truncated": false
+    },
+    {
+      "base": "0x85d00000",
+      "classes_covered": 8,
+      "coordinate_scope": "ALLOCATION_OFFSET_MODEL_COORDINATES",
+      "histogram": {
+        "0": 32,
+        "1": 32,
+        "2": 32,
+        "3": 32,
+        "4": 32,
+        "5": 32,
+        "6": 32,
+        "7": 32
+      },
+      "name": "System RAM 0x85d00000-0x85dfffff",
+      "pages": 256,
+      "pages_counted": 256,
+      "range_projection_scope": "MODEL_PROJECTED_ONLY",
+      "size": 1048576,
+      "truncated": false
+    },
+    {
+      "base": "0x85f40000",
+      "classes_covered": 8,
+      "coordinate_scope": "ALLOCATION_OFFSET_MODEL_COORDINATES",
+      "histogram": {
+        "0": 24,
+        "1": 24,
+        "2": 24,
+        "3": 24,
+        "4": 24,
+        "5": 24,
+        "6": 24,
+        "7": 24
+      },
+      "name": "System RAM 0x85f40000-0x85ffffff",
+      "pages": 192,
+      "pages_counted": 192,
+      "range_projection_scope": "MODEL_PROJECTED_ONLY",
+      "size": 786432,
+      "truncated": false
+    },
+    {
+      "base": "0x9c400000",
+      "classes_covered": 8,
+      "coordinate_scope": "ALLOCATION_OFFSET_MODEL_COORDINATES",
+      "histogram": {
+        "0": 1920,
+        "1": 1920,
+        "2": 1920,
+        "3": 1920,
+        "4": 1920,
+        "5": 1920,
+        "6": 1920,
+        "7": 1920
+      },
+      "name": "System RAM 0x9c400000-0x9fffffff",
+      "pages": 15360,
+      "pages_counted": 15360,
+      "range_projection_scope": "MODEL_PROJECTED_ONLY",
+      "size": 62914560,
+      "truncated": false
+    },
+    {
+      "base": "0xa8400000",
+      "classes_covered": 8,
+      "coordinate_scope": "ALLOCATION_OFFSET_MODEL_COORDINATES",
+      "histogram": {
+        "0": 3968,
+        "1": 3968,
+        "2": 3968,
+        "3": 3968,
+        "4": 3968,
+        "5": 3968,
+        "6": 3968,
+        "7": 3968
+      },
+      "name": "System RAM 0xa8400000-0xafffffff",
+      "pages": 31744,
+      "pages_counted": 31744,
+      "range_projection_scope": "MODEL_PROJECTED_ONLY",
+      "size": 130023424,
+      "truncated": false
+    },
+    {
+      "base": "0xb1800000",
+      "classes_covered": 8,
+      "coordinate_scope": "ALLOCATION_OFFSET_MODEL_COORDINATES",
+      "histogram": {
+        "0": 5760,
+        "1": 5760,
+        "2": 5760,
+        "3": 5760,
+        "4": 5760,
+        "5": 5760,
+        "6": 5760,
+        "7": 5760
+      },
+      "name": "System RAM 0xb1800000-0xbcbfffff",
+      "pages": 46080,
+      "pages_counted": 46080,
+      "range_projection_scope": "MODEL_PROJECTED_ONLY",
+      "size": 188743680,
+      "truncated": false
+    },
+    {
+      "base": "0xc0000000",
+      "classes_covered": 8,
+      "coordinate_scope": "ALLOCATION_OFFSET_MODEL_COORDINATES",
+      "histogram": {
+        "0": 544,
+        "1": 544,
+        "2": 544,
+        "3": 544,
+        "4": 544,
+        "5": 544,
+        "6": 544,
+        "7": 544
+      },
+      "name": "System RAM 0xc0000000-0xc10fffff",
+      "pages": 4352,
+      "pages_counted": 4352,
+      "range_projection_scope": "MODEL_PROJECTED_ONLY",
+      "size": 17825792,
+      "truncated": false
+    },
+    {
+      "base": "0xc1300000",
+      "classes_covered": 8,
+      "coordinate_scope": "ALLOCATION_OFFSET_MODEL_COORDINATES",
+      "histogram": {
+        "0": 32,
+        "1": 32,
+        "2": 32,
+        "3": 32,
+        "4": 32,
+        "5": 32,
+        "6": 32,
+        "7": 32
+      },
+      "name": "System RAM 0xc1300000-0xc13fffff",
+      "pages": 256,
+      "pages_counted": 256,
+      "range_projection_scope": "MODEL_PROJECTED_ONLY",
+      "size": 1048576,
+      "truncated": false
+    },
+    {
+      "base": "0xc1c01000",
+      "classes_covered": 8,
+      "coordinate_scope": "ALLOCATION_OFFSET_MODEL_COORDINATES",
+      "histogram": {
+        "0": 162944,
+        "1": 162943,
+        "2": 162944,
+        "3": 162944,
+        "4": 162944,
+        "5": 162944,
+        "6": 162944,
+        "7": 162944
+      },
+      "name": "System RAM 0xc1c01000-0x1ffffffff",
+      "pages": 1303551,
+      "pages_counted": 1303551,
+      "range_projection_scope": "MODEL_PROJECTED_ONLY",
+      "size": 5339344896,
+      "truncated": false
+    }
+  ],
+  "v016_consistency": {
+    "agrees": true,
+    "disagreements": [],
+    "rows": [
+      {
+        "agrees": true,
+        "high": 25,
+        "high_vector": 2,
+        "lower": 14,
+        "lower_vector": 2
+      },
+      {
+        "agrees": true,
+        "high": 25,
+        "high_vector": 2,
+        "lower": 21,
+        "lower_vector": 2
+      },
+      {
+        "agrees": true,
+        "high": 26,
+        "high_vector": 5,
+        "lower": 19,
+        "lower_vector": 5
+      },
+      {
+        "agrees": true,
+        "high": 27,
+        "high_vector": 1,
+        "lower": 13,
+        "lower_vector": 1
+      },
+      {
+        "agrees": true,
+        "high": 27,
+        "high_vector": 1,
+        "lower": 20,
+        "lower_vector": 1
+      }
+    ]
+  }
+}

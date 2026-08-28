@@ -1,0 +1,175 @@
+{
+  "action": "apply-mid",
+  "boot_id_sha256": "9fe12d0a76772b3916d13a1928f738cf8e659e3f2255d7c0c5a967955c55a87a",
+  "bootloader": "A908NKSU5EWA3",
+  "claims": {
+    "PROVED": [
+      "Exactly one four-byte bounded write effect was dispatched to the exact live param partition and the post-write stable hash matched the host-derived expected image.",
+      "force_upload_flag, FMM_lock and dump_sink are unchanged in the host-derived before/after images whose stable SHA-256 values bind the live transition; full hashes remain forensic observations."
+    ],
+    "UNKNOWN": [
+      "The current boot still reflects the pre-transition XBL cmdline until a separate normal reboot consumes the persistent field."
+    ]
+  },
+  "classification": "APPLIED_VERIFIED",
+  "cmdline_before_reboot": {
+    "androidboot.debug_level": "0x4f4c",
+    "androidboot.force_upload": "0x0",
+    "sec_debug.dump_sink": "0x0"
+  },
+  "completed_utc": "2026-08-28T12:59:03+00:00",
+  "device_rebooted": false,
+  "device_sha256_after": "50e5c715fc72fb72780d251c3f8e2f19191060e7bcd9f7cb68f7d194e762c256",
+  "device_sha256_before": "1faafee97d08ff93b690dbcffe21d680f20232aa2d3dff5f462b747577bb4345",
+  "device_stable_sha256_after": "9b85da06e4e4b1adb330c7169049a313ee5b0aa68014a2915a470f034c08f53f",
+  "device_stable_sha256_before": "c0c7147418cf13145a44369a960c81647d347f317cb35baed1d85b286253c68a",
+  "download_mode_before": "1",
+  "effect_a90p1_end": {
+    "cmd": "run",
+    "duration_ms": "100",
+    "errno": "0",
+    "flags": "0x2",
+    "rc": "0",
+    "seq": "119",
+    "status": "ok"
+  },
+  "effect_consumption_claim": {
+    "action": "apply-mid",
+    "boot_id_sha256": "9fe12d0a76772b3916d13a1928f738cf8e659e3f2255d7c0c5a967955c55a87a",
+    "effect_replayed": false,
+    "filename": "505e0ea6b19a5b1a371ff1a47e281de3f6e01f28e4107a1c91f89b58f75cf7ca.claim.json",
+    "key": "505e0ea6b19a5b1a371ff1a47e281de3f6e01f28e4107a1c91f89b58f75cf7ca",
+    "partition": {
+      "byte_size": 10485760,
+      "devname": "sda10",
+      "logical_block_size": 4096,
+      "major": 8,
+      "minor": 10,
+      "partname": "param",
+      "read_only": 0,
+      "sectors": 20480,
+      "start_sector": 125080
+    },
+    "preimage_full_sha256": "1faafee97d08ff93b690dbcffe21d680f20232aa2d3dff5f462b747577bb4345",
+    "preimage_sha256": "c0c7147418cf13145a44369a960c81647d347f317cb35baed1d85b286253c68a",
+    "sha256": "297250f73f1caba116350dafccb433c283f1b306bada7ebff44ba73e416547af",
+    "size": 1096,
+    "stable_mask": {
+      "excluded_ranges": [
+        [
+          0,
+          1
+        ]
+      ],
+      "stable_ranges": [
+        [
+          1,
+          10485760
+        ]
+      ],
+      "stable_size": 10485759
+    },
+    "stable_preimage_sha256": "c0c7147418cf13145a44369a960c81647d347f317cb35baed1d85b286253c68a"
+  },
+  "effect_consumption_claim_path": "505e0ea6b19a5b1a371ff1a47e281de3f6e01f28e4107a1c91f89b58f75cf7ca.claim.json",
+  "effect_dispatched_count": 1,
+  "effect_replayed": false,
+  "experiment_id": "verification-024-param-read-apply-mid-r2",
+  "full_hash_observed": true,
+  "full_hash_verified": true,
+  "observed_boot_cycle_volatile_byte0_after": 0,
+  "observed_boot_cycle_volatile_byte0_before": 0,
+  "partition": {
+    "byte_size": 10485760,
+    "devname": "sda10",
+    "logical_block_size": 4096,
+    "major": 8,
+    "minor": 10,
+    "partname": "param",
+    "read_only": 0,
+    "sectors": 20480,
+    "start_sector": 125080
+  },
+  "partition_writes": true,
+  "payload": {
+    "sha256": "4ee95d51ce9e04aee513115e12b8de97f298630ef93b0b1bcff7627f8c6272d1",
+    "size": 4
+  },
+  "regular_file_dd_smoke": {
+    "a90p1_end": {
+      "cmd": "run",
+      "duration_ms": "101",
+      "errno": "0",
+      "flags": "0x2",
+      "rc": "0",
+      "seq": "93",
+      "status": "ok"
+    },
+    "args": [
+      "dd",
+      "if=/tmp/sdm855_mblab_param_debug_payload",
+      "of=/tmp/sdm855_mblab_param_debug_dd_smoke",
+      "bs=4",
+      "count=1",
+      "seek=1",
+      "conv=notrunc,fsync",
+      "status=none"
+    ],
+    "expected_sha256": "04dc6a1f44deaa4c959e133ced73b8fe94cf6842996d412843747a42f613d1e1",
+    "passed": true,
+    "readback_sha256": "04dc6a1f44deaa4c959e133ced73b8fe94cf6842996d412843747a42f613d1e1"
+  },
+  "runtime": "v2321-usb-clean-identity-rodata",
+  "schema": "sdm855-a90-param-debug-transition-public-v1",
+  "soc": "SM8150",
+  "stable_hash_verified": true,
+  "stable_mask": {
+    "excluded_ranges": [
+      [
+        0,
+        1
+      ]
+    ],
+    "stable_ranges": [
+      [
+        1,
+        10485760
+      ]
+    ],
+    "stable_size": 10485759
+  },
+  "started_utc": "2026-08-28T12:59:00+00:00",
+  "stophud_accepted": true,
+  "stophud_busy_retries": 0,
+  "target_model": "SM-A908N",
+  "transition": {
+    "after_bytes_hex": "444d4944",
+    "after_label": "MID",
+    "after_sha256": "50e5c715fc72fb72780d251c3f8e2f19191060e7bcd9f7cb68f7d194e762c256",
+    "after_stable_sha256": "9b85da06e4e4b1adb330c7169049a313ee5b0aa68014a2915a470f034c08f53f",
+    "before_bytes_hex": "444c4f57",
+    "before_label": "LOW",
+    "before_sha256": "1faafee97d08ff93b690dbcffe21d680f20232aa2d3dff5f462b747577bb4345",
+    "before_stable_sha256": "c0c7147418cf13145a44369a960c81647d347f317cb35baed1d85b286253c68a",
+    "partition_offset": "0x900000",
+    "size": 4,
+    "stable_mask": {
+      "excluded_ranges": [
+        [
+          0,
+          1
+        ]
+      ],
+      "stable_ranges": [
+        [
+          1,
+          10485760
+        ]
+      ],
+      "stable_size": 10485759
+    }
+  },
+  "volatile_byte0_after": 0,
+  "volatile_byte0_before": 0,
+  "write_count": 1
+}

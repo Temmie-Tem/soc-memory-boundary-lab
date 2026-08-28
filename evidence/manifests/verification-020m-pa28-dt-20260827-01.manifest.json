@@ -1,0 +1,262 @@
+{
+  "boundary_bypass": {
+    "controller_write": false,
+    "protected_memory": false,
+    "smc": false,
+    "status": "NOT_AUTHORIZED"
+  },
+  "bridge": {
+    "listener": {
+      "host": "127.0.0.1",
+      "port": 54321
+    },
+    "serial_device": "/dev/ttyACM0",
+    "serial_id": "/dev/serial/by-id/usb-A90-LNX_A90_Linux_ARM64_A90NATIVE001-if00",
+    "serial_realpath": "/dev/ttyACM0",
+    "strict_device_glob_option": false,
+    "strict_expect_realpath_option": false
+  },
+  "claims": {
+    "HYPOTHESIS": [],
+    "PROVED": [
+      "Exact target identity and the observed heap-30 to camera_mem_region DT phandle/reg chain are retained in the private receipt.",
+      "camera_mem_region no-map and reusable are absent with the expected ENOENT result."
+    ],
+    "REFUTED": [],
+    "SUPPORTED": [
+      "The DT chain is consistent with a fixed 320 MiB advertised carveout for heap 30."
+    ],
+    "UNKNOWN": [
+      "Whether a live 320 MiB ION allocation consumes the entire carveout, physical page identity, DRAM coordinates, f(PA28), transform mutability, protection ordering and bypass."
+    ]
+  },
+  "classification": "CLASS C (TRANSFORM ONLY)",
+  "device_access": "read_only_dt_only",
+  "eligibility": "NOT_ELIGIBLE",
+  "experiment_id": "verification-020m-pa28-dt-20260827-01",
+  "mode": "DEVICE_READ_ONLY_DT_ONLY",
+  "raw_receipt": {
+    "sha256": "ef641e38ba9e05cee1d4875851fcded7ee481c7401c40d432570a426b9b7db99",
+    "size": 15271
+  },
+  "records": [
+    {
+      "argv": [
+        "version"
+      ],
+      "errno": 0,
+      "evidence_id": "version",
+      "payload_sha256": "816e84c0c429cffacc2fd6efbdd166bf53a59c5b5fcf39cc59bd9788eb3b329a",
+      "payload_size": 240,
+      "rc": 0,
+      "status": "ok",
+      "transcript_sha256": "11dd6b4a3a491d7ca5a017c71a7e3a9dcd844c50172d72df592e5797fdb23887",
+      "transcript_size": 425
+    },
+    {
+      "argv": [
+        "cat",
+        "/proc/cmdline"
+      ],
+      "errno": 0,
+      "evidence_id": "cmdline",
+      "payload_sha256": "046ab8be6530ce95d550c48b14d1e82a8a844a075d1cfc557e3c1c2127ffcaf2",
+      "payload_size": 2563,
+      "rc": 0,
+      "status": "ok",
+      "transcript_sha256": "60cddad1061704efcd0e1d67d8bc7deaf2b0aa76846b2844f9bdb37eca3d3b71",
+      "transcript_size": 2746
+    },
+    {
+      "argv": [
+        "ls",
+        "/sys/firmware/devicetree/base/soc/qcom,ion"
+      ],
+      "errno": 0,
+      "evidence_id": "ion_list",
+      "payload_sha256": "f7207119aba99602d020a956b073faac6dcaea9bfe4315bfd5511308164530fe",
+      "payload_size": 378,
+      "rc": 0,
+      "status": "ok",
+      "transcript_sha256": "cb88158d3bc4bee18aa449f17a2fff7f45edd3373ad4bb20b7e60b270784f2b9",
+      "transcript_size": 586
+    },
+    {
+      "argv": [
+        "cat",
+        "/sys/firmware/devicetree/base/soc/qcom,ion/qcom,ion-heap@30/reg"
+      ],
+      "errno": 0,
+      "evidence_id": "ion_heap30_reg",
+      "payload_sha256": "560231689713a5933b6c8ac3e6b2f243730e49e1c6b0c610c41e8e8dad26044c",
+      "payload_size": 4,
+      "rc": 0,
+      "status": "ok",
+      "transcript_sha256": "ad689bd2a7b29d44a66e5c340951cbde9463102438946103a8a728f9b4e07ba6",
+      "transcript_size": 237
+    },
+    {
+      "argv": [
+        "cat",
+        "/sys/firmware/devicetree/base/soc/qcom,ion/qcom,ion-heap@30/memory-region"
+      ],
+      "errno": 0,
+      "evidence_id": "ion_heap30_memory_region",
+      "payload_sha256": "81d6052cea6709971f25ddd360adba03e0223c97bdd479a690f26ebf55d6b7f9",
+      "payload_size": 4,
+      "rc": 0,
+      "status": "ok",
+      "transcript_sha256": "8e50aa6ac55dbe6c9a0baf0e6f71d544b60a97971041e5e5906b819b8f276cac",
+      "transcript_size": 247
+    },
+    {
+      "argv": [
+        "cat",
+        "/sys/firmware/devicetree/base/soc/qcom,ion/qcom,ion-heap@30/name"
+      ],
+      "errno": 0,
+      "evidence_id": "ion_heap30_name",
+      "payload_sha256": "7db18ede8b59641362a22891d5b0072d2e53221dcd2d35f4cedeae546ed4299e",
+      "payload_size": 14,
+      "rc": 0,
+      "status": "ok",
+      "transcript_sha256": "d1c90859f7d09f260531cffa92544702f060a109d498e6958561096e9b7eb4b2",
+      "transcript_size": 248
+    },
+    {
+      "argv": [
+        "cat",
+        "/sys/firmware/devicetree/base/reserved-memory/camera_mem_region/reg"
+      ],
+      "errno": 0,
+      "evidence_id": "camera_reg",
+      "payload_sha256": "99d4dd23d13e084d281253967f521c8410c86683b0829d40f8c4ee19e9952eaa",
+      "payload_size": 16,
+      "rc": 0,
+      "status": "ok",
+      "transcript_sha256": "7daedb2da9b3a086abc6635bd330d9266ba8d675fbe8ac55625e6d7abdb231ca",
+      "transcript_size": 253
+    },
+    {
+      "argv": [
+        "cat",
+        "/sys/firmware/devicetree/base/reserved-memory/camera_mem_region/phandle"
+      ],
+      "errno": 0,
+      "evidence_id": "camera_phandle",
+      "payload_sha256": "81d6052cea6709971f25ddd360adba03e0223c97bdd479a690f26ebf55d6b7f9",
+      "payload_size": 4,
+      "rc": 0,
+      "status": "ok",
+      "transcript_sha256": "b535a55019219dc9ee6476e4dbb9c46b3ca4e3c6e04edb97e6da50ecc322ec0f",
+      "transcript_size": 245
+    },
+    {
+      "argv": [
+        "cat",
+        "/sys/firmware/devicetree/base/reserved-memory/camera_mem_region/name"
+      ],
+      "errno": 0,
+      "evidence_id": "camera_name",
+      "payload_sha256": "d4b621e666f02e8dfd6a846d5e51238615ba2c72bf2fb4666e6a0474375d4266",
+      "payload_size": 18,
+      "rc": 0,
+      "status": "ok",
+      "transcript_sha256": "01ad967017ea2d4561e65e74b099dd7f7ae087d9a0572f75458760818ce0fde3",
+      "transcript_size": 256
+    },
+    {
+      "argv": [
+        "cat",
+        "/sys/firmware/devicetree/base/reserved-memory/camera_mem_region/ion,recyclable"
+      ],
+      "errno": 0,
+      "evidence_id": "camera_ion_recyclable",
+      "payload_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "payload_size": 0,
+      "rc": 0,
+      "status": "ok",
+      "transcript_sha256": "f46cf5bcf70ab05dd88d48616ac91444ef9d63a6430afd092d7dfb09f4f6b74a",
+      "transcript_size": 248
+    },
+    {
+      "argv": [
+        "cat",
+        "/sys/firmware/devicetree/base/reserved-memory/camera_mem_region/no-map"
+      ],
+      "errno": 2,
+      "evidence_id": "camera_no_map",
+      "payload_sha256": "840924518d9c43851234fc0daedb41636a721a6e853cb9bc6614c2991e8c0bfb",
+      "payload_size": 102,
+      "rc": -2,
+      "status": "error",
+      "transcript_sha256": "d96d4257e27c2893e71e7ab63a07c0fe58c5e886990fbcd3e7d6d661a18a3469",
+      "transcript_size": 387
+    },
+    {
+      "argv": [
+        "cat",
+        "/sys/firmware/devicetree/base/reserved-memory/camera_mem_region/reusable"
+      ],
+      "errno": 2,
+      "evidence_id": "camera_reusable",
+      "payload_sha256": "513ba566069a7edb18a128abd550510fc60770f5cccaf2f997f97909a18c24e7",
+      "payload_size": 104,
+      "rc": -2,
+      "status": "error",
+      "transcript_sha256": "1e0dfabd87d30f01207c4465ffcd7b76f6e007ff8fd0ddb42e50707bb11a6fd4",
+      "transcript_size": 391
+    }
+  ],
+  "schema": "a90-pa28-dt-snapshot-v1",
+  "semantic": {
+    "camera_mem_region": {
+      "ion_recyclable": {
+        "errno": 0,
+        "present": true
+      },
+      "name": "camera_mem_region",
+      "optional_properties": {
+        "camera_no_map": {
+          "errno": 2,
+          "present": false,
+          "status": "error"
+        },
+        "camera_reusable": {
+          "errno": 2,
+          "present": false,
+          "status": "error"
+        }
+      },
+      "phandle": "0x67a",
+      "reg": {
+        "base": "0xc2000000",
+        "cells": [
+          "0x00000000",
+          "0xc2000000",
+          "0x00000000",
+          "0x14000000"
+        ],
+        "end_exclusive": "0xd6000000",
+        "size": "0x14000000"
+      }
+    },
+    "heap_020_manifest": {
+      "filename": "verification-020-heap-capacity-20260827-01.manifest.json",
+      "sha256": "567ed802dc434965ea7a10d73fd3bea41018826dab6d13f8ea518afce657e043",
+      "size": 4575
+    },
+    "ion_heap30": {
+      "memory_region_phandle": "0x67a",
+      "name": "qcom,ion-heap",
+      "reg": "0x1e"
+    }
+  },
+  "target": {
+    "build": "build=v2321-usb-clean-identity-rodata",
+    "kernel": "Linux 4.14.190-25818860-abA908NKSU5EWA3 aarch64",
+    "model": "SM-A908N",
+    "soc": "SM8150",
+    "version": "A90 Linux init 0.9.285"
+  }
+}

@@ -96,3 +96,44 @@ basis and deliberately encodes no Qualcomm-specific bit assignment.
 - `REFUTED`: AMD register addresses, bit positions, controller names, and Family
   16h access method can be copied to Qualcomm. They are retained only as the
   definition of an attack class.
+
+## Address-mapping recovery: the live literature line
+
+Surveyed 2026-08-27; see `docs/BROAD_SURVEY_2026-08-27.md` for the full pass.
+
+- **Knock-Knock**, arXiv 2509.19568, µASC 2025. Same GF(2) formulation used here,
+  but proves the bank-matrix / empirical-address-matrix relation and recovers the
+  bank-mask basis in polynomial rather than exponential time; generalises to row
+  mappings and recovers a row basis. 99% recall, minutes, >500 GB.
+- **Sudoku**, arXiv 2506.15918, 2025. Decomposes a mapping into channel, rank,
+  bank-group and bank *components* using refresh intervals and consecutive-access
+  latency, rather than one fused relation.
+- **DRAM-MaUT**, IEEE CASES 2022. The only ARM-native tool: `DC CIVAC` eviction
+  and `PMCCNTR` timing — the primitives available on this target.
+- **DRAMDig**, arXiv 2004.02354, 2020. Knowledge-assisted mapping recovery.
+
+This project's relation is rank 3 over PA13..PA27, i.e. bank selection only.
+Knock-Knock's row basis and Sudoku's component split both attack what is
+recorded here as `UNKNOWN` — complete DRAM coordinates — and neither needs new
+privilege.
+
+- **CATTmew**, IEEE TDSC. Defeats physical kernel isolation via ION/DMA driver
+  buffers. Noted and not pursued: it is a privilege-escalation result, and
+  higher-privilege success is out of scope for this project.
+
+## Qualcomm remapper prior art
+
+- **CVE-2022-22063** (msm8916-mainline). `APCS_BOOT_START_ADDR_NSEC` at
+  `0x0b010008` on MSM8916 carries `REMAP_EN` and `BOOT_128KB_EN` and remaps
+  `0x00000..0x20000` to a configurable base, shiftable block by block. Reachable
+  from non-secure EL1 because stage 2 protected the remapped region and not the
+  configuration register; yields full R/W/X into hypervisor memory. Fixed by
+  blocking the remapped region. Affected: MSM8916/APQ8016 and likely MSM8909 and
+  MSM8953; **SM8150 is not listed**.
+
+  This is the closest published instance of the exact P1 + P2 conjunction this
+  project looks for: a mutable transform downstream of the boundary, plus a
+  Normal-World path to it. On SM8150 the analogous block exists — `apcs_glb`,
+  `qcom,sm8150-apcs-hmss-global` at `0x17c00000` — but its exposed syscon at
+  `+0x0c` is the SMP2P IPC doorbell, not a remapper, and `REMAP_EN` /
+  `BOOT_128KB_EN` appear nowhere in the retained XBL.

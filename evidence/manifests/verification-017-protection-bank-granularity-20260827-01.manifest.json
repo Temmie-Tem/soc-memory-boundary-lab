@@ -1,0 +1,280 @@
+{
+ "schema": "a90-protection-bank-granularity-v1",
+ "relation": {
+  "13": 1,
+  "14": 2,
+  "15": 4,
+  "16": 3,
+  "17": 6,
+  "18": 7,
+  "19": 5,
+  "20": 1,
+  "21": 2,
+  "22": 4,
+  "23": 3,
+  "24": 6,
+  "25": 2,
+  "26": 5,
+  "27": 1
+ },
+ "rank": 3,
+ "v016_consistency": {
+  "rows": [
+   {
+    "high": 25,
+    "lower": 14,
+    "high_vector": 2,
+    "lower_vector": 2,
+    "agrees": true
+   },
+   {
+    "high": 25,
+    "lower": 21,
+    "high_vector": 2,
+    "lower_vector": 2,
+    "agrees": true
+   },
+   {
+    "high": 26,
+    "lower": 19,
+    "high_vector": 5,
+    "lower_vector": 5,
+    "agrees": true
+   },
+   {
+    "high": 27,
+    "lower": 13,
+    "high_vector": 1,
+    "lower_vector": 1,
+    "agrees": true
+   },
+   {
+    "high": 27,
+    "lower": 20,
+    "high_vector": 1,
+    "lower_vector": 1,
+    "agrees": true
+   }
+  ],
+  "agrees": true,
+  "disagreements": []
+ },
+ "class_change_granularity_bytes": 8192,
+ "span_covering_all_classes_bytes": 65536,
+ "protected_regions": [
+  {
+   "base": "0x85700000",
+   "size": 6291456,
+   "pages": 1536,
+   "pages_counted": 1536,
+   "truncated": false,
+   "histogram": {
+    "0": 192,
+    "1": 192,
+    "2": 192,
+    "3": 192,
+    "4": 192,
+    "5": 192,
+    "6": 192,
+    "7": 192
+   },
+   "classes_covered": 8,
+   "name": "hyp_mem"
+  },
+  {
+   "base": "0xb0000000",
+   "size": 2097152,
+   "pages": 512,
+   "pages_counted": 512,
+   "truncated": false,
+   "histogram": {
+    "0": 64,
+    "1": 64,
+    "2": 64,
+    "3": 64,
+    "4": 64,
+    "5": 64,
+    "6": 64,
+    "7": 64
+   },
+   "classes_covered": 8,
+   "name": "tima_region"
+  },
+  {
+   "base": "0xb0200000",
+   "size": 2097152,
+   "pages": 512,
+   "pages_counted": 512,
+   "truncated": false,
+   "histogram": {
+    "0": 64,
+    "1": 64,
+    "2": 64,
+    "3": 64,
+    "4": 64,
+    "5": 64,
+    "6": 64,
+    "7": 64
+   },
+   "classes_covered": 8,
+   "name": "rkp_region"
+  },
+  {
+   "base": "0xb0400000",
+   "size": 20971520,
+   "pages": 5120,
+   "pages_counted": 5120,
+   "truncated": false,
+   "histogram": {
+    "0": 640,
+    "1": 640,
+    "2": 640,
+    "3": 640,
+    "4": 640,
+    "5": 640,
+    "6": 640,
+    "7": 640
+   },
+   "classes_covered": 8,
+   "name": "uh_heap_region"
+  },
+  {
+   "base": "0xa6000000",
+   "size": 37748736,
+   "pages": 9216,
+   "pages_counted": 9216,
+   "truncated": false,
+   "histogram": {
+    "0": 1152,
+    "1": 1152,
+    "2": 1152,
+    "3": 1152,
+    "4": 1152,
+    "5": 1152,
+    "6": 1152,
+    "7": 1152
+   },
+   "classes_covered": 8,
+   "name": "qseecom_region"
+  }
+ ],
+ "unprotected_ranges": [
+  {
+   "base": "0x80002000",
+   "size": 91217920,
+   "pages": 22270,
+   "pages_counted": 22270,
+   "truncated": false,
+   "histogram": {
+    "0": 2782,
+    "1": 2784,
+    "2": 2784,
+    "3": 2784,
+    "4": 2784,
+    "5": 2784,
+    "6": 2784,
+    "7": 2784
+   },
+   "classes_covered": 8,
+   "name": "System RAM 0x80002000-0x856fffff"
+  },
+  {
+   "base": "0x85d00000",
+   "size": 1048576,
+   "pages": 256,
+   "pages_counted": 256,
+   "truncated": false,
+   "histogram": {
+    "0": 32,
+    "1": 32,
+    "2": 32,
+    "3": 32,
+    "4": 32,
+    "5": 32,
+    "6": 32,
+    "7": 32
+   },
+   "classes_covered": 8,
+   "name": "System RAM 0x85d00000-0x85dfffff"
+  },
+  {
+   "base": "0x9c400000",
+   "size": 62914560,
+   "pages": 15360,
+   "pages_counted": 15360,
+   "truncated": false,
+   "histogram": {
+    "0": 1920,
+    "1": 1920,
+    "2": 1920,
+    "3": 1920,
+    "4": 1920,
+    "5": 1920,
+    "6": 1920,
+    "7": 1920
+   },
+   "classes_covered": 8,
+   "name": "System RAM 0x9c400000-0x9fffffff"
+  },
+  {
+   "base": "0xa8400000",
+   "size": 130023424,
+   "pages": 31744,
+   "pages_counted": 31744,
+   "truncated": false,
+   "histogram": {
+    "0": 3968,
+    "1": 3968,
+    "2": 3968,
+    "3": 3968,
+    "4": 3968,
+    "5": 3968,
+    "6": 3968,
+    "7": 3968
+   },
+   "classes_covered": 8,
+   "name": "System RAM 0xa8400000-0xafffffff"
+  },
+  {
+   "base": "0xb0200000",
+   "size": 211812352,
+   "pages": 51712,
+   "pages_counted": 51712,
+   "truncated": false,
+   "histogram": {
+    "0": 6464,
+    "1": 6464,
+    "2": 6464,
+    "3": 6464,
+    "4": 6464,
+    "5": 6464,
+    "6": 6464,
+    "7": 6464
+   },
+   "classes_covered": 8,
+   "name": "System RAM 0xb0200000-0xbcbfffff"
+  },
+  {
+   "base": "0xc1c01000",
+   "size": 5339344896,
+   "pages": 1303551,
+   "pages_counted": 65536,
+   "truncated": true,
+   "histogram": {
+    "0": 8192,
+    "1": 8192,
+    "2": 8192,
+    "3": 8192,
+    "4": 8192,
+    "5": 8192,
+    "6": 8192,
+    "7": 8192
+   },
+   "classes_covered": 8,
+   "name": "System RAM 0xc1c01000-0x1ffffffff"
+  }
+ ],
+ "all_protected_cover_every_class": true,
+ "all_unprotected_cover_every_class": true,
+ "bank_granular_check_can_separate": false
+}

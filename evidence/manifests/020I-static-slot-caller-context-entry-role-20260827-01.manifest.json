@@ -1,0 +1,401 @@
+{
+ "boundary_bypass": {
+  "device": "none",
+  "mmio": "none",
+  "protected_memory": "none",
+  "reason": "Host-only static caller-context census; no activation or live state was accessed.",
+  "smc": "none",
+  "status": "NOT_AUTHORIZED"
+ },
+ "census": {
+  "callsite_count": 20,
+  "callsites": [
+   {
+    "classification": "CALLER_CONTEXT_UNSUPPORTED",
+    "definitions": [],
+    "source_va": "0x9fc263ec",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc263e8",
+    "target_block_end_exclusive": "0x9fc26ef4",
+    "target_block_terminator": "RET",
+    "target_va": "0x9fc26ee4",
+    "window_end_exclusive": "0x9fc263ec",
+    "window_instructions": 16,
+    "window_start": "0x9fc263ec"
+   },
+   {
+    "classification": "ARGUMENT_COPY_OR_CONSTANT",
+    "definitions": [
+     {
+      "kind": "ARGUMENT_COPY_OR_CONSTANT",
+      "register": "X0",
+      "source": "X20",
+      "va": "0x9fc263f4"
+     }
+    ],
+    "source_va": "0x9fc263f8",
+    "stop_reason": "DIRECT_BL",
+    "stop_va": "0x9fc263ec",
+    "target_block_end_exclusive": "0x9fc26ea8",
+    "target_block_terminator": "RET",
+    "target_va": "0x9fc26e84",
+    "window_end_exclusive": "0x9fc263f8",
+    "window_instructions": 16,
+    "window_start": "0x9fc263f0"
+   },
+   {
+    "classification": "ARGUMENT_OR_UNKNOWN",
+    "definitions": [],
+    "source_va": "0x9fc26400",
+    "stop_reason": "DIRECT_BL",
+    "stop_va": "0x9fc263f8",
+    "target_block_end_exclusive": "0x9fc26ec0",
+    "target_block_terminator": "RET",
+    "target_va": "0x9fc26ea8",
+    "window_end_exclusive": "0x9fc26400",
+    "window_instructions": 16,
+    "window_start": "0x9fc263fc"
+   },
+   {
+    "classification": "CALLER_CONTEXT_UNSUPPORTED",
+    "definitions": [],
+    "source_va": "0x9fc26524",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc26520",
+    "target_block_end_exclusive": "0x9fc26ef4",
+    "target_block_terminator": "RET",
+    "target_va": "0x9fc26ee4",
+    "window_end_exclusive": "0x9fc26524",
+    "window_instructions": 16,
+    "window_start": "0x9fc26524"
+   },
+   {
+    "classification": "CALLER_CONTEXT_UNSUPPORTED",
+    "definitions": [
+     {
+      "kind": "ARGUMENT_COPY_OR_CONSTANT",
+      "register": "X0",
+      "source": "X21",
+      "va": "0x9fc265f4"
+     }
+    ],
+    "source_va": "0x9fc265fc",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc265e4",
+    "target_block_end_exclusive": "0x9fc26ea8",
+    "target_block_terminator": "RET",
+    "target_va": "0x9fc26e84",
+    "window_end_exclusive": "0x9fc265fc",
+    "window_instructions": 16,
+    "window_start": "0x9fc265e8"
+   },
+   {
+    "classification": "ARGUMENT_OR_UNKNOWN",
+    "definitions": [],
+    "source_va": "0x9fc26604",
+    "stop_reason": "DIRECT_BL",
+    "stop_va": "0x9fc265fc",
+    "target_block_end_exclusive": "0x9fc26ec0",
+    "target_block_terminator": "RET",
+    "target_va": "0x9fc26ea8",
+    "window_end_exclusive": "0x9fc26604",
+    "window_instructions": 16,
+    "window_start": "0x9fc26600"
+   },
+   {
+    "classification": "ARGUMENT_OR_UNKNOWN",
+    "definitions": [],
+    "source_va": "0x9fc26754",
+    "stop_reason": "DIRECT_BL",
+    "stop_va": "0x9fc26750",
+    "target_block_end_exclusive": "0x9fc26ef4",
+    "target_block_terminator": "RET",
+    "target_va": "0x9fc26ee4",
+    "window_end_exclusive": "0x9fc26754",
+    "window_instructions": 16,
+    "window_start": "0x9fc26754"
+   },
+   {
+    "classification": "ARGUMENT_OR_UNKNOWN",
+    "definitions": [],
+    "source_va": "0x9fc26a1c",
+    "stop_reason": "DIRECT_BL",
+    "stop_va": "0x9fc26a14",
+    "target_block_end_exclusive": "0x9fc26ee4",
+    "target_block_terminator": "RET",
+    "target_va": "0x9fc26ec0",
+    "window_end_exclusive": "0x9fc26a1c",
+    "window_instructions": 16,
+    "window_start": "0x9fc26a18"
+   },
+   {
+    "classification": "CALLER_CONTEXT_UNSUPPORTED",
+    "definitions": [],
+    "source_va": "0x9fc26b3c",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc26b38",
+    "target_block_end_exclusive": "0x9fc26ee4",
+    "target_block_terminator": "RET",
+    "target_va": "0x9fc26ec0",
+    "window_end_exclusive": "0x9fc26b3c",
+    "window_instructions": 16,
+    "window_start": "0x9fc26b3c"
+   },
+   {
+    "classification": "CALLER_CONTEXT_UNSUPPORTED",
+    "definitions": [],
+    "source_va": "0x9fc26c78",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc26c74",
+    "target_block_end_exclusive": "0x9fc26ee4",
+    "target_block_terminator": "RET",
+    "target_va": "0x9fc26ec0",
+    "window_end_exclusive": "0x9fc26c78",
+    "window_instructions": 16,
+    "window_start": "0x9fc26c78"
+   },
+   {
+    "classification": "ARGUMENT_OR_UNKNOWN",
+    "definitions": [],
+    "source_va": "0x9fc26cd4",
+    "stop_reason": "DIRECT_BL",
+    "stop_va": "0x9fc26cd0",
+    "target_block_end_exclusive": "0x9fc26ee4",
+    "target_block_terminator": "RET",
+    "target_va": "0x9fc26ec0",
+    "window_end_exclusive": "0x9fc26cd4",
+    "window_instructions": 16,
+    "window_start": "0x9fc26cd4"
+   },
+   {
+    "classification": "CALLER_CONTEXT_UNSUPPORTED",
+    "definitions": [],
+    "source_va": "0x9fc26f78",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc26f60",
+    "target_block_end_exclusive": "0x9fc26f60",
+    "target_block_terminator": "RET",
+    "target_va": "0x9fc26f50",
+    "window_end_exclusive": "0x9fc26f78",
+    "window_instructions": 16,
+    "window_start": "0x9fc26f64"
+   },
+   {
+    "classification": "CALLER_CONTEXT_UNSUPPORTED",
+    "definitions": [],
+    "source_va": "0x9fc26fb0",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc26fac",
+    "target_block_end_exclusive": "0x9fc26f50",
+    "target_block_terminator": "DIRECT_BRANCH",
+    "target_va": "0x9fc26f30",
+    "window_end_exclusive": "0x9fc26fb0",
+    "window_instructions": 16,
+    "window_start": "0x9fc26fb0"
+   },
+   {
+    "classification": "CALLER_CONTEXT_UNSUPPORTED",
+    "definitions": [],
+    "source_va": "0x9fc26ff0",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc26fec",
+    "target_block_end_exclusive": "0x9fc26f50",
+    "target_block_terminator": "DIRECT_BRANCH",
+    "target_va": "0x9fc26f30",
+    "window_end_exclusive": "0x9fc26ff0",
+    "window_instructions": 16,
+    "window_start": "0x9fc26ff0"
+   },
+   {
+    "classification": "ARGUMENT_COPY_OR_CONSTANT",
+    "definitions": [
+     {
+      "kind": "ARGUMENT_COPY_OR_CONSTANT",
+      "register": "X0",
+      "source": "X20",
+      "va": "0x9fc27000"
+     }
+    ],
+    "source_va": "0x9fc27004",
+    "stop_reason": "DIRECT_B",
+    "stop_va": "0x9fc26ffc",
+    "target_block_end_exclusive": "0x9fc26f30",
+    "target_block_terminator": "DIRECT_BRANCH",
+    "target_va": "0x9fc26ef4",
+    "window_end_exclusive": "0x9fc27004",
+    "window_instructions": 16,
+    "window_start": "0x9fc27000"
+   },
+   {
+    "classification": "CALLER_CONTEXT_UNSUPPORTED",
+    "definitions": [],
+    "source_va": "0x9fc27fd4",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc27fd0",
+    "target_block_end_exclusive": "0x9fc26ee4",
+    "target_block_terminator": "RET",
+    "target_va": "0x9fc26ec0",
+    "window_end_exclusive": "0x9fc27fd4",
+    "window_instructions": 16,
+    "window_start": "0x9fc27fd4"
+   },
+   {
+    "classification": "CALLER_CONTEXT_UNSUPPORTED",
+    "definitions": [],
+    "source_va": "0x9fc281a0",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc28188",
+    "target_block_end_exclusive": "0x9fc26ee4",
+    "target_block_terminator": "RET",
+    "target_va": "0x9fc26ec0",
+    "window_end_exclusive": "0x9fc281a0",
+    "window_instructions": 16,
+    "window_start": "0x9fc2818c"
+   },
+   {
+    "classification": "CALLER_CONTEXT_UNSUPPORTED",
+    "definitions": [],
+    "source_va": "0x9fc28218",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc28210",
+    "target_block_end_exclusive": "0x9fc26ee4",
+    "target_block_terminator": "RET",
+    "target_va": "0x9fc26ec0",
+    "window_end_exclusive": "0x9fc28218",
+    "window_instructions": 16,
+    "window_start": "0x9fc28214"
+   },
+   {
+    "classification": "CALLER_CONTEXT_UNSUPPORTED",
+    "definitions": [],
+    "source_va": "0x9fc2c340",
+    "stop_reason": "UNSUPPORTED",
+    "stop_va": "0x9fc2c338",
+    "target_block_end_exclusive": "0x9fc26ee4",
+    "target_block_terminator": "RET",
+    "target_va": "0x9fc26ec0",
+    "window_end_exclusive": "0x9fc2c340",
+    "window_instructions": 16,
+    "window_start": "0x9fc2c33c"
+   },
+   {
+    "classification": "ARGUMENT_OR_UNKNOWN",
+    "definitions": [],
+    "source_va": "0x9fc2c4fc",
+    "stop_reason": "DIRECT_B",
+    "stop_va": "0x9fc2c4f8",
+    "target_block_end_exclusive": "0x9fc26ee4",
+    "target_block_terminator": "RET",
+    "target_va": "0x9fc26ec0",
+    "window_end_exclusive": "0x9fc2c4fc",
+    "window_instructions": 16,
+    "window_start": "0x9fc2c4fc"
+   }
+  ],
+  "classification_counts": {
+   "ARGUMENT_COPY_OR_CONSTANT": 2,
+   "ARGUMENT_OR_UNKNOWN": 6,
+   "CALLER_CONTEXT_UNSUPPORTED": 12
+  },
+  "status": "SUPPORTED_BOUNDED_CALLER_CONTEXT_CENSUS",
+  "unique_callsite_va_count": 20
+ },
+ "claims": {
+  "HYPOTHESIS": [
+   "Some direct callsites may belong to initialization/helper paths that prepare local configuration state."
+  ],
+  "PROVED": [
+   "The exact retained A90 XBL and public 020H role manifest are bound by size/SHA-256 before tracing.",
+   "Each of the 20 exact 020H block-entry direct-BL source VAs is checked against its target and traced only within the stated backward window with explicit stop reasons."
+  ],
+  "REFUTED": [],
+  "SUPPORTED": [
+   "The bounded caller contexts provide local static-slot or argument-shaped evidence without establishing true functions, runtime pointers, or controller programming."
+  ],
+  "UNKNOWN": [
+   "True function boundaries, runtime execution/currentness/values, indirect calls/callee effects, object semantics, global writer/consumer absence, ABI effects, MMIO/physical/DRAM identity, mutability/locking, protected reach, aliasing and bypass."
+  ]
+ },
+ "classification": "CLASS C (TRANSFORM ONLY)",
+ "definition_of_done": {
+  "build": {
+   "reason": "Interpreted host Python; no device/kernel build.",
+   "status": "NOT_APPLICABLE"
+  },
+  "commands": {
+   "command": "python3 tools/sm8150_xbl_static_slot_caller_context_entry_role_020i.py --output <public-manifest-path>",
+   "reason": "Private input paths are redacted; exact hashes are pinned.",
+   "status": "REDACTED_REPRODUCTION_TEMPLATE"
+  },
+  "device_binding": {
+   "reason": "Host-only static trace; no device contact.",
+   "status": "NOT_APPLICABLE"
+  },
+  "recovery": {
+   "reason": "Host-only static trace; no device state.",
+   "status": "NOT_APPLICABLE"
+  },
+  "repetitions": {
+   "reason": "Host-only static trace; no runtime repetitions.",
+   "status": "NOT_APPLICABLE"
+  },
+  "rollback": {
+   "reason": "Host-only static trace; no device state.",
+   "status": "NOT_APPLICABLE"
+  },
+  "target": {
+   "binding": "PROVED_EXACT_XBL_INPUT_HASH",
+   "marketing_name": "A90 5G",
+   "model": "SM-A908N",
+   "soc": "SM8150",
+   "soc_name": "Snapdragon 855"
+  },
+  "timestamp": {
+   "reason": "Deterministic publication does not embed a wall-clock timestamp.",
+   "status": "NOT_APPLICABLE"
+  },
+  "tool_and_build": {
+   "build": "NOT_APPLICABLE",
+   "tool": "sm8150_xbl_static_slot_caller_context_entry_role_020i.py schema sm8150-xbl-static-slot-caller-context-entry-role-v1"
+  }
+ },
+ "device_access": "none",
+ "eligibility": "NOT_ELIGIBLE",
+ "experiment_id": "020I-static-slot-caller-context-entry-role",
+ "inputs": {
+  "dependency_020h": {
+   "experiment_id": "020H-static-slot-function-role-base-origin",
+   "filename": "020H-static-slot-function-role-base-origin-20260827-01.manifest.json",
+   "sha256": "b306ca67675430314289fd79faa2e53b2d67994807d0b08bd91ced9b625faba2",
+   "size": 19314
+  },
+  "firmware": {
+   "filename": "xbl--sdb1.bin",
+   "sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+   "size": 4194304
+  }
+ },
+ "mode": "HOST_ONLY_READ_ONLY",
+ "schema": "sm8150-xbl-static-slot-caller-context-entry-role-v1",
+ "scope": {
+  "backward_window_instructions": 16,
+  "global_writer_consumer_absence": "UNKNOWN",
+  "mmio_identity": "UNKNOWN",
+  "model": "EXACT_020H_BLOCK_ENTRY_DIRECT_BL_SOURCES_BACKWARD_16_INSTRUCTIONS",
+  "never_scan_arbitrary_ranges": true,
+  "physical_to_dram": "UNKNOWN",
+  "recognized_forms": [
+   "RET_X30",
+   "DIRECT_B",
+   "DIRECT_BL",
+   "LDR_STR_UNSIGNED",
+   "LDR_STR_REGISTER_OFFSET_UXTX",
+   "ADRP",
+   "ADD_SUB",
+   "MADD",
+   "MOV_REGISTER"
+  ],
+  "runtime_base": "UNKNOWN",
+  "true_function_boundaries": "UNKNOWN"
+ }
+}

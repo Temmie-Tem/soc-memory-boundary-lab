@@ -1,0 +1,186 @@
+{
+ "boundary_bypass": {
+  "device": "none",
+  "mmio": "none",
+  "protected_memory": "none",
+  "reason": "Host-only static trace; no activation or live state was accessed.",
+  "smc": "none",
+  "status": "NOT_AUTHORIZED"
+ },
+ "claims": {
+  "HYPOTHESIS": [
+   "The static object may be a configuration carrier consumed by more than one XBL path."
+  ],
+  "PROVED": [
+   "The exact retained A90 XBL is bound by size and SHA-256 before analysis.",
+   "The exact helper 0x9fc160b8 is ADRP X0 to page 0x9fc36000, ADD X0,#0x2c0 and RET, yielding static ELF VADDR 0x9fc362c0.",
+   "The exact XBL contains two direct BL callers of the helper: 0x9fc22cc0 and 0x9fc26e2c.",
+   "The returned-object field range [0x9fc362c0,0x9fc362f0) is file-backed and hash-pinned without publishing its raw bytes."
+  ],
+  "REFUTED": [],
+  "SUPPORTED": [
+   "The helper's static return address is the bounded source used by Verification 020B; this does not establish runtime object semantics."
+  ],
+  "UNKNOWN": [
+   "Runtime execution, object contents/type/currentness, writer identity, mutability/locking, physical-to-DRAM mapping, MMIO semantics, protected-memory reach, aliasing and bypass; indirect callers and paths outside the executable scan."
+  ]
+ },
+ "classification": "CLASS C (TRANSFORM ONLY)",
+ "definition_of_done": {
+  "build": {
+   "reason": "NOT_APPLICABLE: bounded host-only static trace; no device or runtime state was touched",
+   "status": "NOT_APPLICABLE"
+  },
+  "commands": {
+   "command": "python3 tools/sm8150_xbl_return_helper_trace_020c.py --output <public-manifest-path>",
+   "reason": "Private input paths are redacted; exact hashes are pinned.",
+   "status": "REDACTED_REPRODUCTION_TEMPLATE"
+  },
+  "device_binding": {
+   "reason": "NOT_APPLICABLE: bounded host-only static trace; no device or runtime state was touched",
+   "status": "NOT_APPLICABLE"
+  },
+  "recovery": {
+   "reason": "NOT_APPLICABLE: bounded host-only static trace; no device or runtime state was touched",
+   "status": "NOT_APPLICABLE"
+  },
+  "repetitions": {
+   "reason": "NOT_APPLICABLE: bounded host-only static trace; no device or runtime state was touched",
+   "status": "NOT_APPLICABLE"
+  },
+  "rollback": {
+   "reason": "NOT_APPLICABLE: bounded host-only static trace; no device or runtime state was touched",
+   "status": "NOT_APPLICABLE"
+  },
+  "target": {
+   "binding": "PROVED_EXACT_XBL_INPUT_HASH",
+   "marketing_name": "A90 5G",
+   "model": "SM-A908N",
+   "soc": "SM8150",
+   "soc_name": "Snapdragon 855"
+  },
+  "timestamp": {
+   "reason": "Deterministic publication does not embed a wall-clock timestamp.",
+   "status": "NOT_APPLICABLE"
+  },
+  "tool_and_build": {
+   "build": "NOT_APPLICABLE",
+   "build_reason": "Interpreted host Python; no firmware/kernel build.",
+   "tool": "sm8150_xbl_return_helper_trace_020c.py schema sm8150-xbl-return-helper-trace-v1"
+  }
+ },
+ "device_access": "none",
+ "eligibility": "NOT_ELIGIBLE",
+ "experiment_id": "020C-return-helper-origin",
+ "inputs": {
+  "firmware": {
+   "filename": "xbl--sdb1.bin",
+   "sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+   "size": 4194304
+  },
+  "helper": {
+   "end_exclusive": "0x9fc160c4",
+   "file_offset": "0x0009d088",
+   "sha256": "aa23cc5c16d3e14a931184f48199c3891359b3074b3433e0b8a82901bc619ff9",
+   "size": 12,
+   "start": "0x9fc160b8"
+  },
+  "helper_direct_callers": {
+   "callers": [
+    {
+     "kind": "BL",
+     "target": "0x9fc160b8",
+     "va": "0x9fc22cc0"
+    },
+    {
+     "kind": "BL",
+     "target": "0x9fc160b8",
+     "va": "0x9fc26e2c"
+    }
+   ],
+   "count": 2
+  },
+  "returned_object_fields": {
+   "end_exclusive": "0x9fc362f0",
+   "file_offset": "0x000bd290",
+   "sha256": "29dfe1d501b1842425aae853943382cf45a0eb6929aab0a78eb5ad745418a649",
+   "size": 48,
+   "start": "0x9fc362c0"
+  }
+ },
+ "mode": "HOST_ONLY_READ_ONLY",
+ "schema": "sm8150-xbl-return-helper-trace-v1",
+ "scope": {
+  "indirect_paths": "UNKNOWN",
+  "model": "ONE_EXACT_RETURN_HELPER_AND_TWO_DIRECT_CALLERS",
+  "never_scan_arbitrary_ranges": true,
+  "recognized_forms": [
+   "ADRP",
+   "ADD_SUB_IMMEDIATE",
+   "BL_DIRECT",
+   "RET"
+  ],
+  "runtime_physical_mapping": "UNKNOWN",
+  "runtime_values": "UNKNOWN",
+  "static_object_range_only": true
+ },
+ "trace": {
+  "current_values": "UNKNOWN",
+  "direct_callers": {
+   "callers": [
+    {
+     "kind": "BL",
+     "target": "0x9fc160b8",
+     "va": "0x9fc22cc0"
+    },
+    {
+     "kind": "BL",
+     "target": "0x9fc160b8",
+     "va": "0x9fc26e2c"
+    }
+   ],
+   "count": 2
+  },
+  "helper_range": {
+   "end_exclusive": "0x9fc160c4",
+   "file_offset": "0x0009d088",
+   "sha256": "aa23cc5c16d3e14a931184f48199c3891359b3074b3433e0b8a82901bc619ff9",
+   "size": 12,
+   "start": "0x9fc160b8"
+  },
+  "object_range": {
+   "end_exclusive": "0x9fc362f0",
+   "file_offset": "0x000bd290",
+   "sha256": "29dfe1d501b1842425aae853943382cf45a0eb6929aab0a78eb5ad745418a649",
+   "size": 48,
+   "start": "0x9fc362c0"
+  },
+  "return": {
+   "construction": [
+    {
+     "destination": "X0",
+     "form": "ADRP",
+     "page": "0x9fc36000",
+     "va": "0x9fc160b8"
+    },
+    {
+     "base": "X0",
+     "byte_offset": "0x000002c0",
+     "destination": "X0",
+     "form": "ADD_IMMEDIATE",
+     "va": "0x9fc160bc"
+    },
+    {
+     "form": "RET",
+     "va": "0x9fc160c0"
+    }
+   ],
+   "kind": "STATIC_ELF_VADDR",
+   "origin": "STATIC_ELF_VADDR",
+   "runtime_physical_mapping": "UNKNOWN",
+   "runtime_value": "UNKNOWN",
+   "va": "0x9fc362c0"
+  },
+  "status": "SUPPORTED_BOUNDED_STATIC_RETURN_HELPER_TRACE"
+ }
+}

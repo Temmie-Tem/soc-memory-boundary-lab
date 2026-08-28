@@ -1,0 +1,71 @@
+{
+  "boot_id_changed": true,
+  "bootloader": "A908NKSU5EWA3",
+  "claims": {
+    "PROVED": [
+      "The reboot command was dispatched exactly once and accepted by the exact A90P1 CMD_NO_DONE path.",
+      "A different boot ID returned with the exact native runtime and requested source-backed debug-level cmdline value."
+    ]
+  },
+  "classification": "NEW_BOOT_PROVED",
+  "cmd_no_done": true,
+  "completed_utc": "2026-08-28T13:00:44+00:00",
+  "debug_profile_summary": {
+    "after": "mid",
+    "before": "low",
+    "before_explicit": true
+  },
+  "dispatch_receipt": {
+    "a90p1_begin_observed": true,
+    "begin": {
+      "argc": "1",
+      "cmd": "reboot",
+      "flags": "0x14",
+      "seq": "135"
+    },
+    "reboot_marker_observed": true,
+    "socket_disconnect_observed": true,
+    "transcript_sha256": "a509e697ca9291a8482e1e90c482fce47bfdcdb2c96a8847a7c336e8d0493201",
+    "transcript_size": 105
+  },
+  "effect_dispatched_count": 1,
+  "effect_replayed": false,
+  "experiment_id": "verification-024-read-mid-reboot",
+  "kernel": "Linux 4.14.190-25818860-abA908NKSU5EWA3 aarch64",
+  "physical_effect_claim": {
+    "attempted": true,
+    "boot_id_sha256": "9fe12d0a76772b3916d13a1928f738cf8e659e3f2255d7c0c5a967955c55a87a",
+    "claim_sha256": "ade322b3286b29339b549308f887ab2c0bdea850c20de649943c0aa190dc2ae9",
+    "claim_size": 660,
+    "claimed": true,
+    "key_sha256": "dd9ae8ac698a145474d8fbc4875d36d3cee4e90e891ce51aeb519c0258ce9c66"
+  },
+  "post_boot": {
+    "debug_level": "0x494d",
+    "download_mode": "1",
+    "dump_sink": "0x0",
+    "force_upload": "0x0",
+    "selftest": {
+      "duration": 53,
+      "entries": 12,
+      "fail": 0,
+      "passed": 11,
+      "warn": 1
+    },
+    "stophud_accepted": true,
+    "stophud_busy_retries": 0
+  },
+  "pre_stophud_accepted": true,
+  "pre_stophud_busy_retries": 0,
+  "private_journal": {
+    "filename": "verification-024-read-mid-reboot.journal.json",
+    "git_ignored": true,
+    "sha256": "530cfe439df21707a901dd5bb97e71f0db9dedb1a8bb801ed45742f5a32f44de",
+    "size": 22925
+  },
+  "runtime": "v2321-usb-clean-identity-rodata",
+  "schema": "sdm855-a90-native-reboot-public-v2",
+  "soc": "SM8150",
+  "started_utc": "2026-08-28T12:59:50+00:00",
+  "target_model": "SM-A908N"
+}

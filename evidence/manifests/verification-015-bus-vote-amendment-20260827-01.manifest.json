@@ -1,0 +1,193 @@
+{
+ "boundary_bypass": {
+  "device": "none",
+  "mmio": "none",
+  "protected_memory": "none",
+  "reason": "Host-only transcript amendment; no device or runtime state was accessed.",
+  "smc": "none",
+  "status": "NOT_AUTHORIZED"
+ },
+ "bus_vote": {
+  "client_list_scope": "DECLARED_66_CLIENTS_WITH_RETAINED_RELEVANT_NAMES_ONLY",
+  "declared_client_count": 66,
+  "entries": [
+   {
+    "ab_bytes_per_sec": 12800000000,
+    "current": 1,
+    "ib_bytes_per_sec": 12800000000,
+    "index": 0,
+    "masters": 20000,
+    "phase": "INITIAL_STATIC_VOTE",
+    "slaves": 20512,
+    "timestamp_seconds": "1.178022290"
+   },
+   {
+    "ab_bytes_per_sec": 0,
+    "current": 2,
+    "ib_bytes_per_sec": 400000000,
+    "index": 1,
+    "masters": 20000,
+    "phase": "TRANSIENT_LOW_VOTE",
+    "slaves": 20512,
+    "timestamp_seconds": "12177.250682385"
+   },
+   {
+    "ab_bytes_per_sec": 0,
+    "current": 1,
+    "ib_bytes_per_sec": 400000000,
+    "index": 2,
+    "masters": 20000,
+    "phase": "TRANSIENT_LOW_VOTE",
+    "slaves": 20512,
+    "timestamp_seconds": "12177.251094676"
+   },
+   {
+    "ab_bytes_per_sec": 12800000000,
+    "current": 2,
+    "ib_bytes_per_sec": 12800000000,
+    "index": 3,
+    "masters": 20000,
+    "phase": "RESTORED_STATIC_VOTE",
+    "slaves": 20512,
+    "timestamp_seconds": "12177.290264624"
+   },
+   {
+    "ab_bytes_per_sec": 12800000000,
+    "current": 1,
+    "ib_bytes_per_sec": 12800000000,
+    "index": 4,
+    "masters": 20000,
+    "phase": "RESTORED_STATIC_VOTE",
+    "slaves": 20512,
+    "timestamp_seconds": "12177.440166082"
+   },
+   {
+    "ab_bytes_per_sec": 12800000000,
+    "current": 2,
+    "ib_bytes_per_sec": 12800000000,
+    "index": 5,
+    "masters": 20000,
+    "phase": "RESTORED_STATIC_VOTE",
+    "slaves": 20512,
+    "timestamp_seconds": "12177.440268895"
+   }
+  ],
+  "entry_count": 6,
+  "initial_vote_bytes_per_sec": {
+   "ab": 12800000000,
+   "ib": 12800000000
+  },
+  "initial_vote_description": "12.8 GB/s AB and IB",
+  "interpretation": "The retained excerpt shows a static 12.8 GB/s EBI vote initially, a transient 400 MB/s IB entry, and restoration; it does not attest a DDR operating-point transition.",
+  "listed_client_count": 4,
+  "listed_client_names": [
+   "clk_dispcc_debugfs",
+   "disp_rsc_ebi",
+   "disp_rsc_llcc",
+   "disp_rsc_mnoc"
+  ],
+  "phase_counts": {
+   "INITIAL_STATIC_VOTE": 1,
+   "RESTORED_STATIC_VOTE": 3,
+   "TRANSIENT_LOW_VOTE": 2
+  },
+  "required_client": "disp_rsc_ebi",
+  "required_client_present": true,
+  "restored_matches_initial": true,
+  "restored_vote_bytes_per_sec": {
+   "ab": 12800000000,
+   "ib": 12800000000
+  },
+  "restored_vote_description": "12.8 GB/s AB and IB",
+  "transient_vote_bytes_per_sec": {
+   "ab": 0,
+   "ib": 400000000
+  },
+  "transient_vote_description": "400 MB/s IB with zero AB"
+ },
+ "claims": {
+  "HYPOTHESIS": [],
+  "PROVED": [
+   "The two retained excerpts are bound by regular-file, no-follow, size, stability, and SHA-256 checks.",
+   "The client excerpt declares 66 clients and retains the disp_rsc_ebi name among its four listed relevant names.",
+   "The disp_rsc_ebi excerpt contains one initial 12.8 GB/s vote, two transient 400 MB/s IB rows, and three restored 12.8 GB/s rows."
+  ],
+  "REFUTED": [],
+  "SUPPORTED": [
+   "The retained bus-vote excerpt supports treating the V015 bandwidth request axis as a stability-only supplement rather than DDR-frequency evidence."
+  ],
+  "UNKNOWN": [
+   "DDR operating-point selection, clock readback, bus aggregation outside the retained excerpt, transform mutability, physical mapping, protection ordering, aliasing, and bypass."
+  ]
+ },
+ "classification": "CLASS C (TRANSFORM ONLY)",
+ "definition_of_done": {
+  "build": {
+   "reason": "Interpreted host Python; no device/kernel build.",
+   "status": "NOT_APPLICABLE"
+  },
+  "commands": {
+   "command": "python3 tools/a90_v015_bus_vote_amendment.py --output <public-manifest-path>",
+   "reason": "Private input paths are redacted; exact hashes are pinned.",
+   "status": "REDACTED_REPRODUCTION_TEMPLATE"
+  },
+  "device_binding": {
+   "reason": "No device contact.",
+   "status": "NOT_APPLICABLE"
+  },
+  "recovery": {
+   "reason": "No device state.",
+   "status": "NOT_APPLICABLE"
+  },
+  "repetitions": {
+   "reason": "Host-only transcript parse; no runtime repetitions.",
+   "status": "NOT_APPLICABLE"
+  },
+  "rollback": {
+   "reason": "No device state.",
+   "status": "NOT_APPLICABLE"
+  },
+  "target": {
+   "binding": "PROVED_RETAINED_V015_INPUTS_ONLY",
+   "marketing_name": "A90 5G",
+   "model": "SM-A908N",
+   "soc": "SM8150",
+   "soc_name": "Snapdragon 855"
+  },
+  "timestamp": {
+   "reason": "Deterministic publication does not embed a wall-clock timestamp.",
+   "status": "NOT_APPLICABLE"
+  },
+  "tool_and_build": {
+   "build": "NOT_APPLICABLE",
+   "tool": "a90_v015_bus_vote_amendment.py schema a90-v015-bus-vote-amendment-v1"
+  }
+ },
+ "device_access": "none",
+ "eligibility": "NOT_ELIGIBLE",
+ "experiment_id": "verification-015-bus-vote-amendment",
+ "inputs": {
+  "client_list": {
+   "basename": "msm-bus-dbg-client-list.txt",
+   "sha256": "62e38404fa83ce2f44e135744695f8c992652cf0daf775d70478b1cc80909413",
+   "size": 64
+  },
+  "disp_rsc_ebi": {
+   "basename": "msm-bus-dbg-disp_rsc_ebi.txt",
+   "sha256": "90d5954aa11eaf064fef1737be7f742aada351ddbeaabd2d1bab2cb17f2aa1e2",
+   "size": 571
+  }
+ },
+ "mode": "HOST_ONLY_READ_ONLY",
+ "schema": "a90-v015-bus-vote-amendment-v1",
+ "scope": {
+  "controller_register_identity": "UNKNOWN",
+  "ddr_frequency": "UNKNOWN",
+  "model": "EXACT_RETAINED_MSM_BUS_DBG_EXCERPTS",
+  "never_contact_device": true,
+  "raw_transcript_bytes": "REDACTED",
+  "runtime_execution": "UNKNOWN",
+  "transform_transition": "UNKNOWN",
+  "writer_absence": "UNKNOWN"
+ }
+}

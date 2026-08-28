@@ -1,0 +1,190 @@
+{
+ "boundary_bypass": {
+  "device": "none",
+  "mmio": "none",
+  "protected_memory": "none",
+  "reason": "Host-only one-word static inventory.",
+  "smc": "none",
+  "status": "NOT_AUTHORIZED"
+ },
+ "census": {
+  "status": "SUPPORTED_BOUNDED_LANDING_WORD_INVENTORY",
+  "target_count": 7,
+  "targets": [
+   {
+    "family": "ADRP",
+    "landing_word": {
+     "family": "ADRP",
+     "page": 2680414208,
+     "rd": 0
+    },
+    "target_va": "0x9fc264d0",
+    "word_sha256": "958b44252a916cf69ae7294eebcd1d70e2adca261f47f34e922bbb30102eff81"
+   },
+   {
+    "family": "LDR_UNSIGNED",
+    "landing_word": {
+     "family": "LDR_UNSIGNED",
+     "imm12": 20,
+     "rn": 31,
+     "rt": 15,
+     "width_bits": 32
+    },
+    "target_va": "0x9fc26594",
+    "word_sha256": "47d0acafa4062ffeaddc02a42dc031d66cb6286fa86fdefb0aed8ef47e789ee9"
+   },
+   {
+    "family": "LOGICAL_OR_BITMASK_IMMEDIATE",
+    "landing_word": {
+     "N": 0,
+     "S": 1,
+     "family": "LOGICAL_OR_BITMASK_IMMEDIATE",
+     "immr": 0,
+     "imms": 0,
+     "op": 0,
+     "rd": 0,
+     "rn": 31,
+     "sf": 0,
+     "width_bits": 32
+    },
+    "target_va": "0x9fc26b64",
+    "word_sha256": "a93af30ebe143808e29aa12a4c5abfd7c2d31eef1392bc0a4fc81a5683245e73"
+   },
+   {
+    "family": "ADRP",
+    "landing_word": {
+     "family": "ADRP",
+     "page": 2680414208,
+     "rd": 20
+    },
+    "target_va": "0x9fc26ca4",
+    "word_sha256": "b2ffc9243c5e7164eae18a37823c49a048727c4c3f8083a801c46e126e0d8a7b"
+   },
+   {
+    "family": "LOGICAL_OR_BITMASK_IMMEDIATE",
+    "landing_word": {
+     "N": 0,
+     "S": 1,
+     "family": "LOGICAL_OR_BITMASK_IMMEDIATE",
+     "immr": 30,
+     "imms": 0,
+     "op": 0,
+     "rd": 1,
+     "rn": 31,
+     "sf": 0,
+     "width_bits": 32
+    },
+    "target_va": "0x9fc280e4",
+    "word_sha256": "13457319e2f6819dc2b16ef0784938a8c10f3d869ef51d281692a215941646c8"
+   },
+   {
+    "family": "MOV_REGISTER",
+    "landing_word": {
+     "family": "MOV_REGISTER",
+     "rd": 20,
+     "rn": 31,
+     "width_bits": 64
+    },
+    "target_va": "0x9fc282b4",
+    "word_sha256": "0ef1e8a5d921023758c7322b86f631d1377f990783cc4488f2aff360cda3e06d"
+   },
+   {
+    "family": "LDP_STP_PAIR",
+    "landing_word": {
+     "L": 1,
+     "S": 0,
+     "V": 0,
+     "addressing_mode": "OFFSET",
+     "family": "LDP_STP_PAIR",
+     "imm7": 4,
+     "imm7_raw": 4,
+     "index": 1,
+     "offset_bytes": 32,
+     "opc": 2,
+     "operation": "LDP",
+     "rn": 31,
+     "rt": 29,
+     "rt2": 30,
+     "width_bits": 64
+    },
+    "target_va": "0x9fc2c3bc",
+    "word_sha256": "795a8566e7b103a27cecec7ee464359c21082a67d9d04b88c4c0e01237bf9a73"
+   }
+  ],
+  "unique_target_va_count": 7
+ },
+ "claims": {
+  "HYPOTHESIS": [],
+  "PROVED": [
+   "Exact XBL, 020K source and public manifest are size/hash pinned.",
+   "Exactly seven unique conditional target VAs are inspected once with strict family/operand decoding and executable-segment checks."
+  ],
+  "REFUTED": [],
+  "SUPPORTED": [
+   "Landing words are finite ADRP/LDR/logical/MOV/pair shapes."
+  ],
+  "UNKNOWN": [
+   "Execution, data-flow, function boundaries, runtime values, pointer meaning, MMIO/DRAM identity, mutability, protected reach and bypass."
+  ]
+ },
+ "classification": "CLASS C (TRANSFORM ONLY)",
+ "definition_of_done": {
+  "build": {
+   "status": "NOT_APPLICABLE"
+  },
+  "device_binding": {
+   "reason": "No device contact.",
+   "status": "NOT_APPLICABLE"
+  },
+  "target": {
+   "binding": "PROVED_EXACT_XBL_INPUT_HASH",
+   "marketing_name": "A90 5G",
+   "model": "SM-A908N",
+   "soc": "SM8150"
+  },
+  "timestamp": {
+   "status": "NOT_APPLICABLE"
+  }
+ },
+ "device_access": "none",
+ "eligibility": "NOT_ELIGIBLE",
+ "experiment_id": "020L-branch-target-landing-word",
+ "inputs": {
+  "decoder_020d_source": {
+   "filename": "sm8150_xbl_second_caller_field_use_020d.py",
+   "sha256": "5a315f8735c38c86147367a1ad7c953d263d58c4bc63251473fa565e15efb332",
+   "size": 21053
+  },
+  "decoder_020f_source": {
+   "filename": "sm8150_xbl_static_slot_load_use_020f.py",
+   "sha256": "b1f12fb516b52e3b15168e61930d407f08788dd2379fa330b9f2220fc2cf3a53",
+   "size": 23772
+  },
+  "dependency_020k_manifest": {
+   "filename": "020K-caller-context-barrier-operand-target-inventory-20260827-01.manifest.json",
+   "sha256": "90a0cf4d264c64d0d2836b567a2dc8ac5abff7809be839e5131fc7e91e32975a",
+   "size": 9961
+  },
+  "dependency_020k_tool": {
+   "filename": "sm8150_xbl_caller_context_barrier_operand_target_inventory_020k.py",
+   "sha256": "efe1a4dd062bd76adfe3f535f441e86fc74a36c105433c884296f648ae5e4ae1",
+   "size": 19309
+  },
+  "firmware": {
+   "filename": "xbl--sdb1.bin",
+   "sha256": "e73a07a0b5e3eb9e8db9199eda125ee29b218765f050f85dd934a556549ebe37",
+   "size": 4194304
+  }
+ },
+ "mode": "HOST_ONLY_READ_ONLY",
+ "schema": "sm8150-xbl-caller-context-branch-target-landing-word-inventory-v1",
+ "scope": {
+  "inspect_one_word_per_unique_conditional_target": true,
+  "landing_va_alignment": "va % 4 == 0 before word read/decode",
+  "no_trace_past_landing_word": true,
+  "physical_mmio_dram_identity": "UNKNOWN",
+  "raw_word_values": "REDACTED_HASH_ONLY",
+  "runtime_execution": "UNKNOWN",
+  "same_executable_segment": true
+ }
+}

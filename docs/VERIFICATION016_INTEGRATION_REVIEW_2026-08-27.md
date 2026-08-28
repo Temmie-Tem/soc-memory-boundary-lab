@@ -143,5 +143,5 @@ audit is now satisfied, but its external implementation and claims are
 `PASS`: the retained numerical/model result is internally reproducible,
 bounded, and independently reviewed. It does not grant live-device or
 security-boundary authority. Class C remains unchanged; V017 requires its own
-audit, and the next selected normal-RAM storage-identity acquisition requires
-its own repaired tool and fresh raw provenance.
+audit, and Verification 018 now supplies a separate repaired allocation-local
+baseline with its own fresh raw provenance.

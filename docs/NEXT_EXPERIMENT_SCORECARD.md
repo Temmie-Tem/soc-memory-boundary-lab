@@ -6,15 +6,54 @@ Verifications 015/016. It does not grant SMC, MMIO,
 controller-write, protected-memory, or numbered Experiments 015/016 authority.
 Later moving-branch commits are evidence to repair, never moving-tip authority.
 
+The completed static-trace top row is 020L. The 020M/021/022 chain and the
+fresh 022R acquisition establish the same model-level PA28 result without
+touching a controller, but retain physical allocation placement as `UNKNOWN`.
+Verification 024 subsequently tested the exact remapper address at `DMID` and
+closed as `REFUSED_AT_MID`; it did not validate a successful MMIO load through
+the same inline instrument.
+
+Verification 030 is now selected.  The exact source contains allocation-local
+RBIN chunk tracepoints, and `cma:cma_alloc` provides same-run `(pfn,page)`
+calibration records.  This can close or sharply bound physical provenance
+without a boot transition.  The GICD read positive control remains next and is
+not superseded: it answers the orthogonal Route-2 instrument question.  Numeric
+ranks on older completed rows below are their historical selection ranks, not
+competitors to the current rows 0 and 1.
+
 | Rank | Experiment | Information target | Scope and gate | Status |
 |---:|---|---|---|---|
-| 1 | Verification 018 repair + fresh normal-RAM alias-marker acquisition | Establish the required storage-identity baseline with a detector whose positive/negative controls fire, while preserving exact raw provenance. | First harden parser/probe/build/publication and bind target/build/command/final-state receipts; then a reversible `camera_preview` allocation-only write/read/free run. No MMIO, SMC, secure heap, protected memory or partition action. The historical public manifest has no retained raw transcript and is not authority. | `PRIMARY SELECTED` |
-| 2 | Verification 017 post-decode-granularity audit | Check the external bank-granularity argument now that V016's dependency gate is satisfied. | Host-only algebra/carveout audit; require exact distinction between bank-only refutation and full post-transform-coordinate enforcement. | `UNBLOCKED_FOR_SEPARATE_AUDIT_NOT_PROMOTED` |
-| 3 | 020A setter trace | Trace candidate setter `0x9fc06410` through caller `0x9fc023f0` to the runtime base-argument source. | Host-only exact-firmware control/data flow; bounded model only; no device/MMIO/controller write. | `FALLBACK` |
-| 4 | E — capture-feasibility | Assess whether a future bounded evidence capture has a safe path without promoting a controller action. | Feasibility review only; no SMC/MMIO/protected-memory action. | `LATER` |
-| 5 | B — base currentness | Resolve initialized-base currentness as a bounded static/runtime-boundary question. | Preserve the unresolved runtime base and indirect `BLR` boundaries; no live promotion. | `LATER` |
+| 0 | Verification 030 RBIN physical-allocation oracle | Observe the complete allocation-local chunk list for one exact heap-30/320-MiB allocation and bind raw page pointers to PFNs with three same-run CMA affine calibration records. | Exact A90/V2321 binding; fixed self-scoped perf tracepoints; three tiny held `user_contig` calibration allocations plus one `camera_preview` allocation; no reboot, partition, MMIO, SMC, controller or protected-memory action. | `SELECTED / PRE_REGISTERED / HOST IMPLEMENTATION COMPLETE / 10 FOCUSED PASS / NO LIVE EFFECT` |
+| 1 | Verification 031 same-harness DC_NOC read ladder | Separate broken-instrument, hard-coded-return, clock/path and address-specific access-control explanations for V024 with a two-register GICD control, LLCC-PMU, MCCC, raw-bit-30-set LLCC and raw-bit-30-clear remapper reads; actor identity remains `UNKNOWN`. | Six fixed read-only addresses; tier 0 requires nonzero, distinct `GICD_TYPER`/`GICD_IIDR` values and IIDR Implementer `0x43b`; step 3 is `LLCC_COMMON_STATUS0 @ 0x0923000c` in a raw-bit-30-set `DC_NOC_BROADCAST_MPU` row, step 4 is `0x09248080` in the adjacent raw-bit-30-clear row; one boot candidate and exact V2321 rollback; no MMIO write. | `NEXT / NOT DROPPED / DESIGN COMPLETE` |
+| — | Verification 024 exact remapper page at DMID | Determine whether the exact `0x09248080` remapper page remains refused with dumps enabled, after a same-state map/unmap-only control. | Fixed no-load/read candidates; exact A90/TWRP/MID binding; one read dispatch; complete boot/param rollback; no MMIO write or protected-memory access. | `COMPLETED / REFUSED_AT_MID / CLASS C UNCHANGED` |
+| 1 | 020K barrier operand/target metadata inventory | Decode the operands, branch targets, addressing modes and immediate fields of the exact 020J barrier words without extending the caller trace, to separate control/prologue context from data-manipulation shape. | Host-only exact-XBL follow-up from 020J stop rows; strict family-specific operand/target decoders, raw hashes only, no path continuation and no device/MMIO/controller write. | `COMPLETED; 13/13 / CLASS C UNCHANGED` |
+| 2 | 1b known-aperture reachability checkpoint | Determine whether any exact identified transform aperture is demonstrably reachable from Normal World after the retained TZ/XPU/SMMU evidence, without inventing a new writer or mutating ownership. | Host-only reconciliation of the eight known remapper/BIMC candidates, TZ policy coverage, `/dev/mem` availability and prior fixed-EL1 failure; no SCM/XPU/SMMU mutation, no controller write and no protected-memory access. | `COMPLETED; BOUNDED STATIC COVERAGE / GLOBAL UNKNOWN / CLASS C UNCHANGED` |
+| 3 | 020J caller-context barrier/opcode inventory | Decode the first unsupported barriers in 020I caller windows to distinguish ordinary prologue/control forms from a remaining unknown path without extending runtime or controller claims. | Host-only exact-XBL follow-up from 020I stop VAs; strict opcode-family inventory only, no path continuation past the stop and no device/MMIO/controller write. | `COMPLETED; 12/12 / CLASS C UNCHANGED` |
+| 4 | 020I bounded caller-context/entry-role trace | Trace direct BL sources and bounded caller setup for the 020H local blocks, testing whether their entry context is initialization/helper data flow or a controller-like writer path. | Host-only exact-XBL follow-up from 020H block-entry direct-BL sources; strict bounded caller-context model, no PA/DRAM promotion and no device/MMIO/controller write. | `COMPLETED; 20/20 / CLASS C UNCHANGED` |
+| 5 | 020H static-slot function-role/base-origin trace | Trace the bounded 020G pointer/object witnesses to exact function roles and base origins, preserving the distinction between local object state and any controller-aperture candidate. | Host-only exact-XBL follow-up from the 020G event VAs; strict bounded static role/base-origin model with direct-call barriers and no PA/DRAM promotion; no device/MMIO/controller write. | `COMPLETED; 12/11/7 / CLASS C UNCHANGED` |
+| 6 | 020G static-slot pointer/object resolution | Trace the 020F address-base and register-offset uses to bounded object-field/array shapes, separating local-pointer evidence from any controller-aperture candidate. | Host-only exact-XBL follow-up from 020F event VAs; strict immediate/register-offset load/store model, direct-call barriers and no PA/DRAM promotion; no device/MMIO/controller write. | `COMPLETED; 12 WITNESSES / CLASS C UNCHANGED` |
+| 7 | 020F static-slot load-use trace | Trace the twelve 020E loads through bounded same-block use chains to determine whether any value feeds address arithmetic, controller-like stores, or only local predicates/returns. | Host-only exact-XBL load-use slice from the 020E access VAs; strict destination-use/kill model with direct calls and indirect paths fail-closed; no runtime promotion or device/MMIO/controller write. See `docs/VERIFICATION020F_INTEGRATION_REVIEW_2026-08-27.md`. | `COMPLETED; 16 USE / 11 BARRIER / CLASS C UNCHANGED` |
+| 8 | 020E static-slot consumer census | Census the six 020D static slots for bounded direct loads/stores/consumers, preserving register/value semantics and refusing to infer runtime MMIO from static VAs. | Host-only exact-XBL code/data cross-reference; strict direct definitions, caller-saved `BL` barriers and explicit AAPCS64 X19–X29 continuation assumption; indirect paths, runtime execution/currentness/type and physical meaning stay `UNKNOWN`; no device/MMIO/controller write. See `docs/VERIFICATION020E_INTEGRATION_REVIEW_2026-08-27.md`. | `COMPLETED; 18 ACCESS / CLASS C UNCHANGED` |
+| 9 | 020D second-caller field-use trace | Trace the second direct caller `0x9fc26e2c` of `0x9fc160b8` to its bounded object-field loads and static stores, without treating values as runtime MMIO. | Host-only exact-XBL control/data flow; preserve indirect paths, runtime execution/currentness/type and destination semantics as `UNKNOWN`; no device/MMIO/controller write. See `docs/VERIFICATION020D_INTEGRATION_REVIEW_2026-08-27.md`. | `COMPLETED; STATIC SLOT EDGES / CLASS C UNCHANGED` |
+| 10 | 020C return-helper origin trace | Trace the exact `BL 0x9fc160b8` helper that supplies the 020B object, including its static return-address construction and bounded direct callers. | Host-only exact-XBL control/data flow; preserve runtime data/type/currentness, indirect paths, and static-object semantics as `UNKNOWN`; no device/MMIO/controller write. See `docs/VERIFICATION020C_INTEGRATION_REVIEW_2026-08-27.md`. | `COMPLETED; STATIC VADDR ONLY / CLASS C UNCHANGED` |
+| 11 | 020B caller-object origin trace | Trace the opaque incoming object at `0x9fc023f0` to its bounded direct callers and construction/origin fields. | Host-only exact-XBL control/data flow; preserve indirect `BLR`, runtime execution, currentness and type as `UNKNOWN`; no device/MMIO/controller write. See `docs/VERIFICATION020B_INTEGRATION_REVIEW_2026-08-27.md`. | `COMPLETED; SYMBOLIC FIELDS / CLASS C UNCHANGED` |
+| 12 | 020A setter/base trace | Trace candidate setter `0x9fc06410` through caller `0x9fc023f0` to the runtime base-argument source. | Host-only exact-firmware control/data flow; bounded model only; no device/MMIO/controller write. See `docs/VERIFICATION020A_INTEGRATION_REVIEW_2026-08-27.md`. | `COMPLETED; SYMBOLIC FIELDS / CLASS C UNCHANGED` |
+| 13 | Route-2 manifest audit | Revalidate the exact 029–034 bounded writer-path summaries and rank-relation fields without converting unknown raw rows into concurrence. | Host-only exact-byte/hash and semantic audit; Q1 bounded closure, Q4 remains UNKNOWN; no device/MMIO/write. See `docs/ROUTE2_RANK_AUDIT_INTEGRATION_REVIEW_2026-08-27.md`. | `COMPLETED; Q1 SUPPORTED / Q4 UNKNOWN; CLASS C UNCHANGED` |
+| 14 | Verification 017 post-decode-granularity audit | Check the external bank-granularity argument now that V016's dependency gate is satisfied. | Host-only algebra/carveout audit; require exact distinction between bank-only refutation and full post-transform-coordinate enforcement. | `COMPLETED; BANK-ONLY SHAPE REFUTED; CLASS C UNCHANGED` |
+| 15 | Verification 018 allocation-local baseline | Establish the storage-identity baseline with exact raw provenance and positive/negative controls. | Completed one reversible `camera_preview` run; no MMIO, SMC, secure heap, protected memory or partition action. Result is one-state allocation-offset evidence only. | `COMPLETED; DEVICE_ACQUISITION_VALIDATED; CLASS C UNCHANGED` |
+| 16 | E — capture-feasibility | Assess whether a future bounded evidence capture has a safe path without promoting a controller action. | Feasibility review only; no SMC/MMIO/protected-memory action. | `LATER` |
+| 17 | B — base currentness | Resolve initialized-base currentness as a bounded static/runtime-boundary question. | Preserve the unresolved runtime base and indirect `BLR` boundaries; no live promotion. | `LATER` |
 | — | Verification 015 | Test relation stability across retained condition-labelled runtime/reboot/coldboot sets. | Rebuilt from 19 pinned inputs: four clean invariant comparisons; L762 remains `REPEAT_REQUIRED`/`all_invariant=false`; six independent repeat groups have zero flips; bus-vote axis excluded. | `COMPLETED`; 44 focused / 1,039 full PASS, hostile `PASS` |
 | — | Verification 016 | Determine what the retained camera-preview measurements establish above model bit 24. | Rebuilt from three pinned raw files: phase-specific splits, per-pass consistency, exact matches and 7/7 separate held-out agreement; physical mapping remains `UNKNOWN` under `BLIND` pagemap. | `COMPLETED`; 23 focused / 1,062 full PASS, hostile `PASS` |
+| — | Verification 019 | Test whether a Normal-World-triggerable deep-suspend transition moves the retained allocation's tags. | Two retained, independently acquired deep-suspend receipts with baseline and suspend-corroboration gates; cable-attached control is explicitly `SUSPEND_NOT_REACHED`; no protected/controller/partition write. | `PROVED`/`REFUTED` bounded to the tested transition and offset domain; 24 analyzer + 5 retention-guard focused, Class C unchanged |
+| — | Verification 020 (heap capacity) | Measure the largest attempted non-secure contiguous ION allocation and test reopen condition 2. | Host-selected `camera_preview`, `qsecom` and `user_contig` ladders only; monotonicity gate, secure/remote heaps withheld, no mapping/read/write of allocated memory. | `PROVED` measured ceilings; `NOT_MET` at 512 MiB; `REFUTED` old 256 MiB/512 MiB numbers; withheld capacities UNKNOWN; Class C unchanged |
+| — | 1b known-aperture reachability checkpoint | Reconcile the retained policy, fixed-load watchdog and control-node evidence for the eight identified remapper/BIMC apertures. | Host-only exact-hash parse of `MEMORY_MAP.md` plus 009/010/007/005 manifests; no device or ownership mutation; global reachability and alternate apertures remain UNKNOWN. | `COMPLETED; 9 focused; BOUNDED STATIC COVERAGE / GLOBAL UNKNOWN / CLASS C UNCHANGED` |
+| — | 020L branch-target landing-word metadata inventory | Classify one instruction at each unique conditional target emitted by 020K, without following any target block or extending the caller trace. | Host-only exact-XBL follow-up from 020K target VAs; strict one-word family/operand inventory, file-backed executable-segment and hash gates; no path continuation or device/MMIO/controller write. | `COMPLETED; 7/7 focused; CLASS C UNCHANGED` |
+| — | 020M PA28 DT precondition snapshot | Verify the live heap-30 to `camera_mem_region` phandle/reg chain before a PA28 normal-RAM timing test. | Exact A90/SM8150 identity; fixed read-only DT allowlist, retained raw receipt, explicit ENOENT absence checks, no ION allocation or controller/protected-memory action. | `COMPLETED; 6/6 focused; DT CHAIN PROVED / ALLOCATION PLACEMENT UNKNOWN / CLASS C UNCHANGED` |
+| — | 021 carveout-exhaustion extent check | Determine whether the full 320 MiB `camera_preview` hold leaves any residual allocation capacity. | Retained receipt-level 5/5 before and after controls, five probes down to 4 KiB, canonical 020M dependency pin, no mapping/read/write or controller/protected action; missing same-run target/bridge/health remains explicit. | `SUPPORTED_WITHIN_RETAINED_RECEIPT; CONDITIONAL SPAN SUPPORTED_ON_020M_CHAIN; EXACT TARGET UNKNOWN; CLASS C UNCHANGED` |
+| — | 020N PA28 normal-RAM timing | Measure the recovered bank relation for a single-bit-28 offset difference inside a full 320 MiB camera carveout, with V018-style controls and no protected-memory access. | Superseded by the stronger 022R fixed, provenance-complete acquisition. | `SUPERSEDED BY 022R; CLASS C UNCHANGED` |
+| — | 022 PA28 retained-receipt reduction | Recheck the existing full-320 MiB PA28 timing result with exact phase/cardinality, arithmetic and dependency pins. | Host-only strict reducer; canonical raw receipts; fixed-gated source; no device action in this pass. | `COMPLETED; 28 focused; SUPPORTED_WITHIN_RETAINED_RECEIPT / CLASS C UNCHANGED` |
+| — | 022R PA28 provenance-complete repeat | Replace the retained receipt's missing same-run identity with a fresh exact-target run of the fixed probe, retaining target, bridge, argv, binary hash, cleanup and final health. | Reversible normal-RAM allocation only; 020M/021 dependencies and controls passed; no MMIO/SMC/controller/protected/partition writes. | `COMPLETED; 36 focused; ACQUISITION PASS / SUPPORTED_MODEL_EXTENSION / CLASS C UNCHANGED` |
 | — | 034 | Resolve the exact site-35 indirect jump table left by Experiment 033. | Completed bounded host-only reconstruction: five entries/four unique targets and 71/71 `NO_TARGET_WITHIN_MODEL`; no global absence claim. | `COMPLETED`; artifact commit `d5d8046` |
 | — | 023R/028/029A/030 | Repaired relation, encoding, ABL and low-bit evidence. | Reconciled at exact parent `247b0e1` after scope/provenance/phase repairs; model/physical and runtime boundaries remain explicit. | `RECONCILED`; later commits excluded |
 | — | 033 | Source-qualify and model the exact reached pair-memory, sign-extending-memory, and system-control residual left by Experiment 032. | Completed host-only extension: 352 selected occurrences, 308 reached events, 44 selected-not-reached; 44 new events (`LDP` 38, `STP` 3, `LDRSW` 1, `LDRSB` 1, `DAIFClr` 1), six explicit STP lane observations, and a single site-35 indirect blocker preserved fail-closed; no device/MMIO/write action. | `COMPLETED AND INTEGRATED`; 033 artifact commit `56b5ffa` |
@@ -24,6 +63,102 @@ The scores are decision aids, not vulnerability probabilities, success
 probabilities, or evidence labels. They compare critical-`UNKNOWN` closure,
 discriminatory power, execution feasibility, cost/recoverability,
 dependency/non-overlap, and reuse value.
+
+## Verification 020B, 020C, 020D, 020E, 020F, 020G, 020H, 020I and 020J completed results
+
+020B is complete as a host-only, read-only exact-XBL trace.  The sole direct
+caller of consumer `0x9fc023c8` obtains an opaque token from `BL 0x9fc160b8`,
+constructs a stack object at `SP+0x20`, and supplies the 020A setter arguments
+from return-object offsets `0x0c`, `0x18`, `0x20`, and `0x28`.  The finite model,
+focused tests (7/7), full serial suite (1,167/1,167, `skipped=1`), and hostile
+review all pass.  Runtime values/type/currentness, indirect callers, static
+object semantics, physical-to-DRAM mapping, mutability, protected reach and
+alias/bypass remain `UNKNOWN`; Class C is unchanged.
+
+020C then proved that the exact `0x9fc160b8` helper is `ADRP X0` to
+`0x9fc36000`, `ADD #0x2c0`, `RET`, yielding static ELF VADDR `0x9fc362c0`,
+with exactly two direct callers (`0x9fc22cc0` and `0x9fc26e2c`).  The returned
+object range is hash-pinned only.  Runtime contents/type/currentness, writer or
+mutability state, physical-to-DRAM mapping, protected reach and alias/bypass
+remain `UNKNOWN`; Class C is unchanged.
+
+020D then proved that the second helper caller loads six fields from the static
+object and stores them to six static ELF slots (`0x9fc3e138` through
+`0x9fc3e160`).  The values, slot semantics, runtime currentness, physical
+meaning and protected reach remain `UNKNOWN`; Class C is unchanged.
+
+020E then performed the deliberately non-overlapping bounded census.  It found
+18 unique direct scalar accesses to the six slots (6 stores and 12 loads),
+retaining 95 local barriers (8 caller-saved `BL` and 87 unknown-instruction
+barriers).  Caller-saved calls fail closed; continuation across X19–X29 is
+conditional on the explicit AAPCS64 assumption.  This is static
+cross-reference evidence only: global writer/consumer absence, ABI compliance,
+runtime values/currentness/execution, slot semantics, physical-to-DRAM
+meaning, mutability, protected reach and alias/bypass remain `UNKNOWN`.
+The 020E focused suite is 7/7 and the full serial suite is 1,186/1,186 PASS
+(`skipped=1`) in 119.090 seconds, maximum RSS 343,404 KiB, zero swap; hostile
+review is `PASS`.  Class C remains unchanged.  The next candidate is a bounded
+020F load-use trace over the twelve recognized loads; its completed result is
+recorded below.
+
+020F then traced all twelve 020E load seeds for 16 instructions within their
+same executable segments.  It recorded 16 recognized downstream use events
+(10 address-base, 2 arithmetic, 2 register-offset, 1 register-copy, and 1
+return) and 11 barriers (4 caller-saved `BL`, 5 recognized control, 2 unknown),
+with no tainted direct store reached in the supported windows.  The exact
+020E manifest is mechanically hash-pinned with `O_NOFOLLOW`; X30 is treated as
+caller-saved, MOVK stops fail-closed, and CBNZ/TBNZ are decoded explicitly.
+Focused tests (9/9), full serial validation (1,195/1,195, `skipped=1`),
+deterministic regeneration, redaction, and hostile review all pass.  Class C
+remains unchanged.  The next candidate is 020G: bounded pointer/object
+resolution for the address-use events.
+
+020G then re-decoded exactly the 020F address-use events.  The bounded census
+contains 12 witnesses: 10 immediate object-field-shaped accesses (7 `LDR`, 3
+`STR`) and 2 `UXTX` register-offset array-element-shaped loads.  There are 11
+unique access VAs and one duplicate witness.  Runtime base values/currentness,
+object semantics, global writer/consumer absence, MMIO/physical/DRAM identity,
+mutability, protected reach and alias/bypass remain `UNKNOWN`; Class C and
+`NOT_ELIGIBLE` remain unchanged, with no device action.  The public manifest
+is 7,218 bytes, mode `0644`, SHA-256
+`f534efeee1e12f18d3af40c107dbc6fbe938eae16d9013aa088d22d7c880af3e`.
+Focused tests are 10/10 and the full serial suite is 1,205/1,205 PASS
+(`skipped=1`) in 134.596 seconds, maximum RSS 347,740 KiB, zero swap.  The
+next candidate is a bounded static-slot function-role/base-origin trace (020H).
+
+020H then grouped the exact 020G witnesses into 11 unique access VAs and 7
+return/direct-branch-delimited local blocks.  Nine blocks contain unsupported
+forms and remain `UNKNOWN_ROLE_UNSUPPORTED_FORM`; two are
+`LOCAL_READ_SHAPED_BLOCK`.  Ten unique bases are `STATIC_SLOT_SEED`; indexed
+access `0x9fc26ea0` is `ARITHMETIC_DERIVED` from a bounded `MADD`.  True
+function boundaries, runtime execution/currentness/values, indirect effects,
+object semantics, global writer/consumer absence, ABI effects,
+MMIO/physical/DRAM identity, mutability, protected reach and alias/bypass
+remain `UNKNOWN`.  Focused tests (11/11), full serial validation
+(1,216/1,216, `skipped=1`), deterministic regeneration, redaction,
+no-clobber and hostile review all pass.  Class C remains unchanged.  The
+next candidate is a bounded caller-context/entry-role trace (020I).
+
+020I then checked 20 exact direct-BL source/target edges from the 020H
+block-entry census and traced at most 16 preceding instructions per source.
+Twelve windows stop on unsupported forms, six remain `ARGUMENT_OR_UNKNOWN`,
+and two are `ARGUMENT_COPY_OR_CONSTANT`; no static-slot-origin caller was
+reached.  This is a bounded negative/unknown result, not a global absence
+proof.  Focused tests (11/11), full serial validation (1,227/1,227,
+`skipped=1`), deterministic regeneration, redaction, no-clobber and hostile
+review all pass.  Class C remains unchanged.  The next candidate is a bounded
+caller-context barrier/opcode inventory (020J).
+
+020J then re-derived those 12 unsupported caller-context stops and inspected
+only each first stop word.  All 12 stop VAs are unique and classify as
+`B_COND` 5, `CBZ_CBNZ` 2, `LDP_STP_PAIR` 2, logical-immediate 2 and `BITFIELD`
+1 (`BFXIL`); the `UNKNOWN_OPCODE` fallback count is zero.  The strict
+inventory does not continue data flow or promote any word to a true function,
+pointer, PA, MMIO, controller, DRAM or ownership claim.  Focused tests (7/7),
+full serial validation (1,234/1,234, `skipped=1`), deterministic regeneration,
+redaction, no-clobber, exact family/cardinality gates and hostile review all
+pass.  Class C remains unchanged; the next candidate is a bounded barrier
+operand/target metadata inventory (020K).
 
 Experiment 034's historical `94/100` selection score was explicit: information gain
 20/20 (the sole remaining 033 fail-closed site), discriminating power 20/20
