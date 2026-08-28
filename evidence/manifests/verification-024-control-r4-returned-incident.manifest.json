@@ -1,0 +1,135 @@
+{
+  "artifacts": {
+    "host_source_gate": {
+      "basename": "verification-024-control-r4-host-source-gate.manifest.json",
+      "sha256": "6110b5bbd94fce23e433a046598b38b117f99f6b94db6b62d0a30235e72e4730",
+      "size": 6355
+    },
+    "journal": {
+      "basename": "verification-024-control-r4.journal.json",
+      "mode": "0600",
+      "sha256": "2252bdeffdec0770deb3fb456662d91a7f09aff33ee147ef1e2547beb5984807",
+      "size": 108554
+    },
+    "public": {
+      "basename": "verification-024-control-r4.manifest.json",
+      "mode": "0644",
+      "sha256": "e7f09da6283d84bba0492394019d6e14c02893b3560976db6cba216944a7fbcb",
+      "size": 5346
+    },
+    "raw": {
+      "basename": "verification-024-control-r4.json",
+      "mode": "0600",
+      "sha256": "d85705efac9ceac7c4acc74830eb80859eaaaea32fa33679f3583bdb88fd6b21",
+      "size": 89998
+    },
+    "semantic_claim": {
+      "basename": "verification-024-inline-op-f490728959ac4cef0e3a4de7267db2a1c87fa351f6095af1a415c3fa4bf7b322.claim.json",
+      "mode": "0600",
+      "sha256": "561bc65dd24c0fabb29f5240ce137fe199acc440b44161878b546966d73ac5c2",
+      "size": 512
+    }
+  },
+  "claims": {
+    "classification": "CLASS_C_UNCHANGED",
+    "controller_writes": false,
+    "effect_ambiguous": false,
+    "effect_dispatched": true,
+    "effect_replayed": false,
+    "fixed_op_dispatch_count": 1,
+    "fixed_op_returned": true,
+    "memory_or_mmio_writes": false,
+    "panic_after_recovery": 1,
+    "panic_before": 1,
+    "panic_restore_verified": true,
+    "partition_writes": false,
+    "protected_memory_read": false,
+    "r4_id_consumed": true,
+    "security_boundary_result": "UNKNOWN_NOT_REACHED",
+    "semantic_claim_retained": true,
+    "smc": false
+  },
+  "completed_utc": "2026-08-28T10:38:43+00:00",
+  "experiment_id": "verification-024-control-r4-returned-incident",
+  "fixed_op": {
+    "a90r_marker_count": 1,
+    "a90r_marker_line": "[  116.230307] [5:        busybox:  676] A90Rc071",
+    "begin": {
+      "argc": "5",
+      "cmd": "run",
+      "flags": "0x2",
+      "seq": "49"
+    },
+    "canonical_value_candidate": "0x000000000000c071",
+    "end": {
+      "cmd": "run",
+      "duration_ms": "702",
+      "errno": "0",
+      "flags": "0x2",
+      "rc": "0",
+      "seq": "49",
+      "status": "ok"
+    },
+    "frame_canonical_sha256": "c4d0530cb6b60797acab56aa056f094b700d40f2d39349c5e221c383f1a7a858",
+    "frame_canonical_size": 9665,
+    "payload_line_count": 19,
+    "payload_sha256": "0fdb2adf322e5f6848428c19430b87a39e7a6ea5081e1672c1cf9be39da44003",
+    "payload_size": 1730,
+    "result_grade": "RETURNED_SENTINEL_CANDIDATE_NOT_CONTROL_PASS",
+    "transcript_sha256": "05ef2e84b9160ee00909b06a9bd819f4127fcc357601375ce9ddbc722f7521d6",
+    "transcript_size": 4215
+  },
+  "next_registered_id": "verification-024-control-r5",
+  "panic_transition": {
+    "before": 1,
+    "proof_frame_ids": [
+      "panic_before",
+      "panic_set_0",
+      "panic_zero_verify",
+      "panic_set_1",
+      "panic_restore_verify"
+    ],
+    "restore_deferred": false,
+    "restore_write_attempted": true,
+    "restored": true,
+    "zero_set": true,
+    "zero_verified": true,
+    "zero_write_attempted": true
+  },
+  "parser_incident": {
+    "exception_type": "OperationReturnedError",
+    "reason": "The fixed operation returned one complete rc=0/status=ok frame and one prefixed A90Rc071 marker, but the payload also contained dynamic-linker diagnostics and one empty line, so the strict one-record parser refused promotion.",
+    "repair_precondition": "Suppress child stderr before subcommands and canonicalize only one line-ending A90R token; do not broaden the parser to arbitrary noise."
+  },
+  "post_incident_readonly_health": {
+    "boot_id_sha256": "8953331fec3a0c638cb06e4f77fa1b6127e75f5e30d55f7e638ec5703a185dc9",
+    "bridge_process_pid": 47726,
+    "debug_level": "0x494d",
+    "evidence_grade": "SUPPORTED_EXEC_TRANSCRIPT",
+    "force_upload": "0",
+    "panic_on_oops": 1,
+    "selftest": {
+      "entries": 12,
+      "fail": 0,
+      "passed": 11,
+      "warn": 1
+    },
+    "target_model": "SM-A908N",
+    "target_soc": "SM8150"
+  },
+  "schema": "sdm855-a90-v024-control-r4-returned-incident-v1",
+  "source": {
+    "commit": "5395249ce31170c43a45fcf42d7d438ad2957477",
+    "producer_sha256": "12c8690520e4bbd054a1e6155d700753f23eb3a20a3322552e0fc8fc69c55786"
+  },
+  "started_utc": "2026-08-28T10:38:40+00:00",
+  "status": "CONSUMED_RETURNED_RESULT_FRAMING_INCIDENT",
+  "target": {
+    "boot_id_sha256": "8953331fec3a0c638cb06e4f77fa1b6127e75f5e30d55f7e638ec5703a185dc9",
+    "boot_prefix_sha256": "dbbf81f26cd3d9d2d52d2a2dbe84575b759b45cea8946d02646bd4503ad08247",
+    "boot_prefix_size": 60882944,
+    "model": "SM-A908N",
+    "scope": "A90_ONLY",
+    "soc": "SM8150"
+  }
+}
