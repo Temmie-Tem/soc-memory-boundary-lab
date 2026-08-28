@@ -100,6 +100,12 @@ class Verification024FinalizerTests(unittest.TestCase):
         incident_target = self.root / r2_incident.MANIFEST_RELATIVE_PATH
         incident_target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(incident_source, incident_target)
+        r3_incident_source = (
+            r2_incident.REPO_ROOT / r2_incident.R3_MANIFEST_RELATIVE_PATH
+        )
+        r3_incident_target = self.root / r2_incident.R3_MANIFEST_RELATIVE_PATH
+        r3_incident_target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(r3_incident_source, r3_incident_target)
         self._make_receipts()
         self._upgrade_receipts_for_v024_contract()
 
@@ -832,6 +838,7 @@ class Verification024FinalizerTests(unittest.TestCase):
             "restore_deferred": False,
             "proof_frame_ids": ["panic_before", "panic_set_0", "panic_zero_verify", "panic_set_1", "panic_restore_verify"],
         }
+        r3_incident_summary = r2_incident.validate_r3_incident(self.root)
         fixed = {
             "argv": list(finalizer.fixed_op_argv()),
             "buffer_size": 0x58,
@@ -991,6 +998,9 @@ class Verification024FinalizerTests(unittest.TestCase):
             "r2_incident_manifest_sha256": finalizer.CONTROL_R2_INCIDENT_MANIFEST_SHA256,
             "r2_incident_manifest_size": finalizer.CONTROL_R2_INCIDENT_MANIFEST_SIZE,
             "r2_zero_effect_validated": True,
+            "r3_incident_manifest_sha256": finalizer.CONTROL_R3_INCIDENT_MANIFEST_SHA256,
+            "r3_incident_manifest_size": finalizer.CONTROL_R3_INCIDENT_MANIFEST_SIZE,
+            "r3_zero_op_restored_validated": True,
             "flash_journal": {"path": str(flash_path), "sha256": finalizer.hashlib.sha256(flash_bytes).hexdigest(), "size": len(flash_bytes), "profile": "control", "remote_staging": "/tmp/sdm855-remapper-boot.img", "image_sha256": finalizer.CONTROL_SHA256, "readback_sha256": finalizer.CONTROL_SHA256, "predecessor_sha256": finalizer.ROLLBACK_SHA256},
             "current_boot_attestation": attestation_private,
             "boot_id_before_read": boot_id,
@@ -1016,6 +1026,9 @@ class Verification024FinalizerTests(unittest.TestCase):
             "r2_incident_manifest_sha256": finalizer.CONTROL_R2_INCIDENT_MANIFEST_SHA256,
             "r2_incident_manifest_size": finalizer.CONTROL_R2_INCIDENT_MANIFEST_SIZE,
             "r2_zero_effect_validated": True,
+            "r3_incident_manifest_sha256": finalizer.CONTROL_R3_INCIDENT_MANIFEST_SHA256,
+            "r3_incident_manifest_size": finalizer.CONTROL_R3_INCIDENT_MANIFEST_SIZE,
+            "r3_zero_op_restored_validated": True,
             "candidate_sha256": finalizer.CONTROL_SHA256,
             "candidate_size": finalizer.BOOT_PREFIX_SIZE,
             "op": 4,
@@ -1043,7 +1056,7 @@ class Verification024FinalizerTests(unittest.TestCase):
             "semantic_claim_key_sha256": control_claim_key,
             "semantic_claimed": True,
         })
-        preclaim = probe._control_r3_preclaim()
+        preclaim = probe._control_r4_preclaim()
         preclaim_bytes = probe.json_bytes(preclaim)
         control_journal["control_r2_predecessor"] = {
             "preclaim_sha256": finalizer.hashlib.sha256(preclaim_bytes).hexdigest(),
@@ -1057,6 +1070,11 @@ class Verification024FinalizerTests(unittest.TestCase):
             "preclaim_size": len(preclaim_bytes),
             "r2_incident": r2_incident_summary,
         }
+        control_journal["control_r4_reconciliation"] = {
+            "preclaim_sha256": finalizer.hashlib.sha256(preclaim_bytes).hexdigest(),
+            "preclaim_size": len(preclaim_bytes),
+            "r3_incident": r3_incident_summary,
+        }
         control_raw_bytes = self._write(control_raw_path, control_raw)
         control_journal_bytes = self._write(control_journal_path, control_journal)
         control_manifest = json.loads(self.control_manifest.read_text())
@@ -1064,6 +1082,9 @@ class Verification024FinalizerTests(unittest.TestCase):
             "r2_incident_manifest_sha256": finalizer.CONTROL_R2_INCIDENT_MANIFEST_SHA256,
             "r2_incident_manifest_size": finalizer.CONTROL_R2_INCIDENT_MANIFEST_SIZE,
             "r2_zero_effect_validated": True,
+            "r3_incident_manifest_sha256": finalizer.CONTROL_R3_INCIDENT_MANIFEST_SHA256,
+            "r3_incident_manifest_size": finalizer.CONTROL_R3_INCIDENT_MANIFEST_SIZE,
+            "r3_zero_op_restored_validated": True,
             "dispatch_returned": True,
             "dispatch_failed": False,
             "panic_transition": transition,
@@ -1102,6 +1123,9 @@ class Verification024FinalizerTests(unittest.TestCase):
             "r2_incident_manifest_sha256": finalizer.CONTROL_R2_INCIDENT_MANIFEST_SHA256,
             "r2_incident_manifest_size": finalizer.CONTROL_R2_INCIDENT_MANIFEST_SIZE,
             "r2_zero_effect_validated": True,
+            "r3_incident_manifest_sha256": finalizer.CONTROL_R3_INCIDENT_MANIFEST_SHA256,
+            "r3_incident_manifest_size": finalizer.CONTROL_R3_INCIDENT_MANIFEST_SIZE,
+            "r3_zero_op_restored_validated": True,
         }
 
         read_raw_path = self.root / f"evidence/private/{finalizer.READ_SOURCE_EXPERIMENT_ID}.json"
@@ -1166,6 +1190,12 @@ class Verification024FinalizerTests(unittest.TestCase):
         }
         read_raw.update({
             "target": control_raw["target"],
+            "r2_incident_manifest_sha256": finalizer.CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+            "r2_incident_manifest_size": finalizer.CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+            "r2_zero_effect_validated": True,
+            "r3_incident_manifest_sha256": finalizer.CONTROL_R3_INCIDENT_MANIFEST_SHA256,
+            "r3_incident_manifest_size": finalizer.CONTROL_R3_INCIDENT_MANIFEST_SIZE,
+            "r3_zero_op_restored_validated": True,
             "current_boot_attestation": read_attestation_private,
             "boot_id_before_read": boot_id,
             "boot_id_before_read_sha256": boot_hash,
@@ -1191,6 +1221,12 @@ class Verification024FinalizerTests(unittest.TestCase):
         read_journal.update({
             "candidate_sha256": finalizer.READ_SHA256,
             "candidate_size": finalizer.BOOT_PREFIX_SIZE,
+            "r2_incident_manifest_sha256": finalizer.CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+            "r2_incident_manifest_size": finalizer.CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+            "r2_zero_effect_validated": True,
+            "r3_incident_manifest_sha256": finalizer.CONTROL_R3_INCIDENT_MANIFEST_SHA256,
+            "r3_incident_manifest_size": finalizer.CONTROL_R3_INCIDENT_MANIFEST_SIZE,
+            "r3_zero_op_restored_validated": True,
             "op": 4,
             "op_args": [],
             "target": control_raw["target"],
@@ -1221,6 +1257,12 @@ class Verification024FinalizerTests(unittest.TestCase):
         read_journal_bytes = self._write(read_journal_path, read_journal)
         read_manifest = json.loads(self.read_manifest.read_text())
         read_manifest.update({
+            "r2_incident_manifest_sha256": finalizer.CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+            "r2_incident_manifest_size": finalizer.CONTROL_R2_INCIDENT_MANIFEST_SIZE,
+            "r2_zero_effect_validated": True,
+            "r3_incident_manifest_sha256": finalizer.CONTROL_R3_INCIDENT_MANIFEST_SHA256,
+            "r3_incident_manifest_size": finalizer.CONTROL_R3_INCIDENT_MANIFEST_SIZE,
+            "r3_zero_op_restored_validated": True,
             "dispatch_returned": False,
             "dispatch_failed": True,
             "panic_on_oops_before": 1,
@@ -2426,7 +2468,26 @@ class Verification024FinalizerTests(unittest.TestCase):
         self.assertEqual(
             control["predecessor_capsule_size"], self.predecessor_capsule_size
         )
-        self.assertFalse(finalizer.validate_read(self.read_manifest, self.root, control)["value_present"])
+        self.assertEqual(
+            control["r3_incident_manifest_sha256"],
+            finalizer.CONTROL_R3_INCIDENT_MANIFEST_SHA256,
+        )
+        self.assertEqual(
+            control["r3_incident_manifest_size"],
+            finalizer.CONTROL_R3_INCIDENT_MANIFEST_SIZE,
+        )
+        self.assertTrue(control["r3_zero_op_restored_validated"])
+        read = finalizer.validate_read(self.read_manifest, self.root, control)
+        self.assertFalse(read["value_present"])
+        self.assertEqual(
+            read["r2_incident_manifest_sha256"],
+            finalizer.CONTROL_R2_INCIDENT_MANIFEST_SHA256,
+        )
+        self.assertEqual(
+            read["r3_incident_manifest_sha256"],
+            finalizer.CONTROL_R3_INCIDENT_MANIFEST_SHA256,
+        )
+        self.assertTrue(read["r3_zero_op_restored_validated"])
         private, public = finalizer.finalize(self._args())
         manifest = json.loads(public.read_text())
         self.assertEqual(manifest["classification"], "REFUSED_AT_MID")
@@ -2511,20 +2572,27 @@ class Verification024FinalizerTests(unittest.TestCase):
                     finalizer.validate_control(self.control_manifest, self.root)
 
     def test_control_r2_consumed_id_can_never_become_active(self) -> None:
-        consumed_path = self.root / "evidence/manifests" / (
-            f"{finalizer.CONTROL_R2_EXPERIMENT_ID}.manifest.json"
-        )
-        consumed_path.write_bytes(self.control_manifest.read_bytes())
-        with self.assertRaises(finalizer.FinalizeError):
-            finalizer.validate_control(consumed_path, self.root)
+        baseline = self.control_manifest.read_bytes()
+        for consumed_id in (
+            finalizer.CONTROL_R2_EXPERIMENT_ID,
+            finalizer.CONTROL_R3_EXPERIMENT_ID,
+        ):
+            with self.subTest(consumed_id=consumed_id):
+                consumed_path = self.root / "evidence/manifests" / (
+                    f"{consumed_id}.manifest.json"
+                )
+                consumed_path.write_bytes(baseline)
+                with self.assertRaises(finalizer.FinalizeError):
+                    finalizer.validate_control(consumed_path, self.root)
 
-        manifest = json.loads(self.control_manifest.read_text())
-        manifest["experiment_id"] = finalizer.CONTROL_R2_EXPERIMENT_ID
-        self._write(self.control_manifest, manifest)
-        with self.assertRaises(finalizer.FinalizeError):
-            finalizer.validate_control(self.control_manifest, self.root)
+                manifest = json.loads(baseline)
+                manifest["experiment_id"] = consumed_id
+                self._write(self.control_manifest, manifest)
+                with self.assertRaises(finalizer.FinalizeError):
+                    finalizer.validate_control(self.control_manifest, self.root)
+                self.control_manifest.write_bytes(baseline)
 
-    def test_control_r3_preclaim_and_reconciliation_are_exact(self) -> None:
+    def test_control_r4_preclaim_and_reconciliation_are_exact(self) -> None:
         baseline_journal = json.loads(
             (
                 self.root
@@ -2533,7 +2601,24 @@ class Verification024FinalizerTests(unittest.TestCase):
             ).read_text()
         )
         baseline_manifest = json.loads(self.control_manifest.read_text())
-        base_preclaim = probe._control_r3_preclaim()
+        base_preclaim = probe._control_r4_preclaim()
+        self.assertEqual(base_preclaim["experiment_id"], finalizer.CONTROL_EXPERIMENT_ID)
+        self.assertEqual(
+            base_preclaim["consumed_r2_experiment_id"],
+            finalizer.CONTROL_R2_EXPERIMENT_ID,
+        )
+        self.assertEqual(
+            base_preclaim["consumed_r3_experiment_id"],
+            finalizer.CONTROL_R3_EXPERIMENT_ID,
+        )
+        self.assertEqual(
+            base_preclaim["r3_incident"],
+            {
+                "schema": finalizer.CONTROL_R3_INCIDENT_VALIDATION_SCHEMA,
+                "sha256": finalizer.CONTROL_R3_INCIDENT_MANIFEST_SHA256,
+                "size": finalizer.CONTROL_R3_INCIDENT_MANIFEST_SIZE,
+            },
+        )
 
         def write_journal(journal: dict[str, object]) -> None:
             journal_bytes = self._write(
@@ -2551,12 +2636,24 @@ class Verification024FinalizerTests(unittest.TestCase):
 
         mutations = (
             "preclaim_consumed_r2",
+            "preclaim_consumed_r3",
             "preclaim_capsule_missing",
-            "preclaim_incident_extra",
-            "preclaim_incident_hash",
-            "summary_missing",
-            "summary_extra",
-            "summary_mutated",
+            "preclaim_r2_incident_extra",
+            "preclaim_r2_incident_hash",
+            "preclaim_r3_incident_missing",
+            "preclaim_r3_incident_extra",
+            "preclaim_r3_incident_hash",
+            "r2_summary_missing",
+            "r2_summary_extra",
+            "r2_summary_mutated",
+            "r3_summary_missing",
+            "r3_summary_extra",
+            "r3_summary_status",
+            "r3_summary_incident_fact",
+            "r4_missing",
+            "r4_extra",
+            "r4_preclaim_hash",
+            "r4_preclaim_size",
         )
         for mutation in mutations:
             with self.subTest(mutation=mutation):
@@ -2567,12 +2664,22 @@ class Verification024FinalizerTests(unittest.TestCase):
                         mutated_preclaim["consumed_r2_experiment_id"] = (
                             finalizer.CONTROL_EXPERIMENT_ID
                         )
+                    elif mutation == "preclaim_consumed_r3":
+                        mutated_preclaim["consumed_r3_experiment_id"] = (
+                            finalizer.CONTROL_R2_EXPERIMENT_ID
+                        )
                     elif mutation == "preclaim_capsule_missing":
                         del mutated_preclaim["predecessor_capsule"]
-                    elif mutation == "preclaim_incident_extra":
+                    elif mutation == "preclaim_r2_incident_extra":
                         mutated_preclaim["r2_incident"]["unexpected"] = False
-                    else:
+                    elif mutation == "preclaim_r2_incident_hash":
                         mutated_preclaim["r2_incident"]["sha256"] = "0" * 64
+                    elif mutation == "preclaim_r3_incident_missing":
+                        del mutated_preclaim["r3_incident"]
+                    elif mutation == "preclaim_r3_incident_extra":
+                        mutated_preclaim["r3_incident"]["unexpected"] = False
+                    else:
+                        mutated_preclaim["r3_incident"]["sha256"] = "0" * 64
                     mutated_preclaim_bytes = probe.json_bytes(mutated_preclaim)
                     journal["control_r2_predecessor"]["preclaim_sha256"] = (
                         finalizer.hashlib.sha256(mutated_preclaim_bytes).hexdigest()
@@ -2586,28 +2693,60 @@ class Verification024FinalizerTests(unittest.TestCase):
                     journal["control_r3_reconciliation"]["preclaim_size"] = len(
                         mutated_preclaim_bytes
                     )
+                    journal["control_r4_reconciliation"]["preclaim_sha256"] = (
+                        finalizer.hashlib.sha256(mutated_preclaim_bytes).hexdigest()
+                    )
+                    journal["control_r4_reconciliation"]["preclaim_size"] = len(
+                        mutated_preclaim_bytes
+                    )
                     with mock.patch.object(
                         probe,
-                        "_control_r3_preclaim",
+                        "_control_r4_preclaim",
                         return_value=mutated_preclaim,
                     ):
                         write_journal(journal)
                         with self.assertRaises(finalizer.FinalizeError):
                             finalizer.validate_control(self.control_manifest, self.root)
-                else:
+                elif mutation.startswith("r2_summary"):
                     summary = journal["control_r3_reconciliation"]["r2_incident"]
                     assert isinstance(summary, dict)
-                    if mutation == "summary_missing":
+                    if mutation == "r2_summary_missing":
                         del summary["classification"]
-                    elif mutation == "summary_extra":
+                    elif mutation == "r2_summary_extra":
                         summary["unexpected"] = False
                     else:
                         summary["security_boundary_result"] = "FORGED"
                     write_journal(journal)
                     with self.assertRaises(finalizer.FinalizeError):
                         finalizer.validate_control(self.control_manifest, self.root)
+                elif mutation.startswith("r3_summary"):
+                    summary = journal["control_r4_reconciliation"]["r3_incident"]
+                    assert isinstance(summary, dict)
+                    if mutation == "r3_summary_missing":
+                        del summary["incident_facts"]
+                    elif mutation == "r3_summary_extra":
+                        summary["unexpected"] = False
+                    elif mutation == "r3_summary_status":
+                        summary["status"] = "VALIDATED_ZERO_EFFECT"
+                    else:
+                        summary["incident_facts"]["panic_restore_verified"] = False
+                    write_journal(journal)
+                    with self.assertRaises(finalizer.FinalizeError):
+                        finalizer.validate_control(self.control_manifest, self.root)
+                else:
+                    if mutation == "r4_missing":
+                        del journal["control_r4_reconciliation"]
+                    elif mutation == "r4_extra":
+                        journal["control_r4_reconciliation"]["unexpected"] = False
+                    elif mutation == "r4_preclaim_hash":
+                        journal["control_r4_reconciliation"]["preclaim_sha256"] = "0" * 64
+                    else:
+                        journal["control_r4_reconciliation"]["preclaim_size"] += 1
+                    write_journal(journal)
+                    with self.assertRaises(finalizer.FinalizeError):
+                        finalizer.validate_control(self.control_manifest, self.root)
 
-    def test_control_r3_reconciliation_projections_cannot_drift(self) -> None:
+    def test_control_r4_reconciliation_projections_cannot_drift(self) -> None:
         baseline_manifest = json.loads(self.control_manifest.read_text())
         baseline_raw_path = (
             self.root
@@ -2621,17 +2760,30 @@ class Verification024FinalizerTests(unittest.TestCase):
         )
         baseline_raw = json.loads(baseline_raw_path.read_text())
         baseline_journal = json.loads(baseline_journal_path.read_text())
-        for owner in ("manifest", "raw", "journal"):
+        for owner in (
+            "manifest_r2",
+            "raw_r2",
+            "journal_r2",
+            "manifest_r3",
+            "raw_r3",
+            "journal_r3",
+        ):
             with self.subTest(owner=owner):
                 manifest = json.loads(json.dumps(baseline_manifest))
                 raw = json.loads(json.dumps(baseline_raw))
                 journal = json.loads(json.dumps(baseline_journal))
-                if owner == "manifest":
+                if owner == "manifest_r2":
                     manifest["r2_incident_manifest_size"] += 1
-                elif owner == "raw":
+                elif owner == "raw_r2":
                     raw["r2_zero_effect_validated"] = False
-                else:
+                elif owner == "journal_r2":
                     journal["r2_incident_manifest_sha256"] = "0" * 64
+                elif owner == "manifest_r3":
+                    manifest["r3_incident_manifest_size"] += 1
+                elif owner == "raw_r3":
+                    raw["r3_zero_op_restored_validated"] = False
+                else:
+                    journal["r3_incident_manifest_sha256"] = "0" * 64
                 raw_bytes = self._write(baseline_raw_path, raw)
                 journal_bytes = self._write(baseline_journal_path, journal)
                 manifest["raw_snapshot_sha256"] = finalizer.hashlib.sha256(
@@ -2674,6 +2826,12 @@ class Verification024FinalizerTests(unittest.TestCase):
             ("raw_bool", "raw", "predecessor_capsule_size", True),
             ("journal_missing", "journal", "predecessor_capsule_sha256", None),
             ("journal_float", "journal", "predecessor_capsule_size", float(self.predecessor_capsule_size)),
+            ("public_r3_missing", "public", "r3_incident_manifest_sha256", None),
+            ("public_r3_size_float", "public", "r3_incident_manifest_size", 3455.0),
+            ("public_r3_bool", "public", "r3_zero_op_restored_validated", False),
+            ("raw_r3_missing", "raw", "r3_incident_manifest_sha256", None),
+            ("journal_r3_size_float", "journal", "r3_incident_manifest_size", 3455.0),
+            ("journal_r3_bool", "journal", "r3_zero_op_restored_validated", False),
         )
         for name, owner, key, replacement in field_cases:
             with self.subTest(case=name):
@@ -2697,6 +2855,34 @@ class Verification024FinalizerTests(unittest.TestCase):
                         journal["control_manifest"][key] = replacement
                 raw_bytes = self._write(read_raw_path, raw)
                 journal_bytes = self._write(read_journal_path, journal)
+                manifest["raw_snapshot_sha256"] = finalizer.hashlib.sha256(raw_bytes).hexdigest()
+                manifest["raw_snapshot_size"] = len(raw_bytes)
+                manifest["journal_sha256"] = finalizer.hashlib.sha256(journal_bytes).hexdigest()
+                manifest["journal_size"] = len(journal_bytes)
+                self._write(self.read_manifest, manifest)
+                with self.assertRaises(finalizer.FinalizeError):
+                    finalizer.validate_read(self.read_manifest, self.root, control)
+
+    def test_read_r3_reconciliation_projections_cannot_drift(self) -> None:
+        control = finalizer.validate_control(self.control_manifest, self.root)
+        raw_path = self.root / "evidence/private" / f"{finalizer.READ_SOURCE_EXPERIMENT_ID}.json"
+        journal_path = self.root / "evidence/private" / f"{finalizer.READ_SOURCE_EXPERIMENT_ID}.journal.json"
+        baseline_manifest = json.loads(self.read_manifest.read_text())
+        baseline_raw = json.loads(raw_path.read_text())
+        baseline_journal = json.loads(journal_path.read_text())
+        for owner in ("manifest", "raw", "journal"):
+            with self.subTest(owner=owner):
+                manifest = json.loads(json.dumps(baseline_manifest))
+                raw = json.loads(json.dumps(baseline_raw))
+                journal = json.loads(json.dumps(baseline_journal))
+                if owner == "manifest":
+                    manifest["r3_incident_manifest_size"] += 1
+                elif owner == "raw":
+                    raw["r3_zero_op_restored_validated"] = False
+                else:
+                    journal["r3_incident_manifest_sha256"] = "0" * 64
+                raw_bytes = self._write(raw_path, raw)
+                journal_bytes = self._write(journal_path, journal)
                 manifest["raw_snapshot_sha256"] = finalizer.hashlib.sha256(raw_bytes).hexdigest()
                 manifest["raw_snapshot_size"] = len(raw_bytes)
                 manifest["journal_sha256"] = finalizer.hashlib.sha256(journal_bytes).hexdigest()
