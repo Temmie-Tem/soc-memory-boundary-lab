@@ -44,10 +44,10 @@ battery 100%. No partition or hardware-control register was written.
 
 Verification 024 is `LIVE_CONTROL_BOOTED / PARAM_EFFECT_NOT_DISPATCHED /
 PARSER_REPAIR_GO / RESUME_READY`. The exact control image was written once,
-read back completely and booted. Two subsequent `param` transactions refused
+read back completely and booted. Three subsequent `param` transactions refused
 before their effect and recorded zero partition writes. The repaired host
-closure passed 1,891 tests with one skip under a 4-GiB virtual-memory ceiling
-(890,136 KiB peak RSS, zero test-process swaps, no OOM),
+closure passed 1,895 tests with one skip under a 4-GiB virtual-memory ceiling
+(893,252 KiB peak RSS, zero test-process swaps, no OOM),
 and independent review passed 743 frame rows, 156 stable-`param`/static rows
 and 870 live-derived whitespace rows with no P0/P1 finding. `PROVED`: entry
 and rollback use the same fixed

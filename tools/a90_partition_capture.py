@@ -570,15 +570,23 @@ def _parse_node_stat_identity(
         text = payload.decode("ascii", errors="strict")
     except UnicodeDecodeError as exc:
         raise ValueError("temporary node stat is not strict ASCII") from exc
-    if "\x00" in text or "\r" in text:
+    if "\x00" in text:
         raise ValueError("temporary node stat contains malformed line framing")
-    # Compare the complete byte record.  This anchored grammar preserves the
-    # native two-line fixture while rejecting leading/trailing/double spaces,
-    # duplicate fields, extra lines, and rdev prefix/suffix lookalikes.
-    expected_metadata = b"mode=0600 uid=0 gid=0 size=0\n"
-    expected_rdev = f"rdev={partition.major}:{partition.minor}\n".encode("ascii")
-    expected = expected_metadata + expected_rdev
-    if payload != expected:
+    # Normalize only CRLF pairs, then compare the complete two-line record.
+    # The terminal LF is optional because the native stat command's exact live
+    # receipt has none; one terminal LF remains accepted for retained fixtures.
+    # Any bare CR, extra/empty line, duplicate/unknown field, spacing change,
+    # or rdev prefix/suffix lookalike fails this closed grammar.
+    normalized = payload.replace(b"\r\n", b"\n")
+    if b"\r" in normalized:
+        raise ValueError("temporary node stat contains malformed line framing")
+    expected_metadata = b"mode=0600 uid=0 gid=0 size=0"
+    expected_rdev = f"rdev={partition.major}:{partition.minor}".encode("ascii")
+    allowed = {
+        expected_metadata + b"\n" + expected_rdev,
+        expected_metadata + b"\n" + expected_rdev + b"\n",
+    }
+    if normalized not in allowed:
         raise ValueError(f"temporary node stat record is not exact: {text!r}")
     return {
         "mode": "0600",

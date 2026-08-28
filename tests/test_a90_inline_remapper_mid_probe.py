@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import datetime as dt
+import hashlib
 import io
 import json
 import os
@@ -1131,11 +1132,33 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             self.assertTrue(read["value_present"])
             self.assertEqual(read["value"], "0x0000000000001234")
 
-    def test_stat_parser_accepts_v2321_two_line_block_contract(self) -> None:
-        parsed = probe._parse_stat_identity(
-            b"mode=0600 uid=0 gid=0 size=0\r\n"
-            b"rdev=259:27\r\n"
+    def test_stat_parser_accepts_live_framing_and_closed_terminal_variants(self) -> None:
+        live = b"mode=0600 uid=0 gid=0 size=0\r\nrdev=259:27"
+        self.assertEqual(len(live), 41)
+        self.assertEqual(
+            hashlib.sha256(live).hexdigest(),
+            "774a5e3b7e833ee1573bc79732a73bd1fc2bbaa95340d238ae89fd5c42a03edc",
         )
+        for payload in (
+            live,
+            b"mode=0600 uid=0 gid=0 size=0\nrdev=259:27",
+            b"mode=0600 uid=0 gid=0 size=0\r\nrdev=259:27\n",
+            b"mode=0600 uid=0 gid=0 size=0\nrdev=259:27\n",
+            b"mode=0600 uid=0 gid=0 size=0\r\nrdev=259:27\r\n",
+        ):
+            with self.subTest(payload=payload):
+                parsed = probe._parse_stat_identity(payload)
+                self.assertEqual(
+                    parsed,
+                    {
+                        "mode": "0600",
+                        "uid": "0",
+                        "gid": "0",
+                        "size": "0",
+                        "rdev": "259:27",
+                    },
+                )
+        parsed = probe._parse_stat_identity(live)
         self.assertEqual(
             parsed,
             {
@@ -1152,10 +1175,19 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
         invalid = (
             b"uid=0 gid=0 size=0\nrdev=259:27\n",  # missing mode
             b"mode=0600 mode=0600 uid=0 gid=0 size=0\nrdev=259:27\n",  # duplicate
+            b"mode=0600  uid=0 gid=0 size=0\nrdev=259:27\n",  # double space
+            b"mode=0600\tuid=0 gid=0 size=0\nrdev=259:27\n",  # tab space
+            b"mode=0600 uid=0 gid=0 size=0\nrdev=259:27 \n",  # rdev trailing space
+            b"mode=0600 uid=0 gid=0 size=0\nrdev=259:27\r",  # bare CR
             b"mode=0600 uid=0 gid=0 size=0\nrdev=259:28\n",  # wrong rdev
             b"mode=0680 uid=0 gid=0 size=0\nrdev=259:27\n",  # malformed mode
             b"mode=0600 uid=x gid=0 size=0\nrdev=259:27\n",  # malformed decimal
             b"mode=0600 uid=0 gid=0 size=0 rdev=259:27\n",  # wrong line contract
+            b"mode=0600 uid=0 gid=0 size=0\nrdev=259:27\nextra",  # extra line
+            b"mode=0600 uid=0 gid=0 size=0\nrdev=259:27\n\n",  # empty line
+            b"mode=0600 uid=0 gid=0 size=0\nrdev=259:27\x00\n",  # NUL
+            b"mode=0600 uid=0 gid=0 size=0\nrdev=259:27\xff\n",  # non-ASCII
+            b"mode=0600 uid=0 gid=0 size=0\nfoo=bar\nrdev=259:27\n",  # unknown line
         )
         self.assertEqual(probe._parse_stat_identity(valid)["rdev"], "259:27")
         for payload in invalid:
@@ -1178,7 +1210,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                 "rdev=259:27\n"
             ).encode()
             with self.subTest(field=field):
-                with self.assertRaisesRegex(probe.ProbeError, field):
+                with self.assertRaises(probe.ProbeError):
                     probe._parse_stat_identity(payload)
 
     def test_execute_gate_rejects_omission_before_any_contact(self) -> None:

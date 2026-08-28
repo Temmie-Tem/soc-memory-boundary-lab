@@ -5296,20 +5296,30 @@ def _runtime_line(payload: bytes, expected: bytes, label: str) -> None:
         raise FinalizeError(f"{label} payload is not exact")
 
 
-def _runtime_cmdline(payload: bytes) -> dict[str, str]:
-    if b"\r" in payload.replace(b"\r\n", b""):
-        raise FinalizeError("runtime cmdline contains a bare CR")
+def _finalizer_cmdline_body(payload: bytes, label: str) -> str:
+    """Decode one cmdline using the native ASCII-space delimiter contract."""
+
+    if b"\x00" in payload:
+        raise FinalizeError(f"{label} contains NUL")
     try:
         text = payload.decode("ascii", errors="strict")
     except UnicodeDecodeError as exc:
-        raise FinalizeError("runtime cmdline is not ASCII") from exc
-    text = text[:-2] if text.endswith("\r\n") else text[:-1] if text.endswith("\n") else text
-    if not text or text != text.strip():
-        raise FinalizeError("runtime cmdline framing is not exact")
+        raise FinalizeError(f"{label} is not ASCII") from exc
+    if text.endswith("\r\n"):
+        text = text[:-2]
+    elif text.endswith("\n"):
+        text = text[:-1]
+    if not text or text[0].isspace() or text[-1].isspace():
+        raise FinalizeError(f"{label} framing is not exact")
+    if any(char.isspace() and char != " " for char in text):
+        raise FinalizeError(f"{label} contains non-space whitespace")
+    return text
+
+
+def _runtime_cmdline(payload: bytes) -> dict[str, str]:
+    text = _finalizer_cmdline_body(payload, "runtime cmdline")
     values: dict[str, str] = {}
-    for token in text.split(" "):
-        if not token:
-            raise FinalizeError("runtime cmdline has empty token")
+    for token in (item for item in text.split(" ") if item):
         if "=" not in token:
             if token not in {"skip_initramfs", "rootwait", "ro"} or token in values:
                 raise FinalizeError("runtime cmdline has an unexpected flag")
@@ -5341,22 +5351,9 @@ def _runtime_cmdline(payload: bytes) -> dict[str, str]:
 def _last_cmdline(payload: bytes) -> dict[str, str]:
     """Parse the pre-read MID cmdline with the same closed token grammar."""
 
-    if b"\r" in payload.replace(b"\r\n", b""):
-        raise FinalizeError("last-kmsg cmdline contains a bare CR")
-    try:
-        text = payload.decode("ascii", errors="strict")
-    except UnicodeDecodeError as exc:
-        raise FinalizeError("last-kmsg cmdline is not ASCII") from exc
-    if text.endswith("\r\n"):
-        text = text[:-2]
-    elif text.endswith("\n"):
-        text = text[:-1]
-    if not text or text != text.strip():
-        raise FinalizeError("last-kmsg cmdline framing is not exact")
+    text = _finalizer_cmdline_body(payload, "last-kmsg cmdline")
     values: dict[str, str] = {}
-    for token in text.split(" "):
-        if not token:
-            raise FinalizeError("last-kmsg cmdline has an empty token")
+    for token in (item for item in text.split(" ") if item):
         if "=" not in token:
             if token not in {"skip_initramfs", "rootwait", "ro"} or token in values:
                 raise FinalizeError("last-kmsg cmdline has an unexpected flag")
@@ -5777,7 +5774,12 @@ def validate_runtime_health(path: Path, root: Path) -> dict[str, object]:
     _runtime_line(boot_payloads[10], b"MAJOR=259\nMINOR=27\nDEVNAME=sda24\nDEVTYPE=partition\nPARTN=24\nPARTNAME=boot\n", "runtime boot uevent")
     _runtime_line(boot_payloads[11], b"131072", "runtime boot sector count")
     _runtime_line(boot_payloads[12], b"0", "runtime boot read-only flag")
-    _runtime_line(boot_payloads[15], b"mode=0600 uid=0 gid=0 size=0\nrdev=259:27\n", "runtime boot stat")
+    try:
+        stat_value = inline_parse_stat_identity(boot_payloads[15])
+    except BaseException as exc:
+        raise FinalizeError("runtime boot stat payload is malformed") from exc
+    if stat_value != _RUNTIME_BOOT_EXPECTED_STAT:
+        raise FinalizeError("runtime boot stat differs from the fixed partition")
     if boot_payloads[14] != b"":
         raise FinalizeError("runtime boot mknod returned unexpected payload")
     if _runtime_toybox_body(boot_payloads[16], "runtime boot capture") != b"":

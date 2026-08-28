@@ -42,8 +42,8 @@ write the pinned V2321 rollback; the latter can only restore pinned DLOW after
 a complete-image classification. Neither path authorizes replay of a candidate
 or of the original ambiguous transition.
 
-Host verification on 2026-08-28 passed 1,891 serial tests (one skip), with
-890,136 KiB maximum RSS, no test-process swap and no OOM event. Exact artifact
+Host verification on 2026-08-28 passed 1,895 serial tests (one skip), with
+893,252 KiB maximum RSS, no test-process swap and no OOM event. Exact artifact
 and op-buffer hashes matched the pre-registered values. The final independent
 hostile pass exercised 743 frame-contract rows and 156 stable-`param`/static
 rows with no P0/P1 finding. The live `param` predicate now excludes exactly
@@ -51,9 +51,9 @@ boot-volatile byte `[0,1)` while retaining full before/host/after hashes; LOW
 is the fixed `[1,0xA00000)` hash `c0c71474...` plus exact decoded fields and
 cmdline. No Verification 024 device command has yet been issued; a fresh exact
 A90 binding is still required. The control image has since been written and
-booted once. Two `param` transactions refused before their effect (zero
-partition writes); the live double-space cmdline parser defect is repaired and
-independently reviewed. See
+booted once. Three `param` transactions refused before their effect (zero
+partition writes); the live cmdline and native-stat parser defects are repaired
+and independently reviewed. See
 [`docs/VERIFICATION024_LIVE_EXECUTION_LOG_2026-08-28.md`](../../docs/VERIFICATION024_LIVE_EXECUTION_LOG_2026-08-28.md).
 
 No result is claimed yet. `CLASS C (TRANSFORM ONLY)` / `NOT_ELIGIBLE` remains

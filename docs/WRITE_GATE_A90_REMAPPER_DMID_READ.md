@@ -81,8 +81,8 @@ applicable, full boot/param rollback hashes, and final V2321
 
 Host qualification on 2026-08-28 rehashed every complete boot/param artifact
 and the fixed 88-byte op buffer. After the live cmdline parser repair, the
-execution closure passed 1,891 serial tests with one skip under a 4-GiB
-virtual-memory ceiling, at 890,136 KiB maximum RSS, zero test-process swaps and
+execution closure passed 1,895 serial tests with one skip under a 4-GiB
+virtual-memory ceiling, at 893,252 KiB maximum RSS, zero test-process swaps and
 no kernel OOM event. Independent hostile review passed 743 frame rows, 156
 stable-`param`/static rows and 870 whitespace rows with `P0=0` and `P1=0`.
 Fresh exact A90 binding remains required before each live action.

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import contextlib
+import hashlib
 import io
 import json
 import tempfile
@@ -81,18 +82,35 @@ class A90ParamDebugTransitionTests(unittest.TestCase):
                 if result["stable_sha256"] != transition.LOW_STABLE_SHA256:
                     raise ValueError("stable image changed")
 
-    def test_node_stat_parser_requires_exact_raw_lf_framing(self) -> None:
+    def test_node_stat_parser_accepts_live_crlf_without_terminal_and_closed_lf_variants(self) -> None:
         partition = Partition("param", "sda10", 8, 10, 20480, 0xA00000, 0, 4096)
         valid = b"mode=0600 uid=0 gid=0 size=0\nrdev=8:10\n"
         parsed = transition._require_stat_rdev(valid, partition)
         self.assertEqual(parsed["raw"], valid.decode("ascii"))
         self.assertEqual(parsed["rdev"], "rdev=8:10")
+        live = b"mode=0600 uid=0 gid=0 size=0\r\nrdev=8:10"
+        self.assertEqual(len(live), 39)
+        self.assertEqual(
+            hashlib.sha256(live).hexdigest(),
+            "0993514304d5b15b220d3b97c687e7ebd086ec7d67c7e2543bd5da0adb39a97c",
+        )
+        live_parsed = transition._require_stat_rdev(live, partition)
+        self.assertEqual(live_parsed["raw"], live.decode("ascii"))
+        self.assertEqual(live_parsed["rdev"], "rdev=8:10")
+        for retained in (
+            b"mode=0600 uid=0 gid=0 size=0\nrdev=8:10",
+            b"mode=0600 uid=0 gid=0 size=0\r\nrdev=8:10\n",
+            b"mode=0600 uid=0 gid=0 size=0\r\nrdev=8:10\r\n",
+        ):
+            with self.subTest(retained=retained):
+                self.assertEqual(
+                    transition._require_stat_rdev(retained, partition)["rdev"],
+                    "rdev=8:10",
+                )
         invalid = (
             b" mode=0600 uid=0 gid=0 size=0\nrdev=8:10\n",
             b"mode=0600 uid=0 gid=0 size=0 \nrdev=8:10\n",
             b"mode=0600  uid=0 gid=0 size=0\nrdev=8:10\n",
-            b"mode=0600 uid=0 gid=0 size=0\r\nrdev=8:10\n",
-            b"mode=0600 uid=0 gid=0 size=0\r\nrdev=8:10\r\n",
             b"mode=0600 uid=0 gid=0 size=0\nrdev=8:10\n\n",
             b"mode=0600 uid=0 gid=0 size=0\nrdev=8:10\x00\n",
             b"mode=0600 uid=0 gid=0 size=0\nrdev=8:10\ntrailing",
@@ -103,6 +121,82 @@ class A90ParamDebugTransitionTests(unittest.TestCase):
             with self.subTest(payload=payload):
                 with self.assertRaises(ValueError):
                     transition._require_stat_rdev(payload, partition)
+
+    def test_live_stat_parser_failure_publishes_pre_effect_journal_before_cleanup(self) -> None:
+        original, modified = transition.derive_images()
+        partition = Partition("param", "sda10", 8, 10, 20480, 0xA00000, 0, 4096)
+        binding = {"process_pid": 123, "serial_device": "/dev/ttyACM0"}
+        live_stat = b"mode=0600 uid=0 gid=0 size=0\r\nrdev=8:10"
+        events: list[str] = []
+
+        def fake_create(*args, **kwargs):
+            del args, kwargs
+            parsed = transition._require_stat_rdev(live_stat, partition)
+            if parsed["rdev"] != "rdev=8:10":
+                raise AssertionError(parsed)
+            # Reproduce the old live r3 failure at the main pre-effect seam
+            # after proving the repaired parser accepts the exact receipt.
+            raise ValueError("param block-node stat contains malformed line framing")
+
+        def fake_remove_temp(*args, **kwargs):
+            del kwargs
+            events.append(f"temp:{args[-1]}")
+
+        def fake_remove_node(*args, **kwargs):
+            del args, kwargs
+            events.append("node")
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            args = Namespace(
+                execute=True,
+                experiment_id="transition-live-stat-failure",
+                action="apply-mid",
+                host="127.0.0.1",
+                port=54321,
+                command_timeout=1.0,
+                hash_timeout=1.0,
+                effect_timeout=1.0,
+            )
+            with mock.patch.object(
+                transition, "derive_images", return_value=(original, modified)
+            ), mock.patch.object(
+                transition, "validate_bridge_binding", return_value=binding
+            ), mock.patch.object(
+                transition, "revalidate_bridge_binding", return_value=binding
+            ), mock.patch.object(
+                transition, "run_stophud", return_value={"accepted": True, "busy_retries": 0}
+            ), mock.patch.object(
+                transition,
+                "_preflight",
+                return_value=({"androidboot.debug_level": "0x4f4c"}, "1", partition, 125080),
+            ), mock.patch.object(
+                transition, "create_and_validate_node", side_effect=fake_create
+            ), mock.patch.object(
+                transition, "_remove_temp", side_effect=fake_remove_temp
+            ), mock.patch.object(
+                transition, "remove_node", side_effect=fake_remove_node
+            ), mock.patch.object(transition, "exchange") as exchange:
+                with self.assertRaisesRegex(ValueError, "stat contains malformed line framing"):
+                    with mock.patch.object(transition, "REPO_ROOT", root):
+                        transition.execute(args)
+            journal = json.loads(
+                (root / "evidence/private/transition-live-stat-failure.journal.json").read_text()
+            )
+
+        self.assertEqual(events, ["temp:payload_cleanup_after", "temp:smoke_cleanup_final", "node"])
+        self.assertFalse(exchange.called)
+        self.assertEqual(journal["status"], "PRE_EFFECT_PREFLIGHT_INCOMPLETE")
+        self.assertIn("ValueError: param block-node stat contains malformed line framing", journal["error"])
+        self.assertFalse(journal["effect_dispatched"])
+        self.assertEqual(journal["effect_dispatched_count"], 0)
+        self.assertEqual(journal["write_count"], 0)
+        self.assertFalse(journal["partition_writes"])
+        self.assertTrue(journal["cleanup_attempted"])
+        self.assertTrue(journal["cleanup_completed"])
+        self.assertTrue(journal["node_cleanup_verified"])
+        self.assertFalse(journal["cleanup_deferred"])
+        self.assertFalse(journal["reconcile_required"])
 
     def test_cli_has_no_partition_offset_or_value_inputs(self) -> None:
         parser = transition.build_parser()
@@ -265,7 +359,16 @@ class A90ParamDebugTransitionTests(unittest.TestCase):
             journal = json.loads(journal_path.read_text())
         self.assertEqual(events[:4], ["initial_bind", "rebind", "stophud", "preflight"])
         self.assertEqual(events[4:6], ["rebind", "create_node"])
-        self.assertEqual(journal["status"], "PREFLIGHT")
+        self.assertEqual(journal["status"], "PRE_EFFECT_PREFLIGHT_INCOMPLETE")
+        self.assertFalse(journal["effect_dispatched"])
+        self.assertEqual(journal["effect_dispatched_count"], 0)
+        self.assertEqual(journal["write_count"], 0)
+        self.assertFalse(journal["partition_writes"])
+        self.assertTrue(journal["cleanup_attempted"])
+        self.assertTrue(journal["cleanup_completed"])
+        self.assertTrue(journal["node_cleanup_verified"])
+        self.assertFalse(journal["cleanup_deferred"])
+        self.assertFalse(journal["reconcile_required"])
         self.assertEqual(journal["stophud"]["accepted"], True)
         self.assertEqual(journal["stophud_frames"][0]["evidence_id"], "stophud")
         self.assertNotIn("effect_argv", journal)
@@ -521,7 +624,14 @@ class A90ParamDebugTransitionTests(unittest.TestCase):
             journal = json.loads(
                 (Path(directory) / "evidence/private/transition-cleanup-bind-fail.journal.json").read_text()
             )
-        self.assertEqual(journal["status"], "PREFLIGHT")
+        self.assertEqual(journal["status"], "PRE_EFFECT_PREFLIGHT_INCOMPLETE")
+        self.assertFalse(journal["effect_dispatched"])
+        self.assertEqual(journal["effect_dispatched_count"], 0)
+        self.assertEqual(journal["write_count"], 0)
+        self.assertFalse(journal["partition_writes"])
+        self.assertFalse(journal["cleanup_attempted"])
+        self.assertFalse(journal["cleanup_completed"])
+        self.assertFalse(journal["node_cleanup_verified"])
         self.assertTrue(journal["cleanup_deferred"])
         self.assertTrue(journal["reconcile_required"])
 

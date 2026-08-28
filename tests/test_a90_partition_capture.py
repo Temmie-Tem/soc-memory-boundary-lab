@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import contextlib
+import hashlib
 import io
 import json
 import tempfile
@@ -137,6 +138,23 @@ class PartitionCaptureTests(unittest.TestCase):
         valid = b"mode=0600 uid=0 gid=0 size=0\nrdev=8:10\n"
         parsed = capture._parse_node_stat_identity(valid, partition)
         self.assertEqual(parsed["rdev"], "8:10")
+        live = b"mode=0600 uid=0 gid=0 size=0\r\nrdev=8:10"
+        self.assertEqual(len(live), 39)
+        self.assertEqual(
+            hashlib.sha256(live).hexdigest(),
+            "0993514304d5b15b220d3b97c687e7ebd086ec7d67c7e2543bd5da0adb39a97c",
+        )
+        self.assertEqual(capture._parse_node_stat_identity(live, partition)["rdev"], "8:10")
+        for retained in (
+            b"mode=0600 uid=0 gid=0 size=0\nrdev=8:10",
+            b"mode=0600 uid=0 gid=0 size=0\r\nrdev=8:10\n",
+            b"mode=0600 uid=0 gid=0 size=0\r\nrdev=8:10\r\n",
+        ):
+            with self.subTest(retained=retained):
+                self.assertEqual(
+                    capture._parse_node_stat_identity(retained, partition)["rdev"],
+                    "8:10",
+                )
         invalid = (
             b"mode=0600 uid=0 gid=0 size=0\nrdev=8:100\n",
             b"mode=0600 uid=0 gid=0 size=0\nrdev=18:10\n",
@@ -148,10 +166,10 @@ class PartitionCaptureTests(unittest.TestCase):
             b" mode=0600 uid=0 gid=0 size=0\nrdev=8:10\n",
             b"mode=0600 uid=0 gid=0 size=0 \nrdev=8:10\n",
             b"mode=0600  uid=0 gid=0 size=0\nrdev=8:10\n",
-            b"mode=0600 uid=0 gid=0 size=0\r\nrdev=8:10\n",
-            b"mode=0600 uid=0 gid=0 size=0\r\nrdev=8:10\r\n",
             b"mode=0600 uid=0 gid=0 size=0\nrdev=8:10\n\n",
             b"mode=0600 uid=0 gid=0 size=0\nrdev=8:10\x00\n",
+            b"mode=0600 uid=0 gid=0 size=0\rrdev=8:10",
+            b"mode=0600 uid=0 gid=0 size=0\r\nrdev=8:10\r",
         )
         for payload in invalid:
             with self.subTest(payload=payload):

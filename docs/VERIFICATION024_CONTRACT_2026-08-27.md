@@ -70,10 +70,10 @@ The fixed op buffer is 88 bytes and hashes to
 `7cb5cf5aa907dce3b48ddc5dce8f296782ac2d1b24d18cb55fa54d45cb86c6b4`.
 
 `PROVED`: after the replay, frame, payload and stable-`param` repairs, the
-current host execution closure compiled and passed 1,891 serial tests with one
+current host execution closure compiled and passed 1,895 serial tests with one
 intentional skip. The run used a 4-GiB virtual-memory ceiling, reached 885,132
 KiB maximum RSS before the live parser repair; the post-repair full run reached
-890,136 KiB. Both performed zero test-process swaps and produced no kernel OOM
+893,252 KiB. Both performed zero test-process swaps and produced no kernel OOM
 event. Independent hostile review exercised 743 frame-contract rows, 156
 stable-`param`/static rows and 870 live-derived whitespace rows with `P0=0`
 and `P1=0`. This is host qualification; fresh exact live target binding

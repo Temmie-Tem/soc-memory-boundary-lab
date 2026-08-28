@@ -1344,10 +1344,6 @@ def _one_line(payload: bytes, label: str) -> str:
     return text
 
 
-STAT_MODE_RE = re.compile(r"0[0-7]+\Z")
-STAT_DECIMAL_RE = re.compile(r"[0-9]+\Z")
-
-
 def _parse_stat_identity(payload: bytes) -> dict[str, str]:
     """Parse the native ``stat`` response for the temporary block node.
 
@@ -1358,53 +1354,41 @@ def _parse_stat_identity(payload: bytes) -> dict[str, str]:
     with no duplicate/unknown fields and the pinned major/minor pair.
     """
 
+    if type(payload) is not bytes:
+        raise ProbeError("temporary node stat is not bytes")
+    if b"\x00" in payload:
+        raise ProbeError("temporary node stat contains NUL")
     try:
-        text = payload.decode("ascii", errors="strict").replace("\r\n", "\n")
+        payload.decode("ascii", errors="strict")
     except UnicodeDecodeError as exc:
         raise ProbeError("temporary node stat is not ASCII") from exc
-    # The native command terminates each line with CRLF.  Remove only one
-    # terminal line ending; any additional empty line remains a malformed
-    # response rather than being silently discarded.
-    if text.endswith("\n"):
-        text = text[:-1]
-    lines = text.split("\n")
-    if len(lines) != 2 or any(not line for line in lines):
-        raise ProbeError(
-            "temporary node stat must contain exactly metadata and rdev lines"
-        )
 
-    metadata: dict[str, str] = {}
-    for token in lines[0].split():
-        if "=" not in token:
-            raise ProbeError(f"temporary node stat has malformed token: {token!r}")
-        key, value = token.split("=", 1)
-        if key in metadata or key not in {"mode", "uid", "gid", "size"}:
-            raise ProbeError(f"temporary node stat has duplicate/unknown key: {key!r}")
-        metadata[key] = value
-    if set(metadata) != {"mode", "uid", "gid", "size"}:
-        raise ProbeError("temporary node stat metadata fields are incomplete")
-    if STAT_MODE_RE.fullmatch(metadata["mode"]) is None:
-        raise ProbeError(f"temporary node stat mode is malformed: {metadata['mode']!r}")
-    for key in ("uid", "gid", "size"):
-        if STAT_DECIMAL_RE.fullmatch(metadata[key]) is None:
-            raise ProbeError(
-                f"temporary node stat {key} is malformed: {metadata[key]!r}"
-            )
-    expected_metadata = {"mode": "0600", "uid": "0", "gid": "0", "size": "0"}
-    for key, expected in expected_metadata.items():
-        if metadata[key] != expected:
-            raise ProbeError(
-                f"temporary node stat {key} is not exact: {metadata[key]!r} != {expected!r}"
-            )
-
-    rdev_tokens = lines[1].split()
-    expected_rdev = f"rdev={BOOT_EXPECTED_MAJOR}:{BOOT_EXPECTED_MINOR}"
-    if rdev_tokens != [expected_rdev]:
-        raise ProbeError(
-            f"temporary node stat rdev is not exact: {lines[1]!r}"
-        )
-    metadata["rdev"] = f"{BOOT_EXPECTED_MAJOR}:{BOOT_EXPECTED_MINOR}"
-    return metadata
+    # Normalize only CRLF pairs.  The live native response is CRLF between
+    # the two lines with no terminal newline; retained LF/CRLF fixtures may
+    # carry one terminal newline.  Comparing the complete normalized bytes
+    # keeps the grammar closed: bare CR, empty/extra lines, duplicate or
+    # unknown fields, spacing changes, and rdev prefix/suffix lookalikes are
+    # all rejected before producing a semantic dictionary.
+    normalized = payload.replace(b"\r\n", b"\n")
+    if b"\r" in normalized:
+        raise ProbeError("temporary node stat contains a bare CR")
+    expected_metadata = b"mode=0600 uid=0 gid=0 size=0"
+    expected_rdev = f"rdev={BOOT_EXPECTED_MAJOR}:{BOOT_EXPECTED_MINOR}".encode(
+        "ascii"
+    )
+    allowed = {
+        expected_metadata + b"\n" + expected_rdev,
+        expected_metadata + b"\n" + expected_rdev + b"\n",
+    }
+    if normalized not in allowed:
+        raise ProbeError("temporary node stat record is not exact")
+    return {
+        "mode": "0600",
+        "uid": "0",
+        "gid": "0",
+        "size": "0",
+        "rdev": f"{BOOT_EXPECTED_MAJOR}:{BOOT_EXPECTED_MINOR}",
+    }
 
 
 def _normalise_zero(value: str) -> str:

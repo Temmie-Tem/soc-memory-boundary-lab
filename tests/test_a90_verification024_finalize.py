@@ -12,6 +12,7 @@ from pathlib import Path
 from unittest import mock
 
 from tools import a90_last_kmsg_capture as capture
+from tools import a90_inline_remapper_mid_probe as probe
 from tools import a90_verification024_finalize as finalizer
 
 
@@ -766,7 +767,7 @@ class Verification024FinalizerTests(unittest.TestCase):
             "boot_sysfs_uevent": b"MAJOR=259\nMINOR=27\nDEVNAME=sda24\nDEVTYPE=partition\nPARTN=24\nPARTNAME=boot\n",
             "boot_sysfs_size": b"131072\n",
             "boot_sysfs_ro": b"0\n",
-            "boot_attest_stat_node": b"mode=0600 uid=0 gid=0 size=0\nrdev=259:27\n",
+            "boot_attest_stat_node": b"mode=0600 uid=0 gid=0 size=0\r\nrdev=259:27",
             "boot_attest_mknod": b"",
         }
         transition = {
@@ -1183,9 +1184,9 @@ class Verification024FinalizerTests(unittest.TestCase):
         ).read_bytes()
         last_current_boot_id = "22222222-2222-4222-8222-222222222222"
         last_cmdline = (
-            b"skip_initramfs rootwait ro androidboot.em.model=SM-A908N "
-            b"androidboot.bootloader=A908NKSU5EWA3 androidboot.debug_level=0x494d "
-            b"androidboot.force_upload=0x0 sec_debug.dump_sink=0x0 "
+            b"skip_initramfs  rootwait   ro androidboot.em.model=SM-A908N  "
+            b"androidboot.bootloader=A908NKSU5EWA3   androidboot.debug_level=0x494d  "
+            b"androidboot.force_upload=0x0  sec_debug.dump_sink=0x0 "
             b"androidboot.serialno=ABC123 root=PARTUUID=01234567-89ab-cdef-0123-456789abcdef\n"
         )
         last_payloads = [
@@ -1421,8 +1422,8 @@ class Verification024FinalizerTests(unittest.TestCase):
                 b"display: 1080x2400 connector=28 crtc=133 fb=208"
             ),
             "cmdline": (
-                b"skip_initramfs rootwait ro androidboot.em.model=SM-A908N "
-                b"androidboot.bootloader=A908NKSU5EWA3 androidboot.debug_level=0x4f4c "
+                b"skip_initramfs  rootwait   ro androidboot.em.model=SM-A908N  "
+                b"androidboot.bootloader=A908NKSU5EWA3   androidboot.debug_level=0x4f4c  "
                 b"androidboot.force_upload=0x0 sec_debug.dump_sink=0x0\n"
             ),
             "soc_id": b"339\n",
@@ -1430,7 +1431,7 @@ class Verification024FinalizerTests(unittest.TestCase):
             "boot_sysfs_uevent": b"MAJOR=259\nMINOR=27\nDEVNAME=sda24\nDEVTYPE=partition\nPARTN=24\nPARTNAME=boot\n",
             "boot_sysfs_size": b"131072\n",
             "boot_sysfs_ro": b"0\n",
-            "boot_attest_stat_node": b"mode=0600 uid=0 gid=0 size=0\nrdev=259:27\n",
+            "boot_attest_stat_node": b"mode=0600 uid=0 gid=0 size=0\r\nrdev=259:27",
             "boot_attest_hash": (wrapper_prefix + f"{finalizer.ROLLBACK_SHA256}  /tmp/a90-native/verification-024-boot-prefix.bin\n[exit 0]".encode()),
             "boot_attest_size": (wrapper_prefix + b"60882944 /tmp/a90-native/verification-024-boot-prefix.bin\n[exit 0]"),
             "boot_attest_mknod": b"",
@@ -2570,6 +2571,124 @@ class Verification024FinalizerTests(unittest.TestCase):
             with self.subTest(payload=payload):
                 with self.assertRaises(finalizer.FinalizeError):
                     finalizer._runtime_cmdline(payload)
+
+    def test_finalizer_cmdlines_accept_live_space_runs_and_reject_other_whitespace(self) -> None:
+        runtime_payload = (
+            b"skip_initramfs  rootwait   ro androidboot.em.model=SM-A908N  "
+            b"androidboot.bootloader=A908NKSU5EWA3   androidboot.debug_level=0x4f4c  "
+            b"androidboot.force_upload=0x0 sec_debug.dump_sink=0x0\r\n"
+        )
+        last_payload = (
+            b"skip_initramfs  rootwait   ro androidboot.em.model=SM-A908N  "
+            b"androidboot.bootloader=A908NKSU5EWA3   androidboot.debug_level=0x494d  "
+            b"androidboot.force_upload=0x0 sec_debug.dump_sink=0x0  "
+            b"androidboot.serialno=ABC123\n"
+        )
+        for parser, payload in (
+            (finalizer._runtime_cmdline, runtime_payload),
+            (finalizer._last_cmdline, last_payload),
+        ):
+            with self.subTest(parser=parser.__name__):
+                compact = b" ".join(payload.rstrip(b"\r\n").split()) + b"\n"
+                self.assertEqual(parser(payload), parser(compact))
+                malformed = (
+                    payload.replace(b" ", b"\t", 1),
+                    payload.replace(b" ", b"\x0b", 1),
+                    payload.replace(b" ", b"\x0c", 1),
+                    payload.replace(b" ", b"\n", 1),
+                    payload.replace(b" ", b"\r", 1),
+                    b" " + payload,
+                    payload[:-1] + b" ",
+                    payload + b"\n",
+                    payload.replace(b" ", b"\x00", 1),
+                    payload.replace(
+                        b"androidboot.em.model=SM-A908N",
+                        b"androidboot.em.model=SM-A908N   androidboot.em.model=SM-A908N",
+                        1,
+                    ),
+                )
+                for bad_payload in malformed:
+                    with self.subTest(bad_payload=bad_payload):
+                        with self.assertRaises(finalizer.FinalizeError):
+                            parser(bad_payload)
+
+    def test_runtime_health_accepts_producer_shaped_cmdline_and_live_stat(self) -> None:
+        raw = json.loads(
+            (self.root / "evidence/private" / f"{finalizer.RUNTIME_HEALTH_EXPERIMENT_ID}.json").read_text()
+        )
+        records = raw["records"]
+        stat_frame = next(item for item in records if item["evidence_id"] == "boot_attest_stat_node")
+        cmdline_frame = next(item for item in records if item["evidence_id"] == "cmdline")
+        self.assertEqual(
+            base64.b64decode(stat_frame["payload_base64"]),
+            b"mode=0600 uid=0 gid=0 size=0\r\nrdev=259:27",
+        )
+        self.assertIn(
+            b"  rootwait   ",
+            base64.b64decode(cmdline_frame["payload_base64"]),
+        )
+        result = finalizer.validate_runtime_health(self.runtime_health, self.root)
+        self.assertEqual(result["kind"], "runtime_health")
+
+    def test_runtime_health_rejects_forged_stat_spacing_after_full_rebinding(self) -> None:
+        forged = b"mode=0600  uid=0 gid=0 size=0\r\nrdev=259:27"
+        with self.assertRaises(probe.ProbeError):
+            probe._parse_stat_identity(forged)
+
+        raw_path = self.root / "evidence/private/runtime-health.json"
+        journal_path = self.root / "evidence/private/runtime-health.journal.json"
+        raw = json.loads(raw_path.read_text())
+        journal = json.loads(journal_path.read_text())
+
+        def rewrite(frame: dict[str, object]) -> None:
+            if frame.get("evidence_id") != "boot_attest_stat_node":
+                return
+            begin = frame["begin"]
+            end = frame["end"]
+            assert isinstance(begin, dict) and isinstance(end, dict)
+            transcript = (
+                f"A90P1 BEGIN seq={begin['seq']} cmd={begin['cmd']} argc={begin['argc']} flags={begin['flags']}\n".encode("ascii")
+                + forged
+                + f"\n[done] {begin['cmd']} (0ms)\n".encode("ascii")
+                + f"A90P1 END seq={end['seq']} cmd={end['cmd']} rc={end['rc']} errno={end['errno']} duration_ms={end['duration_ms']} flags={end['flags']} status={end['status']}\n".encode("ascii")
+            )
+            frame.update(
+                {
+                    "payload_base64": base64.b64encode(forged).decode("ascii"),
+                    "payload_sha256": finalizer.hashlib.sha256(forged).hexdigest(),
+                    "payload_size": len(forged),
+                    "transcript_base64": base64.b64encode(transcript).decode("ascii"),
+                    "transcript_sha256": finalizer.hashlib.sha256(transcript).hexdigest(),
+                    "transcript_size": len(transcript),
+                }
+            )
+
+        rewrite_all = (raw["records"], raw["boot_attestation_frames"])
+        for frames in rewrite_all:
+            matches = [frame for frame in frames if frame.get("evidence_id") == "boot_attest_stat_node"]
+            self.assertEqual(len(matches), 1)
+            rewrite(matches[0])
+        journal["records"] = raw["records"]
+        journal_boot = dict(journal["boot_attestation"])
+        journal_boot["frames"] = raw["boot_attestation_frames"]
+        journal["boot_attestation"] = journal_boot
+        raw_bytes = self._write(raw_path, raw)
+        journal["raw_sha256"] = finalizer.hashlib.sha256(raw_bytes).hexdigest()
+        journal["raw_size"] = len(raw_bytes)
+        journal_bytes = self._write(journal_path, journal)
+        public = json.loads(self.runtime_health.read_text())
+        public["records"] = [finalizer._runtime_public_record(frame) for frame in raw["records"]]
+        public.update(
+            {
+                "raw_snapshot_sha256": finalizer.hashlib.sha256(raw_bytes).hexdigest(),
+                "raw_snapshot_size": len(raw_bytes),
+                "journal_sha256": finalizer.hashlib.sha256(journal_bytes).hexdigest(),
+                "journal_size": len(journal_bytes),
+            }
+        )
+        self._write(self.runtime_health, public)
+        with self.assertRaises(finalizer.FinalizeError):
+            finalizer.validate_runtime_health(self.runtime_health, self.root)
 
     def test_runtime_summary_only_or_forged_transport_records_fail_closed(self) -> None:
         raw_path = self.root / "evidence/private/runtime-health.json"

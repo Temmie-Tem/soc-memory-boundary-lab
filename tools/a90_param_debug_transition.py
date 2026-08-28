@@ -873,12 +873,24 @@ def _require_stat_rdev(stat_payload: bytes, partition) -> dict[str, object]:
         text = stat_payload.decode("ascii", errors="strict")
     except UnicodeDecodeError as exc:
         raise ValueError("param block-node stat is not strict ASCII") from exc
-    if "\x00" in text or "\r" in text:
+    if "\x00" in text:
         raise ValueError("param block-node stat contains malformed line framing")
-    expected_metadata = b"mode=0600 uid=0 gid=0 size=0\n"
+    # Normalize only CRLF pairs, then compare one exact two-line record.  The
+    # live native stat receipt uses CRLF between lines and no final LF; one
+    # terminal LF remains accepted for retained fixtures.  Bare CR, empty or
+    # extra lines, duplicate/unknown fields, spacing changes, and rdev
+    # prefix/suffix lookalikes therefore fail closed.
+    normalized = stat_payload.replace(b"\r\n", b"\n")
+    if b"\r" in normalized:
+        raise ValueError("param block-node stat contains malformed line framing")
+    expected_metadata = b"mode=0600 uid=0 gid=0 size=0"
     expected_rdev = f"rdev={partition.major}:{partition.minor}"
-    expected = expected_metadata + (expected_rdev + "\n").encode("ascii")
-    if stat_payload != expected:
+    expected_rdev_bytes = expected_rdev.encode("ascii")
+    allowed = {
+        expected_metadata + b"\n" + expected_rdev_bytes,
+        expected_metadata + b"\n" + expected_rdev_bytes + b"\n",
+    }
+    if normalized not in allowed:
         raise ValueError(f"param block-node stat record is not exact: {text!r}")
     return {
         "raw": text,
@@ -1198,11 +1210,15 @@ def execute(args: argparse.Namespace) -> tuple[Path, Path]:
         "started_utc": started,
         "status": "STOPHUD_INTENT_DURABLE",
         "effect_dispatched": False,
+        "effect_dispatched_count": 0,
         "effect_replayed": False,
         "write_count": 0,
         "partition_writes": False,
         "cleanup_deferred": False,
         "reconcile_required": False,
+        "cleanup_attempted": False,
+        "cleanup_completed": False,
+        "node_cleanup_verified": False,
         "effect_consumption_claim": None,
         "effect_consumption_claim_path": None,
         "stophud": None,
@@ -1322,11 +1338,15 @@ def execute(args: argparse.Namespace) -> tuple[Path, Path]:
         "action": transition.action,
         "status": "PREFLIGHT",
         "effect_dispatched": False,
+        "effect_dispatched_count": 0,
         "effect_replayed": False,
         "write_count": 0,
         "partition_writes": False,
         "cleanup_deferred": False,
         "reconcile_required": False,
+        "cleanup_attempted": False,
+        "cleanup_completed": False,
+        "node_cleanup_verified": False,
         "expected_target": {
             "model": TARGET_MODEL,
             "soc": TARGET_SOC,
@@ -1710,6 +1730,22 @@ def execute(args: argparse.Namespace) -> tuple[Path, Path]:
             journal["cleanup_deferred"] = True
             journal["reconcile_required"] = True
             _atomic_replace_json(journal_path, journal)
+        else:
+            # Any exception before the durable effect marker is a pre-effect
+            # incident.  Publish the corrected state before the public
+            # incident manifest so the private journal cannot remain at the
+            # optimistic PREFLIGHT status with a null error.
+            journal.update(
+                {
+                    "status": "PRE_EFFECT_PREFLIGHT_INCOMPLETE",
+                    "error": f"{type(exc).__name__}: {exc}",
+                    "effect_dispatched": False,
+                    "effect_dispatched_count": 0,
+                    "write_count": 0,
+                    "partition_writes": False,
+                }
+            )
+            _atomic_replace_json(journal_path, journal)
         publish_incident(exc)
         raise
     finally:
@@ -1758,6 +1794,14 @@ def execute(args: argparse.Namespace) -> tuple[Path, Path]:
             effect_armed and journal.get("status") not in {"APPLIED_VERIFIED", "RESTORED_VERIFIED"}
         ):
             try:
+                # This durable marker precedes every terminal pre-effect (or
+                # post-success) cleanup command.  If a later command fails,
+                # the journal remains conservative and records that cleanup
+                # was attempted but not proved complete.
+                journal["cleanup_attempted"] = True
+                journal["cleanup_completed"] = False
+                journal["node_cleanup_verified"] = False
+                _atomic_replace_json(journal_path, journal)
                 _invoke_with_binding(
                     _remove_temp,
                     (
@@ -1788,6 +1832,11 @@ def execute(args: argparse.Namespace) -> tuple[Path, Path]:
                     fresh_binding,
                     "node_cleanup_final",
                 )
+                journal["cleanup_completed"] = True
+                journal["node_cleanup_verified"] = True
+                journal["cleanup_deferred"] = False
+                journal["reconcile_required"] = False
+                _atomic_replace_json(journal_path, journal)
             except BaseException as cleanup_exc:
                 defer_cleanup(
                     f"successful cleanup was not proved: "

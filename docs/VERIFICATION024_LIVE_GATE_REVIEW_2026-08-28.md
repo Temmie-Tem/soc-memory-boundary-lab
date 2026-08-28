@@ -53,9 +53,9 @@ MMIO store. Stack saves are not controller writes.
 The final param-recovery core/effect/live set passed 97/97 focused tests. The
 current six-module V024 gate set passed 177/177. The complete `tests/test_*.py`
 suite passed 1,883 tests with one skip in 195.473 seconds. After the live
-cmdline and public-claim redaction repairs, the final full suite passed 1,891
-tests with one skip in 195.938 seconds. Both ran serially under
-`ulimit -v 4194304`; the final maximum RSS was 890,136 KiB, test-process swaps
+cmdline, public-claim redaction, live-stat and journal repairs, the final full
+suite passed 1,895 tests with one skip in 198.129 seconds. Both ran serially
+under `ulimit -v 4194304`; the final maximum RSS was 893,252 KiB, test-process swaps
 were zero, and the kernel recorded no
 OOM event during either run.
 
@@ -103,6 +103,10 @@ six-module gate passed 180/180, again with `P0=0` and `P1=0`.
 Public physical-claim redaction then passed 87 hostile assertions and 19/19
 focused tests with `P0=P1=P2=0`. Raw boot UUIDs remain in the private causal
 journal; public manifests contain only their exact ASCII/no-newline SHA-256.
+
+The live-stat/journal review then passed 48/48 four-path parser cases, 24/24
+transition state-machine scenarios, 835/835 frame attacks and 204/204 cmdline
+attacks with `P0=P1=P2=0`.
 
 ## Remaining gate
 
