@@ -173,8 +173,15 @@ BOOT_SYSFS_RO = f"{BOOT_SYSFS_ROOT}/ro"
 BOOT_ATTEST_DIR = "/tmp/a90-native"
 BOOT_ATTEST_NODE = f"{BOOT_ATTEST_DIR}/verification-024-sda24"
 BOOT_ATTEST_FILE = f"{BOOT_ATTEST_DIR}/verification-024-boot-prefix.bin"
+# Compatibility aliases for older callers.  Attestation never uses these
+# values as an authority; the fixed sysfs uevent is parsed immediately before
+# mknod/stat and supplies the exact strings for the current kernel dev_t.
 BOOT_EXPECTED_MAJOR = "259"
-BOOT_EXPECTED_MINOR = "27"
+BOOT_EXPECTED_MINOR = "8"
+BOOT_MAJOR_MIN = 1
+BOOT_MAJOR_MAX = 4095
+BOOT_MINOR_MIN = 0
+BOOT_MINOR_MAX = 1048575
 BOOT_EXPECTED_PARTN = "24"
 BOOT_EXPECTED_PARTNAME = "boot"
 BOOT_EXPECTED_SECTORS = "131072"
@@ -1427,14 +1434,35 @@ def _one_line(payload: bytes, label: str) -> str:
     return text
 
 
-def _parse_stat_identity(payload: bytes) -> dict[str, str]:
+def _parse_canonical_devnum(
+    value: object,
+    label: str,
+    minimum: int,
+    maximum: int,
+) -> str:
+    """Validate one exact unsigned decimal device-number field."""
+
+    if type(value) is not str or re.fullmatch(r"0|[1-9][0-9]*", value) is None:
+        raise ProbeError(f"{label} is not canonical unsigned decimal")
+    number = int(value, 10)
+    if not minimum <= number <= maximum:
+        raise ProbeError(f"{label} is outside the bounded device-number range")
+    return value
+
+
+def _parse_stat_identity(
+    payload: bytes,
+    expected_major: str,
+    expected_minor: str,
+) -> dict[str, str]:
     """Parse the native ``stat`` response for the temporary block node.
 
     V2321's ``cmd_stat`` intentionally emits the mode/uid/gid/size fields on
     one line and, for block or character nodes, emits ``rdev`` on the next
     line.  It does not emit a ``type=block`` token.  Keep the syntax strict:
     exactly one four-field metadata line followed by exactly one rdev line,
-    with no duplicate/unknown fields and the pinned major/minor pair.
+    with no duplicate/unknown fields and the exact major/minor pair parsed from
+    the fixed sysfs uevent immediately before node creation.
     """
 
     if type(payload) is not bytes:
@@ -1455,10 +1483,14 @@ def _parse_stat_identity(payload: bytes) -> dict[str, str]:
     normalized = payload.replace(b"\r\n", b"\n")
     if b"\r" in normalized:
         raise ProbeError("temporary node stat contains a bare CR")
-    expected_metadata = b"mode=0600 uid=0 gid=0 size=0"
-    expected_rdev = f"rdev={BOOT_EXPECTED_MAJOR}:{BOOT_EXPECTED_MINOR}".encode(
-        "ascii"
+    expected_major = _parse_canonical_devnum(
+        expected_major, "expected stat major", BOOT_MAJOR_MIN, BOOT_MAJOR_MAX
     )
+    expected_minor = _parse_canonical_devnum(
+        expected_minor, "expected stat minor", BOOT_MINOR_MIN, BOOT_MINOR_MAX
+    )
+    expected_metadata = b"mode=0600 uid=0 gid=0 size=0"
+    expected_rdev = f"rdev={expected_major}:{expected_minor}".encode("ascii")
     allowed = {
         expected_metadata + b"\n" + expected_rdev,
         expected_metadata + b"\n" + expected_rdev + b"\n",
@@ -1470,7 +1502,7 @@ def _parse_stat_identity(payload: bytes) -> dict[str, str]:
         "uid": "0",
         "gid": "0",
         "size": "0",
-        "rdev": f"{BOOT_EXPECTED_MAJOR}:{BOOT_EXPECTED_MINOR}",
+        "rdev": f"{expected_major}:{expected_minor}",
     }
 
 
@@ -2034,6 +2066,42 @@ def _parse_exact_lines(payload: bytes, label: str) -> dict[str, str]:
     return result
 
 
+def _parse_boot_sysfs_uevent(payload: bytes) -> dict[str, str]:
+    """Parse the fixed sda24 uevent and return its current canonical dev_t."""
+
+    fields = _parse_exact_lines(payload, "sda24 uevent")
+    expected_static_fields = {
+        "DEVNAME": "sda24",
+        "DEVTYPE": "partition",
+        "PARTN": BOOT_EXPECTED_PARTN,
+        "PARTNAME": BOOT_EXPECTED_PARTNAME,
+    }
+    if set(fields) != {"MAJOR", "MINOR", *expected_static_fields}:
+        raise ProbeError(f"sda24 uevent fields are not exact: {fields!r}")
+    major = _parse_canonical_devnum(
+        fields.get("MAJOR"),
+        "sda24 uevent MAJOR",
+        BOOT_MAJOR_MIN,
+        BOOT_MAJOR_MAX,
+    )
+    minor = _parse_canonical_devnum(
+        fields.get("MINOR"),
+        "sda24 uevent MINOR",
+        BOOT_MINOR_MIN,
+        BOOT_MINOR_MAX,
+    )
+    for key, expected in expected_static_fields.items():
+        if fields.get(key) != expected:
+            raise ProbeError(
+                f"sda24 uevent {key} is not exact: {fields.get(key)!r}"
+            )
+    return {
+        "MAJOR": major,
+        "MINOR": minor,
+        **{key: fields[key] for key in expected_static_fields},
+    }
+
+
 def _attest_one(
     host: str,
     port: int,
@@ -2370,27 +2438,10 @@ def attest_current_boot(
             frames,
             exchange_fn=exchange_fn,
         )
-        fields = _parse_exact_lines(uevent.payload, "sda24 uevent")
-        expected_fields = {
-            "MAJOR": BOOT_EXPECTED_MAJOR,
-            "MINOR": BOOT_EXPECTED_MINOR,
-            "DEVNAME": "sda24",
-            "DEVTYPE": "partition",
-            "PARTN": BOOT_EXPECTED_PARTN,
-            "PARTNAME": BOOT_EXPECTED_PARTNAME,
-        }
-        if fields != expected_fields:
-            raise ProbeError(
-                f"sda24 uevent fields are not exact: {fields!r}"
-            )
-        for key, expected in expected_fields.items():
-            if fields.get(key) != expected:
-                raise ProbeError(
-                    f"sda24 uevent {key} is not exact: {fields.get(key)!r}"
-                )
-        record["sysfs_uevent"] = {
-            key: fields[key] for key in expected_fields
-        }
+        fields = _parse_boot_sysfs_uevent(uevent.payload)
+        major = fields["MAJOR"]
+        minor = fields["MINOR"]
+        record["sysfs_uevent"] = dict(fields)
 
         size_frame = _attest_one(
             host,
@@ -2445,7 +2496,7 @@ def attest_current_boot(
             timeout,
             Command(
                 "boot_attest_mknod",
-                ("mknodb", BOOT_ATTEST_NODE, BOOT_EXPECTED_MAJOR, BOOT_EXPECTED_MINOR),
+                ("mknodb", BOOT_ATTEST_NODE, major, minor),
             ),
             frames,
             exchange_fn=exchange_fn,
@@ -2463,7 +2514,7 @@ def attest_current_boot(
             frames,
             exchange_fn=exchange_fn,
         )
-        stat_fields = _parse_stat_identity(stat_frame.payload)
+        stat_fields = _parse_stat_identity(stat_frame.payload, major, minor)
         record["stat"] = stat_fields
         try:
             _attestation_bind(bridge_binding, revalidate_fn, "attestation capture", record)
@@ -3957,6 +4008,7 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
                         "hash_matches_candidate",
                         "size_matches_candidate",
                         "cleanup_ok",
+                        "sysfs_uevent",
                     )
                 },
                 "boot_id_before_read_sha256": control_receipt["boot_id_before_read_sha256"],
@@ -4044,6 +4096,7 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
                 "hash_matches_candidate": attestation.get("hash_matches_candidate"),
                 "size_matches_candidate": attestation.get("size_matches_candidate"),
                 "cleanup_ok": attestation.get("cleanup_ok"),
+                "sysfs_uevent": attestation.get("sysfs_uevent"),
             }
             if attestation is not None
             else None

@@ -87,13 +87,13 @@ class BootAttestationTests(unittest.TestCase):
             del host, port, timeout
             commands.append(command.argv)
             if command.evidence_id == "boot_sysfs_uevent":
-                return Frame("cat", b"MAJOR=259\nMINOR=27\nDEVNAME=sda24\nDEVTYPE=partition\nPARTN=24\nPARTNAME=boot\n")
+                return Frame("cat", b"MAJOR=259\nMINOR=8\nDEVNAME=sda24\nDEVTYPE=partition\nPARTN=24\nPARTNAME=boot\n")
             if command.evidence_id == "boot_sysfs_size":
                 return Frame("cat", b"131072\n")
             if command.evidence_id == "boot_sysfs_ro":
                 return Frame("cat", b"0\n")
             if command.evidence_id == "boot_attest_stat_node":
-                return Frame("stat", b"mode=0600 uid=0 gid=0 size=0\nrdev=259:27\n")
+                return Frame("stat", b"mode=0600 uid=0 gid=0 size=0\nrdev=259:8\n")
             if command.evidence_id == "boot_attest_hash":
                 return toybox(f"{probe.CONTROL_SHA256}  {probe.BOOT_ATTEST_FILE}".encode(), argc=len(command.argv))
             if command.evidence_id == "boot_attest_size":
@@ -115,10 +115,10 @@ class BootAttestationTests(unittest.TestCase):
             revalidate_fn=rebind,
         )
         self.assertTrue(record["cleanup_ok"])
-        self.assertEqual(record["stat"]["rdev"], "259:27")
+        self.assertEqual(record["stat"]["rdev"], "259:8")
         self.assertEqual(record["captured_size"], probe.BOOT_PREFIX_SIZE)
         self.assertIn(("run", "/bin/toybox", "mkdir", "-p", probe.BOOT_ATTEST_DIR), commands)
-        self.assertIn(("mknodb", probe.BOOT_ATTEST_NODE, "259", "27"), commands)
+        self.assertIn(("mknodb", probe.BOOT_ATTEST_NODE, "259", "8"), commands)
         self.assertIn(("run", "/bin/toybox", "dd", f"if={probe.BOOT_ATTEST_NODE}", f"of={probe.BOOT_ATTEST_FILE}", "bs=4096", "count=14864", "conv=fsync", "status=none"), commands)
         self.assertIn(("run", "/bin/toybox", "sha256sum", probe.BOOT_ATTEST_FILE), commands)
         self.assertIn(("run", "/bin/toybox", "wc", "-c", probe.BOOT_ATTEST_FILE), commands)
@@ -133,13 +133,13 @@ class BootAttestationTests(unittest.TestCase):
             del host, port, timeout
             commands.append(command.evidence_id)
             if command.evidence_id == "boot_sysfs_uevent":
-                return Frame("cat", b"MAJOR=259\nMINOR=27\nDEVNAME=sda24\nDEVTYPE=partition\nPARTN=24\nPARTNAME=boot\n")
+                return Frame("cat", b"MAJOR=259\nMINOR=8\nDEVNAME=sda24\nDEVTYPE=partition\nPARTN=24\nPARTNAME=boot\n")
             if command.evidence_id == "boot_sysfs_size":
                 return Frame("cat", b"131072\n")
             if command.evidence_id == "boot_sysfs_ro":
                 return Frame("cat", b"0\n")
             if command.evidence_id == "boot_attest_stat_node":
-                return Frame("stat", b"mode=0644 uid=0 gid=0 size=0\nrdev=259:27\n")
+                return Frame("stat", b"mode=0644 uid=0 gid=0 size=0\nrdev=259:8\n")
             return Frame(command.argv[0], b"run: pid=1, q/Ctrl-C cancels\n[exit 0]\n")
 
         with self.assertRaises(probe.ProbeError):

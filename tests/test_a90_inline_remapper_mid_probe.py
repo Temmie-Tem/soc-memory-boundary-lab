@@ -37,7 +37,7 @@ CMDLINE = (
 SELFTEST = b"selftest: pass=11 warn=1 fail=0 duration=43ms entries=12\n"
 BOOT_ID = "11111111-1111-4111-8111-111111111111"
 UEVENT = (
-    b"MAJOR=259\nMINOR=27\nDEVNAME=sda24\nDEVTYPE=partition\n"
+    b"MAJOR=259\nMINOR=8\nDEVNAME=sda24\nDEVTYPE=partition\n"
     b"PARTN=24\nPARTNAME=boot\n"
 )
 
@@ -452,7 +452,15 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                 "size_matches_candidate": True,
                 "cleanup_ok": True,
                 "cleanup_error": None,
-                "stat": {"mode": "0600", "uid": "0", "gid": "0", "size": "0", "rdev": "259:27"},
+                "sysfs_uevent": {
+                    "MAJOR": "259",
+                    "MINOR": "8",
+                    "DEVNAME": "sda24",
+                    "DEVTYPE": "partition",
+                    "PARTN": "24",
+                    "PARTNAME": "boot",
+                },
+                "stat": {"mode": "0600", "uid": "0", "gid": "0", "size": "0", "rdev": "259:8"},
             }
             panic_transition = {
                 "before": 1,
@@ -653,6 +661,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                         "hash_matches_candidate",
                         "size_matches_candidate",
                         "cleanup_ok",
+                        "sysfs_uevent",
                     )
                 },
                 "boot_id_before_read_sha256": probe.sha256_bytes(BOOT_ID.encode()),
@@ -889,7 +898,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                         "bs=4096", "count=14864", "conv=fsync", "status=none",
                     ),
                     "boot_attest_mknod": (
-                        "mknodb", probe.BOOT_ATTEST_NODE, "259", "27"
+                        "mknodb", probe.BOOT_ATTEST_NODE, "259", "8"
                     ),
                 }
                 if command.evidence_id in expected_argv:
@@ -898,7 +907,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                     self.assertEqual(command.argv, ("stat", probe.BOOT_ATTEST_NODE))
                     return FakeFrame(
                         b"mode=0600 uid=0 gid=0 size=0\n"
-                        b"rdev=259:27\n",
+                        b"rdev=259:8\n",
                         "stat",
                     )
                 if command.evidence_id == "boot_attest_hash":
@@ -1431,7 +1440,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                         allow_stophud_busy=True,
                     )
 
-    def test_actual_mocked_producer_output_round_trips_through_finalizer(self) -> None:
+    def test_actual_mocked_producer_output_has_r2_bindings(self) -> None:
         """Use ``collect`` output itself, not a hand-built summary, as input."""
 
         with tempfile.TemporaryDirectory() as directory:
@@ -1453,6 +1462,21 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             )
             self.assertEqual(raw["experiment_id"], probe.CONTROL_EXPERIMENT_ID)
             self.assertEqual(public["experiment_id"], probe.CONTROL_EXPERIMENT_ID)
+            self.assertEqual(
+                public["current_boot_attestation"]["sysfs_uevent"],
+                {
+                    "MAJOR": "259",
+                    "MINOR": "8",
+                    "DEVNAME": "sda24",
+                    "DEVTYPE": "partition",
+                    "PARTN": "24",
+                    "PARTNAME": "boot",
+                },
+            )
+            self.assertEqual(
+                raw["current_boot_attestation"]["sysfs_uevent"],
+                public["current_boot_attestation"]["sysfs_uevent"],
+            )
             predecessor = json.loads(control_journal_path(root).read_text())["control_r2_predecessor"]
             _, capsule_sha256, _ = self._predecessor_capsule_fixture()
             self.assertEqual(predecessor["capsule_sha256"], capsule_sha256)
@@ -1545,6 +1569,17 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                 self.assertEqual(read_public["experiment_id"], probe.READ_SOURCE_EXPERIMENT_ID)
                 self.assertEqual(read_public["mode"], probe.MODE_READ)
                 self.assertEqual(read_public["control_manifest"]["experiment_id"], probe.CONTROL_EXPERIMENT_ID)
+                self.assertEqual(
+                    read_public["control_manifest"]["current_boot_attestation"]["sysfs_uevent"],
+                    {
+                        "MAJOR": "259",
+                        "MINOR": "8",
+                        "DEVNAME": "sda24",
+                        "DEVTYPE": "partition",
+                        "PARTN": "24",
+                        "PARTNAME": "boot",
+                    },
+                )
                 control = finalizer.validate_control(
                     control_manifest_path(root), root
                 )
@@ -1553,21 +1588,21 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                 self.assertEqual(read["value"], "0x0000000000001234")
 
     def test_stat_parser_accepts_live_framing_and_closed_terminal_variants(self) -> None:
-        live = b"mode=0600 uid=0 gid=0 size=0\r\nrdev=259:27"
-        self.assertEqual(len(live), 41)
+        live = b"mode=0600 uid=0 gid=0 size=0\r\nrdev=259:8"
+        self.assertEqual(len(live), 40)
         self.assertEqual(
             hashlib.sha256(live).hexdigest(),
-            "774a5e3b7e833ee1573bc79732a73bd1fc2bbaa95340d238ae89fd5c42a03edc",
+            "ffa48e563fb8170f3c3658ce4a7384e89621b2583346b4f3c3d970502643844b",
         )
         for payload in (
             live,
-            b"mode=0600 uid=0 gid=0 size=0\nrdev=259:27",
-            b"mode=0600 uid=0 gid=0 size=0\r\nrdev=259:27\n",
-            b"mode=0600 uid=0 gid=0 size=0\nrdev=259:27\n",
-            b"mode=0600 uid=0 gid=0 size=0\r\nrdev=259:27\r\n",
+            b"mode=0600 uid=0 gid=0 size=0\nrdev=259:8",
+            b"mode=0600 uid=0 gid=0 size=0\r\nrdev=259:8\n",
+            b"mode=0600 uid=0 gid=0 size=0\nrdev=259:8\n",
+            b"mode=0600 uid=0 gid=0 size=0\r\nrdev=259:8\r\n",
         ):
             with self.subTest(payload=payload):
-                parsed = probe._parse_stat_identity(payload)
+                parsed = probe._parse_stat_identity(payload, "259", "8")
                 self.assertEqual(
                     parsed,
                     {
@@ -1575,10 +1610,10 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                         "uid": "0",
                         "gid": "0",
                         "size": "0",
-                        "rdev": "259:27",
+                        "rdev": "259:8",
                     },
                 )
-        parsed = probe._parse_stat_identity(live)
+        parsed = probe._parse_stat_identity(live, "259", "8")
         self.assertEqual(
             parsed,
             {
@@ -1586,7 +1621,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                 "uid": "0",
                 "gid": "0",
                 "size": "0",
-                "rdev": "259:27",
+                "rdev": "259:8",
             },
         )
 
@@ -1609,11 +1644,11 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             b"mode=0600 uid=0 gid=0 size=0\nrdev=259:27\xff\n",  # non-ASCII
             b"mode=0600 uid=0 gid=0 size=0\nfoo=bar\nrdev=259:27\n",  # unknown line
         )
-        self.assertEqual(probe._parse_stat_identity(valid)["rdev"], "259:27")
+        self.assertEqual(probe._parse_stat_identity(valid, "259", "27")["rdev"], "259:27")
         for payload in invalid:
             with self.subTest(payload=payload):
                 with self.assertRaises(probe.ProbeError):
-                    probe._parse_stat_identity(payload)
+                    probe._parse_stat_identity(payload, "259", "27")
 
     def test_stat_parser_rejects_nonexact_metadata_values(self) -> None:
         for field, value in (
@@ -1631,7 +1666,60 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             ).encode()
             with self.subTest(field=field):
                 with self.assertRaises(probe.ProbeError):
-                    probe._parse_stat_identity(payload)
+                    probe._parse_stat_identity(payload, "259", "27")
+
+    def test_sysfs_uevent_dev_t_is_canonical_bounded_and_stat_bound(self) -> None:
+        for major, minor in (("259", "8"), ("4095", "0"), ("1", "1048575")):
+            with self.subTest(major=major, minor=minor):
+                payload = (
+                    f"MAJOR={major}\nMINOR={minor}\nDEVNAME=sda24\n"
+                    "DEVTYPE=partition\nPARTN=24\nPARTNAME=boot\n"
+                ).encode("ascii")
+                parsed = probe._parse_boot_sysfs_uevent(payload)
+                self.assertEqual(parsed["MAJOR"], major)
+                self.assertEqual(parsed["MINOR"], minor)
+                stat_payload = (
+                    f"mode=0600 uid=0 gid=0 size=0\nrdev={major}:{minor}\n"
+                ).encode("ascii")
+                self.assertEqual(
+                    probe._parse_stat_identity(stat_payload, major, minor)["rdev"],
+                    f"{major}:{minor}",
+                )
+
+        invalid_uevents = (
+            b"MAJOR=0259\nMINOR=8\nDEVNAME=sda24\nDEVTYPE=partition\nPARTN=24\nPARTNAME=boot\n",
+            b"MAJOR=259\nMINOR=08\nDEVNAME=sda24\nDEVTYPE=partition\nPARTN=24\nPARTNAME=boot\n",
+            b"MAJOR=0\nMINOR=8\nDEVNAME=sda24\nDEVTYPE=partition\nPARTN=24\nPARTNAME=boot\n",
+            b"MAJOR=4096\nMINOR=8\nDEVNAME=sda24\nDEVTYPE=partition\nPARTN=24\nPARTNAME=boot\n",
+            b"MAJOR=259\nMINOR=1048576\nDEVNAME=sda24\nDEVTYPE=partition\nPARTN=24\nPARTNAME=boot\n",
+            b"MAJOR=259\nMINOR=8\nDEVNAME=sda24\nDEVTYPE=partition\nPARTN=24\nPARTNAME=boot\nEXTRA=x\n",
+            b"MAJOR=259\nMINOR=8\nDEVNAME=sda25\nDEVTYPE=partition\nPARTN=24\nPARTNAME=boot\n",
+        )
+        for payload in invalid_uevents:
+            with self.subTest(payload=payload):
+                with self.assertRaises(probe.ProbeError):
+                    probe._parse_boot_sysfs_uevent(payload)
+
+        with self.assertRaises(probe.ProbeError):
+            probe._parse_stat_identity(
+                b"mode=0600 uid=0 gid=0 size=0\nrdev=259:9\n", "259", "8"
+            )
+        with mock.patch.object(probe, "BOOT_EXPECTED_MAJOR", "1"), mock.patch.object(
+            probe, "BOOT_EXPECTED_MINOR", "1"
+        ):
+            self.assertEqual(
+                probe._parse_boot_sysfs_uevent(
+                    b"MAJOR=259\nMINOR=8\nDEVNAME=sda24\nDEVTYPE=partition\nPARTN=24\nPARTNAME=boot\n"
+                ),
+                {
+                    "MAJOR": "259",
+                    "MINOR": "8",
+                    "DEVNAME": "sda24",
+                    "DEVTYPE": "partition",
+                    "PARTN": "24",
+                    "PARTNAME": "boot",
+                },
+            )
 
     def test_execute_gate_rejects_omission_before_any_contact(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
