@@ -126,6 +126,21 @@ def _prefixed_exact_log() -> bytes:
     )
 
 
+def _watchdog_task_exact_log() -> bytes:
+    """A compact exact fixture using the retained msm_watchdog task prefix."""
+
+    return (
+        b"<6>[   97.880696] I[0:   msm_watchdog:   78] "
+        b"msm_watchdog 17c10000.qcom,wdt: Watchdog bark! Now = 97.880454\n"
+        b"<6>[   97.880708] I[0:   msm_watchdog:   78] "
+        b"msm_watchdog 17c10000.qcom,wdt: Watchdog last pet at 86.880167\n"
+        b"{435479} DebugLevel : 1145654596, ForceUploadFlag : 0\n"
+        b"{4919528} UploadCause[Non Secure Watchdog Bark], Don't check hangcnt\n"
+        b"{5178259} collect_rr_data : upload_cause = Non Secure Watchdog Bark\n"
+        b"{5178320} collect_rr_data : TZ OEM_RESET_REASON :: TZBSP_ERR_FATAL_NON_SECURE_WDT\n"
+    )
+
+
 class A90LastKmsgCaptureTests(unittest.TestCase):
     def _write_read_source(self, root: Path) -> None:
         """Install a complete fixed no-value source receipt for the collector."""
@@ -1982,6 +1997,55 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
         ):
             with self.subTest(mutation=mutation[:40]):
                 self.assertEqual(capture.parse_exact_reset_signature(mutation)["status"], "INCIDENT")
+
+    def test_watchdog_task_prefix_is_exact(self) -> None:
+        signature = capture.parse_exact_reset_signature(_watchdog_task_exact_log())
+        self.assertEqual(signature["status"], "EXACT_V024_MID_NONSECURE_WDT")
+        self.assertAlmostEqual(
+            signature["bark_last_pet_delta_seconds"], 11.000287, places=6
+        )
+        self.assertEqual(
+            signature["uniqueness"],
+            {
+                "bark": 1,
+                "last_pet": 1,
+                "debug_level": 1,
+                "upload_cause": 1,
+                "collect_upload": 1,
+                "tz_reason": 1,
+                "all_required_unique": True,
+            },
+        )
+        self.assertTrue(signature["ordered_offsets_strict"])
+
+    def test_watchdog_task_prefix_wrong_task_pid_or_prefix_is_incident(self) -> None:
+        payload = _watchdog_task_exact_log()
+        bark_line = _watchdog_task_exact_log().splitlines(keepends=True)[0]
+        cases = (
+            (
+                "wrong task",
+                bark_line,
+                bark_line.replace(b"msm_watchdog:   78", b"kworker:   78"),
+            ),
+            (
+                "wrong pid",
+                bark_line,
+                bark_line.replace(b"msm_watchdog:   78", b"msm_watchdog:   79"),
+            ),
+            (
+                "wrong printk prefix",
+                bark_line,
+                bark_line.replace(b"<6>[   97.880696]", b"<5>[   97.880696]"),
+            ),
+        )
+        for label, original, replacement in cases:
+            with self.subTest(label=label):
+                mutated = payload.replace(original, replacement, 1)
+                self.assertNotEqual(mutated, payload)
+                self.assertEqual(
+                    capture.parse_exact_reset_signature(mutated)["status"],
+                    "INCIDENT",
+                )
 
     def test_signature_reordered_duplicate_stale_a90r_wrong_debug_and_nonfinite_are_incidents(self) -> None:
         reordered = capture.parse_exact_reset_signature(

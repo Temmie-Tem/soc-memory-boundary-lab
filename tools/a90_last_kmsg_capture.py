@@ -380,7 +380,7 @@ _FINITE_SECONDS = rb"[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?"
 # line; in particular a bare CR is not a line terminator.
 _PRINTK_PREFIX = (
     rb"(?:<6>\[[ \t]*[0-9]+\.[0-9]{6}\][ \t]+"
-    rb"I\[0:[ \t]+swapper/0:[ \t]+0\][ \t]+"
+    rb"I\[0:[ \t]+(?:swapper/0:[ \t]+0|msm_watchdog:[ \t]+78)\][ \t]+"
     rb"msm_watchdog 17c10000\.qcom,wdt:[ \t]+)?"
 )
 _BRACE_PREFIX = rb"(?:\{[0-9]+\}[ \t]+)?"
