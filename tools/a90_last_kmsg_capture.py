@@ -148,7 +148,11 @@ MAX_TIMEOUT_SEC = 120.0
 LAST_KMSG_REFERENCE_SIZE = 2_097_136
 MAX_SOURCE_RECEIPT_BYTES = 512 * 1024
 READ_SOURCE_EXPERIMENT_ID = "verification-024-read"
-CONTROL_EXPERIMENT_ID = "verification-024-control"
+CONTROL_EXPERIMENT_ID = "verification-024-control-r2"
+CONTROL_R2_PREDECESSOR_CAPSULE_SHA256 = (
+    "56d233030e1c970b486721b21293a91a154bdc5ebe0ae811b36473457648df15"
+)
+CONTROL_R2_PREDECESSOR_CAPSULE_SIZE = 4924
 LAST_KMSG_EXPERIMENT_ID = "last-kmsg-final"
 STOPHUD_MAX_ATTEMPTS = 3
 READ_SOURCE_MANIFEST_NAME = f"{READ_SOURCE_EXPERIMENT_ID}.manifest.json"
@@ -1037,6 +1041,8 @@ def _validate_source_control_binding(value: object, label: str) -> None:
         "candidate_size": BOOT_PREFIX_SIZE,
         "value": "0x000000000000c071",
         "target_dmid": "SM-A908N/SM8150",
+        "predecessor_capsule_sha256": CONTROL_R2_PREDECESSOR_CAPSULE_SHA256,
+        "predecessor_capsule_size": CONTROL_R2_PREDECESSOR_CAPSULE_SIZE,
     }
     for key, expected_value in expected.items():
         if type(value.get(key)) is not type(expected_value) or value.get(key) != expected_value:

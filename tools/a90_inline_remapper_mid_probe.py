@@ -2899,6 +2899,15 @@ def verify_control_manifest(path: Path, *, root: Path | None = None) -> dict[str
         ) from exc
     if not isinstance(finalizer_receipt, Mapping):
         raise ProbeError("control finalizer returned a malformed receipt")
+    for key, expected in {
+        "predecessor_capsule_sha256": CONTROL_R2_PREDECESSOR_CAPSULE_SHA256,
+        "predecessor_capsule_size": CONTROL_R2_PREDECESSOR_CAPSULE_SIZE,
+    }.items():
+        actual = finalizer_receipt.get(key)
+        if type(actual) is not type(expected) or actual != expected:
+            raise ProbeError(
+                f"control finalizer predecessor descriptor {key!r} is not exact"
+            )
 
     manifest, manifest_bytes = _read_json_no_follow(checked)
     raw_path = _path_under(
@@ -2970,6 +2979,12 @@ def verify_control_manifest(path: Path, *, root: Path | None = None) -> dict[str
         "semantic_claim_sha256": raw.get("semantic_claim_sha256"),
         "semantic_claim_size": raw.get("semantic_claim_size"),
         "semantic_claim_key_sha256": raw.get("semantic_claim_key_sha256"),
+        "predecessor_capsule_sha256": finalizer_receipt.get(
+            "predecessor_capsule_sha256"
+        ),
+        "predecessor_capsule_size": finalizer_receipt.get(
+            "predecessor_capsule_size"
+        ),
     }
 
     # Bind every field consumed by READ to the receipt returned by the
@@ -2998,6 +3013,8 @@ def verify_control_manifest(path: Path, *, root: Path | None = None) -> dict[str
         "semantic_claim_sha256": summary["semantic_claim_sha256"],
         "semantic_claim_size": summary["semantic_claim_size"],
         "semantic_claim_key_sha256": summary["semantic_claim_key_sha256"],
+        "predecessor_capsule_sha256": summary["predecessor_capsule_sha256"],
+        "predecessor_capsule_size": summary["predecessor_capsule_size"],
         "raw_path": summary["raw_path"],
         "journal_path": summary["journal_path"],
     }
@@ -3947,6 +3964,12 @@ def collect(args: argparse.Namespace) -> tuple[Path, Path]:
                 "semantic_claim_sha256": control_receipt["semantic_claim_sha256"],
                 "semantic_claim_size": control_receipt["semantic_claim_size"],
                 "semantic_claim_key_sha256": control_receipt["semantic_claim_key_sha256"],
+                "predecessor_capsule_sha256": control_receipt[
+                    "predecessor_capsule_sha256"
+                ],
+                "predecessor_capsule_size": control_receipt[
+                    "predecessor_capsule_size"
+                ],
             }
             if control_receipt is not None
             else None

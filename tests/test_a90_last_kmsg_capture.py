@@ -265,6 +265,8 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
             "candidate_size": capture.BOOT_PREFIX_SIZE,
             "value": "0x000000000000c071",
             "target_dmid": "SM-A908N/SM8150",
+            "predecessor_capsule_sha256": capture.CONTROL_R2_PREDECESSOR_CAPSULE_SHA256,
+            "predecessor_capsule_size": capture.CONTROL_R2_PREDECESSOR_CAPSULE_SIZE,
             "current_boot_attestation": {**attestation, "expected_sha256": capture.CONTROL_CANDIDATE_SHA256, "captured_sha256": capture.CONTROL_CANDIDATE_SHA256},
             "boot_id_before_read_sha256": boot_hash,
         "fixed_op_measurement": {"argv": list(probe.fixed_op_argv()), "op": 4, "args": [], "buffer_size": capture.FIXED_OP_BUFFER_SIZE, "buffer_sha256": capture._fixed_op_buffer_hash(), "magic": "0xa90c0de5deadbeef", "rc": 0, "status": "ok", "value": "0x000000000000c071", "a90r_record": "A90Rc071"},
@@ -663,6 +665,49 @@ class A90LastKmsgCaptureTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 capture.collect(args)
         binding.assert_not_called()
+
+    def test_source_control_capsule_descriptor_is_required_and_exactly_typed(self) -> None:
+        cases = (
+            ("missing_hash", "predecessor_capsule_sha256", None),
+            ("wrong_hash", "predecessor_capsule_sha256", "0" * 64),
+            ("float_size", "predecessor_capsule_size", float(capture.CONTROL_R2_PREDECESSOR_CAPSULE_SIZE)),
+            ("bool_size", "predecessor_capsule_size", True),
+        )
+        for name, key, replacement in cases:
+            with self.subTest(case=name), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                self._write_read_source(root)
+                private = root / "evidence/private"
+                manifests = root / "evidence/manifests"
+                raw_path = private / f"{capture.READ_SOURCE_EXPERIMENT_ID}.json"
+                journal_path = private / f"{capture.READ_SOURCE_EXPERIMENT_ID}.journal.json"
+                manifest_path = manifests / capture.READ_SOURCE_MANIFEST_NAME
+                raw = json.loads(raw_path.read_text())
+                journal = json.loads(journal_path.read_text())
+                for owner in (raw, journal):
+                    binding = owner["control_manifest"]
+                    if replacement is None:
+                        del binding[key]
+                    else:
+                        binding[key] = replacement
+                raw_bytes = json.dumps(raw, sort_keys=True, separators=(",", ":")).encode()
+                journal_bytes = json.dumps(journal, sort_keys=True, separators=(",", ":")).encode()
+                raw_path.write_bytes(raw_bytes)
+                journal_path.write_bytes(journal_bytes)
+                manifest = json.loads(manifest_path.read_text())
+                manifest.update(
+                    {
+                        "raw_snapshot_sha256": capture.sha256(raw_bytes),
+                        "raw_snapshot_size": len(raw_bytes),
+                        "journal_sha256": capture.sha256(journal_bytes),
+                        "journal_size": len(journal_bytes),
+                    }
+                )
+                manifest_path.write_bytes(
+                    json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode()
+                )
+                with self.assertRaises(ValueError):
+                    capture._validate_source_read(root)
 
     def test_arbitrary_source_experiment_id_is_rejected(self) -> None:
         temp = tempfile.TemporaryDirectory()

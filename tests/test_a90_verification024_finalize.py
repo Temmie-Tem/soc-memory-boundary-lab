@@ -1069,6 +1069,8 @@ class Verification024FinalizerTests(unittest.TestCase):
             "current_boot_attestation": control_manifest["current_boot_attestation"],
             "boot_id_before_read_sha256": control_manifest["boot_id_before_read_sha256"],
             "fixed_op_measurement": fixed,
+            "predecessor_capsule_sha256": self.predecessor_capsule_sha256,
+            "predecessor_capsule_size": self.predecessor_capsule_size,
         }
 
         read_raw_path = self.root / f"evidence/private/{finalizer.READ_SOURCE_EXPERIMENT_ID}.json"
@@ -2417,6 +2419,51 @@ class Verification024FinalizerTests(unittest.TestCase):
         self._write(self.control_manifest, manifest)
         with self.assertRaises(finalizer.FinalizeError):
             finalizer.validate_control(self.control_manifest, self.root)
+
+    def test_read_control_capsule_descriptor_is_required_and_exactly_typed(self) -> None:
+        control = finalizer.validate_control(self.control_manifest, self.root)
+        read_raw_path = self.root / "evidence/private" / f"{finalizer.READ_SOURCE_EXPERIMENT_ID}.json"
+        read_journal_path = self.root / "evidence/private" / f"{finalizer.READ_SOURCE_EXPERIMENT_ID}.journal.json"
+        base_raw = json.loads(read_raw_path.read_text())
+        base_journal = json.loads(read_journal_path.read_text())
+        base_manifest = json.loads(self.read_manifest.read_text())
+        field_cases = (
+            ("public_missing", "public", "predecessor_capsule_sha256", None),
+            ("public_float", "public", "predecessor_capsule_size", float(self.predecessor_capsule_size)),
+            ("raw_missing", "raw", "predecessor_capsule_sha256", None),
+            ("raw_bool", "raw", "predecessor_capsule_size", True),
+            ("journal_missing", "journal", "predecessor_capsule_sha256", None),
+            ("journal_float", "journal", "predecessor_capsule_size", float(self.predecessor_capsule_size)),
+        )
+        for name, owner, key, replacement in field_cases:
+            with self.subTest(case=name):
+                raw = json.loads(json.dumps(base_raw))
+                journal = json.loads(json.dumps(base_journal))
+                manifest = json.loads(json.dumps(base_manifest))
+                if owner == "public":
+                    if replacement is None:
+                        del manifest["control_manifest"][key]
+                    else:
+                        manifest["control_manifest"][key] = replacement
+                elif owner == "raw":
+                    if replacement is None:
+                        del raw["control_manifest"][key]
+                    else:
+                        raw["control_manifest"][key] = replacement
+                else:
+                    if replacement is None:
+                        del journal["control_manifest"][key]
+                    else:
+                        journal["control_manifest"][key] = replacement
+                raw_bytes = self._write(read_raw_path, raw)
+                journal_bytes = self._write(read_journal_path, journal)
+                manifest["raw_snapshot_sha256"] = finalizer.hashlib.sha256(raw_bytes).hexdigest()
+                manifest["raw_snapshot_size"] = len(raw_bytes)
+                manifest["journal_sha256"] = finalizer.hashlib.sha256(journal_bytes).hexdigest()
+                manifest["journal_size"] = len(journal_bytes)
+                self._write(self.read_manifest, manifest)
+                with self.assertRaises(finalizer.FinalizeError):
+                    finalizer.validate_read(self.read_manifest, self.root, control)
 
     def test_inline_frame_consumer_rejects_zero_or_missing_stophud_sequence(self) -> None:
         raw = json.loads(

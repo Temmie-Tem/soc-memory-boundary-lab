@@ -346,6 +346,8 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             "semantic_claim_sha256": claim.get("sha256"),
             "semantic_claim_size": claim.get("size"),
             "semantic_claim_key_sha256": claim.get("key_sha256"),
+            "predecessor_capsule_sha256": finalizer.CONTROL_R2_PREDECESSOR_CAPSULE_SHA256,
+            "predecessor_capsule_size": finalizer.CONTROL_R2_PREDECESSOR_CAPSULE_SIZE,
         }
 
     def _args(self, root: Path, mode: str, *, read_flash_completed: str | None = None) -> Namespace:
@@ -1430,13 +1432,7 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
                     )
 
     def test_actual_mocked_producer_output_round_trips_through_finalizer(self) -> None:
-        """Use ``collect`` output itself, not a hand-built summary, as input.
-
-        The producer is intentionally one revision ahead of the old finalizer
-        in this producer-only change: control-r2 owns a predecessor capsule
-        preclaim that the finalizer's A4 compatibility pass will consume.  Do
-        not turn that temporary ID mismatch into a false positive here.
-        """
+        """Use ``collect`` output itself, not a hand-built summary, as input."""
 
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -1460,23 +1456,101 @@ class InlineRemapperMidProbeTests(unittest.TestCase):
             predecessor = json.loads(control_journal_path(root).read_text())["control_r2_predecessor"]
             _, capsule_sha256, _ = self._predecessor_capsule_fixture()
             self.assertEqual(predecessor["capsule_sha256"], capsule_sha256)
+            fixture_capsule, fixture_sha256, fixture_size = self._predecessor_capsule_fixture()
+            with (
+                mock.patch.object(
+                    finalizer.control_retry,
+                    "build_predecessor_capsule",
+                    return_value=fixture_capsule,
+                ),
+                mock.patch.object(
+                    finalizer,
+                    "CONTROL_R2_PREDECESSOR_CAPSULE_SHA256",
+                    fixture_sha256,
+                ),
+                mock.patch.object(
+                    finalizer,
+                    "CONTROL_R2_PREDECESSOR_CAPSULE_SIZE",
+                    fixture_size,
+                ),
+                mock.patch.object(
+                    probe,
+                    "CONTROL_R2_PREDECESSOR_CAPSULE_SHA256",
+                    fixture_sha256,
+                ),
+                mock.patch.object(
+                    probe,
+                    "CONTROL_R2_PREDECESSOR_CAPSULE_SIZE",
+                    fixture_size,
+                ),
+            ):
+                control = finalizer.validate_control(result[1], root)
+                self.assertEqual(control["value"], "0x000000000000c071")
+                authorized = probe.verify_control_manifest(result[1], root=root)
+                self.assertEqual(authorized["value"], "0x000000000000c071")
+                for key, replacement in (
+                    ("predecessor_capsule_sha256", "0" * 64),
+                    ("predecessor_capsule_size", True),
+                ):
+                    with self.subTest(descriptor=key):
+                        forged = dict(control)
+                        forged[key] = replacement
+                        with mock.patch.object(
+                            finalizer, "validate_control", return_value=forged
+                        ):
+                            with self.assertRaises(probe.ProbeError):
+                                probe.verify_control_manifest(result[1], root=root)
 
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            control_result, _session, _exchange_ids = self._run_collect(
-                root, probe.MODE_CONTROL
-            )
-            self.assertIsNotNone(control_result)
-            assert control_result is not None
-            result, _session, _exchange_ids = self._run_collect(
-                root, probe.MODE_READ, value=0x1234
-            )
-            self.assertIsNotNone(result)
-            assert result is not None
-            read_public = json.loads(result[1].read_text())
-            self.assertEqual(read_public["experiment_id"], probe.READ_SOURCE_EXPERIMENT_ID)
-            self.assertEqual(read_public["mode"], probe.MODE_READ)
-            self.assertEqual(read_public["control_manifest"]["experiment_id"], probe.CONTROL_EXPERIMENT_ID)
+            fixture_capsule, fixture_sha256, fixture_size = self._predecessor_capsule_fixture()
+            with (
+                mock.patch.object(
+                    finalizer.control_retry,
+                    "build_predecessor_capsule",
+                    return_value=fixture_capsule,
+                ),
+                mock.patch.object(
+                    finalizer,
+                    "CONTROL_R2_PREDECESSOR_CAPSULE_SHA256",
+                    fixture_sha256,
+                ),
+                mock.patch.object(
+                    finalizer,
+                    "CONTROL_R2_PREDECESSOR_CAPSULE_SIZE",
+                    fixture_size,
+                ),
+                mock.patch.object(
+                    probe,
+                    "CONTROL_R2_PREDECESSOR_CAPSULE_SHA256",
+                    fixture_sha256,
+                ),
+                mock.patch.object(
+                    probe,
+                    "CONTROL_R2_PREDECESSOR_CAPSULE_SIZE",
+                    fixture_size,
+                ),
+            ):
+                control_result, _session, _exchange_ids = self._run_collect(
+                    root, probe.MODE_CONTROL
+                )
+                self.assertIsNotNone(control_result)
+                assert control_result is not None
+                result, _session, _exchange_ids = self._run_collect(
+                    root, probe.MODE_READ, value=0x1234
+                )
+                self.assertIsNotNone(result)
+                assert result is not None
+                read_public = json.loads(result[1].read_text())
+                self.assertEqual(read_public["experiment_id"], probe.READ_SOURCE_EXPERIMENT_ID)
+                self.assertEqual(read_public["mode"], probe.MODE_READ)
+                self.assertEqual(read_public["control_manifest"]["experiment_id"], probe.CONTROL_EXPERIMENT_ID)
+                control = finalizer.validate_control(
+                    control_manifest_path(root), root
+                )
+                read = finalizer.validate_read(result[1], root, control)
+                self.assertTrue(read["value_present"])
+                self.assertEqual(read["value"], "0x0000000000001234")
 
     def test_stat_parser_accepts_live_framing_and_closed_terminal_variants(self) -> None:
         live = b"mode=0600 uid=0 gid=0 size=0\r\nrdev=259:27"

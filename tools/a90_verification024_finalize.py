@@ -2748,8 +2748,15 @@ def validate_read(path: Path, root: Path, control: Mapping[str, object]) -> dict
         "candidate_size": BOOT_PREFIX_SIZE,
         "value": "0x000000000000c071",
         "target_dmid": TARGET_DMID,
+        "predecessor_capsule_sha256": CONTROL_R2_PREDECESSOR_CAPSULE_SHA256,
+        "predecessor_capsule_size": CONTROL_R2_PREDECESSOR_CAPSULE_SIZE,
     }.items():
         _require(binding, key, expected, "read control binding")
+    for key, expected in {
+        "predecessor_capsule_sha256": CONTROL_R2_PREDECESSOR_CAPSULE_SHA256,
+        "predecessor_capsule_size": CONTROL_R2_PREDECESSOR_CAPSULE_SIZE,
+    }.items():
+        _require(control, key, expected, "validated control receipt")
     _validate_current_boot_attestation(
         binding.get("current_boot_attestation"),
         CONTROL_SHA256,
@@ -2838,8 +2845,17 @@ def validate_read(path: Path, root: Path, control: Mapping[str, object]) -> dict
     journal_control = journal.get("control_manifest")
     if not isinstance(journal_control, Mapping) or any(journal_control.get(key) != binding.get(key) for key in binding):
         raise FinalizeError("read journal control receipt binding differs")
-    for key in ("experiment_id", "manifest_sha256", "manifest_size", "raw_sha256", "raw_size", "journal_sha256", "journal_size", "completed_utc", "candidate_sha256", "candidate_size", "value"):
-        if raw_control.get(key) != control.get(key):
+    for owner, label in (
+        (raw_control, "read raw control binding"),
+        (journal_control, "read journal control binding"),
+    ):
+        for key, expected in {
+            "predecessor_capsule_sha256": CONTROL_R2_PREDECESSOR_CAPSULE_SHA256,
+            "predecessor_capsule_size": CONTROL_R2_PREDECESSOR_CAPSULE_SIZE,
+        }.items():
+            _require(owner, key, expected, label)
+    for key in ("experiment_id", "manifest_sha256", "manifest_size", "raw_sha256", "raw_size", "journal_sha256", "journal_size", "completed_utc", "candidate_sha256", "candidate_size", "value", "predecessor_capsule_sha256", "predecessor_capsule_size"):
+        if type(raw_control.get(key)) is not type(control.get(key)) or raw_control.get(key) != control.get(key):
             raise FinalizeError(f"read raw control binding field {key!r} differs")
     _require_hash(raw.get("candidate_sha256"), READ_SHA256, "read raw candidate")
     _require_size(raw.get("candidate_size"), BOOT_PREFIX_SIZE, "read raw candidate")
@@ -3547,6 +3563,8 @@ def _validate_fixed_read_source(
         "candidate_size": BOOT_PREFIX_SIZE,
         "value": "0x000000000000c071",
         "target_dmid": TARGET_DMID,
+        "predecessor_capsule_sha256": CONTROL_R2_PREDECESSOR_CAPSULE_SHA256,
+        "predecessor_capsule_size": CONTROL_R2_PREDECESSOR_CAPSULE_SIZE,
     }.items():
         _require(control_binding, key, expected, "read source raw control binding")
     for key in ("experiment_id", "manifest_sha256", "raw_sha256", "journal_sha256", "boot_id_before_read_sha256"):
@@ -3600,8 +3618,10 @@ def _validate_fixed_read_source(
         "value",
         "target_dmid",
         "boot_id_before_read_sha256",
+        "predecessor_capsule_sha256",
+        "predecessor_capsule_size",
     ):
-        if control_binding.get(key) != control_summary.get(key):
+        if type(control_binding.get(key)) is not type(control_summary.get(key)) or control_binding.get(key) != control_summary.get(key):
             raise FinalizeError(f"read source control binding field {key!r} differs")
     if read_flash_completed <= control_completed:
         raise FinalizeError(
