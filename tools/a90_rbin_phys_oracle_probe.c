@@ -42,7 +42,6 @@
 #define EVENT_END "ion_rbin_alloc_end"
 #define EVENT_CMA "cma_alloc"
 #define PAGE_BYTES UINT64_C(4096)
-#define STRUCT_PAGE_BYTES UINT64_C(64)
 #define EXPECTED_HEAP "camera_preview"
 #define EXPECTED_HEAP_ID 30U
 #define EXPECTED_HEAP_TYPE 10U
@@ -58,11 +57,17 @@
 #define EXPECTED_REGION_FIRST UINT64_C(0xc2000000)
 #define EXPECTED_REGION_END UINT64_C(0xd6000000)
 #define MAX_FORMAT_BYTES (128U * 1024U)
+#define MAX_FORMAT_LINE_BYTES 4096U
 #define MAX_BTF_BYTES (64U * 1024U * 1024U)
-#define MAX_RING_PAGES 8U
 #define MAX_RAW_BYTES 1024U
-#define MAX_EVENTS 2048U
-#define MAX_SEGMENTS 2048U
+#define MAX_SEGMENTS ((size_t)(EXPECTED_BYTES / PAGE_BYTES))
+#define TRACE_MEMORY_BUDGET (UINT64_C(512) * UINT64_C(1024) * UINT64_C(1024))
+#define MAX_RING_PAGES_LIMIT 65536U
+#define MAX_CAPTURE_OUTPUT_BYTES (7U * 1024U * 1024U)
+#define OUTPUT_RECORD_OVERHEAD 1024U
+#define VA_BITS 39U
+#define PAGE_PTR_STRIDE_MIN UINT64_C(32)
+#define PAGE_PTR_STRIDE_MAX UINT64_C(256)
 #define ION_MAX_HEAPS 64U
 #define ION_HEAP_NAME_BYTES 32U
 
@@ -102,6 +107,7 @@ enum field_role {
     FIELD_COUNT = 5,
     FIELD_ALIGN = 6,
     FIELD_NAME = 7,
+    FIELD_BUFFER = 8,
 };
 
 struct field_desc {
@@ -118,6 +124,9 @@ struct trace_desc {
     char format_path[PATH_MAX];
     uint64_t id;
     size_t format_size;
+    size_t trace_entry_size;
+    unsigned char *format_bytes;
+    size_t format_bytes_size;
     struct field_desc page;
     struct field_desc size;
     struct field_desc result;
@@ -125,12 +134,14 @@ struct trace_desc {
     struct field_desc count;
     struct field_desc align;
     struct field_desc name_field;
+    struct field_desc buffer;
     int has_page;
     int has_size;
     int has_pfn;
     int has_count;
     int has_align;
     int has_name;
+    int has_buffer;
     int has_result;
 };
 
@@ -140,7 +151,8 @@ struct trace_event {
     uint64_t pfn;
     uint64_t count;
     uint64_t align;
-    uint64_t name_ptr;
+    uint64_t heap_name_value;
+    uint64_t buffer_ptr;
     int64_t result;
     int has_page;
     int has_size;
@@ -150,6 +162,11 @@ struct trace_event {
     unsigned char raw[MAX_RAW_BYTES];
 };
 
+struct pa_segment {
+    uint64_t pfn;
+    uint64_t size;
+};
+
 struct perf_source {
     struct trace_desc desc;
     int fd;
@@ -157,6 +174,9 @@ struct perf_source {
     size_t mapping_size;
     size_t data_offset;
     size_t data_size;
+    size_t ring_pages;
+    size_t max_record_size;
+    size_t allocation_bytes;
     uint64_t tail;
     struct trace_event *events;
     size_t event_capacity;
@@ -335,6 +355,10 @@ static int field_name_role(const char *name)
         return FIELD_ALIGN;
     if (strcmp(short_name, "name") == 0 || strcmp(short_name, "cma_name") == 0)
         return FIELD_NAME;
+    if (strcmp(short_name, "heap_name") == 0)
+        return FIELD_NAME;
+    if (strcmp(short_name, "buffer") == 0)
+        return FIELD_BUFFER;
     return 0;
 }
 
@@ -373,21 +397,190 @@ static int parse_format_line(const char *line, struct field_desc *field)
     memcpy(field->name, name_start, length);
     field->name[length] = '\0';
     role = field_name_role(field->name);
-    if (role == 0)
-        return 0;
     if (sscanf(offset_start + strlen("offset:"), "%31[^;]", offset_text) != 1 ||
         sscanf(size_start + strlen("size:"), "%31[^;]", size_text) != 1 ||
         sscanf(signed_start + strlen("signed:"), "%31[^;]", signed_text) != 1 ||
         parse_decimal_u64(offset_text, &offset) != 0 ||
         parse_decimal_u64(size_text, &size) != 0 ||
-        parse_decimal_u64(signed_text, &signed_value) != 0 || size == 0 || size > 8U ||
-        signed_value > 1U)
+        parse_decimal_u64(signed_text, &signed_value) != 0 || size == 0 ||
+        size > MAX_RAW_BYTES || offset > MAX_RAW_BYTES - size ||
+        signed_value > 1U || (role != 0 && size > 8U))
         return -1;
     field->role = (enum field_role)role;
     field->offset = offset;
     field->size = size;
     field->is_signed = signed_value != 0;
     return role;
+}
+
+static int declaration_token(const char **cursor, char *token, size_t token_size)
+{
+    const char *start;
+    size_t length;
+
+    if (cursor == NULL || *cursor == NULL || token == NULL || token_size < 2U)
+        return -1;
+    while (**cursor == ' ' || **cursor == '\t' || **cursor == '\r')
+        ++*cursor;
+    if (**cursor == '\0')
+        return 0;
+    if (**cursor == '*' || **cursor == '[' || **cursor == ']') {
+        token[0] = **cursor;
+        token[1] = '\0';
+        ++*cursor;
+        return 1;
+    }
+    if (!(**cursor == '_' || (**cursor >= 'A' && **cursor <= 'Z') ||
+          (**cursor >= 'a' && **cursor <= 'z')))
+        return -1;
+    start = *cursor;
+    while (**cursor == '_' || (**cursor >= 'A' && **cursor <= 'Z') ||
+           (**cursor >= 'a' && **cursor <= 'z') ||
+           (**cursor >= '0' && **cursor <= '9'))
+        ++*cursor;
+    length = (size_t)(*cursor - start);
+    if (length == 0U || length >= token_size)
+        return -1;
+    memcpy(token, start, length);
+    token[length] = '\0';
+    return 1;
+}
+
+static int declaration_matches(const char *actual, const char *expected)
+{
+    char actual_token[64];
+    char expected_token[64];
+    const char *actual_cursor = actual;
+    const char *expected_cursor = expected;
+
+    for (;;) {
+        int actual_result = declaration_token(&actual_cursor, actual_token,
+                                              sizeof(actual_token));
+        int expected_result = declaration_token(&expected_cursor, expected_token,
+                                                sizeof(expected_token));
+        if (actual_result < 0 || expected_result < 0)
+            return 0;
+        if (actual_result == 0 || expected_result == 0)
+            return actual_result == expected_result;
+        if (strcmp(actual_token, expected_token) != 0)
+            return 0;
+    }
+}
+
+static const char *expected_field_declaration(const char *event,
+                                              enum field_role role)
+{
+    if (strcmp(event, EVENT_CMA) == 0) {
+        switch (role) {
+        case FIELD_PAGE:
+            return "const struct page * page";
+        case FIELD_PFN:
+            return "unsigned long pfn";
+        case FIELD_COUNT:
+            return "unsigned int count";
+        case FIELD_ALIGN:
+            return "unsigned int align";
+        default:
+            return NULL;
+        }
+    }
+    if (role == FIELD_NAME)
+        return "const char * heap_name";
+    if (role == FIELD_BUFFER)
+        return "void * buffer";
+    if (role == FIELD_SIZE)
+        return "unsigned long size";
+    if (role == FIELD_PAGE)
+        return "void * page";
+    return NULL;
+}
+
+static uint64_t expected_field_size(const char *event, enum field_role role)
+{
+    if (strcmp(event, EVENT_CMA) == 0) {
+        switch (role) {
+        case FIELD_PAGE:
+        case FIELD_PFN:
+            return 8U;
+        case FIELD_COUNT:
+        case FIELD_ALIGN:
+            return 4U;
+        default:
+            return 0U;
+        }
+    }
+    switch (role) {
+    case FIELD_NAME:
+    case FIELD_BUFFER:
+    case FIELD_SIZE:
+    case FIELD_PAGE:
+        return 8U;
+    default:
+        return 0U;
+    }
+}
+
+#ifdef A90_RBIN_ORACLE_TEST
+/* Host-only seam used by the bounded parser regression.  Production parsing
+ * uses the identical temporary-NUL line boundary in load_trace_desc(). */
+int a90_test_parse_format_lines(const unsigned char *format, size_t format_size,
+                                size_t *recognized_out, size_t *entry_size_out)
+{
+    const unsigned char *cursor;
+    const unsigned char *end_of_format;
+    size_t recognized = 0;
+    size_t entry_size = 0;
+    unsigned int seen_roles = 0;
+
+    if (format == NULL || recognized_out == NULL || entry_size_out == NULL ||
+        format_size > MAX_FORMAT_BYTES)
+        return -1;
+    cursor = format;
+    end_of_format = format + format_size;
+    while (cursor < end_of_format) {
+        const unsigned char *line_end = memchr(cursor, '\n',
+                                               (size_t)(end_of_format - cursor));
+        size_t line_size = line_end == NULL
+                               ? (size_t)(end_of_format - cursor)
+                               : (size_t)(line_end - cursor);
+        char line_copy[MAX_FORMAT_LINE_BYTES];
+        struct field_desc field = {0};
+        int role;
+
+        if (line_size >= sizeof(line_copy))
+            return -1;
+        memcpy(line_copy, cursor, line_size);
+        line_copy[line_size] = '\0';
+        role = parse_format_line(line_copy, &field);
+        if (role < 0)
+            return -1;
+        if (field.size != 0U) {
+            if (field.offset > SIZE_MAX - field.size)
+                return -1;
+            if ((size_t)(field.offset + field.size) > entry_size)
+                entry_size = (size_t)(field.offset + field.size);
+        }
+        if (role != 0) {
+            if ((seen_roles & (1U << (unsigned int)role)) != 0U)
+                return -1;
+            seen_roles |= 1U << (unsigned int)role;
+            ++recognized;
+        }
+        if (line_end == NULL)
+            break;
+        cursor = line_end + 1;
+    }
+    *recognized_out = recognized;
+    *entry_size_out = entry_size;
+    return 0;
+}
+#endif
+
+static void free_trace_desc(struct trace_desc *desc)
+{
+    free(desc->format_bytes);
+    desc->format_bytes = NULL;
+    desc->format_bytes_size = 0;
 }
 
 static int load_trace_desc(struct trace_desc *desc, const char *event)
@@ -406,6 +599,7 @@ static int load_trace_desc(struct trace_desc *desc, const char *event)
     int found_count = 0;
     int found_align = 0;
     int found_name = 0;
+    int found_buffer = 0;
     const char *group = strcmp(event, EVENT_CMA) == 0 ? "cma" : "ion";
 
     memset(desc, 0, sizeof(*desc));
@@ -442,16 +636,43 @@ static int load_trace_desc(struct trace_desc *desc, const char *event)
     cursor = (char *)format;
     while (cursor < (char *)format + format_size) {
         char *end = memchr(cursor, '\n', (size_t)((char *)format + format_size - cursor));
-        struct field_desc field;
+        size_t line_length = end == NULL
+                                 ? (size_t)((char *)format + format_size - cursor)
+                                 : (size_t)(end - cursor);
+        char line_copy[MAX_FORMAT_LINE_BYTES];
+        struct field_desc field = {0};
         int role;
 
-        if (end != NULL)
-            *end = '\0';
-        role = parse_format_line(cursor, &field);
+        if (line_length >= sizeof(line_copy)) {
+            free(format);
+            free(id_data);
+            return -1;
+        }
+        memcpy(line_copy, cursor, line_length);
+        line_copy[line_length] = '\0';
+        role = parse_format_line(line_copy, &field);
         if (role < 0) {
             free(format);
             free(id_data);
             return -1;
+        }
+        if (role != 0 &&
+            (expected_field_size(event, field.role) != field.size ||
+             field.is_signed ||
+             !declaration_matches(field.name,
+                                  expected_field_declaration(event, field.role)))) {
+            free(format);
+            free(id_data);
+            return -1;
+        }
+        if (field.size != 0U) {
+            if (field.offset > SIZE_MAX - field.size) {
+                free(format);
+                free(id_data);
+                return -1;
+            }
+            if ((size_t)(field.offset + field.size) > desc->trace_entry_size)
+                desc->trace_entry_size = (size_t)(field.offset + field.size);
         }
         if (role == FIELD_PAGE) {
             if (found_page++) {
@@ -507,20 +728,53 @@ static int load_trace_desc(struct trace_desc *desc, const char *event)
             }
             desc->name_field = field;
             desc->has_name = 1;
+        } else if (role == FIELD_BUFFER) {
+            if (found_buffer++) {
+                free(format);
+                free(id_data);
+                return -1;
+            }
+            desc->buffer = field;
+            desc->has_buffer = 1;
         }
         if (end == NULL)
             break;
         cursor = end + 1;
     }
+    desc->format_bytes = malloc(format_size);
+    if (desc->format_bytes == NULL) {
+        free(format);
+        free(id_data);
+        return -1;
+    }
+    memcpy(desc->format_bytes, format, format_size);
+    desc->format_bytes_size = format_size;
     free(format);
     free(id_data);
     if (strcmp(event, EVENT_CMA) == 0)
         return found_page && found_pfn && found_count ? 0 : -1;
-    if (strcmp(event, EVENT_START) == 0)
-        return found_size || found_count ? 0 : -1;
-    if (strcmp(event, EVENT_END) == 0)
-        return found_page ? 0 : -1;
-    return found_page && found_size ? 0 : -1;
+    if (strcmp(event, EVENT_START) == 0 || strcmp(event, EVENT_END) == 0 ||
+        strcmp(event, EVENT_POOL) == 0 || strcmp(event, EVENT_PARTIAL) == 0)
+        return found_page && found_size && found_name && found_buffer ? 0 : -1;
+    return -1;
+}
+
+static int same_field_shape(const struct field_desc *left,
+                            const struct field_desc *right)
+{
+    return left->role == right->role && strcmp(left->name, right->name) == 0 &&
+           left->offset == right->offset && left->size == right->size &&
+           left->is_signed == right->is_signed;
+}
+
+static int same_ion_class_layout(const struct trace_desc *left,
+                                 const struct trace_desc *right)
+{
+    return left->trace_entry_size == right->trace_entry_size &&
+           same_field_shape(&left->page, &right->page) &&
+           same_field_shape(&left->size, &right->size) &&
+           same_field_shape(&left->name_field, &right->name_field) &&
+           same_field_shape(&left->buffer, &right->buffer);
 }
 
 static uint64_t read_le(const unsigned char *data, size_t size)
@@ -586,8 +840,16 @@ static int parse_event_raw(const struct trace_desc *desc, const unsigned char *r
             desc->name_field.size > raw_size - desc->name_field.offset ||
             desc->name_field.size > 8U)
             return -1;
-        event->name_ptr = read_le(raw + desc->name_field.offset,
-                                  (size_t)desc->name_field.size);
+        event->heap_name_value = read_le(raw + desc->name_field.offset,
+                                         (size_t)desc->name_field.size);
+    }
+    if (desc->has_buffer) {
+        if (desc->buffer.offset > raw_size ||
+            desc->buffer.size > raw_size - desc->buffer.offset ||
+            desc->buffer.size > 8U)
+            return -1;
+        event->buffer_ptr = read_le(raw + desc->buffer.offset,
+                                    (size_t)desc->buffer.size);
     }
     if (strcmp(desc->name, EVENT_CMA) == 0) {
         if (!event->has_page || !event->has_pfn || !event->has_count || event->count == 0)
@@ -654,9 +916,11 @@ static int parse_perf_ring(struct perf_source *source)
     uint64_t head;
     uint64_t tail;
 
+    head = __atomic_load_n(&metadata->data_head, __ATOMIC_ACQUIRE);
+    /* PERF's producer publishes data_head with release semantics.  Acquire
+     * it first, then order every data read after that snapshot. */
     __sync_synchronize();
-    head = metadata->data_head;
-    tail = metadata->data_tail;
+    tail = __atomic_load_n(&metadata->data_tail, __ATOMIC_RELAXED);
     if (head < tail || head - tail > source->data_size)
         return -1;
     while (tail < head) {
@@ -710,26 +974,163 @@ static int parse_perf_ring(struct perf_source *source)
         free(record);
         tail += record_size;
     }
-    metadata->data_tail = tail;
+    /* All records are consumed before the release that publishes data_tail. */
     __sync_synchronize();
+    __atomic_store_n(&metadata->data_tail, tail, __ATOMIC_RELEASE);
     source->tail = tail;
     return 0;
 }
 
+static int align_up_size(size_t value, size_t alignment, size_t *out)
+{
+    size_t remainder;
+
+    if (alignment == 0U)
+        return -1;
+    remainder = value % alignment;
+    if (remainder != 0U && value > SIZE_MAX - (alignment - remainder))
+        return -1;
+    *out = value + (alignment - remainder) % alignment;
+    return 0;
+}
+
+static int reserve_trace_budget(size_t bytes, size_t *used)
+{
+    if (bytes > TRACE_MEMORY_BUDGET || *used > TRACE_MEMORY_BUDGET - bytes)
+        return -1;
+    *used += bytes;
+    return 0;
+}
+
+static int add_output_cost(size_t *total, size_t bytes)
+{
+    if (total == NULL || bytes > SIZE_MAX - *total)
+        return -1;
+    *total += bytes;
+    return 0;
+}
+
+static int add_event_output_cost(size_t *total, const struct trace_event *event)
+{
+    size_t raw_hex_bytes;
+
+    if (event == NULL || event->raw_size > MAX_RAW_BYTES)
+        return -1;
+    raw_hex_bytes = (size_t)event->raw_size * 2U;
+    return add_output_cost(total, OUTPUT_RECORD_OVERHEAD + raw_hex_bytes);
+}
+
+static int estimate_output_bytes(const struct perf_source *sources, size_t count,
+                                 const struct trace_event *calibration_events,
+                                 size_t calibration_count, size_t *estimate_out)
+{
+    size_t total = OUTPUT_RECORD_OVERHEAD;
+    size_t index;
+
+    if (sources == NULL || count != 5U || calibration_events == NULL ||
+        calibration_count != CALIBRATION_ALLOCS || estimate_out == NULL)
+        return -1;
+    for (index = 0; index < count; ++index) {
+        if (sources[index].desc.format_bytes_size >
+                (SIZE_MAX - OUTPUT_RECORD_OVERHEAD) / 2U ||
+            add_output_cost(&total,
+                            OUTPUT_RECORD_OVERHEAD +
+                                sources[index].desc.format_bytes_size * 2U) != 0)
+            return -1;
+        for (size_t event_index = 0;
+             event_index < (index == 0U ? calibration_count : sources[index].event_count);
+             ++event_index) {
+            const struct trace_event *event =
+                index == 0U ? &calibration_events[event_index]
+                            : &sources[index].events[event_index];
+            if (add_event_output_cost(&total, event) != 0)
+                return -1;
+        }
+    }
+    if (add_output_cost(&total, 2U * OUTPUT_RECORD_OVERHEAD) != 0)
+        return -1;
+    *estimate_out = total;
+    return 0;
+}
+
+static int retain_calibration_events(const struct perf_source *source,
+                                     struct trace_event *retained,
+                                     size_t retained_capacity,
+                                     size_t *retained_count)
+{
+    if (source == NULL || retained == NULL || retained_count == NULL ||
+        retained_capacity < CALIBRATION_ALLOCS ||
+        source->events == NULL || source->event_count != CALIBRATION_ALLOCS)
+        return -1;
+    memcpy(retained, source->events,
+           CALIBRATION_ALLOCS * sizeof(*retained));
+    *retained_count = CALIBRATION_ALLOCS;
+    return 0;
+}
+
 static int setup_perf_source(struct perf_source *source, const char *event,
-                             size_t page_size)
+                             size_t page_size, size_t event_capacity,
+                             size_t *budget_used)
 {
     struct perf_event_attr attr;
     struct perf_event_mmap_page *metadata;
+    size_t raw_limit = 0;
+    size_t raw_padded;
+    size_t max_record_size;
+    size_t required_records_bytes;
+    size_t required_data_bytes;
+    size_t ring_pages = 1U;
+    size_t mapping_size;
+    size_t event_bytes;
 
     memset(source, 0, sizeof(*source));
     source->fd = -1;
-    source->event_capacity = MAX_EVENTS;
-    source->events = calloc(source->event_capacity, sizeof(*source->events));
-    if (source->events == NULL)
+    if (event_capacity == 0U || event_capacity > MAX_SEGMENTS || budget_used == NULL)
         return -1;
     if (load_trace_desc(&source->desc, event) != 0)
         goto fail;
+    /* trace_entry_size was derived from every declared field line, including
+     * common fields and fields this oracle does not decode.  Keep that source
+     * maximum as the perf-ring sizing authority; narrowing it to only the
+     * fields we consume could leave an unbounded suffix unaccounted for. */
+    raw_limit = source->desc.trace_entry_size;
+    if (raw_limit == 0U || raw_limit > MAX_RAW_BYTES - sizeof(uint32_t) ||
+        align_up_size(raw_limit + sizeof(uint32_t), 8U, &raw_padded) != 0 ||
+        raw_padded < sizeof(uint32_t))
+        goto fail;
+    max_record_size = sizeof(struct perf_event_header) + raw_padded;
+    if (max_record_size < sizeof(struct perf_event_header) + sizeof(uint32_t) ||
+        max_record_size > sizeof(struct perf_event_header) + sizeof(uint32_t) + MAX_RAW_BYTES)
+        goto fail;
+    if (event_capacity > SIZE_MAX / max_record_size)
+        goto fail;
+    required_records_bytes = event_capacity * max_record_size;
+    required_data_bytes = required_records_bytes;
+    if (required_records_bytes > SIZE_MAX - (page_size - 1U))
+        goto fail;
+    required_records_bytes = (required_records_bytes + page_size - 1U) / page_size;
+    while (ring_pages < required_records_bytes) {
+        if (ring_pages > MAX_RING_PAGES_LIMIT / 2U)
+            goto fail;
+        ring_pages *= 2U;
+    }
+    if (ring_pages > MAX_RING_PAGES_LIMIT || ring_pages > (SIZE_MAX / page_size) - 1U)
+        goto fail;
+    mapping_size = page_size * (ring_pages + 1U);
+    if (event_capacity > SIZE_MAX / sizeof(*source->events))
+        goto fail;
+    event_bytes = event_capacity * sizeof(*source->events);
+    if (mapping_size > SIZE_MAX - event_bytes)
+        goto fail;
+    source->allocation_bytes = mapping_size + event_bytes;
+    if (reserve_trace_budget(source->allocation_bytes, budget_used) != 0)
+        goto fail;
+    source->event_capacity = event_capacity;
+    source->max_record_size = max_record_size;
+    source->ring_pages = ring_pages;
+    source->events = calloc(source->event_capacity, sizeof(*source->events));
+    if (source->events == NULL)
+        goto fail_budget;
     memset(&attr, 0, sizeof(attr));
     attr.type = PERF_TYPE_TRACEPOINT;
     attr.size = sizeof(attr);
@@ -741,35 +1142,41 @@ static int setup_perf_source(struct perf_source *source, const char *event,
     attr.wakeup_events = 1;
     source->fd = (int)syscall(__NR_perf_event_open, &attr, 0, -1, -1, 0);
     if (source->fd < 0)
-        goto fail;
-    source->mapping_size = page_size * (1U + MAX_RING_PAGES);
+        goto fail_budget;
+    source->mapping_size = mapping_size;
     source->mapping = mmap(NULL, source->mapping_size, PROT_READ | PROT_WRITE,
                            MAP_SHARED, source->fd, 0);
     if (source->mapping == MAP_FAILED) {
         source->mapping = NULL;
         close(source->fd);
         source->fd = -1;
-        goto fail;
+        goto fail_budget;
     }
     metadata = (struct perf_event_mmap_page *)source->mapping;
     if (metadata->data_offset < page_size || metadata->data_size == 0 ||
         (metadata->data_size & (metadata->data_size - 1U)) != 0 ||
         metadata->data_offset > source->mapping_size ||
-        metadata->data_size > source->mapping_size - metadata->data_offset) {
+        metadata->data_size > source->mapping_size - metadata->data_offset ||
+        (size_t)metadata->data_size < required_data_bytes) {
         munmap(source->mapping, source->mapping_size);
         source->mapping = NULL;
         close(source->fd);
         source->fd = -1;
-        goto fail;
+        goto fail_budget;
     }
     source->data_offset = metadata->data_offset;
     source->data_size = metadata->data_size;
     return 0;
 
+fail_budget:
+    if (source->allocation_bytes <= *budget_used)
+        *budget_used -= source->allocation_bytes;
+    source->allocation_bytes = 0;
 fail:
     free(source->events);
     source->events = NULL;
     source->event_capacity = 0;
+    free_trace_desc(&source->desc);
     return -1;
 }
 
@@ -789,11 +1196,12 @@ static int close_perf_source(struct perf_source *source)
     free(source->events);
     source->events = NULL;
     source->event_capacity = 0;
+    free_trace_desc(&source->desc);
     return result;
 }
 
-/* A small BTF walker supplies source-backed sizeof(struct page).  If BTF is
- * unavailable or malformed, the oracle remains honest and emits UNKNOWN PA. */
+/* A small BTF walker supplies a source-backed struct page size as an optional
+ * cross-check.  Same-run CMA calibration remains the PA authority. */
 static int btf_struct_page_size(uint64_t *size_out)
 {
     struct btf_header {
@@ -811,6 +1219,17 @@ static int btf_struct_page_size(uint64_t *size_out)
     const struct btf_header *header;
     size_t cursor;
     size_t type_end;
+
+    {
+        struct stat info;
+        if (lstat("/sys/kernel/btf/vmlinux", &info) != 0) {
+            if (errno == ENOENT)
+                return 1; /* BTF is absent; same-run CMA remains sufficient. */
+            return -1;
+        }
+        if (!S_ISREG(info.st_mode))
+            return -1;
+    }
 
     if (read_regular_file("/sys/kernel/btf/vmlinux", &data, &data_size,
                           MAX_BTF_BYTES) != 0 || data_size < sizeof(*header))
@@ -873,7 +1292,7 @@ static int btf_struct_page_size(uint64_t *size_out)
         }
         if (data == NULL || extra > type_end - cursor - 12U)
             break;
-        if (kind == 4U && strcmp(name, "page") == 0 && type_size == STRUCT_PAGE_BYTES) {
+        if (kind == 4U && strcmp(name, "page") == 0 && type_size != 0U) {
             *size_out = type_size;
             free(data);
             return 0;
@@ -953,9 +1372,11 @@ static int ion_alloc_fixed(int ion_fd, uint32_t heap_id, uint64_t bytes, int *fd
 
 static int canonical_kernel_pointer(uint64_t value)
 {
-    /* Accept the current arm64 48-bit kernel half only.  A zero/hash/offset
-     * masquerading as a struct page pointer is never calibration evidence. */
-    return value != 0 && (value >> 48U) == UINT64_C(0xffff);
+    const uint64_t upper_mask = UINT64_MAX >> VA_BITS;
+
+    /* V2321 is an arm64 VA_BITS=39 kernel.  Require sign extension of bit 38;
+     * broad 48-bit tests are not sufficient for kernel page pointers. */
+    return value != 0 && (value >> VA_BITS) == upper_mask;
 }
 
 static int derive_affine(const struct trace_event *events, size_t count,
@@ -992,7 +1413,8 @@ static int derive_affine(const struct trace_event *events, size_t count,
     if (page_delta == 0 || pfn_delta == 0 || page_delta % pfn_delta != 0)
         return -1;
     *slope_out = page_delta / pfn_delta;
-    if (*slope_out == 0)
+    if (*slope_out < PAGE_PTR_STRIDE_MIN || *slope_out > PAGE_PTR_STRIDE_MAX ||
+        (*slope_out & (*slope_out - 1U)) != 0)
         return -1;
     if (*slope_out > UINT64_MAX / events[0].pfn)
         return -1;
@@ -1021,17 +1443,25 @@ static int pointer_to_pfn(uint64_t page_ptr, uint64_t slope, uint64_t intercept,
     return 0;
 }
 
+static int compare_pa_segment(const void *left, const void *right)
+{
+    const struct pa_segment *a = left;
+    const struct pa_segment *b = right;
+
+    if (a->pfn < b->pfn)
+        return -1;
+    if (a->pfn > b->pfn)
+        return 1;
+    return 0;
+}
+
 static int validate_pa_segments(const struct trace_event *events, size_t count,
                                 uint64_t slope, uint64_t intercept,
                                 uint64_t *first_pa, uint64_t *end_pa,
-                                int *contiguous, int direct_pfn)
+                                int *contiguous)
 {
-    struct segment {
-        uint64_t pfn;
-        uint64_t size;
-    } *segments;
+    struct pa_segment *segments;
     size_t index;
-    size_t inner;
     uint64_t total = 0;
 
     if (count == 0 || count > MAX_SEGMENTS)
@@ -1041,10 +1471,7 @@ static int validate_pa_segments(const struct trace_event *events, size_t count,
         return -1;
     for (index = 0; index < count; ++index) {
         uint64_t pfn;
-        if ((!direct_pfn && pointer_to_pfn(events[index].page_ptr, slope, intercept, &pfn) != 0) ||
-            (direct_pfn && (!events[index].has_pfn ||
-                            pointer_to_pfn(events[index].page_ptr, slope, intercept, &pfn) != 0 ||
-                            pfn != events[index].pfn)) ||
+        if (pointer_to_pfn(events[index].page_ptr, slope, intercept, &pfn) != 0 ||
             events[index].size_bytes == 0 || events[index].size_bytes % PAGE_BYTES != 0 ||
             pfn > (UINT64_MAX >> 12U) ||
             events[index].size_bytes > UINT64_MAX - (pfn << 12U) ||
@@ -1056,17 +1483,7 @@ static int validate_pa_segments(const struct trace_event *events, size_t count,
     }
     if (total != EXPECTED_BYTES)
         goto fail;
-    for (index = 1; index < count; ++index) {
-        const uint64_t pfn = segments[index].pfn;
-        const uint64_t size = segments[index].size;
-        inner = index;
-        while (inner > 0 && segments[inner - 1U].pfn > pfn) {
-            segments[inner] = segments[inner - 1U];
-            --inner;
-        }
-        segments[inner].pfn = pfn;
-        segments[inner].size = size;
-    }
+    qsort(segments, count, sizeof(*segments), compare_pa_segment);
     *first_pa = segments[0].pfn << 12U;
     *end_pa = *first_pa;
     *contiguous = 1;
@@ -1092,11 +1509,15 @@ static void print_format_descriptor(const struct trace_desc *desc)
 {
     printf("{\"schema\":\"%s\",\"type\":\"format\",\"event\":\"%s\",\"id\":%llu,\"format_path\":\"%s\","
            "\"format_size\":%zu,\"has_page\":%s,\"has_size\":%s,"
-           "\"has_pfn\":%s,\"has_count\":%s}\n",
+           "\"has_pfn\":%s,\"has_count\":%s,\"has_heap_name\":%s,"
+           "\"has_buffer\":%s,\"format_hex\":\"",
            ORACLE_SCHEMA, desc->name, (unsigned long long)desc->id, desc->format_path,
            desc->format_size, desc->has_page ? "true" : "false",
            desc->has_size ? "true" : "false", desc->has_pfn ? "true" : "false",
-           desc->has_count ? "true" : "false");
+           desc->has_count ? "true" : "false", desc->has_name ? "true" : "false",
+           desc->has_buffer ? "true" : "false");
+    print_hex(desc->format_bytes, desc->format_bytes_size);
+    printf("\"}\n");
 }
 
 static void print_trace_event(const char *phase, const struct trace_desc *desc,
@@ -1104,6 +1525,8 @@ static void print_trace_event(const char *phase, const struct trace_desc *desc,
 {
     char pfn_text[32];
     char count_text[32];
+    char heap_name_text[32];
+    char buffer_text[32];
 
     if (event->has_pfn)
         (void)snprintf(pfn_text, sizeof(pfn_text), "\"0x%llx\"",
@@ -1115,10 +1538,23 @@ static void print_trace_event(const char *phase, const struct trace_desc *desc,
                        (unsigned long long)event->count);
     else
         (void)snprintf(count_text, sizeof(count_text), "null");
+    if (desc->has_name)
+        (void)snprintf(heap_name_text, sizeof(heap_name_text), "\"0x%llx\"",
+                       (unsigned long long)event->heap_name_value);
+    else
+        (void)snprintf(heap_name_text, sizeof(heap_name_text), "null");
+    if (desc->has_buffer)
+        (void)snprintf(buffer_text, sizeof(buffer_text), "\"0x%llx\"",
+                       (unsigned long long)event->buffer_ptr);
+    else
+        (void)snprintf(buffer_text, sizeof(buffer_text), "null");
     printf("{\"schema\":\"%s\",\"type\":\"event\",\"phase\":\"%s\","
            "\"event\":\"%s\",\"page_ptr\":\"0x%llx\","
            "\"has_page\":%s,\"pfn\":%s,\"pfn_value\":%s,"
-           "\"count\":%s,\"count_value\":%s,\"size_bytes\":%llu,"
+           "\"count\":%s,\"count_value\":%s,"
+           "\"has_heap_name\":%s,\"heap_name_value\":%s,"
+           "\"has_buffer\":%s,\"buffer_ptr\":%s,"
+           "\"size_bytes\":%llu,"
            "\"raw_size\":%u,\"raw_hex\":\"",
            ORACLE_SCHEMA, phase, desc->name,
            (unsigned long long)event->page_ptr,
@@ -1127,6 +1563,10 @@ static void print_trace_event(const char *phase, const struct trace_desc *desc,
            pfn_text,
            event->has_count ? "true" : "false",
            count_text,
+           desc->has_name ? "true" : "false",
+           heap_name_text,
+           desc->has_buffer ? "true" : "false",
+           buffer_text,
            (unsigned long long)event->size_bytes, event->raw_size);
     print_hex(event->raw, event->raw_size);
     printf("\"}\n");
@@ -1144,6 +1584,8 @@ int main(int argc, char **argv)
     struct ion_heap_query_uapi query;
     struct ion_heap_data_uapi *heaps = NULL;
     struct trace_event *segments = NULL;
+    struct trace_event calibration_events[CALIBRATION_ALLOCS];
+    size_t calibration_event_count = 0;
     size_t segment_count = 0;
     size_t page_size;
     size_t index;
@@ -1153,6 +1595,7 @@ int main(int argc, char **argv)
     uint64_t first_pa = 0;
     uint64_t end_pa = 0;
     uint64_t btf_page_size = 0;
+    int btf_present = 0;
     int contiguous = 0;
     int allocation_returned = 0;
     int perf_enabled = 0;
@@ -1164,7 +1607,12 @@ int main(int argc, char **argv)
     int perf_closed = 1;
     int exit_code = 1;
     int cleanup_failed = 0;
+    int output_too_large = 0;
+    size_t output_estimate = 0;
     const char *allocation_backend = "unknown";
+    size_t trace_memory_used = 0;
+    size_t segment_bytes;
+    uint64_t allocation_heap_name_value = 0;
 
     (void)argv;
     if (argc != 1) {
@@ -1174,6 +1622,11 @@ int main(int argc, char **argv)
     memset(sources, 0, sizeof(sources));
     for (index = 0; index < 5U; ++index)
         sources[index].fd = -1;
+    if (MAX_SEGMENTS > SIZE_MAX / sizeof(*segments))
+        goto cleanup;
+    segment_bytes = MAX_SEGMENTS * sizeof(*segments);
+    if (reserve_trace_budget(segment_bytes, &trace_memory_used) != 0)
+        goto cleanup;
     segments = calloc(MAX_SEGMENTS, sizeof(*segments));
     if (segments == NULL)
         goto cleanup;
@@ -1218,21 +1671,23 @@ int main(int argc, char **argv)
             calibration->heap_id != CALIBRATION_HEAP_ID)
             goto cleanup;
     }
-    for (index = 0; index < 5U; ++index) {
-        if (setup_perf_source(&sources[index], event_names[index], page_size) != 0)
+    if (setup_perf_source(&sources[0], event_names[0], page_size,
+                          CALIBRATION_ALLOCS, &trace_memory_used) != 0 ||
+        setup_perf_source(&sources[1], event_names[1], page_size, 1U,
+                          &trace_memory_used) != 0 ||
+        setup_perf_source(&sources[2], event_names[2], page_size, 1U,
+                          &trace_memory_used) != 0 ||
+        setup_perf_source(&sources[3], event_names[3], page_size, MAX_SEGMENTS,
+                          &trace_memory_used) != 0 ||
+        setup_perf_source(&sources[4], event_names[4], page_size, MAX_SEGMENTS,
+                          &trace_memory_used) != 0)
+        goto cleanup;
+    /* DEFINE_EVENT(ion_rbin, ...) reuses one class, so all four captured
+     * allocation events must expose the same field layout at runtime. */
+    for (index = 2; index < 5U; ++index) {
+        if (!same_ion_class_layout(&sources[1].desc, &sources[index].desc))
             goto cleanup;
     }
-    printf("{\"schema\":\"%s\",\"type\":\"context\",\"backend\":\"perf_event_open\","
-           "\"scope\":\"pid=0,cpu=-1\",\"cpu\":%u,\"heap\":\"%s\","
-           "\"heap_id\":%u,\"heap_type\":%u,\"calibration_heap\":\"%s\","
-           "\"calibration_heap_id\":%u,\"calibration_heap_type\":%u,"
-           "\"allocation_bytes\":%llu,\"flags\":0}\n",
-           ORACLE_SCHEMA, EXPECTED_CPU, EXPECTED_HEAP, EXPECTED_HEAP_ID,
-           EXPECTED_HEAP_TYPE, CALIBRATION_HEAP, CALIBRATION_HEAP_ID,
-           CALIBRATION_HEAP_TYPE, (unsigned long long)EXPECTED_BYTES);
-    for (index = 0; index < 5U; ++index)
-        print_format_descriptor(&sources[index].desc);
-
     /* Three distinct held user_contig buffers calibrate page* -> PFN with
      * same-run CMA evidence.  Their descriptors are not closed until RBIN
      * parsing completes, so CMA cannot recycle an observed PFN. */
@@ -1265,10 +1720,20 @@ int main(int argc, char **argv)
                 goto cleanup;
         }
     }
-    for (index = 0; index < sources[0].event_count; ++index)
-        print_trace_event("calibration", &sources[0].desc, &sources[0].events[index]);
-    if (btf_struct_page_size(&btf_page_size) != 0)
-        btf_page_size = 0;
+    if (retain_calibration_events(sources, calibration_events,
+                                  CALIBRATION_ALLOCS,
+                                  &calibration_event_count) != 0)
+        goto cleanup;
+    {
+        int btf_result = btf_struct_page_size(&btf_page_size);
+        if (btf_result < 0)
+            goto cleanup;
+        if (btf_result == 0) {
+            btf_present = 1;
+            if (btf_page_size != slope)
+                goto cleanup;
+        }
+    }
 
     /* The five event streams are reset/enabled only for the one camera
      * allocation.  The perf disable calls occur immediately after ioctl
@@ -1293,42 +1758,49 @@ int main(int argc, char **argv)
         if (parse_perf_ring(&sources[index]) != 0)
             goto cleanup;
     }
+    /* The retained Samsung ion_rbin event class has the same four fields for
+     * every event.  ion_rbin_heap.c calls alloc_start/end with
+     * (heap->name, buffer, size, NULL); pool_alloc_end with
+     * (heap->name, NULL, page_private(page), page); and
+     * partial_alloc_end with (NULL, NULL, size, page).  The values below are
+     * therefore call-site bindings, not guesses based on an event name. */
     if (sources[1].event_count != 1U || sources[2].event_count != 1U ||
+        !sources[1].events[0].has_page || sources[1].events[0].page_ptr != 0 ||
         !sources[1].events[0].has_size || sources[1].events[0].size_bytes != EXPECTED_BYTES ||
+        !sources[1].events[0].heap_name_value || !sources[1].events[0].buffer_ptr ||
         !sources[2].events[0].has_page || sources[2].events[0].page_ptr != 0 ||
+        !sources[2].events[0].has_size || sources[2].events[0].size_bytes != EXPECTED_BYTES ||
+        sources[2].events[0].heap_name_value != sources[1].events[0].heap_name_value ||
+        sources[2].events[0].buffer_ptr != sources[1].events[0].buffer_ptr ||
         sources[2].events[0].result != 0)
         goto cleanup;
-    print_trace_event("allocation", &sources[1].desc, &sources[1].events[0]);
-    print_trace_event("allocation", &sources[2].desc, &sources[2].events[0]);
-    if (sources[0].event_count != 0U) {
-        allocation_backend = "cma";
-        if (sources[3].event_count != 0U || sources[4].event_count != 0)
-            goto cleanup;
-        for (index = 0; index < sources[0].event_count; ++index) {
-            if (append_event(segments, &segment_count, &sources[0].events[index]) != 0)
-                goto cleanup;
-            print_trace_event("allocation", &sources[0].desc, &sources[0].events[index]);
-        }
-    } else {
-        allocation_backend = "rbin";
+    allocation_heap_name_value = sources[1].events[0].heap_name_value;
+    /* Heap type 10 is RBIN-only.  Any camera-phase CMA record is a source or
+     * runtime disagreement, not an alternate allocation backend. */
+    if (sources[0].event_count != 0U)
+        goto cleanup;
+    allocation_backend = "rbin";
+    {
         size_t partial_index = 0;
         size_t pool_success = 0;
         size_t pool_misses = 0;
         if (sources[3].event_count == 0U)
             goto cleanup;
         for (index = 0; index < sources[3].event_count; ++index) {
-            print_trace_event("allocation", &sources[3].desc, &sources[3].events[index]);
+            if (sources[3].events[index].heap_name_value != allocation_heap_name_value ||
+                sources[3].events[index].buffer_ptr != 0)
+                goto cleanup;
             if (sources[3].events[index].page_ptr == 0 &&
                 sources[3].events[index].size_bytes == 0) {
                 ++pool_misses;
                 if (partial_index >= sources[4].event_count ||
+                    sources[4].events[partial_index].heap_name_value != 0 ||
+                    sources[4].events[partial_index].buffer_ptr != 0 ||
                     sources[4].events[partial_index].page_ptr == 0 ||
                     sources[4].events[partial_index].size_bytes == 0 ||
                     append_event(segments, &segment_count,
                                  &sources[4].events[partial_index]) != 0)
                     goto cleanup;
-                print_trace_event("allocation", &sources[4].desc,
-                                  &sources[4].events[partial_index]);
                 ++partial_index;
                 continue;
             }
@@ -1341,8 +1813,7 @@ int main(int argc, char **argv)
             goto cleanup;
     }
     if (validate_pa_segments(segments, segment_count, slope, intercept,
-                             &first_pa, &end_pa, &contiguous,
-                             strcmp(allocation_backend, "cma") == 0) != 0)
+                             &first_pa, &end_pa, &contiguous) != 0)
         goto cleanup;
     total = 0;
     for (index = 0; index < segment_count; ++index) {
@@ -1363,6 +1834,52 @@ int main(int argc, char **argv)
     exit_code = 0;
 
 cleanup:
+    /* Do not start streaming an allocation-sized transcript until its exact
+     * bounded cardinality has been accounted for.  A highly fragmented RBIN
+     * result can exceed one bridge frame even though the allocation itself is
+     * valid; retain only a compact incomplete-result record in that case. */
+    if (exit_code == 0) {
+        if (estimate_output_bytes(sources, 5U, calibration_events,
+                                  calibration_event_count,
+                                  &output_estimate) != 0) {
+            /* An arithmetic/bounds failure is itself incomplete evidence;
+             * never fall through to an unbounded stream or PA claim. */
+            output_estimate = SIZE_MAX;
+            output_too_large = 1;
+            exit_code = 1;
+        } else if (output_estimate > MAX_CAPTURE_OUTPUT_BYTES) {
+            output_too_large = 1;
+            exit_code = 1;
+        } else {
+            size_t partial_index = 0;
+
+            printf("{\"schema\":\"%s\",\"type\":\"context\",\"backend\":\"perf_event_open\","
+                   "\"scope\":\"pid=0,cpu=-1\",\"cpu\":%u,\"heap\":\"%s\","
+                   "\"heap_id\":%u,\"heap_type\":%u,\"calibration_heap\":\"%s\","
+                   "\"calibration_heap_id\":%u,\"calibration_heap_type\":%u,"
+                   "\"allocation_bytes\":%llu,\"flags\":0}\n",
+                   ORACLE_SCHEMA, EXPECTED_CPU, EXPECTED_HEAP, EXPECTED_HEAP_ID,
+                   EXPECTED_HEAP_TYPE, CALIBRATION_HEAP, CALIBRATION_HEAP_ID,
+                   CALIBRATION_HEAP_TYPE, (unsigned long long)EXPECTED_BYTES);
+            for (index = 0; index < 5U; ++index)
+                print_format_descriptor(&sources[index].desc);
+            for (index = 0; index < calibration_event_count; ++index)
+                print_trace_event("calibration", &sources[0].desc,
+                                  &calibration_events[index]);
+            print_trace_event("allocation", &sources[1].desc, &sources[1].events[0]);
+            print_trace_event("allocation", &sources[2].desc, &sources[2].events[0]);
+            for (index = 0; index < sources[3].event_count; ++index) {
+                print_trace_event("allocation", &sources[3].desc,
+                                  &sources[3].events[index]);
+                if (sources[3].events[index].page_ptr == 0 &&
+                    sources[3].events[index].size_bytes == 0) {
+                    print_trace_event("allocation", &sources[4].desc,
+                                      &sources[4].events[partial_index]);
+                    ++partial_index;
+                }
+            }
+        }
+    }
     if (perf_enabled) {
         for (index = 0; index < 5U; ++index)
             if (sources[index].fd >= 0 && disable_perf_source(&sources[index]) != 0)
@@ -1392,17 +1909,20 @@ cleanup:
     }
     if (cleanup_failed)
         exit_code = 1;
+    if (output_too_large)
+        printf("{\"schema\":\"%s\",\"type\":\"result\","
+               "\"status\":\"OUTPUT_TOO_LARGE\","
+               "\"classification\":\"INCOMPLETE_EVIDENCE\","
+               "\"estimated_output_bytes\":%zu,"
+               "\"max_output_bytes\":%u,\"allocation_returned\":%s}\n",
+               ORACLE_SCHEMA, output_estimate, MAX_CAPTURE_OUTPUT_BYTES,
+               allocation_returned ? "true" : "false");
     if (exit_code == 0) {
         const char *classification =
-            strcmp(allocation_backend, "rbin") == 0
-                ? (first_pa == EXPECTED_REGION_FIRST && end_pa == EXPECTED_REGION_END &&
-                           contiguous
-                       ? "EXACT_CAMERA_PREVIEW_RBIN_REGION"
-                       : "NONEXACT_CAMERA_PREVIEW_RBIN_REGION")
-                : (first_pa == EXPECTED_REGION_FIRST && end_pa == EXPECTED_REGION_END &&
-                           contiguous
-                       ? "EXACT_CAMERA_PREVIEW_CMA_REGION"
-                       : "NONEXACT_CAMERA_PREVIEW_CMA_REGION");
+            first_pa == EXPECTED_REGION_FIRST && end_pa == EXPECTED_REGION_END &&
+                    contiguous
+                ? "EXACT_CAMERA_PREVIEW_RBIN_REGION"
+                : "NONEXACT_CAMERA_PREVIEW_RBIN_REGION";
         printf("{\"schema\":\"%s\",\"type\":\"summary\",\"status\":\"PA_BOUND\","
                "\"allocation_backend\":\"%s\",\"event_pool_count\":%zu,"
                "\"event_partial_count\":%zu,\"event_cma_count\":%zu,"
@@ -1423,7 +1943,7 @@ cleanup:
                    : "false",
                classification, (unsigned long long)slope,
                (unsigned long long)intercept,
-               btf_page_size == slope ? "btf:/sys/kernel/btf/vmlinux" : "same-run-cma-affine");
+               btf_present ? "btf:/sys/kernel/btf/vmlinux" : "same-run-cma-affine");
     }
     printf("{\"schema\":\"%s\",\"type\":\"cleanup\",\"allocation_returned\":%s,"
            "\"perf_disabled\":%s,\"allocation_fd_closed\":%s,\"ion_fd_closed\":%s,"

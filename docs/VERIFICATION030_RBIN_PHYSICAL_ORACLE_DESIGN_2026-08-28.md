@@ -1,6 +1,6 @@
 # Verification 030 — A90 RBIN physical-allocation oracle
 
-Status: `PRE_REGISTERED / HOST IMPLEMENTATION COMPLETE / 10 FOCUSED TESTS PASS / NO LIVE EFFECT YET`
+Status: `PRE_REGISTERED / HOST GATE PASS / 30 FOCUSED TESTS PASS / INDEPENDENT HOSTILE PASS / NO LIVE EFFECT YET`
 
 ## Question
 
@@ -96,19 +96,23 @@ selectors.  With an explicit `--execute`, it performs once:
 
 1. claim the fixed experiment ID with an exclusive fsynced no-replay journal;
 2. bind the existing loopback bridge and exact `SM-A908N/SM8150` V2321 runtime,
-   attest the current V2321 boot-prefix SHA-256, and capture the current boot ID;
+   capture the current boot ID, run the V2321 boot-prefix attestation, then
+   recapture and require the same boot ID before accepting the attestation;
 3. verify the fixed helper bytes after transfer and revalidate the bridge
    immediately before durable `EFFECT_DISPATCHED`;
 4. pin the helper to CPU 7;
 5. open only the four fixed ION RBIN tracepoints and `cma:cma_alloc`,
-   self-scoped through `perf_event_open`, and parse their live `format`
-   descriptions;
+   self-scoped through `perf_event_open`, and require their exact live field
+   declaration, width and signedness contracts before decoding retained raw
+   perf bytes by their advertised field offsets;
 6. allocate and hold three small fixed `user_contig` buffers, require their
    CMA counts in the exact `1,2,3` page order, derive the
    `(pfn,page)` affine mapping from two records, and validate it with the third;
 7. issue one `ION_IOC_ALLOC` for heap 30, size `0x14000000`, flags 0, disable
    tracing, drain the perf rings, and reconstruct source-loop order by replacing
-   each pool miss with exactly one next partial-allocation success;
+   each pool miss with exactly one next partial-allocation success; reject a
+   conservatively estimated transcript above the fixed 8 MiB transport ceiling
+   as incomplete evidence rather than stream a truncated result;
 8. close all four dma-bufs exactly once, remove and prove absence of every
    temporary node/file, and require unchanged boot ID, target identity and a
    passing final native selftest;
@@ -151,8 +155,8 @@ never makes the fixed experiment ID replayable.
 | returned fixed trace/perf refusal proves no allocation was attempted | `TRACE_ORACLE_UNAVAILABLE`; fixed ID remains consumed after dispatch and physical provenance remains `UNKNOWN` |
 | calibration unavailable before the camera allocation | no camera allocation is dispatched; absolute PA remains `UNKNOWN` |
 | complete anchored, contiguous RBIN chunks exactly cover `[0xc2000000,0xd6000000)` | emitted `EXACT_CAMERA_PREVIEW_RBIN_REGION`; interpret as exact RBIN physical placement proved |
-| complete anchored, contiguous CMA record exactly covers `[0xc2000000,0xd6000000)` | emitted `EXACT_CAMERA_PREVIEW_CMA_REGION`; placement is proved but the backend disagrees with the expected fresh-RBIN path |
-| complete anchored, contiguous union occupies a different range | emitted `NONEXACT_CAMERA_PREVIEW_RBIN_REGION` or `NONEXACT_CAMERA_PREVIEW_CMA_REGION`; pause on source/runtime disagreement, with no boundary-bypass claim |
+| complete anchored RBIN union occupies a different range | emitted `NONEXACT_CAMERA_PREVIEW_RBIN_REGION`; pause on source/runtime disagreement, with no boundary-bypass claim |
+| conservatively estimated retained output exceeds 8 MiB | emitted `OUTPUT_TOO_LARGE` / `INCOMPLETE_EVIDENCE`; no physical claim is published |
 | non-contiguous, missing, lost, duplicate, malformed or non-attributable records | `INCOMPLETE_EVIDENCE`; private returned evidence is retained and no physical claim is published |
 
 Every outcome leaves `CLASS C (TRANSFORM ONLY)` unchanged unless a separate
@@ -176,14 +180,34 @@ minimal window.  Neither control is part of V030.
 ## Host implementation verification
 
 The production host coordinator, fixed native probe, and focused regression
-suite are complete.  Ten focused tests pass, the Python coordinator compiles,
-its host-only `--preflight` passes, and the native probe builds with
-`aarch64-linux-gnu-gcc -O2 -static -Wall -Wextra -Werror`.  The native source
-SHA-256 used by preflight is
-`6434c33c0ced5031c3492b2853f35171ccdfdbceb5c39affbc715a1450726768`.
+suite passed the host gate and an independent hostile review.  Thirty focused
+tests pass under a 4 GiB virtual-memory ceiling; the Python coordinator
+compiles; its host-only `--preflight` returns `device_contact:false`; and the
+native probe passes strict AArch64 syntax validation and two byte-identical
+static builds with `-O2 -static -Wall -Wextra -Werror`.
+
+The exact host artifacts are:
+
+| Artifact | Bytes | SHA-256 |
+|---|---:|---|
+| `tools/a90_rbin_phys_oracle_probe.c` | 70,971 | `cee8f32b432e2e62e3169d06f6cd95419df16cb55096b61790595580f30a019e` |
+| deterministic static probe | 777,200 | `f12959b5772d8b89ebe5abb15505a0ee2662864f6847189f77c101834337159e` |
+| `tools/a90_rbin_phys_oracle_live.py` | 127,254 | `6f8970a05caf2a214a9976c3e213d942414d5a136feb7b9e21a4a51fac152424` |
+| `tests/test_a90_rbin_phys_oracle_live.py` | 68,018 | `e5df04fbe2aa7dd88fb227c43e5727b05735d4a677112be3440ab36a4afbb2c2` |
+| `/usr/bin/aarch64-linux-gnu-gcc-15` | 2,137,240 | `50d0961827e521a7c06d7794d4b15282559a117d365a149aaca5726917ab1603` |
+
+The hostile review specifically re-falsified calibration-row retention across
+the perf-source reset, exact terminal PASS authority, trace declaration types,
+resolved-compiler and static-ELF provenance, dangling/create-then-error remote
+paths, the boot-ID attestation bracket, output bounds and the subtraction-free
+sort.  No P0/P1 defect remained.  Its one P2 test-fixture finding was repaired
+by changing the CMA fixture to the exact Samsung source order
+`pfn@8,page@16,count@24,align@28`; a source-order payload then reproduced slope
+64 and `first_pa=0xc2000000`.  See
+`docs/VERIFICATION030_HOST_GATE_REVIEW_2026-08-29.md`.
 
 No `--execute`, bridge, USB, ADB, ACM, MMIO, allocation, or other device
 command was invoked during this host implementation pass.  Repository-wide
-validation is deferred until integration with the main worktree because this
-isolated worktree lacks ignored private fixtures required by older tests; no
-full-suite PASS is claimed here.
+validation remains an integration step at the canonical worktree because
+older tests bind ignored private fixtures and one V024 journal to that exact
+path; no full-suite PASS or live result is claimed here.
