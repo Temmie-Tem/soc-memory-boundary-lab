@@ -16,7 +16,9 @@ import json
 import math
 import os
 from pathlib import Path
+import re
 import stat
+import subprocess
 from typing import Mapping
 
 
@@ -563,6 +565,36 @@ TRANSPORT_MODULE = "tools.a90_pa28_live"
 TRANSPORT_SOURCE = "tools/a90_pa28_live.py"
 TRANSPORT_SOURCE_SHA256 = "0f50a20453f00a6f647d52cc2c3cd10ba52f8869d6b9264d5b9c47671197bc66"
 TRANSPORT_SOURCE_SIZE = 150104
+
+HISTORICAL_GIT_RECEIPT_SCHEMA = "sdm855-a90-v024-historical-git-verification-v1"
+FINAL_CAPSULE_SCHEMA = "sdm855-a90-v024-control-predecessor-final-capsule-v1"
+GIT_BINARY = "/usr/bin/git"
+GIT_TIMEOUT_SECONDS = 10.0
+MAX_GIT_OUTPUT_BYTES = 512 * 1024
+_GIT_SHA1_RE = re.compile(rb"[0-9a-f]{40}\Z")
+_HISTORICAL_SOURCE_SPECS = (
+    (
+        "inline",
+        "tools/a90_inline_remapper_mid_probe.py",
+        "209cdea93f344a45475c8b96476bad2a7e7b9524",
+        "0b171d4ca0b5a2f77b01745a285a67eea3436c9f78eb1d800ab0792bf0818c63",
+        160591,
+    ),
+    (
+        "autohud",
+        "tools/a90_autohud_arbitration.py",
+        "4b827dfd395fbb2f19105fdbc559a8e7b8c3f4d9",
+        "5da86cb927543e60626a679cbd949348c4f377c91148e59669990b6b3a6ba926",
+        8213,
+    ),
+    (
+        "transport",
+        "tools/a90_pa28_live.py",
+        "81c426069be191b061e33b26803da113fffe878f",
+        "0f50a20453f00a6f647d52cc2c3cd10ba52f8869d6b9264d5b9c47671197bc66",
+        150104,
+    ),
+)
 
 _CAPSULE_TOP_KEYS = frozenset(
     {
@@ -1846,6 +1878,135 @@ def _canonical_capsule_descriptor(capsule: Mapping[str, object]) -> dict[str, ob
     return {"sha256": hashlib.sha256(data).hexdigest(), "size_bytes": len(data)}
 
 
+def _git_batch() -> bytes:
+    """Run one fixed, bounded Git object query with no caller environment."""
+
+    requests = [PRODUCER_COMMIT]
+    requests.extend(f"{PRODUCER_COMMIT}:{path}" for _role, path, _blob, _sha, _size in _HISTORICAL_SOURCE_SPECS)
+    input_bytes = ("\n".join(requests) + "\n").encode("ascii")
+    if len(input_bytes) > 4096:
+        raise ControlRetryError("historical Git query is oversized")
+    clean_env = {"PATH": "/usr/bin:/bin", "LC_ALL": "C", "LANG": "C"}
+    try:
+        result = subprocess.run(
+            [GIT_BINARY, "cat-file", "--batch"],
+            input=input_bytes,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            cwd=str(REPO_ROOT),
+            env=clean_env,
+            shell=False,
+            timeout=GIT_TIMEOUT_SECONDS,
+            check=False,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise ControlRetryError("historical Git verification timed out") from exc
+    except OSError as exc:
+        raise ControlRetryError("historical Git verification could not start") from exc
+    if type(result.returncode) is not int or result.returncode != 0:
+        raise ControlRetryError("historical Git verification returned nonzero")
+    stdout = result.stdout
+    stderr = result.stderr
+    if type(stdout) is not bytes or type(stderr) is not bytes:
+        raise ControlRetryError("historical Git verification returned non-bytes")
+    if stderr or len(stdout) > MAX_GIT_OUTPUT_BYTES:
+        raise ControlRetryError("historical Git verification output is not exact")
+    return stdout
+
+
+def _parse_git_batch(stdout: bytes) -> list[tuple[bytes, bytes, bytes]]:
+    """Parse exact cat-file batch records, retaining no object body globally."""
+
+    records: list[tuple[bytes, bytes, bytes]] = []
+    cursor = 0
+    for _ in range(1 + len(_HISTORICAL_SOURCE_SPECS)):
+        newline = stdout.find(b"\n", cursor)
+        if newline < 0:
+            raise ControlRetryError("historical Git batch header is truncated")
+        header = stdout[cursor:newline]
+        fields = header.split(b" ")
+        if len(fields) != 3:
+            raise ControlRetryError("historical Git batch header is malformed")
+        object_id, object_type, size_text = fields
+        if _GIT_SHA1_RE.fullmatch(object_id) is None:
+            raise ControlRetryError("historical Git object id is malformed")
+        if object_type not in {b"commit", b"blob"}:
+            raise ControlRetryError("historical Git object type is malformed")
+        if not re.fullmatch(rb"0|[1-9][0-9]*", size_text):
+            raise ControlRetryError("historical Git object size is noncanonical")
+        size = int(size_text, 10)
+        if size > MAX_GIT_OUTPUT_BYTES or size < 0:
+            raise ControlRetryError("historical Git object size is oversized")
+        cursor = newline + 1
+        end = cursor + size
+        if end > len(stdout):
+            raise ControlRetryError("historical Git object body is truncated")
+        body = stdout[cursor:end]
+        cursor = end
+        if cursor >= len(stdout) or stdout[cursor:cursor + 1] != b"\n":
+            raise ControlRetryError("historical Git object body boundary is malformed")
+        cursor += 1
+        records.append((object_id, object_type, body))
+    if cursor != len(stdout):
+        raise ControlRetryError("historical Git output has an extra record")
+    return records
+
+
+def _verify_historical_git_sources() -> dict[str, object]:
+    """Verify the pinned historical commit and three source blobs."""
+
+    records = _parse_git_batch(_git_batch())
+    commit_id, commit_type, _commit_body = records[0]
+    if commit_id.decode("ascii") != PRODUCER_COMMIT or commit_type != b"commit":
+        raise ControlRetryError("historical producer commit is not exact")
+    sources: dict[str, object] = {}
+    for (role, relative_path, expected_blob, expected_sha256, expected_size), (
+        object_id,
+        object_type,
+        body,
+    ) in zip(_HISTORICAL_SOURCE_SPECS, records[1:]):
+        if (
+            object_type != b"blob"
+            or object_id.decode("ascii") != expected_blob
+            or len(body) != expected_size
+            or hashlib.sha256(body).hexdigest() != expected_sha256
+        ):
+            raise ControlRetryError(f"historical {role} source blob is not exact")
+        sources[role] = {
+            "relative_path": relative_path,
+            "basename": Path(relative_path).name,
+            "blob_sha1": expected_blob,
+            "sha256": expected_sha256,
+            "size_bytes": expected_size,
+        }
+    return {
+        "schema": HISTORICAL_GIT_RECEIPT_SCHEMA,
+        "commit_id": PRODUCER_COMMIT,
+        "commit_type": "commit",
+        "sources": sources,
+    }
+
+
+def build_predecessor_capsule() -> dict[str, object]:
+    """Build the final fixed predecessor capsule from A1 plus Git evidence."""
+
+    semantic = _validate_predecessor_semantics(stable_read_triplet())
+    historical_git = _verify_historical_git_sources()
+    capsule = {
+        "schema": FINAL_CAPSULE_SCHEMA,
+        "semantic_capsule": semantic,
+        "historical_git_verification": historical_git,
+    }
+    _validate_capsule_public_safety(capsule)
+    # Force canonical serialization here so a builder caller cannot receive a
+    # structurally valid but noncanonical wrapper.  The bytes/descriptor are
+    # intentionally returned only by the private helper, not embedded in the
+    # public capsule itself.
+    canonical_capsule_bytes(capsule)
+    _canonical_capsule_descriptor(capsule)
+    return capsule
+
+
 __all__ = [
     "ACTIVE_CONTROL_ID",
     "ControlRetryError",
@@ -1884,6 +2045,7 @@ __all__ = [
     "RetryInputError",
     "TRIPLET_PINS",
     "TripletReadError",
+    "build_predecessor_capsule",
     "read_triplet",
     "stable_read_triplet",
 ]

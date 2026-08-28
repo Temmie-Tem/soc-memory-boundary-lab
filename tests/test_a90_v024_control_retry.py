@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import inspect
 import json
 import os
 from pathlib import Path
 import stat
+import subprocess
 import tempfile
 import threading
 import unittest
@@ -461,6 +463,105 @@ class ControlRetrySemanticTests(unittest.TestCase):
         hostile["raw"]["op_args"] = [99]
         with self.assertRaises(retry.ControlRetryError):
             retry._validate_predecessor_semantics(hostile)
+
+
+class ControlRetryHistoricalGitTests(unittest.TestCase):
+    def test_historical_git_receipt_pins_commit_and_all_three_blobs(self) -> None:
+        first = retry._verify_historical_git_sources()
+        second = retry._verify_historical_git_sources()
+        self.assertEqual(first, second)
+        self.assertEqual(
+            set(first), {"schema", "commit_id", "commit_type", "sources"}
+        )
+        self.assertEqual(first["commit_id"], retry.PRODUCER_COMMIT)
+        self.assertEqual(first["commit_type"], "commit")
+        expected = {
+            "inline": (
+                "tools/a90_inline_remapper_mid_probe.py",
+                "209cdea93f344a45475c8b96476bad2a7e7b9524",
+                "0b171d4ca0b5a2f77b01745a285a67eea3436c9f78eb1d800ab0792bf0818c63",
+                160591,
+            ),
+            "autohud": (
+                "tools/a90_autohud_arbitration.py",
+                "4b827dfd395fbb2f19105fdbc559a8e7b8c3f4d9",
+                "5da86cb927543e60626a679cbd949348c4f377c91148e59669990b6b3a6ba926",
+                8213,
+            ),
+            "transport": (
+                "tools/a90_pa28_live.py",
+                "81c426069be191b061e33b26803da113fffe878f",
+                "0f50a20453f00a6f647d52cc2c3cd10ba52f8869d6b9264d5b9c47671197bc66",
+                150104,
+            ),
+        }
+        self.assertEqual(set(first["sources"]), set(expected))
+        for role, (path, blob_sha1, body_sha256, size) in expected.items():
+            with self.subTest(role=role):
+                source = first["sources"][role]
+                self.assertEqual(
+                    source,
+                    {
+                        "relative_path": path,
+                        "basename": Path(path).name,
+                        "blob_sha1": blob_sha1,
+                        "sha256": body_sha256,
+                        "size_bytes": size,
+                    },
+                )
+
+    def test_final_builder_is_no_arg_and_redacted(self) -> None:
+        private_paths = (
+            Path(retry.REPO_ROOT) / retry.PREDECESSOR_RAW_RELATIVE_PATH,
+            Path(retry.REPO_ROOT) / retry.PREDECESSOR_JOURNAL_RELATIVE_PATH,
+        )
+        if not all(path.is_file() for path in private_paths):
+            self.skipTest("private predecessor triplet is not present")
+        self.assertEqual(set(inspect.signature(retry.build_predecessor_capsule).parameters), set())
+        first = retry.build_predecessor_capsule()
+        second = retry.build_predecessor_capsule()
+        self.assertEqual(first, second)
+        self.assertEqual(set(first), {"schema", "semantic_capsule", "historical_git_verification"})
+        encoded = retry.canonical_capsule_bytes(first).decode("utf-8")
+        for forbidden in ("/home/", "/dev/tty", "bridge_binding", "process_pid", "listener", "payload_base64", "transcript_base64"):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, encoded)
+        descriptor = retry._canonical_capsule_descriptor(first)
+        self.assertEqual(descriptor["size_bytes"], len(encoded.encode("utf-8")))
+        self.assertEqual(descriptor["sha256"], hashlib.sha256(encoded.encode("utf-8")).hexdigest())
+
+    def test_git_runner_excludes_caller_git_environment_and_rejects_nonzero(self) -> None:
+        result = subprocess.CompletedProcess(
+            args=[retry.GIT_BINARY, "cat-file", "--batch"],
+            returncode=1,
+            stdout=b"",
+            stderr=b"git failure",
+        )
+        with mock.patch.object(retry.subprocess, "run", return_value=result) as run:
+            with mock.patch.dict(
+                os.environ,
+                {"GIT_DIR": "/attacker", "GIT_OBJECT_DIRECTORY": "/attacker/objects"},
+                clear=False,
+            ):
+                with self.assertRaises(retry.ControlRetryError):
+                    retry._verify_historical_git_sources()
+        kwargs = run.call_args.kwargs
+        self.assertEqual(kwargs["env"], {"PATH": "/usr/bin:/bin", "LC_ALL": "C", "LANG": "C"})
+        self.assertNotIn("GIT_DIR", kwargs["env"])
+        self.assertNotIn("GIT_OBJECT_DIRECTORY", kwargs["env"])
+        self.assertFalse(kwargs["shell"])
+        self.assertLessEqual(kwargs["timeout"], 10.0)
+
+    def test_git_runner_rejects_timeout(self) -> None:
+        with mock.patch.object(
+            retry.subprocess,
+            "run",
+            side_effect=subprocess.TimeoutExpired(
+                cmd=[retry.GIT_BINARY, "cat-file", "--batch"], timeout=10.0
+            ),
+        ):
+            with self.assertRaises(retry.ControlRetryError):
+                retry._verify_historical_git_sources()
 
 
 if __name__ == "__main__":
