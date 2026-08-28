@@ -50,15 +50,55 @@ class Verification024FinalizerTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name)
         self._original_repo_root = finalizer.REPO_ROOT
+        self._original_capsule_sha256 = finalizer.CONTROL_R2_PREDECESSOR_CAPSULE_SHA256
+        self._original_capsule_size = finalizer.CONTROL_R2_PREDECESSOR_CAPSULE_SIZE
+        self._original_inline_capsule_sha256 = probe.CONTROL_R2_PREDECESSOR_CAPSULE_SHA256
+        self._original_inline_capsule_size = probe.CONTROL_R2_PREDECESSOR_CAPSULE_SIZE
         # The production finalizer is fixed to its module repository root;
         # patch that explicit test seam for this isolated evidence universe.
         finalizer.REPO_ROOT = self.root
+        self.predecessor_capsule = {
+            "schema": finalizer.CONTROL_R2_PREDECESSOR_CAPSULE_SCHEMA,
+            "semantic_capsule": {
+                "schema": "fixture-semantic-v1",
+                "effect_grades": {"fixed_op": "PROVED_ZERO"},
+                "claims": {"live_authority": False},
+            },
+            "historical_git_verification": {
+                "schema": "fixture-historical-git-v1",
+                "commit_id": "fixture-commit",
+                "commit_type": "commit",
+                "sources": {},
+            },
+        }
+        self.predecessor_capsule_bytes = finalizer.control_retry.canonical_capsule_bytes(
+            self.predecessor_capsule
+        )
+        self.predecessor_capsule_sha256 = finalizer.hashlib.sha256(
+            self.predecessor_capsule_bytes
+        ).hexdigest()
+        self.predecessor_capsule_size = len(self.predecessor_capsule_bytes)
+        finalizer.CONTROL_R2_PREDECESSOR_CAPSULE_SHA256 = self.predecessor_capsule_sha256
+        finalizer.CONTROL_R2_PREDECESSOR_CAPSULE_SIZE = self.predecessor_capsule_size
+        probe.CONTROL_R2_PREDECESSOR_CAPSULE_SHA256 = self.predecessor_capsule_sha256
+        probe.CONTROL_R2_PREDECESSOR_CAPSULE_SIZE = self.predecessor_capsule_size
+        self._capsule_builder_patch = mock.patch.object(
+            finalizer.control_retry,
+            "build_predecessor_capsule",
+            return_value=self.predecessor_capsule,
+        )
+        self._capsule_builder_patch.start()
         (self.root / "evidence/private").mkdir(parents=True)
         (self.root / "evidence/manifests").mkdir(parents=True)
         self._make_receipts()
         self._upgrade_receipts_for_v024_contract()
 
     def tearDown(self) -> None:
+        self._capsule_builder_patch.stop()
+        probe.CONTROL_R2_PREDECESSOR_CAPSULE_SHA256 = self._original_inline_capsule_sha256
+        probe.CONTROL_R2_PREDECESSOR_CAPSULE_SIZE = self._original_inline_capsule_size
+        finalizer.CONTROL_R2_PREDECESSOR_CAPSULE_SHA256 = self._original_capsule_sha256
+        finalizer.CONTROL_R2_PREDECESSOR_CAPSULE_SIZE = self._original_capsule_size
         finalizer.REPO_ROOT = self._original_repo_root
         self.temp.cleanup()
 
@@ -983,6 +1023,15 @@ class Verification024FinalizerTests(unittest.TestCase):
             "semantic_claim_key_sha256": control_claim_key,
             "semantic_claimed": True,
         })
+        preclaim = probe._control_r2_preclaim()
+        preclaim_bytes = probe.json_bytes(preclaim)
+        control_journal["control_r2_predecessor"] = {
+            "preclaim_sha256": finalizer.hashlib.sha256(preclaim_bytes).hexdigest(),
+            "preclaim_size": len(preclaim_bytes),
+            "capsule": self.predecessor_capsule,
+            "capsule_sha256": self.predecessor_capsule_sha256,
+            "capsule_size": self.predecessor_capsule_size,
+        }
         control_raw_bytes = self._write(control_raw_path, control_raw)
         control_journal_bytes = self._write(control_journal_path, control_journal)
         control_manifest = json.loads(self.control_manifest.read_text())
@@ -2265,6 +2314,12 @@ class Verification024FinalizerTests(unittest.TestCase):
     def test_complete_chain_emits_refused_at_mid_and_no_device_contact(self) -> None:
         control = finalizer.validate_control(self.control_manifest, self.root)
         self.assertEqual(control["value"], "0x000000000000c071")
+        self.assertEqual(
+            control["predecessor_capsule_sha256"], self.predecessor_capsule_sha256
+        )
+        self.assertEqual(
+            control["predecessor_capsule_size"], self.predecessor_capsule_size
+        )
         self.assertFalse(finalizer.validate_read(self.read_manifest, self.root, control)["value_present"])
         private, public = finalizer.finalize(self._args())
         manifest = json.loads(public.read_text())
@@ -2274,6 +2329,94 @@ class Verification024FinalizerTests(unittest.TestCase):
         self.assertFalse(manifest["device_contact"])
         self.assertNotIn("serial", json.dumps(manifest))
         self.assertEqual(private.stat().st_mode & 0o777, 0o600)
+
+    def _rewrite_control_journal(self, journal: dict[str, object]) -> None:
+        journal_path = self.root / "evidence/private" / f"{finalizer.CONTROL_EXPERIMENT_ID}.journal.json"
+        journal_bytes = self._write(journal_path, journal)
+        manifest = json.loads(self.control_manifest.read_text())
+        manifest["journal_sha256"] = finalizer.hashlib.sha256(journal_bytes).hexdigest()
+        manifest["journal_size"] = len(journal_bytes)
+        self._write(self.control_manifest, manifest)
+
+    def test_control_r2_predecessor_capsule_and_preclaim_are_exactly_bound(self) -> None:
+        journal_path = self.root / "evidence/private" / f"{finalizer.CONTROL_EXPERIMENT_ID}.journal.json"
+        journal = json.loads(journal_path.read_text())
+        section = journal["control_r2_predecessor"]
+        self.assertEqual(
+            set(section),
+            {
+                "preclaim_sha256",
+                "preclaim_size",
+                "capsule",
+                "capsule_sha256",
+                "capsule_size",
+            },
+        )
+        self.assertEqual(section["capsule"], self.predecessor_capsule)
+        self.assertEqual(section["capsule_sha256"], self.predecessor_capsule_sha256)
+        self.assertEqual(section["capsule_size"], self.predecessor_capsule_size)
+        preclaim = probe._control_r2_preclaim()
+        preclaim_bytes = probe.json_bytes(preclaim)
+        self.assertEqual(
+            section["preclaim_sha256"], finalizer.hashlib.sha256(preclaim_bytes).hexdigest()
+        )
+        self.assertEqual(section["preclaim_size"], len(preclaim_bytes))
+        validated = finalizer.validate_control(self.control_manifest, self.root)
+        self.assertEqual(validated["predecessor_capsule_sha256"], self.predecessor_capsule_sha256)
+
+    def test_control_r2_predecessor_missing_extra_mutated_and_spliced_receipts_fail(self) -> None:
+        mutations = (
+            "missing",
+            "extra",
+            "capsule",
+            "capsule_bool_int",
+            "capsule_hash",
+            "capsule_size",
+            "preclaim_hash",
+            "preclaim_size",
+        )
+        journal_path = self.root / "evidence/private" / f"{finalizer.CONTROL_EXPERIMENT_ID}.journal.json"
+        baseline_journal = json.loads(journal_path.read_text())
+        for mutation in mutations:
+            with self.subTest(mutation=mutation):
+                journal = json.loads(json.dumps(baseline_journal))
+                section = journal["control_r2_predecessor"]
+                if mutation == "missing":
+                    del section["capsule"]
+                elif mutation == "extra":
+                    section["unexpected"] = False
+                elif mutation == "capsule":
+                    section["capsule"] = {
+                        **section["capsule"],
+                        "semantic_capsule": {"forged": True},
+                    }
+                elif mutation == "capsule_bool_int":
+                    section["capsule"]["semantic_capsule"]["claims"]["live_authority"] = 0
+                elif mutation == "capsule_hash":
+                    section["capsule_sha256"] = "0" * 64
+                elif mutation == "capsule_size":
+                    section["capsule_size"] += 1
+                elif mutation == "preclaim_hash":
+                    section["preclaim_sha256"] = "0" * 64
+                else:
+                    section["preclaim_size"] += 1
+                self._rewrite_control_journal(journal)
+                with self.assertRaises(finalizer.FinalizeError):
+                    finalizer.validate_control(self.control_manifest, self.root)
+
+    def test_control_r2_old_id_and_old_manifest_path_are_rejected(self) -> None:
+        old_path = self.root / "evidence/manifests" / (
+            f"{finalizer.CONTROL_PREDECESSOR_EXPERIMENT_ID}.manifest.json"
+        )
+        old_path.write_bytes(self.control_manifest.read_bytes())
+        with self.assertRaises(finalizer.FinalizeError):
+            finalizer.validate_control(old_path, self.root)
+
+        manifest = json.loads(self.control_manifest.read_text())
+        manifest["experiment_id"] = finalizer.CONTROL_PREDECESSOR_EXPERIMENT_ID
+        self._write(self.control_manifest, manifest)
+        with self.assertRaises(finalizer.FinalizeError):
+            finalizer.validate_control(self.control_manifest, self.root)
 
     def test_inline_frame_consumer_rejects_zero_or_missing_stophud_sequence(self) -> None:
         raw = json.loads(

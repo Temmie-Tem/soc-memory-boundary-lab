@@ -16,6 +16,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from tools import a90_inline_remapper_mid_probe as probe
 from tools import a90_verification024_finalize as finalizer
@@ -46,6 +47,45 @@ def _write_and_rebind(
 class V024AuthorizerFrameContractTests(unittest.TestCase):
     """Prove both consumers reject every omitted complete producer frame."""
 
+    def setUp(self) -> None:
+        from tests.test_a90_inline_remapper_mid_probe import (
+            InlineRemapperMidProbeTests,
+        )
+
+        fixture_builder = InlineRemapperMidProbeTests("run")
+        self._capsule, self._capsule_sha256, self._capsule_size = (
+            fixture_builder._predecessor_capsule_fixture()
+        )
+        self._original_finalizer_capsule_sha256 = (
+            finalizer.CONTROL_R2_PREDECESSOR_CAPSULE_SHA256
+        )
+        self._original_finalizer_capsule_size = (
+            finalizer.CONTROL_R2_PREDECESSOR_CAPSULE_SIZE
+        )
+        self._original_probe_capsule_sha256 = probe.CONTROL_R2_PREDECESSOR_CAPSULE_SHA256
+        self._original_probe_capsule_size = probe.CONTROL_R2_PREDECESSOR_CAPSULE_SIZE
+        finalizer.CONTROL_R2_PREDECESSOR_CAPSULE_SHA256 = self._capsule_sha256
+        finalizer.CONTROL_R2_PREDECESSOR_CAPSULE_SIZE = self._capsule_size
+        probe.CONTROL_R2_PREDECESSOR_CAPSULE_SHA256 = self._capsule_sha256
+        probe.CONTROL_R2_PREDECESSOR_CAPSULE_SIZE = self._capsule_size
+        self._capsule_builder_patch = mock.patch.object(
+            finalizer.control_retry,
+            "build_predecessor_capsule",
+            return_value=self._capsule,
+        )
+        self._capsule_builder_patch.start()
+
+    def tearDown(self) -> None:
+        self._capsule_builder_patch.stop()
+        finalizer.CONTROL_R2_PREDECESSOR_CAPSULE_SHA256 = (
+            self._original_finalizer_capsule_sha256
+        )
+        finalizer.CONTROL_R2_PREDECESSOR_CAPSULE_SIZE = (
+            self._original_finalizer_capsule_size
+        )
+        probe.CONTROL_R2_PREDECESSOR_CAPSULE_SHA256 = self._original_probe_capsule_sha256
+        probe.CONTROL_R2_PREDECESSOR_CAPSULE_SIZE = self._original_probe_capsule_size
+
     def _collect_control(self, root: Path) -> tuple[Path, Path, Path]:
         # Reuse the existing actual mocked collect path.  Calling the helper
         # on a fixture instance keeps all device-facing work replaced by its
@@ -61,7 +101,11 @@ class V024AuthorizerFrameContractTests(unittest.TestCase):
         self.assertIsNotNone(result)
         assert result is not None
         raw_path, manifest_path = result
-        journal_path = root / "evidence/private/verification-024-control.journal.json"
+        journal_path = (
+            root
+            / "evidence/private"
+            / f"{probe.CONTROL_EXPERIMENT_ID}.journal.json"
+        )
         self.assertTrue(raw_path.is_file())
         self.assertTrue(manifest_path.is_file())
         self.assertTrue(journal_path.is_file())

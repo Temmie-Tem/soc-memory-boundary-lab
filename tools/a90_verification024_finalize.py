@@ -26,6 +26,8 @@ from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 try:
+    from tools import a90_v024_control_retry as control_retry
+    from tools import a90_inline_remapper_mid_probe as inline_probe
     from tools.a90_last_kmsg_capture import parse_exact_reset_signature
     from tools.a90_inline_remapper_mid_probe import (
         fixed_op_argv,
@@ -56,6 +58,8 @@ try:
         boot_prefix_claim_path,
     )
 except ModuleNotFoundError:  # Direct execution from tools/.
+    import a90_v024_control_retry as control_retry  # type: ignore
+    import a90_inline_remapper_mid_probe as inline_probe  # type: ignore
     from a90_last_kmsg_capture import parse_exact_reset_signature  # type: ignore
     from a90_inline_remapper_mid_probe import (  # type: ignore
         fixed_op_argv,
@@ -122,8 +126,18 @@ READ_SOURCE_JOURNAL_NAME = f"{READ_SOURCE_EXPERIMENT_ID}.journal.json"
 # the fixed final-chain producer slots.  Callers may patch REPO_ROOT for an
 # isolated host fixture, but may not mint another evidence namespace or swap
 # an arbitrary producer path into this chain.
-CONTROL_EXPERIMENT_ID = "verification-024-control"
+CONTROL_EXPERIMENT_ID = "verification-024-control-r2"
+CONTROL_PREDECESSOR_EXPERIMENT_ID = "verification-024-control"
 CONTROL_MANIFEST_NAME = f"{CONTROL_EXPERIMENT_ID}.manifest.json"
+CONTROL_R2_PRECLAIM_SCHEMA = "sdm855-a90-inline-remapper-mid-journal-v1"
+CONTROL_R2_PRECLAIM_STATUS = "PREDECESSOR_VALIDATION_PENDING"
+CONTROL_R2_PREDECESSOR_CAPSULE_SCHEMA = (
+    "sdm855-a90-v024-control-predecessor-final-capsule-v1"
+)
+CONTROL_R2_PREDECESSOR_CAPSULE_SHA256 = (
+    "56d233030e1c970b486721b21293a91a154bdc5ebe0ae811b36473457648df15"
+)
+CONTROL_R2_PREDECESSOR_CAPSULE_SIZE = 4924
 LAST_KMSG_EXPERIMENT_ID = "last-kmsg-final"
 LAST_KMSG_MANIFEST_NAME = f"{LAST_KMSG_EXPERIMENT_ID}.manifest.json"
 STOPHUD_MAX_ATTEMPTS = 3
@@ -2146,6 +2160,121 @@ def _control_raw_journal(manifest: Mapping[str, object], root: Path) -> tuple[di
     return raw, raw_bytes, journal, journal_bytes, raw_path, journal_path
 
 
+def _validate_control_r2_predecessor(
+    journal: Mapping[str, object], label: str = "control journal"
+) -> tuple[str, int]:
+    """Validate the fixed r2 predecessor capsule and durable preclaim.
+
+    The control producer writes the preclaim before any candidate, transport,
+    flash, or device evidence is read, then atomically upgrades the same
+    journal with this section.  Rebuilding the capsule through the no-argument
+    host-only producer and rebuilding the preclaim through the inline helper
+    prevents a caller from substituting a semantically similar but differently
+    serialized predecessor namespace.
+    """
+
+    section = journal.get("control_r2_predecessor")
+    if not isinstance(section, dict):
+        raise FinalizeError(f"{label} r2 predecessor section is missing")
+    if set(section) != {
+        "preclaim_sha256",
+        "preclaim_size",
+        "capsule",
+        "capsule_sha256",
+        "capsule_size",
+    }:
+        raise FinalizeError(f"{label} r2 predecessor fields are not exact")
+
+    try:
+        capsule = control_retry.build_predecessor_capsule()
+    except BaseException as exc:
+        raise FinalizeError("control r2 predecessor capsule cannot be rebuilt") from exc
+    if type(capsule) is not dict or set(capsule) != {
+        "schema",
+        "semantic_capsule",
+        "historical_git_verification",
+    }:
+        raise FinalizeError("control r2 predecessor capsule schema is not exact")
+    if capsule.get("schema") != CONTROL_R2_PREDECESSOR_CAPSULE_SCHEMA:
+        raise FinalizeError("control r2 predecessor capsule schema differs")
+    try:
+        capsule_bytes = control_retry.canonical_capsule_bytes(capsule)
+    except BaseException as exc:
+        raise FinalizeError("control r2 predecessor capsule is not canonical") from exc
+    if type(capsule_bytes) is not bytes:
+        raise FinalizeError("control r2 predecessor capsule bytes are not exact")
+    capsule_sha256 = hashlib.sha256(capsule_bytes).hexdigest()
+    capsule_size = len(capsule_bytes)
+    if capsule_sha256 != CONTROL_R2_PREDECESSOR_CAPSULE_SHA256:
+        raise FinalizeError("control r2 predecessor capsule hash is not fixed")
+    if capsule_size != CONTROL_R2_PREDECESSOR_CAPSULE_SIZE:
+        raise FinalizeError("control r2 predecessor capsule size is not fixed")
+    retained_capsule = section.get("capsule")
+    if type(retained_capsule) is not dict:
+        raise FinalizeError("control r2 predecessor capsule differs from producer")
+    try:
+        retained_capsule_bytes = control_retry.canonical_capsule_bytes(retained_capsule)
+    except BaseException as exc:
+        raise FinalizeError("control r2 predecessor retained capsule is not canonical") from exc
+    if retained_capsule_bytes != capsule_bytes:
+        raise FinalizeError("control r2 predecessor capsule bytes differ from producer")
+    if (
+        hashlib.sha256(retained_capsule_bytes).hexdigest()
+        != CONTROL_R2_PREDECESSOR_CAPSULE_SHA256
+        or len(retained_capsule_bytes) != CONTROL_R2_PREDECESSOR_CAPSULE_SIZE
+    ):
+        raise FinalizeError("control r2 predecessor retained capsule descriptor is not fixed")
+    _require(section, "capsule_sha256", capsule_sha256, label)
+    _require(section, "capsule_size", capsule_size, label)
+
+    try:
+        preclaim = inline_probe._control_r2_preclaim()
+        preclaim_bytes = inline_probe.json_bytes(preclaim)
+    except BaseException as exc:
+        raise FinalizeError("control r2 predecessor preclaim cannot be rebuilt") from exc
+    if type(preclaim) is not dict or type(preclaim_bytes) is not bytes:
+        raise FinalizeError("control r2 predecessor preclaim is not exact")
+    if set(preclaim) != {
+        "schema",
+        "status",
+        "experiment_id",
+        "predecessor_experiment_id",
+        "mode",
+        "replay_safe",
+        "predecessor_capsule",
+    }:
+        raise FinalizeError("control r2 predecessor preclaim fields are not exact")
+    if preclaim.get("schema") != CONTROL_R2_PRECLAIM_SCHEMA:
+        raise FinalizeError("control r2 predecessor preclaim schema differs")
+    if preclaim.get("status") != CONTROL_R2_PRECLAIM_STATUS:
+        raise FinalizeError("control r2 predecessor preclaim status differs")
+    if preclaim.get("experiment_id") != CONTROL_EXPERIMENT_ID:
+        raise FinalizeError("control r2 predecessor preclaim active ID differs")
+    if preclaim.get("predecessor_experiment_id") != CONTROL_PREDECESSOR_EXPERIMENT_ID:
+        raise FinalizeError("control r2 predecessor preclaim old ID differs")
+    if preclaim.get("mode") != "control" or preclaim.get("replay_safe") is not False:
+        raise FinalizeError("control r2 predecessor preclaim replay policy differs")
+    expected_predecessor = {
+        "schema": CONTROL_R2_PREDECESSOR_CAPSULE_SCHEMA,
+        "sha256": CONTROL_R2_PREDECESSOR_CAPSULE_SHA256,
+        "size": CONTROL_R2_PREDECESSOR_CAPSULE_SIZE,
+        "historical_pins_policy": preclaim.get("predecessor_capsule", {}).get(
+            "historical_pins_policy"
+        )
+        if isinstance(preclaim.get("predecessor_capsule"), dict)
+        else None,
+    }
+    if not isinstance(preclaim.get("predecessor_capsule"), dict):
+        raise FinalizeError("control r2 predecessor preclaim capsule policy is missing")
+    if set(preclaim["predecessor_capsule"]) != set(expected_predecessor):
+        raise FinalizeError("control r2 predecessor preclaim capsule fields are not exact")
+    if preclaim["predecessor_capsule"] != expected_predecessor:
+        raise FinalizeError("control r2 predecessor preclaim capsule policy differs")
+    _require(section, "preclaim_sha256", hashlib.sha256(preclaim_bytes).hexdigest(), label)
+    _require(section, "preclaim_size", len(preclaim_bytes), label)
+    return capsule_sha256, capsule_size
+
+
 def _validate_flash_reference(
     value: object,
     *,
@@ -2311,6 +2440,9 @@ def validate_control(path: Path, root: Path) -> dict[str, object]:
         raise FinalizeError("control journal hash/size does not match manifest")
     if type(raw_size) is not int or type(journal_size) is not int:
         raise FinalizeError("control private hash/size binding is malformed")
+    predecessor_capsule_sha256, predecessor_capsule_size = _validate_control_r2_predecessor(
+        journal
+    )
     _require(raw, "schema", "sdm855-a90-inline-remapper-mid-private-v1", "control raw")
     _require(raw, "mode", "control", "control raw")
     _require_hash(raw.get("candidate_sha256"), CONTROL_SHA256, "control raw candidate")
@@ -2522,6 +2654,8 @@ def validate_control(path: Path, root: Path) -> dict[str, object]:
         "semantic_claim_sha256": raw.get("semantic_claim_sha256"),
         "semantic_claim_size": raw.get("semantic_claim_size"),
         "semantic_claim_key_sha256": raw.get("semantic_claim_key_sha256"),
+        "predecessor_capsule_sha256": predecessor_capsule_sha256,
+        "predecessor_capsule_size": predecessor_capsule_size,
         "raw_path": str(raw_path),
         "journal_path": str(journal_path),
     }
