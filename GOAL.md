@@ -133,6 +133,14 @@ reproducibility, root-cause, affected-range, safety and disclosure evidence만
 
 ## Non-overlap and collaboration
 
+현재 역할 분리는 고정한다. 실행 코드와 테스트의 구현·수정은 Luna Max
+worker에게 위임한다. Root Codex는 다음 실험 선택, 가설·계약·위험·복구 설계,
+worker 지휘, 구현 검토, 실기기 실행, evidence 판정, 문서 통합과 최종 commit을
+소유한다. 별도 hostile-review agent는 구현자와 독립적으로 정확한 바이트를
+검사한다. Root가 구현 결함을 발견하면 직접 코드 패치를 섞지 않고 Luna Max에
+반환하며, root 판단과 독립 review가 모두 닫히기 전에는 live effect를 실행하지
+않는다.
+
 새 실험은 다른 worktree/agent와 다음 세 가지를 모두 검사해야 한다.
 
 1. file intersection: owned files, generated artifacts, manifests, logs;

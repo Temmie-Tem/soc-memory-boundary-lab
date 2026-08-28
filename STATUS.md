@@ -42,6 +42,20 @@ below `/tmp/a90-native`. The temporary character node and probe were removed;
 the final exact-target receipt reports V2321 `0.9.285`, selftest `fail=0`, and
 battery 100%. No partition or hardware-control register was written.
 
+Verification 024 is `HOST_REVIEW_GO / FRESH_TARGET_BINDING_REQUIRED /
+DEVICE_NOT_RUN`. It pre-registers the exact paired control/read of remapper
+page `0x09248080` at `DMID`; no Verification 024 device command has yet run.
+The repaired host closure passed 1,883 tests with one skip under a 4-GiB
+virtual-memory ceiling (885,132 KiB peak RSS, zero test-process swaps, no OOM),
+and independent review passed 743 frame rows plus 156 stable-`param`/static
+rows with no P0/P1 finding. `PROVED`: entry and rollback use the same fixed
+`param[1:0xA00000]` LOW identity
+`c0c7147418cf13145a44369a960c81647d347f317cb35baed1d85b286253c68a`
+while complete-image before/host/after hashes remain exact transfer evidence.
+`SUPPORTED`: reboot can change byte 0 without changing that state. `UNKNOWN`:
+byte 0's writer/semantics and the live remapper-page result. Classification
+remains `CLASS C (TRANSFORM ONLY)`.
+
 Host-only Experiment 017 then cross-referenced the exact XBL MC address table
 and helper read-copy path. It made no device, SMC or MMIO access and does not
 satisfy reserved/`NOT ELIGIBLE` Experiments 015 (normal-RAM alias) or 016
