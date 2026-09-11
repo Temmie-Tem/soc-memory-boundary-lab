@@ -1,0 +1,74 @@
+NOTICE
+======
+
+Scope of the MIT license
+------------------------
+
+The MIT License in `LICENSE` applies to the original documentation, analysis
+tooling, tests, and evidence manifests in this repository for which the project
+owns the rights.
+
+Qualcomm and Samsung firmware — bootloader (XBL), TrustZone, QHEE, device
+configuration blobs, vendor kernel sources, proprietary binaries, and boot or
+recovery images — are NOT covered by that license. They remain subject to their
+own licenses and distribution terms and must not be redistributed without proper
+authorization.
+
+
+What this repository does and does not contain
+----------------------------------------------
+
+This repository publishes **derived analysis records**: decoded register maps,
+address relations, permission-word interpretations, and the manifests that bind
+each finding to the exact input it came from. Those records are the project's
+own work.
+
+It does **not** publish the firmware they were derived from. Raw images,
+extracted binaries, and raw device output are kept outside the published tree
+under `evidence/private/` and by extension rules in `.gitignore`
+(`*.bin`, `*.img`, `*.elf`, `*.mbn`, `*.raw`, `/firmware/`, `/vendor-artifacts/`).
+They are retained by the repository owner solely for research on a device they
+personally own.
+
+Where a document refers to a vendor image, a partition, or a stock binary, it
+refers to material the reader must obtain through their own lawful channel. A
+manifest naming an input by hash is a binding record, not a distribution of that
+input.
+
+
+Relationship to the upstream project
+------------------------------------
+
+This is a derived project. The platform it observes from, and the device-safety
+method it inherits, are documented in:
+
+    https://github.com/Temmie-Tem/android-native-init-lab
+
+That project is MIT licensed by the same owner. Nothing here grants device
+authority, and no procedure in this repository overrides the upstream safety
+contract.
+
+
+Research posture
+----------------
+
+This repository contains no exploit and no attack tooling. Its classification
+is recorded in the documents themselves; at the time of publication it is
+`CLASS C (TRANSFORM ONLY)` / `NOT_ELIGIBLE`, and no DDR/controller, XPU, SMMU,
+SCM, EL2, EL3, or protected-memory write has been performed. Claims are labelled
+`PROVED`, `SUPPORTED`, `HYPOTHESIS`, `UNKNOWN`, or `REFUTED`, and a label is not
+to be read as stronger than it states.
+
+
+Device identifiers
+------------------
+
+Device serials and other private identifiers are not published.
+
+
+Trademarks
+----------
+
+Samsung, Galaxy, Qualcomm, Snapdragon, Android, and other product names are
+trademarks of their respective owners. Their use here is descriptive only and
+does not imply affiliation with or endorsement by those owners.

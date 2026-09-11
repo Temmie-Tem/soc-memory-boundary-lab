@@ -9,7 +9,8 @@ This is a property-free A90 counterpart to the upper project's S22+ read-only
 reset-reason probe. Target profiles and transports were not transferred:
 
 - S22+ precedent:
-  `/home/temmie/dev/android-native-init-lab/workspace/public/src/scripts/revalidation/s22plus_reset_reason_readonly_probe.py`
+  `workspace/public/src/scripts/revalidation/s22plus_reset_reason_readonly_probe.py`
+  in the upstream project
 - A90 transport: the existing target-pinned loopback A90P1 ACM bridge
 - Android `getprop`: absent from this design and never invoked
 

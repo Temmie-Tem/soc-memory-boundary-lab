@@ -29,6 +29,20 @@ import subprocess
 import time
 from typing import Any, Mapping, Sequence
 
+
+def _upstream_root() -> Path:
+    """Root of the upstream android-native-init-lab checkout.
+
+    Override with ANDROID_NATIVE_INIT_LAB when it is not at the default path.
+    """
+    return Path(
+        os.environ.get(
+            "ANDROID_NATIVE_INIT_LAB",
+            Path.home() / "dev" / "android-native-init-lab",
+        )
+    )
+
+
 try:
     from tools.a90_acm_snapshot import json_bytes
     from tools.a90_twrp_system_boot import (
@@ -129,9 +143,10 @@ V024_ALLOWED_PREDECESSORS = {
     # remapper owner), not merely an unordered membership set.
     "rollback": (READ_SHA256, CONTROL_SHA256),
 }
-ROLLBACK_IMAGE = Path(
-    "/home/temmie/dev/android-native-init-lab/workspace/private/inputs/"
-    "boot_images/boot_linux_v2321_usb_clean_identity_rodata.img"
+ROLLBACK_IMAGE = (
+    _upstream_root()
+    / "workspace/private/inputs/boot_images"
+    / "boot_linux_v2321_usb_clean_identity_rodata.img"
 )
 V024_ARTIFACT_RELATIVE_PATHS = {
     CONTROL_SHA256: Path(

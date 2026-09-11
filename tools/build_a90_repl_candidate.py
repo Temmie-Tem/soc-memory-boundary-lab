@@ -19,7 +19,21 @@ import tempfile
 from pathlib import Path
 
 
-SOURCE_REPO = Path("/home/temmie/dev/android-native-init-lab")
+def _upstream_root() -> Path:
+    """Root of the upstream android-native-init-lab checkout.
+
+    Override with ANDROID_NATIVE_INIT_LAB when it is not at the default path.
+    """
+    return Path(
+        os.environ.get(
+            "ANDROID_NATIVE_INIT_LAB",
+            Path.home() / "dev" / "android-native-init-lab",
+        )
+    )
+
+
+
+SOURCE_REPO = _upstream_root()
 SOURCE_COMMIT = "f44b34c8f44a9a01c99bb589644494c732a6c3fa"
 SOURCE_DIR = "workspace/public/src/scripts/revalidation"
 HISTORICAL_SOURCES = {
@@ -31,9 +45,10 @@ HISTORICAL_SOURCES = {
         "9c630efa3aad656f2396444196f7fe4d171b09297016d95cf116a3518acac9a2",
 }
 CURRENT_SCRIPT_DIR = SOURCE_REPO / SOURCE_DIR
-DEFAULT_BASE = Path(
-    "/home/temmie/dev/android-native-init-lab/workspace/private/inputs/"
-    "boot_images/boot_linux_v2321_usb_clean_identity_rodata.img"
+DEFAULT_BASE = (
+    _upstream_root()
+    / "workspace/private/inputs/boot_images"
+    / "boot_linux_v2321_usb_clean_identity_rodata.img"
 )
 DEFAULT_OUTPUT_DIR = Path(
     "evidence/private/007-kernel-remapper-readonly-20260825-02"

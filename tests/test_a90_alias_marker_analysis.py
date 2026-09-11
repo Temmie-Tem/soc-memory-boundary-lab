@@ -533,7 +533,7 @@ class PublicationAndControlGateTests(unittest.TestCase):
             self.assertEqual(output.read_bytes(), original)
 
         with self.assertRaises(marker.MarkerError):
-            marker.encode_output({"private_path": "/home/temmie/private.json"})
+            marker.encode_output({"private_path": "/home/example/private.json"})
 
     def _assert_control_failure_is_closed(self, rows: list[dict], label: str) -> None:
         try:

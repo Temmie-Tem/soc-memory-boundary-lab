@@ -1,12 +1,25 @@
 # SDM855 Memory Boundary Lab
 
-Private, evidence-led research into the final system-physical-address to DRAM
-mapping on Samsung SM-A908N / Qualcomm SM8150.
+Evidence-led research into the final system-physical-address to DRAM mapping on
+Samsung SM-A908N / Qualcomm SM8150.
 
 The central question is whether a Normal World physical address can be checked
 by one protection layer but later transformed to a different protected DRAM
 destination. This repository does **not** assume the AMD Skitter Creek result
 applies to Qualcomm.
+
+**This repository contains no exploit.** At publication the work is classified
+`CLASS C (TRANSFORM ONLY)` / `NOT_ELIGIBLE`: no alias or protection bypass has
+been observed, and no DDR/controller, XPU, SMMU, SCM, EL2, EL3, or
+protected-memory write has been performed. Every finding carries one of
+`PROVED`, `SUPPORTED`, `HYPOTHESIS`, `UNKNOWN`, or `REFUTED` — read a label as
+exactly what it says and no further. [`SECURITY.md`](SECURITY.md) states the
+disclosure posture, including what happens if this research ever does reach a
+bypass.
+
+The work is done on hardware the author owns. No firmware is redistributed
+here: the published records are derived analysis bound to inputs by hash, not
+the inputs themselves. See [`NOTICE`](NOTICE).
 
 This is a derived project. See [Upstream](#upstream) for the platform it
 observes from and the safety method it inherits.
@@ -933,8 +946,8 @@ kept in `evidence/manifests/`.
 
 ## Upstream
 
-This research is derived from the local **`android-native-init-lab`** project
-(`Temmie-Tem/android-native-init-lab`), which builds a minimal native
+This research is derived from the **`android-native-init-lab`** project
+(<https://github.com/Temmie-Tem/android-native-init-lab>), which builds a minimal native
 Linux-style userspace on Android vendor kernels. That project supplies the
 entire platform this repository observes from; none of it originates here.
 
