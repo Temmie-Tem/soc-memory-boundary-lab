@@ -1,5 +1,7 @@
 # SDM855 Memory Boundary Lab
 
+**English** · [한국어](README.ko.md)
+
 Evidence-led research into the final system-physical-address to DRAM mapping on
 Samsung SM-A908N / Qualcomm SM8150.
 
@@ -21,8 +23,11 @@ The work is done on hardware the author owns. No firmware is redistributed
 here: the published records are derived analysis bound to inputs by hash, not
 the inputs themselves. See [`NOTICE`](NOTICE).
 
-This is a derived project. See [Upstream](#upstream) for the platform it
-observes from and the safety method it inherits.
+This is a derived project of
+[**android-native-init-lab**](https://github.com/Temmie-Tem/android-native-init-lab),
+which supplies the entire platform it observes from — the A90 native runtime,
+its ACM bridge and REPL — and the device-safety contract it inherits. See
+[Upstream](#upstream) for the exact division of what comes from where.
 
 Current phase: source reconstruction plus bounded, source-backed live
 normal-RAM observation and host-only frontier qualification. Experiment 007
@@ -34,6 +39,10 @@ stall. V2321 was restored by verified boot-prefix readback and passed final
 native health. No DDR/controller, XPU, SMMU, SCM, EL2, EL3, or
 protected-memory write has been performed.
 
+## Findings by experiment
+
+### Live Verifications 005–014 — the gated diagnostic track
+
 Live Verifications 005–014 have now completed the gated diagnostic track. Exact
 XBL static analysis proved that MID alone admits the inner vendor path while a
 panic-supplied dload cookie/restart reason supplies the outer trigger. A
@@ -41,11 +50,15 @@ byte-exact 10-MiB `param` capture proved FMM, force-upload, and dump sink were
 zero; only the four-byte debug field was changed, verified, and finally
 restored. One source-backed SysRq panic was dispatched without replay.
 
+### Experiment 008 — the live DCB and remapper row, and the six-slot XBL writer
+
 Host-only Experiment 008 then resolved the exact live DCB and remapper row from
 the retained boot records, pinned the six-slot 36-bit XBL writer, and bound
 TrustZone `BIMC_MPU0..3` records to `qhs_llcc + 0xe000` beside each remapper at
 `+0x8080`. This narrows the ownership question but does not prove policy
 coverage, post-boot mutability, an alias, or a bypass.
+
+### Experiment 009 — static policy coverage for the tested instance-0 page
 
 Host-only Experiment 009 now proves static policy coverage for the tested
 instance-0 page. Both exact TrustZone selector branches place `0x09248080` in
@@ -55,6 +68,8 @@ legacy bit-3 HLOS predicate is non-discriminating. The fixed-load non-return is
 confirmed, but XPU, QHEE/stage-2, fabric/power, and instrumentation remain live
 causal alternatives. Decoded syndrome values and final runtime policy readback
 are absent.
+
+### Experiment 010 — the missing initializer boundary
 
 Host-only Experiment 010 now resolves the missing initializer boundary.
 QHEE's exact `hyp_assign` intercept enforces ownership through its local
@@ -67,6 +82,8 @@ precedence, live instance selection, the final DRAM transform, and
 post-transform protection ordering remain `UNKNOWN`; this is not Class A/B
 closure of the overall AMD attack class.
 
+### Experiment 011 — the XBL Quest DDR diagnostic formula
+
 Host-only Experiment 011 recovers an exact XBL Quest DDR diagnostic formula.
 For the retained 6-GiB topology its rank boundary is `0x140000000`, exactly
 the selected remapper row's rank-1 destination. Rank-relative PA bits map
@@ -76,12 +93,16 @@ sets whose base tokens match SHRM-visible MCCC/MC/DDRSS pages. Hidden hardware
 transform state, token semantics, mutability, and protection ordering remain
 `UNKNOWN`; no alias or bypass has been observed.
 
+### Experiment 012 — the Xtensa SHRM section-16 consumer
+
 Host-only Experiment 012 then recovers the exact Xtensa SHRM section-16
 consumer. Its helper computes `(base_page << 12) + (offset_token << 2)` and
 reads each 32-bit register into a SHRM snapshot buffer. Both exact callsites
 pass the read direction; the selected lists produce 430 and 64 register-word
 reads and no transform-write stream. Runtime register values and any indirect
 reverse-direction path remain `UNKNOWN`.
+
+### Experiment 013 — the SHRM snapshot workspace inside TZ-owned regions
 
 Host-only Experiment 013 proves that the complete SHRM snapshot workspace is
 inside three enabled, TZ-owned regions in both exact policy branches. The
@@ -96,6 +117,8 @@ selftest with zero failures. This blocks the tested direct EL1 snapshot path;
 it does not prove that XPU is the causal root or that no hidden transform
 exists.
 
+### Verification 001 — auditing the evidence chain itself
+
 Host-only Verification 001 then audited the evidence chain itself. Every
 `PROVED` statement here is one agent's interpretation of the exact bytes, and
 Experiments 008–013 consume 004/006 conclusions as pinned inputs, so an early
@@ -106,6 +129,8 @@ The audit also records a fact the experiments underweighted: the remapper and
 SHRM policy regions deny write to **every** client class, not merely to ordinary
 HLOS. It verifies static facts only, not their security interpretation.
 
+### Verification 002 — consumers beyond the blocked EL1 path
+
 Host-only Verification 002 traced consumers beyond the blocked EL1 path.
 Exact XBL contains and actively enumerates a 26-record crash/download raw-dump
 table whose index 19 exports the full `0x09060000..0x0906ffff` SHRM range as
@@ -114,6 +139,8 @@ export path exists,” but does **not** prove a normal Android/HLOS interface. A
 read-only mounted-SD check found neither `SHRM_MEM.BIN` nor `rawdump.bin`; the
 exact A90 firmware used here remains the private Experiment-004 live capture,
 not an SD-card artifact.
+
+### Live Verifications 003/004 — the property-free A90 eligibility counterpart
 
 Live Verifications 003/004 implemented the property-free A90 eligibility
 counterpart. Exact V2321 reported `debug_level=LOW`, `force_upload=0`, and the
@@ -145,6 +172,8 @@ audit of the real SHRM snapshot and all nine exact firmware images finds no
 direct mask in SHRM and refutes the apparent TrustZone matches as unaligned
 bytes inside 64-bit address tables.
 
+### Experiment 017 — the XBL MC address table against the SHRM plan
+
 Host-only Experiment 017 now cross-references the exact XBL MC address table
 with the SHRM plan and the exact `0x54`-byte helper's static data flow. The pinned table
 has 122 nonzero u64 addresses plus a zero terminator, structurally 30 four-
@@ -158,6 +187,8 @@ candidate-register writer. The loops are zero-sentinel-only with no hard
 Experiments 015 (normal-RAM alias) and 016 (protected-boundary reach) remain
 reserved and `NOT ELIGIBLE`; 017 satisfies neither gate. The overall result
 remains Class C transform observation only.
+
+### Experiment 018 Stage 1A — XBL literals and strict store-offset candidates
 
 Host-only Experiment 018 Stage 1A inventories the exact XBL literals and
 strict STR W/X store-offset candidates for the 12 ranked MC targets. Each
@@ -221,6 +252,8 @@ classification is
 Experiment 018 broadens no AOP/TZ scope and does not satisfy reserved/`NOT
 ELIGIBLE` Experiments 015 or 016. See [Experiment 018](experiments/018-xbl-mc-writer-xref/README.md).
 
+### Experiments 019–022 — four bounded extensions of the static boundary
+
 Host-only Experiments 019–022 now extend the static boundary with four
 strictly bounded results. Experiment 019 proves only strict syntactic
 candidate address/offset-value pair arrays in two key domains, not register
@@ -252,6 +285,8 @@ comparable to Experiment 014, PA provenance is missing, and its full GF(2)
 matrix is non-unique. `PA24=b1^b2` is `SUPPORTED` only; raw evidence remains
 private. Experiment 023R is the separately repaired result described below.
 
+### Experiment 024 — the exact XBL six-byte walker
+
 Experiment 024 is `COMPLETED` and integrated. `PROVED`: the exact
 `[0x148689a0,0x14868a64)` six-byte XBL walker has the `0x8000` terminator,
 `B.EQ` return-before-store, and a conditional 32-bit store of the
@@ -268,6 +303,8 @@ subset, flag semantics, live-DTB equality, DCB semantic alias/global
 consumer/writer, DDR/MC relation, GF(2), and alias/bypass. All mappings are
 conditional symbolic supersets, not current destinations. Class C is
 unchanged; Experiments 015/016 remain `NOT ELIGIBLE`.
+
+### Experiment 025 — the platform-query helper and its caller context
 
 Experiment 025 is `COMPLETED` and integrated from commit `d743150` (parent
 `a68d2f1`). `PROVED`: the exact platform-query helper
@@ -291,6 +328,8 @@ currentness, and live mapping/authority. Experiment 024's UFS mapping remains
 conditional; Class C is unchanged and Experiments 015/016 remain
 `NOT ELIGIBLE`. See the
 [Experiment 025 integration review](docs/EXP025_INTEGRATION_REVIEW_2026-08-26.md).
+
+### Experiment 026 — registration helpers, initializer loop and table header
 
 Experiment 026 is `COMPLETED` and integrated from commit `0305a03` as
 host-only, read-only static analysis. `PROVED`: independently pinned
@@ -342,6 +381,8 @@ byte-compilation, 67 public JSON manifests parsed, two fresh byte-identical
 generations, public safety/no-clobber checks, and independent hostile review
 `PASS` after fixes; see the [Experiment 027 integration review](docs/EXP027_INTEGRATION_REVIEW_2026-08-26.md).
 
+### Experiment 029 — inventory of the 71 fail-closed site ranges
+
 Experiment 029 is `COMPLETED` and integrated from commit `a495bdc` as a
 host-only, read-only inventory of the 71 exact Experiment 027 fail-closed site
 ranges. It proves 1,992 range occurrences / 1,180 unique VAs in the scanned
@@ -352,6 +393,8 @@ frontier. The four syntactic extension families rank as
 explicitly `UNKNOWN`/`NOT_CLAIMED`. Its integration review records 17 focused
 and 633 full unittest PASS in 84.985 s, 68 public JSON manifests, deterministic
 repetition, and final hostile review `PASS`.
+
+### Experiment 031 — the source-qualified scalar-plus-dispatch follow-up
 
 Experiment 031 is `COMPLETED` and integrated from artifact commits `cd9f26e`
 plus reconciliation repair `12a8ebe` as the source-qualified
@@ -372,6 +415,8 @@ SHA-256 `51a187195c16eb609d337305540fc6d20a09297f5ab76b054497c5c58c3a2e86`.
 See the
 [Experiment 031 integration review](docs/EXP031_INTEGRATION_REVIEW_2026-08-26.md).
 
+### Experiment 032 — the source-qualified arithmetic extension
+
 Experiment 032 is `COMPLETED` and integrated from artifact commit `d46c44c`
 after docs commit `e063181` as a host-only, read-only source-qualified
 arithmetic extension. It retains the exact 031 scalar-plus-dispatch semantics
@@ -389,6 +434,8 @@ The inherited 031 full-record equivalence is exact for 250 scalar events,
 MC/SHRM symbolic-target paths are promoted; writer absence and current
 destination remain `UNKNOWN`. Validation and artifact pins are recorded in the
 [Experiment 032 integration review](docs/EXP032_INTEGRATION_REVIEW_2026-08-26.md).
+
+### Experiment 033 — the v4 extension over the complete 029 frontier
 
 Experiment 033 is `COMPLETED` and integrated from artifact commit `56b5ffa` as
 a host-only, read-only v4 extension of the exact 032 model. The complete 029
@@ -414,6 +461,8 @@ maximum RSS 253,944 KiB and zero swap, byte-identical fresh publications,
 and independent hostile review `PASS` with no P0–P2 findings. Details and
 artifact pins are in
 [EXP033_INTEGRATION_REVIEW_2026-08-26.md](docs/EXP033_INTEGRATION_REVIEW_2026-08-26.md).
+
+### Experiment 034 — the guarded five-entry table and its direct edges
 
 Experiment 034 is `COMPLETED` in artifact commit `d5d8046`. It proves the
 guarded five-entry table at `0x14824cf0`, four unique local targets, and four
@@ -446,6 +495,8 @@ manifests are byte-identical/mode `0644`, and independent hostile review is
 [the external-line reconciliation](docs/EXTERNAL_LINE_RECONCILIATION_2026-08-26.md).
 Class C and Experiments 015/016 eligibility remain unchanged.
 
+### Verification 015 — runtime invariance repaired from retained inputs
+
 Verification 015 runtime invariance is now repaired and integrated from exact
 retained inputs rather than by merging the later branch. `PROVED` in
 allocation-offset/model coordinates: six condition-labelled 51-key sets, four
@@ -468,6 +519,8 @@ not establish a DDR clock transition.  The sanitized amendment is
 and [reviewed](docs/VERIFICATION015_BUS_VOTE_AMENDMENT_2026-08-27.md); its
 manifest is 5,686 bytes, SHA-256
 `066d8fc708c5652cb53abfc78e4286b06ea9ec100cffeef5a10240420fb8582b`.
+
+### Verification 016 — independent repair from three retained raw files
 
 Verification 016 is now independently repaired from three exact retained raw
 files. `PROVED` in allocation-offset/model coordinates: independent model-bit
@@ -521,6 +574,8 @@ The handoff and independent response remain in
 and
 [docs/ROUTE2_TERMINATION_RESPONSE_2026-08-27.md](docs/ROUTE2_TERMINATION_RESPONSE_2026-08-27.md).
 
+### Verification 019 — integration with retained raw receipts
+
 Verification 019 is now integrated with retained raw receipts.  The original
 and an independent second deep-suspend run each passed the baseline and
 suspend-corroboration gates, and each reports 0 of 4,194,304 tags moved after
@@ -533,6 +588,8 @@ retained as `SUSPEND_NOT_REACHED`, not an invariance result.  See the
 [V019 integration review](docs/VERIFICATION019_INTEGRATION_REVIEW_2026-08-27.md),
 [retention review](docs/VERIFICATION019_RAW_RETENTION_2026-08-27.md), and
 [public manifest](evidence/manifests/verification-019-suspend-permutation-20260827-01.manifest.json).
+
+### Verification 020 — the allocation-size gate, actually surveyed
 
 Verification 020 measured the allocation-size gate that had previously been
 asserted without a retained survey.  The attempted non-secure heaps are
@@ -549,6 +606,8 @@ remains `UNKNOWN`.  See
 and [its integration review](docs/VERIFICATION020_HEAP_CAPACITY_INTEGRATION_REVIEW_2026-08-27.md),
 plus [its public manifest](evidence/manifests/verification-020-heap-capacity-20260827-01.manifest.json).
 
+### Verification 020M — live read-only precondition snapshot for the PA28 test
+
 Verification 020M is the live read-only precondition snapshot for that PA28
 test.  On the exact A90/SM8150 runtime, heap 30 reported `reg=0x1e` and
 `memory-region=0x67a`; `camera_mem_region` reported the same phandle and
@@ -558,6 +617,8 @@ chain, not that an allocation consumes the entire carveout or that any DRAM
 mapping changed.  Class C and `NOT_ELIGIBLE` are unchanged.  See the
 [020M review](docs/VERIFICATION020M_INTEGRATION_REVIEW_2026-08-27.md) and
 [manifest](evidence/manifests/verification-020m-pa28-dt-20260827-03.manifest.json).
+
+### Verification 021 — residual heap capacity, without mapping its contents
 
 Verification 021 measured the residual capacity of the selected heap without
 mapping or touching its contents.  The retained receipt holds 320 MiB from
@@ -572,6 +633,8 @@ DRAM coordinates and protection remain `UNKNOWN`.  See the
 [experiment record](experiments/verification-021-carveout-exhaustion/README.md)
 and [redacted manifest](evidence/manifests/verification-021-carveout-exhaustion-20260827-01.manifest.json).
 
+### Verification 020N — the separate host-only timing design
+
 Verification 020N remains a separate host-only timing design; the retained
 PA28 acquisition is reduced under Verification 022 below.
 Its fixed no-argument probe allocates 320 MiB from heap 30 and measures the
@@ -581,6 +644,8 @@ does not claim a live timing result or physical alias; classification remains
 `CLASS C (TRANSFORM ONLY)` / `NOT_ELIGIBLE`.  See the
 [020N contract](docs/VERIFICATION020N_CONTRACT_2026-08-27.md) and
 [experiment design](experiments/verification-020N-pa28-timing/README.md).
+
+### Verification 022 — reducing the retained PA28 timing receipts
 
 Verification 022 has now reduced the retained PA28 timing receipts with a
 strict host-only path.  The canonical existence and identification phases
@@ -598,6 +663,8 @@ unchanged.  See the [022 experiment record](experiments/verification-022-pa28-re
 [integration review](docs/VERIFICATION022_INTEGRATION_REVIEW_2026-08-27.md) and
 [redacted manifest](evidence/manifests/verification-022-pa28-relation-20260827-01.manifest.json)
 (`6,698` bytes, SHA-256 `f583bd4f4fe30ad4822832e708edd87e2e049333f2a6c0cf014467b5a33bc2d2`).
+
+### Verification 022R — repeating identification on the exact V2321 runtime
 
 Verification 022R then repeated the identification measurement on the exact
 `SM-A908N`/`SM8150` V2321 runtime with complete same-run provenance. One fixed
@@ -634,6 +701,8 @@ focused validation is 9/9 PASS and no device action occurred. The
 is retained as historical provenance; its HLOS interpretation is superseded by
 the [current report](docs/FINAL_REPORT_2026-08-29.md).
 
+### Verification 020A — the candidate setter's argument origin
+
 Verification 020A then traced the exact candidate setter's argument origin in
 the retained XBL.  The five static stores contain one `XZR` zero and four
 incoming-object fields; the sole direct caller at `0x9fc023f0` supplies
@@ -647,6 +716,8 @@ and the sanitized
 [020A manifest](evidence/manifests/020A-setter-base-trace-20260827-01.manifest.json).
 The 020A focused suite is 9/9 and the full serial suite is 1,160/1,160 PASS
 (`skipped=1`, no swaps); hostile review is `PASS`.
+
+### Verification 020B — the sole direct caller at `0x9fc023c8`
 
 Verification 020B then traced the sole direct caller of the 020A consumer at
 `0x9fc023c8`.  The exact caller obtains an opaque `X0` token from
@@ -667,6 +738,8 @@ The focused suite is 7/7 and the full serial suite is 1,167/1,167 PASS
 candidate is a bounded static trace of the `0x9fc160b8` return helper, with
 runtime execution and all indirect paths still `UNKNOWN`.
 
+### Verification 020C — the return helper itself
+
 Verification 020C traced that return helper itself.  Its exact 12-byte body is
 `ADRP X0,0x9fc36000; ADD X0,#0x2c0; RET`, producing static ELF VADDR
 `0x9fc362c0`; an executable census finds exactly two direct callers,
@@ -684,6 +757,8 @@ The focused suite is 6/6 and the full serial suite is 1,173/1,173 PASS
 (`skipped=1`, no swaps); no device action occurred.  The next candidate is a
 bounded trace of the second helper caller at `0x9fc26e2c`.
 
+### Verification 020D — the second caller
+
 Verification 020D traced that second caller.  It loads object fields
 `+0x28,+0x30,+0x38,+0x0c,+0x18,+0x20` and stores symbolic origins to static
 ELF slots `0x9fc3e138`, `0x9fc3e140`, `0x9fc3e148`, `0x9fc3e150`,
@@ -697,6 +772,8 @@ The 020D experiment, review and manifest are
 The focused suite is 6/6 and the full serial suite is 1,179/1,179 PASS
 (`skipped=1`, no swaps); no device action occurred.  The next candidate is a
 bounded consumer/writer census for those six static slots.
+
+### Verification 020E — completing the census
 
 Verification 020E completed that census.  The exact XBL contains 18 unique
 direct scalar accesses to the six slots (6 `STR` stores and 12 `LDR` loads).
@@ -714,6 +791,8 @@ The focused suite is 7/7 and the full serial suite is 1,186/1,186 PASS
 (`skipped=1`, no swaps); no device action occurred.  The next candidate is a
 bounded load-use trace (020F).
 
+### Verification 020F — the bounded load-use trace
+
 Verification 020F completed the bounded load-use trace.  Each of the twelve
 020E loads was followed for 16 instructions in its same executable segment.
 The model records 16 downstream use events (10 address-base, 2 arithmetic, 2
@@ -730,6 +809,8 @@ mutability, protected reach and alias/bypass remain `UNKNOWN`; Class C and
 The focused suite is 9/9 and the full serial suite is 1,195/1,195 PASS
 (`skipped=1`, no swaps); no device action occurred.  The next candidate is a
 bounded pointer/object resolution trace (020G).
+
+### Verification 020G — pointer/object census over the 020F address-use events
 
 Verification 020G completed the bounded pointer/object census over the exact
 020F address-use events.  It retains 12 witnesses: 10 immediate object-field
@@ -750,6 +831,8 @@ Focused tests are 10/10 and the full serial suite is 1,205/1,205 PASS
 (`skipped=1`) in 134.596 seconds, maximum RSS 347,740 KiB, zero swap.  The
 next candidate is a bounded static-slot function-role/base-origin trace
 (020H).
+
+### Verification 020H — function-role/base-origin census over the 020G witnesses
 
 Verification 020H completed the bounded function-role/base-origin census over
 the exact 020G witnesses.  Twelve witness rows group into 11 unique access
@@ -772,6 +855,8 @@ Focused tests are 11/11 and the full serial suite is 1,216/1,216 PASS
 (`skipped=1`) in 140.860 seconds, maximum RSS 349,728 KiB, zero swap.  The
 next candidate is a bounded caller-context/entry-role trace (020I).
 
+### Verification 020I — caller-context census over the 20 direct-BL sources
+
 Verification 020I completed a bounded caller-context census over the exact 20
 direct-BL sources reported by 020H.  Each source/target edge was checked in
 the exact XBL and traced backward for at most 16 instructions, stopping at
@@ -793,6 +878,8 @@ Focused tests are 11/11 and the full serial suite is 1,227/1,227 PASS
 (`skipped=1`) in 151.571 seconds, maximum RSS 356,228 KiB, zero swap.  The
 next candidate is a bounded caller-context barrier/opcode inventory (020J).
 
+### Verification 020J — the non-overlapping follow-up
+
 Verification 020J completed that non-overlapping follow-up.  It re-derived the
 exact 12 unsupported 020I stops and inspected only each first stop word.  All
 12 stop VAs are unique and classify as ordinary strict ARM64 families:
@@ -810,6 +897,8 @@ The manifest is 7,657 bytes, mode `0644`, SHA-256
 Focused tests are 7/7 and the full serial suite is 1,234/1,234 PASS
 (`skipped=1`) in 164.114 seconds, maximum RSS 355,764 KiB, zero swap.  The
 next bounded result is recorded below.
+
+### Verification 020K — the operand/target follow-up
 
 Verification 020K completed the non-overlapping operand/target follow-up.  It
 re-derived the exact 12 020J unsupported stops and decoded one word per stop:
@@ -833,6 +922,8 @@ independent hostile review is `PASS`.  The next discriminator is 020L, a
 one-word census of the unique conditional branch landing VAs, still
 host-only/read-only and without path continuation.
 
+### Verification 020L — the bounded landing-word census
+
 Verification 020L completed that bounded landing-word census.  It re-derived
 the exact seven unique conditional target VAs from 020K and inspected one word
 at each: ADRP x2, LDR_UNSIGNED x1, logical-immediate x2, MOV_REGISTER x1 and
@@ -847,6 +938,8 @@ tests are 7/7 PASS and no device action occurred.  See
 [the 020L review](docs/VERIFICATION020L_INTEGRATION_REVIEW_2026-08-27.md) and
 [manifest](evidence/manifests/020L-branch-target-landing-word-inventory-20260827-01.manifest.json).
 
+## Claim vocabulary
+
 Claim vocabulary is deliberately closed:
 
 - `PROVED`: directly demonstrated by named source, artifact, or repeated result.
@@ -855,10 +948,14 @@ Claim vocabulary is deliberately closed:
 - `UNKNOWN`: evidence is presently insufficient.
 - `REFUTED`: named evidence contradicts the claim.
 
+## Where to start
+
 Start with [STATUS.md](STATUS.md), then [docs/ARCHITECTURE_MAP.md](docs/ARCHITECTURE_MAP.md)
 and [docs/EXPERIMENT_MATRIX.md](docs/EXPERIMENT_MATRIX.md). The cache/VA/PTE/
 DMA/IOMMU controls for a future normal-RAM proof are specified in
 [docs/NORMAL_RAM_ALIAS_DESIGN.md](docs/NORMAL_RAM_ALIAS_DESIGN.md).
+
+## Evidence index
 
 Exact live `xbl/xbl_config/aop/devcfg/tz/hyp/abl` artifacts were acquired in
 Experiment 004. Raw bytes remain private; the first static reconstruction is in
@@ -939,6 +1036,8 @@ and
 [evidence/manifests/verification-018-a90-20260827-03.manifest.json](evidence/manifests/verification-018-a90-20260827-03.manifest.json).
 The integration and hostile-review record is
 [docs/VERIFICATION018_INTEGRATION_REVIEW_2026-08-27.md](docs/VERIFICATION018_INTEGRATION_REVIEW_2026-08-27.md).
+
+## Retained private material
 
 Raw dumps, device identifiers, boot/firmware images, and full transcripts are
 kept below `evidence/private/` and ignored by Git. Redacted hash manifests are
